@@ -5,8 +5,6 @@ services:
       dockerfile: ./apps/web/Dockerfile
     restart: always
     container_name: web
-    ports:
-      - "3000:3000"
     networks:
       - sitehaus-prod-network
 

@@ -4,6 +4,4 @@ sitehaus.dev {
 	tls sitehausdev@gmail.com
 
 	encode gzip
-
-	log /var/log/caddy/access.log
 }
