@@ -1,7 +1,11 @@
 sitehaus.dev {
 	reverse_proxy web:3000
-
 	tls sitehausdev@gmail.com
+	encode gzip
+}
 
+dashboard.sitehaus.dev {
+	reverse_proxy dashboard:3000
+	tls sitehausdev@gmail.com
 	encode gzip
 }

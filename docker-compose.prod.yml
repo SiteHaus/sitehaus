@@ -8,6 +8,15 @@ services:
     networks:
       - sitehaus-network
 
+  dashboard:
+    build:
+      context: .
+      dockerfile: ./apps/dashboard/Dockerfile
+    restart: always
+    container_name: dashboard
+    networks:
+      - sitehaus-network
+
   caddy:
     image: caddy:2.10.0-alpine
     container_name: caddy
