@@ -1,0 +1,47 @@
+name: Deploy Sitehaus
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+  steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
+    - name: Setup PNPM
+      run: |
+        pnpm install -g pnpm
+
+    - name: Install Deps
+      run: pnpm i --frozen-lockfile
+
+    - name: Type Checking
+      run: pnpm check-types
+
+    - name: Build the application
+      run: pnpm build
+
+    - name: Build Docker Images
+      run: |
+        docker-compose -f docker-compose.prod.yml build
+
+    - name: Deploy to Droplet
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.DROPLET_IP }}
+        username: deploy
+        key: ${{ secrets.DEPLOY_SSH_KEY }}
+        script: |
+          cd /var/www/sitehaus || (mkdir -p /var/www/sitehaus && cd /var/www/sitehaus && git clone git@github.com:SiteHaus/sitehaus.git .)
+          git fetch origin main
+          git reset --hard origin/main
+          bash infra/create_network.sh
+          docker compose -f docker-compose.prod.yml up -d --build

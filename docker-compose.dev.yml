@@ -1,0 +1,20 @@
+services:
+  db:
+    image: "mariadb:latest"
+    container_name: sitehaus-db
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - sitehaus-prod-network
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  sitehaus-prod-network:
+    external: true

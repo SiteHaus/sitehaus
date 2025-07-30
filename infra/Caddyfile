@@ -1,0 +1,9 @@
+sitehaus.dev {
+	reverse_proxy client:6969
+
+	tls sitehausdev@gmail.com
+
+	encode gzip
+
+	log /var/log/caddy/access.log
+}

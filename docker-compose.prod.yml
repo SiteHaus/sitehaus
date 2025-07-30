@@ -1,0 +1,39 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    restart: always
+    container_name: web
+    ports:
+      - "3000:3000"
+    networks:
+      - sitehaus-prod-network
+
+  caddy:
+    image: caddy:2.10.0-alpine
+    container_name: caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - sitehaus-prod-network
+    env_file:
+      - .env
+    depends_on:
+      - web
+
+networks:
+  sitehaus-prod-network:
+    external: true
+
+volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
