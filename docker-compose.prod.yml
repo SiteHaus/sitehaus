@@ -6,7 +6,7 @@ services:
     restart: always
     container_name: web
     networks:
-      - sitehaus-prod-network
+      - sitehaus-network
 
   caddy:
     image: caddy:2.10.0-alpine
@@ -20,15 +20,15 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - sitehaus-prod-network
+      - sitehaus-network
     env_file:
       - .env
     depends_on:
       - web
 
 networks:
-  sitehaus-prod-network:
-    external: true
+  sitehaus-network:
+    driver: bridge
 
 volumes:
   caddy_data:
