@@ -1,5 +1,5 @@
 sitehaus.dev {
-	reverse_proxy client:6969
+	reverse_proxy web:3000
 
 	tls sitehausdev@gmail.com
 
