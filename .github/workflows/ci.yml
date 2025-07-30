@@ -16,9 +16,11 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
-      - name: Setup PNPM
-        run: |
-          pnpm install -g pnpm
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+          run_install: false
 
       - name: Install Deps
         run: pnpm i --frozen-lockfile
