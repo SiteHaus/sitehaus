@@ -34,6 +34,7 @@ services:
       - .env
     depends_on:
       - web
+      - dashboard
 
 networks:
   sitehaus-network:
