@@ -1,0 +1,11 @@
+{
+  "extends": "@site-haus/typescript-config/react-library.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@site-haus/ui/*": ["./src/"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
