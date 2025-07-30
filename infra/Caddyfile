@@ -9,3 +9,9 @@ dashboard.sitehaus.dev {
 	tls sitehausdev@gmail.com
 	encode gzip
 }
+
+iam.sitehaus.dev {
+	reverse_proxy iam:3000
+	tls sitehausdev@gmail.com
+	encode gzip
+}
