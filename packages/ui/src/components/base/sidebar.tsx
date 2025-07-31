@@ -5,23 +5,23 @@ import { cva, VariantProps } from "class-variance-authority";
 import { PanelLeftIcon } from "lucide-react";
 import * as React from "react";
 
-import { Button } from "@site-haus/ui/components/base/button";
-import { Input } from "@site-haus/ui/components/base/input";
-import { Separator } from "@site-haus/ui/components/base/separator";
+import { Button } from "@site-haus/ui/base/components/button";
+import { Input } from "@site-haus/ui/base/components/input";
+import { Separator } from "@site-haus/ui/base/components/separator";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@site-haus/ui/components/base/sheet";
-import { Skeleton } from "@site-haus/ui/components/base/skeleton";
+} from "@site-haus/ui/base/components/sheet";
+import { Skeleton } from "@site-haus/ui/base/components/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@site-haus/ui/components/base/tooltip";
+} from "@site-haus/ui/base/components/tooltip";
 import { useIsMobile } from "@site-haus/ui/hooks/use-mobile";
 import { cn } from "@site-haus/ui/lib/utils";
 
