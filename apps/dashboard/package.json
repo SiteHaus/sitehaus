@@ -4,13 +4,15 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack --port 3000",
+    "dev": "next dev --turbopack --port 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@site-haus/ui": "workspace:*",
+    "@site-haus/db": "workspace:*",
     "next": "^15.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
@@ -18,10 +20,12 @@
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^22.15.3",
     "@types/react": "19.1.0",
     "@types/react-dom": "19.1.1",
     "eslint": "^9.31.0",
+    "tailwindcss": "^4.1.11",
     "typescript": "5.8.2"
   }
 }

@@ -1,0 +1,11 @@
+{
+  "extends": "@site-haus/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@site-haus/db/*": ["./src/"]
+    }
+  },
+  "include": ["src", "drizzle.config.ts"],
+  "exclude": ["node_modules"]
+}
