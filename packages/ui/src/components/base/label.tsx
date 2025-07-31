@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import * as LabelPrimitive from "@radix-ui/react-label"
+import * as LabelPrimitive from "@radix-ui/react-label";
+import * as React from "react";
 
-import { cn } from "@site-haus/ui/lib/utils"
+import { cn } from "@site-haus/ui/lib/utils";
 
 function Label({
   className,
@@ -18,7 +18,7 @@ function Label({
       )}
       {...props}
     />
-  )
+  );
 }
 
-export { Label }
+export { Label };
