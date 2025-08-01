@@ -1,6 +1,7 @@
-import { db, otpsTable } from "@site-haus/db"; // adjust path
-import { eq } from "drizzle-orm";
+import { db } from "@site-haus/db/src";
+import { otpsTable } from "@site-haus/db/src/core/schema";
 import bcrypt from "bcrypt";
+import { eq } from "drizzle-orm";
 
 export async function generateOTP(userId: string) {
   const otp = generateRandomOTP(); // e.g., "938473"

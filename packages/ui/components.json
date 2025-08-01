@@ -13,9 +13,9 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@site-haus/ui/components",
+    "ui": "@site-haus/ui/components/base",
     "utils": "@site-haus/ui/lib/utils",
     "hooks": "@site-haus/ui/hooks",
-    "lib": "@site-haus/ui/lib",
-    "ui": "@site-haus/ui/base/components"
+    "lib": "@site-haus/ui/lib"
   }
 }
