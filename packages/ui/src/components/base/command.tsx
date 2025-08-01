@@ -10,7 +10,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@site-haus/ui/base/components/dialog";
+} from "@site-haus/ui/components/base/dialog";
 import { cn } from "@site-haus/ui/lib/utils";
 
 function Command({
