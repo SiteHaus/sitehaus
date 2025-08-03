@@ -3,9 +3,9 @@ name: Discord Notify
 on:
   push:
     branches:
-      - "**"
+      - "**" # all branches, or specify e.g. main
   pull_request:
-    types: [opened, closed, reopened, synchronized]
+    types: [opened, closed, reopened, synchronized] # specify PR events you want
 
 jobs:
   notify:
@@ -20,4 +20,4 @@ jobs:
 
             ${{ github.event_name == 'push' && 'Pushed to branch: ' }}${{ github.ref_name }}
 
-            ${{ github.event_name == 'pull_request' && 'Pull request #' }}${{ github.event.number }} ${{ github.event.action }}
+            ${{ github.event_name == 'pull_request' ? 'Pull request #' : '' }}${{ github.event_name == 'pull_request' ? github.event.number : '' }} ${{ github.event_name == 'pull_request' ? github.event.action : '' }}
