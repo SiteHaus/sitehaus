@@ -18,6 +18,6 @@ jobs:
           content: |
             ${{ github.actor }} triggered a ${{ github.event_name }} event.
 
-            ${{ github.event_name == 'push' && 'Pushed to branch: ' + github.ref_name || '' }}
+            ${{ github.event_name == 'push' && 'Pushed to branch: ' }}${{ github.ref_name }}
 
-            ${{ github.event_name == 'pull_request' && 'Pull request #' + github.event.number + ' ' + github.event.action || '' }}
+            ${{ github.event_name == 'pull_request' && 'Pull request #' }}${{ github.event.number }} ${{ github.event.action }}
