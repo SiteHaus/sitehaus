@@ -19,9 +19,16 @@ const ThemeImage = (props: Props) => {
 
 export default function Home() {
   return (
-    <div>
-      <Button>Click Me!</Button>
+    <>
+      <ThemeImage
+        srcLight="/sitehaus.png"
+        srcDark="/sitehaus.png"
+        alt="SiteHaus logo"
+        width={200}
+        height={100}
+      />
+      <Button>Testing the discord webhook</Button>
       <Button variant="outline">Suck my cock shadcn/ui</Button>
-    </div>
+    </>
   );
 }
