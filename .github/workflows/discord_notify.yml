@@ -1,19 +1,13 @@
-name: Notify Discord on Push
+name: Discord Notify
 
-on:
-  push:
-    branches:
-      - "**" # Runs on pushes to all branches. Change to "main" if you only want main.
+on: [push]
 
 jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord notification
-        uses: Ilshidur/action-discord@master
+        uses: Ilshidur/discord-webhook@v1
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: |
-            📢 **${{ github.actor }}** pushed to **${{ github.ref_name }}**
-            👉 [View commit](${{ github.event.head_commit.url }})
-            📝 Message: _${{ github.event.head_commit.message }}_
+          message: "User ${{ github.actor }} pushed to ${{ github.ref_name }}!"
