@@ -6,8 +6,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord notification
-        uses: Ilshidur/discord-webhook@v1
+      - name: Send Discord Message
+        uses: tsickert/discord-webhook@v7.0.0
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           message: "User ${{ github.actor }} pushed to ${{ github.ref_name }}!"
