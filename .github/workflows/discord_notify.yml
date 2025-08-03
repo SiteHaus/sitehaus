@@ -9,5 +9,5 @@ jobs:
       - name: Send Discord Message
         uses: tsickert/discord-webhook@v7.0.0
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          message: "User ${{ github.actor }} pushed to ${{ github.ref_name }}!"
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: "User ${{ github.actor }} pushed to ${{ github.ref_name }}!"
