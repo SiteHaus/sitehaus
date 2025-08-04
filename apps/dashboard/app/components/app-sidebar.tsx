@@ -2,6 +2,11 @@
 
 import { Avatar, AvatarFallback } from "@site-haus/ui/components/base/avatar";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@site-haus/ui/components/base/collapsible";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
@@ -22,44 +27,192 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   useSidebar,
 } from "@site-haus/ui/components/base/sidebar";
 import {
   BadgeCheck,
   Bell,
-  Calendar,
+  ChevronRight,
   ChevronsUpDown,
+  Contact,
   CreditCard,
+  FolderKanban,
   Home,
   Library,
   LogOut,
+  LucideIcon,
   Plus,
   Settings,
   Sparkles,
+  Swords,
   Ticket,
+  Wrench,
 } from "lucide-react";
+import Link from "next/link";
 
-const items = [
+type SidebarMenuItem = {
+  title: string;
+  url: string;
+  icon?: LucideIcon;
+  isActive?: boolean;
+  subItems?: SidebarMenuItem[];
+  disabled: boolean;
+};
+
+const items: SidebarMenuItem[] = [
   {
     title: "Home",
     url: "#",
     icon: Home,
+    disabled: false,
+    isActive: false,
+  },
+  {
+    title: "Projects",
+    url: "#",
+    icon: FolderKanban,
+    disabled: false,
+    isActive: false,
+    subItems: [
+      {
+        title: "New Project",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "Design Assets",
+        url: "#",
+        disabled: true,
+      },
+      {
+        title: "Project Templates",
+        url: "#",
+        disabled: true,
+      },
+    ],
   },
   {
     title: "Tickets",
     url: "#",
     icon: Ticket,
+    disabled: false,
+    isActive: false,
+    subItems: [
+      {
+        title: "All Tickets",
+        url: "#",
+        disabled: true,
+      },
+      {
+        title: "Assigned To Me",
+        url: "#",
+        disabled: true,
+      },
+      {
+        title: "Ticket Categories",
+        url: "#",
+        disabled: true,
+      },
+    ],
   },
   {
-    title: "Projects",
+    title: "Clients",
     url: "#",
-    icon: Calendar,
+    icon: Contact,
+    disabled: false,
+    isActive: false,
+    subItems: [
+      {
+        title: "Client Directory",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "New Client",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "Billing Info",
+        url: "#",
+        disabled: false,
+      },
+    ],
   },
-
+  {
+    title: "Utilities",
+    url: "#",
+    icon: Wrench,
+    disabled: false,
+    isActive: false,
+    subItems: [
+      {
+        title: "Calendar",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "Automation Jobs",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "Forms & Surveys",
+        url: "#",
+        disabled: true,
+      },
+    ],
+  },
+  {
+    title: "Admin",
+    url: "#",
+    icon: Swords,
+    disabled: false,
+    isActive: false,
+    subItems: [
+      {
+        title: "User Management",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "Audit Logs",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "System Notifications",
+        url: "#",
+        disabled: false,
+      },
+    ],
+  },
   {
     title: "Settings",
     url: "#",
     icon: Settings,
+    disabled: false,
+    isActive: false,
+    subItems: [
+      {
+        title: "Company Info",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "Billing & Plans",
+        url: "#",
+        disabled: false,
+      },
+      {
+        title: "Integrations",
+        url: "#",
+        disabled: false,
+      },
+    ],
   },
 ];
 
@@ -78,7 +231,7 @@ export const AppSideBar = () => {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <Library className="size-4" />
+                    <FolderKanban className="size-4" />
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">Project 1</span>
@@ -94,7 +247,7 @@ export const AppSideBar = () => {
                 sideOffset={4}
               >
                 <DropdownMenuLabel className="text-muted-foreground text-xs">
-                  Teams
+                  Projects
                 </DropdownMenuLabel>
                 <DropdownMenuItem className="gap-2 p-2">
                   <div className="flex size-6 items-center justify-center rounded-md border">
@@ -108,7 +261,7 @@ export const AppSideBar = () => {
                     <Plus className="size-4" />
                   </div>
                   <div className="text-muted-foreground font-medium">
-                    Add team
+                    Add project
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -121,16 +274,54 @@ export const AppSideBar = () => {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) =>
+                item.subItems ? (
+                  <Collapsible
+                    key={item.title}
+                    asChild
+                    defaultOpen={item.isActive}
+                    className="group/collapsible"
+                  >
+                    <SidebarMenuItem key={item.title}>
+                      <CollapsibleTrigger asChild>
+                        <SidebarMenuButton tooltip={item.title} asChild>
+                          <Link href={item.url}>
+                            {item.icon && <item.icon />}
+                            <span>{item.title}</span>
+                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </Link>
+                        </SidebarMenuButton>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {item.subItems?.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild>
+                                <Link href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                ) : (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      tooltip={item.title}
+                      disabled={item.disabled}
+                      asChild
+                    >
+                      <Link href={item.url}>
+                        {item.icon && <item.icon />}
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

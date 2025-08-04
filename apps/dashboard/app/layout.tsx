@@ -4,19 +4,9 @@ import {
   SidebarTrigger,
 } from "@site-haus/ui/components/base/sidebar";
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import { AppSideBar } from "./components/app-sidebar";
 import "./globals.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
 
 export const metadata: Metadata = {
   title: "SiteHaus - Dashboard",
