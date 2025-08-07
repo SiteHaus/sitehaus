@@ -1,8 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import { Button } from "@site-haus/ui/components/base/button";
 import styles from "./page.module.css";
+import { useState, useEffect } from "react";
 
 export default function App() {
+  const [currentYear, setCurrentYear] = useState("");
+
+  useEffect(() => {
+    const year = new Date().getFullYear().toString();
+    setCurrentYear(year);
+  }, []);
+
   return (
     <div className={styles.page}>
       <div className={styles.main}>
@@ -26,11 +36,11 @@ export default function App() {
       </div>
 
       <div className={styles.footer}>
-        © 2025 SiteHaus. All rights reserved. SiteHaus and the SiteHaus logo
-        are trademarks or registered trademarks of SiteHaus, Inc. Unauthorized
-        use, reproduction, or distribution of any content, design elements, or
-        materials on this site is strictly prohibited without prior written
-        consent.
+        © {currentYear} SiteHaus. All rights reserved. SiteHaus and the
+        SiteHaus logo are trademarks or registered trademarks of SiteHaus, Inc.
+        Unauthorized use, reproduction, or distribution of any content, design
+        elements, or materials on this site is strictly prohibited without prior
+        written consent.
       </div>
     </div>
   );
