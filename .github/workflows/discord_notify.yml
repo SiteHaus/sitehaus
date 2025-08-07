@@ -1,0 +1,23 @@
+name: Discord Notify
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    types: [opened, closed, reopened, synchronized]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          content: |
+            ${{ github.actor }} triggered a ${{ github.event_name }} event.
+
+            ${{ github.event_name == 'push' && 'Pushed to branch: ' }}${{ github.ref_name }}
+
+            ${{ github.event_name == 'pull_request' && 'Pull request #' }}${{ github.event.number }} ${{ github.event.action }}
