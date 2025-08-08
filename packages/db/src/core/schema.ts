@@ -1,3 +1,9 @@
+import {
+  projectBillingStatusValues,
+  projectStatusValues,
+  projectTypeValues,
+  userRolesValues,
+} from "@site-haus/validation/core/enums";
 import { sql } from "drizzle-orm";
 import {
   boolean,
@@ -10,33 +16,13 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const rolesEnum = pgEnum("role", ["client", "admin", "staff"]);
-export const projectStatusEnum = pgEnum("project-status", [
-  "active",
-  "paused",
-  "submitted",
-  "reviewing",
-  "archived",
-]);
-export const projectTypeEnum = pgEnum("project-type", [
-  "ecommerce",
-  "saas",
-  "portfolio",
-  "marketing",
-  "landing_page",
-  "blog",
-  "internal_tool",
-  "web_app",
-  "rebuild",
-  "maintenance",
-  "other",
-]);
-export const projectBillingStatusEnum = pgEnum("project-type", [
-  "paid",
-  "outstanding",
-  "pending",
-  "late",
-]);
+export const rolesEnum = pgEnum("role", userRolesValues);
+export const projectStatusEnum = pgEnum("project-status", projectStatusValues);
+export const projectTypeEnum = pgEnum("project-type", projectTypeValues);
+export const projectBillingStatusEnum = pgEnum(
+  "project-type",
+  projectBillingStatusValues
+);
 
 export const usersTable = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
