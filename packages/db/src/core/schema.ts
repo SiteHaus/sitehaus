@@ -23,9 +23,12 @@ export const projectBillingStatusEnum = pgEnum(
   "project-type",
   projectBillingStatusValues
 );
+<<<<<<< HEAD
 
 export type User = typeof usersTable.$inferSelect;
 export type NewUser = typeof usersTable.$inferInsert;
+=======
+>>>>>>> 15a90a8 (:sparkles: Added more to the projects form.)
 
 export const usersTable = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
