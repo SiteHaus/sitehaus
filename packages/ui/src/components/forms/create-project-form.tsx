@@ -36,6 +36,7 @@ import {
 } from "@site-haus/validation/forms/project";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
 const projectStatusOptions = projectStatusEnum.options.map((value) => ({
@@ -52,6 +53,10 @@ const projectBillingStatusOptions = projectBillingStatusEnum.options.map(
     value,
   })
 );
+
+export const FormGroup = ({ children }: { children: ReactNode }) => {
+  return <div className="flex flex-col md:flex-row gap-2">{children}</div>;
+};
 
 export const CreateProjectForm = () => {
   const form = useForm<CreateProjectInput>({
@@ -92,7 +97,7 @@ export const CreateProjectForm = () => {
           >
             <h2 className="text-xl font-bold mb-6">General Project Details</h2>
 
-            <div className="flex gap-2">
+            <FormGroup>
               <FormField
                 control={form.control}
                 name="status"
@@ -120,11 +125,11 @@ export const CreateProjectForm = () => {
                   />
                 )}
               />
-            </div>
+            </FormGroup>
 
             <Separator className="my-4" />
 
-            <div className="flex gap-2">
+            <FormGroup>
               <FormField
                 control={form.control}
                 name="name"
@@ -151,7 +156,7 @@ export const CreateProjectForm = () => {
                   />
                 )}
               />
-            </div>
+            </FormGroup>
             <FormField
               control={form.control}
               name="description"
@@ -174,9 +179,9 @@ export const CreateProjectForm = () => {
             value="details"
             className="space-y-2 border p-4 rounded-xl shadow"
           >
-            <h2 className="text-xl font-bold mb-6">Domains</h2>
+            <h2 className="text-xl font-bold mb-6">More Project Details</h2>
 
-            <div className="flex gap-2">
+            <FormGroup>
               <FormField
                 control={form.control}
                 name="repoUrl"
@@ -218,11 +223,11 @@ export const CreateProjectForm = () => {
                   </FormItem>
                 )}
               />
-            </div>
+            </FormGroup>
 
-            <h2 className="text-xl font-bold mb-6">Dates</h2>
+            <Separator className="my-4" />
 
-            <div className="flex gap-2">
+            <FormGroup>
               <FormField
                 control={form.control}
                 name="startDate"
@@ -339,7 +344,7 @@ export const CreateProjectForm = () => {
                   </FormItem>
                 )}
               />
-            </div>
+            </FormGroup>
 
             <Button type="submit" className="mt-4">
               Submit

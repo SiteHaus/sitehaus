@@ -28,8 +28,8 @@ export default async function RootLayout({
           <AppSideBar />
           <SidebarInset>
             <main>
-              <SidebarTrigger className="ml-2 mt-2" />
-              <div>{children}</div>
+              <SidebarTrigger className="ml-6 lg:ml-2 mt-2" />
+              <div className="px-6 lg:px-0">{children}</div>
             </main>
           </SidebarInset>
         </SidebarProvider>

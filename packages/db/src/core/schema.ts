@@ -20,7 +20,7 @@ export const rolesEnum = pgEnum("role", userRolesValues);
 export const projectStatusEnum = pgEnum("project-status", projectStatusValues);
 export const projectTypeEnum = pgEnum("project-type", projectTypeValues);
 export const projectBillingStatusEnum = pgEnum(
-  "project-type",
+  "project-billing-status",
   projectBillingStatusValues
 );
 
