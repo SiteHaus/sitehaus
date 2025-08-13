@@ -20,6 +20,7 @@
   },
   "exports": {
     "./core/*": "./src/core/*.ts",
-    "./forms/*": "./src/forms/*.ts"
+    "./forms/*": "./src/forms/*.ts",
+    "./types": "./src/types.ts"
   }
 }
