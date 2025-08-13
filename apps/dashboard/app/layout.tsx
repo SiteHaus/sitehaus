@@ -5,7 +5,7 @@ import {
 } from "@site-haus/ui/components/base/sidebar";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { AppSideBar } from "./components/app-sidebar";
+import { AppSideBar } from "./components/sidebar/app-sidebar";
 import "./globals.css";
 
 export const metadata: Metadata = {
