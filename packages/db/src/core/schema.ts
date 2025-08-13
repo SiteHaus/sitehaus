@@ -21,6 +21,9 @@ export const usersTable = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export type User = typeof usersTable.$inferSelect;
+export type NewUser = typeof usersTable.$inferInsert;
+
 export const otpsTable = pgTable("otps", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
