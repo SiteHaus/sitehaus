@@ -5,7 +5,6 @@
 
   --button-primary-hover: #383838;
   --button-secondary-hover: #f2f2f2;
-
   display: grid;
   grid-template-rows: 20px 1fr 20px;
   align-items: center;
@@ -26,7 +25,6 @@
     --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
     --button-primary-hover: #a1a1aa;
     --button-secondary-hover: #27272a;
-
     background-color: #18181b;
     color: #e4e4e7;
   }
@@ -207,6 +205,7 @@ button.secondary {
   .page {
     padding: 32px;
     padding-bottom: 80px;
+    padding-top: env(safe-area-inset-top);
   }
 
   .flex {
