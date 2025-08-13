@@ -4,10 +4,7 @@
   "private": true,
   "dependencies": {
     "@site-haus/validation": "workspace:*",
-<<<<<<< HEAD
     "@radix-ui/react-collapsible": "^1.1.11",
-=======
->>>>>>> 360d7e3 (:sparkles: Added more to the projects form.)
     "@hookform/resolvers": "^5.2.1",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.3.2",

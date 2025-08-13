@@ -15,9 +15,6 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-<<<<<<< HEAD
-export const rolesEnum = pgEnum("role", ["client", "admin", "staff"]);
-=======
 export const rolesEnum = pgEnum("role", userRolesValues);
 export const projectStatusEnum = pgEnum("project-status", projectStatusValues);
 export const projectTypeEnum = pgEnum("project-type", projectTypeValues);
@@ -25,7 +22,6 @@ export const projectBillingStatusEnum = pgEnum(
   "project-type",
   projectBillingStatusValues
 );
->>>>>>> 360d7e3 (:sparkles: Added more to the projects form.)
 
 export const usersTable = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
