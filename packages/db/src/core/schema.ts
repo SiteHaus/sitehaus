@@ -23,6 +23,9 @@ export const projectBillingStatusEnum = pgEnum(
   projectBillingStatusValues
 );
 
+export type User = typeof usersTable.$inferSelect;
+export type NewUser = typeof usersTable.$inferInsert;
+
 export const usersTable = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   email: varchar("email", { length: 256 }).notNull().unique(),
@@ -32,9 +35,6 @@ export const usersTable = pgTable("users", {
   lastLogin: timestamp("last_login"),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
-export type User = typeof usersTable.$inferSelect;
-export type NewUser = typeof usersTable.$inferInsert;
 
 export const otpsTable = pgTable("otps", {
   id: uuid("id").defaultRandom().primaryKey(),
