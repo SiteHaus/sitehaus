@@ -21,6 +21,7 @@
   "exports": {
     "./core/*": "./src/core/*.ts",
     "./types": "./src/types.ts",
-    "./forms/*": "./src/forms/*.ts"
+    "./forms/*": "./src/forms/*.ts",
+    "./iam/*": "./src/iam/*.ts"
   }
 }

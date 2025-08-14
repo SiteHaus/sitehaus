@@ -4,8 +4,8 @@ import {
   projectsTable,
   projectStatusEnum,
   projectTypeEnum,
-  rolesEnum,
 } from "./core/schema.js";
+import { rolesEnum } from "./iam/users.js";
 
 export type UserRole = (typeof rolesEnum.enumValues)[number];
 export type Project = InferSelectModel<typeof projectsTable>;
