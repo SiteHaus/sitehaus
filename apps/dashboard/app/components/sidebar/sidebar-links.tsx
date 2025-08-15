@@ -40,7 +40,7 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
       },
       {
         title: "All Projects",
-        url: "#",
+        url: "/projects/all",
         disabled: false,
       },
       {
@@ -64,7 +64,7 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     subItems: [
       {
         title: "All Tickets",
-        url: "#",
+        url: "/tickets/all",
         disabled: true,
       },
       {
@@ -88,7 +88,7 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     subItems: [
       {
         title: "Client Directory",
-        url: "#",
+        url: "/clients/all",
         disabled: false,
       },
       {
@@ -170,7 +170,7 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
       },
       {
         title: "Integrations",
-        url: "#",
+        url: "/integrations",
         disabled: false,
       },
     ],
