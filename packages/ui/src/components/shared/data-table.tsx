@@ -9,6 +9,15 @@ import {
   TableCell,
 } from "@site-haus/ui/components/base/table";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@site-haus/ui/components/base/dialog";
+
 import { useState } from "react";
 
 function cleanValue(value: any, header: string): string {
@@ -78,10 +87,16 @@ export default function DataTable<T extends Record<string, any>>({
       </div>
 
       {selectedRow && (
-        <div className="fixed inset-0 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-xl max-w-lg w-full space-y-4">
-            <h3 className="text-xl font-semibold">Details</h3>
-            <div className="space-y-2">
+        <Dialog open={true} onOpenChange={() => setSelectedRow(null)}>
+          <DialogContent className="max-w-lg w-full">
+            <DialogHeader>
+              <DialogTitle>Details</DialogTitle>
+              <DialogDescription>
+                Information about the selected row
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2 py-4">
               {headers.map((header) => (
                 <div
                   key={String(header)}
@@ -94,16 +109,17 @@ export default function DataTable<T extends Record<string, any>>({
                 </div>
               ))}
             </div>
-            <div className="text-right">
+
+            <DialogFooter>
               <button
-                className="mt-4 px-4 py-2 rounded bg-black text-white hover:bg-gray-800"
                 onClick={() => setSelectedRow(null)}
+                className="px-4 py-2 rounded bg-black text-white hover:bg-gray-800"
               >
                 Close
               </button>
-            </div>
-          </div>
-        </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
