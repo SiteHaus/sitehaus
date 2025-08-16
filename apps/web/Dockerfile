@@ -3,13 +3,14 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN apk add --no-cache libc6-compat && \
     corepack enable && \
-    corepack prepare pnpm@10.14.0 --activate
+    corepack prepare pnpm@10.14.0 --activate && \
+    pnpm add -g turbo@^2
  
 FROM base AS builder
 RUN apk add --no-cache openssl
 WORKDIR /app
 COPY . .
-RUN pnpm turbo prune web --docker
+RUN turbo prune web --docker
  
 FROM base AS installer
 WORKDIR /app
@@ -22,7 +23,7 @@ RUN pnpm install --frozen-lockfile
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
  
-RUN pnpm turbo run build --filter=web...
+RUN turbo run build --filter=web...
  
 FROM node:20-alpine AS runner
 WORKDIR /app
