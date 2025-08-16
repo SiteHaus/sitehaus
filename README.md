@@ -1,8 +1,13 @@
 # Site Haus
 
-[![CodeQL](https://github.com/SiteHaus/sitehaus/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/SiteHaus/sitehaus/actions/workflows/github-code-scanning/codeql)
-
-[![Production Build](https://github.com/SiteHaus/sitehaus/actions/workflows/ci.yml/badge.svg)](https://github.com/SiteHaus/sitehaus/actions/workflows/ci.yml)
+<div align="left" style="display: flex; gap: 8px;">
+  <a href="https://github.com/SiteHaus/sitehaus/actions/workflows/github-code-scanning/codeql">
+    <img src="https://github.com/SiteHaus/sitehaus/actions/workflows/github-code-scanning/codeql/badge.svg" alt="CodeQL" />
+  </a>
+  <a href="https://github.com/SiteHaus/sitehaus/actions/workflows/ci.yml">
+    <img src="https://github.com/SiteHaus/sitehaus/actions/workflows/ci.yml/badge.svg" alt="CI/CD" />
+  </a>
+</div>
 
 A full-stack monorepo for SiteHaus projects. Built with **Next.js, NestJS, Turborepo, TypeScript, Docker, and PostgreSQL**.
 
