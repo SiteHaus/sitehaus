@@ -15,6 +15,14 @@ services:
     networks:
       - sitehaus-network
 
+  iam:
+    build:
+      context: .
+      dockerfile: ./apps/iam/Dockerfile
+    restart: always
+    networks:
+      - sitehaus-network
+
   caddy:
     image: caddy:2.10.0-alpine
     restart: always
@@ -32,6 +40,7 @@ services:
     depends_on:
       - web
       - dashboard
+      - iam
 
 networks:
   sitehaus-network:
