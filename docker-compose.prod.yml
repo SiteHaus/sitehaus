@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile
+      args: { APP_NAME: web }
     restart: always
     networks:
       - sitehaus-network
@@ -11,6 +12,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/dashboard/Dockerfile
+      args: { APP_NAME: dashboard }
     restart: always
     networks:
       - sitehaus-network
@@ -19,6 +21,7 @@ services:
     build:
       context: .
       dockerfile: ./apps/iam/Dockerfile
+      args: { APP_NAME: iam }
     restart: always
     networks:
       - sitehaus-network

@@ -30,31 +30,14 @@ jobs:
           node-version: "20"
           cache: "pnpm"
 
-      - name: Enable Corepack & pin pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.14.0 --activate
-          pnpm --version
-
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
       - name: Type check
-        run: pnpm check-types
+        run: pnpm turbo run check-types --cache-dir=.turbo
 
       - name: Build workspace
-        run: pnpm build
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Install docker-compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      - name: Build Docker images
-        run: docker compose -f docker-compose.prod.yml build
+        run: pnpm turbo run build --cache-dir=.turbo
 
       - name: Deploy to Droplet
         uses: appleboy/ssh-action@master
@@ -63,8 +46,18 @@ jobs:
           username: deploy
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            cd /var/www/sitehaus || (mkdir -p /var/www/sitehaus && cd /var/www/sitehaus && git clone git@github.com:SiteHaus/sitehaus.git .)
-            git fetch origin main
-            git reset --hard origin/main
+            set -euo pipefail
+            export DOCKER_BUILDKIT=1
+            export COMPOSE_DOCKER_CLI_BUILD=1
+
+            sudo mkdir -p /var/www/sitehaus
+            cd /var/www/sitehaus || exit 1
+            if [ ! -d .git ]; then
+              git clone --depth 1 https://github.com/SiteHaus/sitehaus.git .
+            else
+              git fetch origin main
+              git reset --hard origin/main
+            fi
+
             bash infra/create_network.sh
-            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
