@@ -15,3 +15,9 @@ iam.sitehaus.dev {
 	tls sitehausdev@gmail.com
 	encode gzip
 }
+
+api.sitehaus.dev {
+	reverse_proxy api:3000
+	tls sitehausdev@gmail.com
+	encode gzip
+}
