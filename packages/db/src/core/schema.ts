@@ -1,3 +1,4 @@
+import { usersTable } from "@site-haus/db/iam/schema";
 import {
   projectBillingStatusValues,
   projectStatusValues,
@@ -15,7 +16,6 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { usersTable } from "src/iam/schema.js";
 
 export const projectStatusEnum = pgEnum("project-status", projectStatusValues);
 export const projectTypeEnum = pgEnum("project-type", projectTypeValues);
