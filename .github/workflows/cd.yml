@@ -53,11 +53,6 @@ jobs:
 
             cd /var/www/sitehaus
 
-            git fetch --prune origin main
-            git reset --hard origin/main
-
-            git clean -xfd
-
-            bash infra/create_network.sh
+            git fetch origin main
 
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
