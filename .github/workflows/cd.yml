@@ -47,17 +47,17 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             set -euo pipefail
+
             export DOCKER_BUILDKIT=1
             export COMPOSE_DOCKER_CLI_BUILD=1
 
-            sudo mkdir -p /var/www/sitehaus
-            cd /var/www/sitehaus || exit 1
-            if [ ! -d .git ]; then
-              git clone --depth 1 https://github.com/SiteHaus/sitehaus.git .
-            else
-              git fetch origin main
-              git reset --hard origin/main
-            fi
+            cd /var/www/sitehaus
+
+            git fetch --prune origin main
+            git reset --hard origin/main
+
+            git clean -xfd
 
             bash infra/create_network.sh
+
             docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
