@@ -19,6 +19,7 @@ import {
 
 export const rolesEnum = pgEnum("role", userRolesValues);
 export const userStatusEnum = pgEnum("user-status", userStatusValues);
+export const otpPurposeEnum = pgEnum("user-status", userStatusValues);
 
 export const usersTable = pgTable(
   "users",
