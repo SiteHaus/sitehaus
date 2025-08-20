@@ -1,4 +1,3 @@
-import { usersTable } from "@site-haus/db/iam/schema";
 import {
   projectBillingStatusValues,
   projectStatusValues,
@@ -6,16 +5,14 @@ import {
 } from "@site-haus/validation/core/enums";
 import {
   boolean,
-  index,
   integer,
-  jsonb,
   pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
-  varchar,
 } from "drizzle-orm/pg-core";
+import { usersTable } from "src/iam/users.js";
 
 export const projectStatusEnum = pgEnum("project_status", projectStatusValues);
 export const projectTypeEnum = pgEnum("project_type", projectTypeValues);
@@ -24,30 +21,9 @@ export const projectBillingStatusEnum = pgEnum(
   projectBillingStatusValues
 );
 
-export const auditLogTable = pgTable(
-  "audit_log",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id").references(() => usersTable.id, {
-      onDelete: "set null",
-    }),
-    action: varchar("action", { length: 64 }).notNull(),
-    targetType: varchar("target_type", { length: 32 }),
-    targetId: uuid("target_id"),
-    ipHash: varchar("ip_hash", { length: 64 }),
-    uaHash: varchar("ua_hash", { length: 64 }),
-    meta: jsonb("meta"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-  },
-  (t) => [
-    index("audit_user_idx").on(t.userId),
-    index("audit_created_idx").on(t.createdAt),
-  ]
-);
-
 export const projectsTable = pgTable("projects", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_d")
+  userId: uuid("user_id")
     .references(() => usersTable.id, { onDelete: "cascade" })
     .notNull(),
   name: text("name").notNull(),
@@ -73,9 +49,6 @@ export const projectsTable = pgTable("projects", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-export type Audit = typeof auditLogTable.$inferSelect;
-export type NewAudit = typeof auditLogTable.$inferInsert;
 
 export type Project = typeof projectsTable.$inferSelect;
 export type NewProject = typeof projectsTable.$inferInsert;

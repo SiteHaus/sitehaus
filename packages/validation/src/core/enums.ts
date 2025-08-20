@@ -27,8 +27,13 @@ export const projectBillingStatusValues = [
   "late",
 ] as const;
 
-export const userRolesValues = ["client", "admin", "staff"] as const;
-
 export const userStatusValues = ["active", "suspended"] as const;
 
-export const otpStatusValues = ["email_verification", "password_reset"];
+export const otpPurposeValues = [
+  "email_verification",
+  "password_reset",
+] as const;
+
+export const clientTypeValues = ["public", "confidential"] as const;
+
+export const codeChallengeMethodValues = ["S256"] as const;
