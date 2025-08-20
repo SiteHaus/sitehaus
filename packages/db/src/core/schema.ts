@@ -17,10 +17,10 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const projectStatusEnum = pgEnum("project-status", projectStatusValues);
-export const projectTypeEnum = pgEnum("project-type", projectTypeValues);
+export const projectStatusEnum = pgEnum("project_status", projectStatusValues);
+export const projectTypeEnum = pgEnum("project_type", projectTypeValues);
 export const projectBillingStatusEnum = pgEnum(
-  "project-billing-status",
+  "project_billing_status",
   projectBillingStatusValues
 );
 
@@ -47,7 +47,7 @@ export const auditLogTable = pgTable(
 
 export const projectsTable = pgTable("projects", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("userId")
+  userId: uuid("user_d")
     .references(() => usersTable.id, { onDelete: "cascade" })
     .notNull(),
   name: text("name").notNull(),
@@ -68,7 +68,7 @@ export const projectsTable = pgTable("projects", {
 
   monthlyRateCents: integer("monthly_rate_cents"),
   depositAmountCents: integer("deposit_amount_cents"),
-  billingStatus: projectBillingStatusEnum("billingStatus").default("pending"),
+  billingStatus: projectBillingStatusEnum("billing_status").default("pending"),
 
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

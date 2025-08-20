@@ -18,18 +18,18 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const rolesEnum = pgEnum("role", userRolesValues);
-export const userStatusEnum = pgEnum("user-status", userStatusValues);
-export const otpPurposeEnum = pgEnum("user-status", userStatusValues);
+export const userStatusEnum = pgEnum("user_status", userStatusValues);
+export const otpPurposeEnum = pgEnum("otp_purpose", userStatusValues);
 
 export const usersTable = pgTable(
   "users",
   {
     id: uuid("id").defaultRandom().primaryKey(),
-    email: varchar("email", { length: 256 }).notNull().unique(),
+    email: varchar("email", { length: 256 }).notNull(),
     firstName: text("name").notNull(),
     lastName: text("name").notNull(),
     isVerified: boolean("is_verified").default(false).notNull(),
-    emailVerifiedAt: timestamp("email_verified_at", { withTimezone: true }),
+    emailVerifiedAt: timestamp("email_verified_at"),
     status: userStatusEnum("status").notNull().default("active"),
     lastLogin: timestamp("last_login"),
     createdAt: timestamp("created_at").defaultNow(),
@@ -43,7 +43,7 @@ export const passwordCredentialsTable = pgTable("password_credentials", {
     .references(() => usersTable.id, { onDelete: "cascade" }),
   passwordHash: text("password_hash").notNull(),
   version: varchar("version", { length: 32 }).notNull().default("argon2id-1"),
-  updatedAt: timestamp("update_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
 export const otpsTable = pgTable(
@@ -58,11 +58,11 @@ export const otpsTable = pgTable(
     purpose: varchar("purpose", { length: 32 }).notNull(),
     codeHash: varchar("code_hash", { length: 128 }).notNull(),
     attempts: integer("attempts").notNull().default(0),
-    expiresAt: timestamp("expires_at", { withTimezone: true })
+    expiresAt: timestamp("expires_at")
       .default(sql`now() + interval '15 minutes'`)
       .notNull(),
-    consumedAt: timestamp("created_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+    consumedAt: timestamp("consumed_at"),
+    createdAt: timestamp("created_at").defaultNow(),
   },
   (t) => [
     index("otp_user_purpose_idx").on(t.userId, t.purpose),
@@ -91,20 +91,20 @@ export const devicesTable = pgTable(
 );
 
 export const sessionsTable = pgTable(
-  "session",
+  "sessions",
   {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: uuid("user_id")
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
-    deviceId: uuid("device_id")
-      .notNull()
-      .references(() => devicesTable.id, { onDelete: "set null" }),
+    deviceId: uuid("device_id").references(() => devicesTable.id, {
+      onDelete: "set null",
+    }),
     clientKey: varchar("client_key", { length: 64 }).notNull(),
     refreshHash: text("refresh_hash").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     lastUsedAt: timestamp("last_used_at").notNull().defaultNow(),
-    expiresAt: timestamp("last_used_at").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
     revokedAt: timestamp("revoked_at"),
     ipHash: varchar("ip_hash", { length: 64 }),
     uaHash: varchar("ua_hash", { length: 64 }),
