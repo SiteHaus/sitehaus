@@ -28,3 +28,5 @@ export const projectBillingStatusValues = [
 ] as const;
 
 export const userRolesValues = ["client", "admin", "staff"] as const;
+
+export const userStatusValues = ["active", "away", "offline"] as const;

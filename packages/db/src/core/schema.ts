@@ -1,13 +1,14 @@
+import { usersTable } from "@site-haus/db/iam/schema";
 import {
   projectBillingStatusValues,
   projectStatusValues,
   projectTypeValues,
-  userRolesValues,
 } from "@site-haus/validation/core/enums";
-import { sql } from "drizzle-orm";
 import {
   boolean,
+  index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -16,41 +17,33 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
-export const rolesEnum = pgEnum("role", userRolesValues);
 export const projectStatusEnum = pgEnum("project-status", projectStatusValues);
 export const projectTypeEnum = pgEnum("project-type", projectTypeValues);
 export const projectBillingStatusEnum = pgEnum(
-  "project-type",
+  "project-billing-status",
   projectBillingStatusValues
 );
 
-export type User = typeof usersTable.$inferSelect;
-export type NewUser = typeof usersTable.$inferInsert;
-
-export const usersTable = pgTable("users", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  email: varchar("email", { length: 256 }).notNull().unique(),
-  name: text("name"),
-  role: rolesEnum("role").default("client").notNull(),
-  isVerified: boolean("is_verified").default(false).notNull(),
-  lastLogin: timestamp("last_login"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const otpsTable = pgTable("otps", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => usersTable.id, {
-      onDelete: "cascade",
-    })
-    .notNull(),
-  codeHash: varchar("code_hash", { length: 128 }).notNull(),
-  type: varchar("type", { length: 50 }).default("login").notNull(),
-  expiresAt: timestamp("expires_at", { withTimezone: true })
-    .default(sql`now() + interval '15 minutes'`)
-    .notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-});
+export const auditLogTable = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id").references(() => usersTable.id, {
+      onDelete: "set null",
+    }),
+    action: varchar("action", { length: 64 }).notNull(),
+    targetType: varchar("target_type", { length: 32 }),
+    targetId: uuid("target_id"),
+    ipHash: varchar("ip_hash", { length: 64 }),
+    uaHash: varchar("ua_hash", { length: 64 }),
+    meta: jsonb("meta"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    index("audit_user_idx").on(t.userId),
+    index("audit_created_idx").on(t.createdAt),
+  ]
+);
 
 export const projectsTable = pgTable("projects", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -80,3 +73,9 @@ export const projectsTable = pgTable("projects", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export type Audit = typeof auditLogTable.$inferSelect;
+export type NewAudit = typeof auditLogTable.$inferInsert;
+
+export type Project = typeof projectsTable.$inferSelect;
+export type NewProject = typeof projectsTable.$inferInsert;
