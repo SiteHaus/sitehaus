@@ -1,5 +1,5 @@
 "use client";
-import DataTable from "@site-haus/ui/components/shared/data-table";
+import { DataTable } from "@site-haus/ui/components/shared/data-table/data-table";
 
 const serviceTickets = [
   {
@@ -26,7 +26,6 @@ export default function AllTicketsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">All Tickets</h1>
-      <DataTable table={serviceTickets} />
     </div>
   );
 }

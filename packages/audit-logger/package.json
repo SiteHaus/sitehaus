@@ -1,0 +1,21 @@
+{
+  "name": "@site-haus/audit-log",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "zod": "^4.0.14"
+  },
+  "devDependencies": {
+    "@site-haus/db": "workspace:*",
+    "@site-haus/eslint-config": "workspace:*",
+    "@site-haus/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.31.0",
+    "typescript": "5.8.2"
+  },
+  "exports": {
+    "./core/*": "./src/core/*.ts",
+    "./forms/*": "./src/forms/*.ts"
+  }
+}

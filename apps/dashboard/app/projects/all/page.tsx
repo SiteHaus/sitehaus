@@ -1,31 +1,89 @@
 "use client";
-import DataTable from "@site-haus/ui/components/shared/data-table";
+import { DataTable } from "@site-haus/ui/components/shared/data-table/data-table";
+import { projectsTable } from "@site-haus/db/core/schema";
 
-const projects = [
+type ProjectRow = typeof projectsTable.$inferSelect;
+
+const projects: ProjectRow[] = [
   {
+    id: "0a2b3c",
+    userId: "u1",
     name: "Website Redesign",
     description: "Full redesign of the client marketing site",
+    status: "submitted",
+    type: "marketing",
     siteDomain: "example.com",
     stagingDomain: "staging.example.com",
-    repoUrl: "https://github.com/org/project",
+    repoUrl: "https://github.com/org/project-redesign",
     isActive: true,
+    startDate: new Date("2025-01-15"),
     dueDate: new Date("2025-02-28"),
+    launchedAt: null,
     monthlyRateCents: 50000,
     depositAmountCents: 20000,
     billingStatus: "pending",
+    createdAt: new Date("2025-01-01"),
+    updatedAt: new Date("2025-01-05"),
   },
   {
+    id: "1b3c4d",
+    userId: "u2",
+    name: "E-commerce Platform",
+    description: "Build a full-featured e-commerce website",
+    status: "reviewing",
+    type: "saas",
+    siteDomain: "shop.example.com",
+    stagingDomain: "staging.shop.example.com",
+    repoUrl: "https://github.com/org/ecommerce-platform",
+    isActive: true,
+    startDate: new Date("2025-02-01"),
+    dueDate: new Date("2025-04-15"),
+    launchedAt: null,
+    monthlyRateCents: 80000,
+    depositAmountCents: 30000,
+    billingStatus: "pending",
+    createdAt: new Date("2025-01-20"),
+    updatedAt: new Date("2025-02-10"),
+  },
+  {
+    id: "2c4d5e",
+    userId: "u3",
     name: "Mobile App Launch",
-    description: "Initial release of the mobile app MVP",
-    siteDomain: null,
-    stagingDomain: null,
+    description: "iOS and Android app for client engagement",
+    status: "submitted",
+    type: "web_app",
+    siteDomain: "app.example.com",
+    stagingDomain: "staging.app.example.com",
     repoUrl: "https://github.com/org/mobile-app",
     isActive: false,
-    dueDate: new Date("2025-03-01"),
-    launchedAt: new Date("2025-03-05"),
-    monthlyRateCents: 80000,
-    depositAmountCents: 40000,
+    startDate: new Date("2024-11-01"),
+    dueDate: new Date("2025-01-31"),
+    launchedAt: new Date("2025-01-28"),
+    monthlyRateCents: 70000,
+    depositAmountCents: 25000,
     billingStatus: "paid",
+    createdAt: new Date("2024-10-15"),
+    updatedAt: new Date("2025-01-30"),
+  },
+  {
+    id: "3d5e6f",
+    userId: "u1",
+    name: "Marketing Campaign",
+    description: "Social media and email marketing for new product",
+    status: "reviewing",
+    type: "marketing",
+    siteDomain: "campaign.example.com",
+    stagingDomain: "staging.campaign.example.com",
+    repoUrl: "https://github.com/org/marketing-campaign",
+    isActive: true,
+    startDate: new Date("2025-03-01"),
+    dueDate: new Date("2025-03-31"),
+    launchedAt: null,
+    monthlyRateCents: 30000,
+    depositAmountCents: 10000,
+    billingStatus: "pending",
+    createdAt: new Date("2025-02-15"),
+    updatedAt: new Date("2025-02-20"),
   },
 ];
 
@@ -33,7 +91,10 @@ export default function AllProjectsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">All Projects</h1>
-      <DataTable table={projects} />
+      <DataTable
+        data={projects}
+        defaultColumns={["name", "status", "billingStatus"]}
+      />
     </div>
   );
 }
