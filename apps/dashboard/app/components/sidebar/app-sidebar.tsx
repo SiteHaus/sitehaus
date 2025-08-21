@@ -1,6 +1,6 @@
 "use client";
 
-import { Project } from "@site-haus/db/types";
+import { Project } from "@site-haus/db";
 import { Sidebar, useSidebar } from "@site-haus/ui/components/base/sidebar";
 import { AppSideBarContent } from "./app-sidebar-content";
 import { AppSideBarFooter } from "./app-sidebar-footer";

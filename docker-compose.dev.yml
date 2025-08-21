@@ -17,4 +17,3 @@ volumes:
 
 networks:
   sitehaus-network:
-    driver: local

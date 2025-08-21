@@ -6,7 +6,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { usersTable } from "src/iam/users.js";
+import { usersTable } from "../iam/users.js";
 
 export const auditLogTable = pgTable(
   "audit_log",

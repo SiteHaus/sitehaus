@@ -12,7 +12,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { usersTable } from "src/iam/users.js";
+import { usersTable } from "../iam/users.js";
 
 export const projectStatusEnum = pgEnum("project_status", projectStatusValues);
 export const projectTypeEnum = pgEnum("project_type", projectTypeValues);
@@ -49,6 +49,11 @@ export const projectsTable = pgTable("projects", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];
+export type ProjectBillingStatus =
+  (typeof projectBillingStatusEnum.enumValues)[number];
+export type ProjectType = (typeof projectTypeEnum.enumValues)[number];
 
 export type Project = typeof projectsTable.$inferSelect;
 export type NewProject = typeof projectsTable.$inferInsert;
