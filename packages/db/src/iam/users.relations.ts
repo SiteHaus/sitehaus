@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
-import { auditLogTable, projectsTable } from "../schema.js";
+import { auditLogTable } from "../core/audit-logs.js";
+import { projectsTable } from "../core/projects.js";
 import { devicesTable } from "./devices.js";
 import { otpsTable } from "./otps.js";
 import { passwordCredentialsTable } from "./password-credentials.js";

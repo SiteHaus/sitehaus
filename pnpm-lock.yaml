@@ -288,9 +288,6 @@ importers:
       dotenv:
         specifier: ^17.2.1
         version: 17.2.1
-      drizzle-orm:
-        specifier: ^0.44.4
-        version: 0.44.4(@types/pg@8.15.5)(pg@8.16.3)
       pg:
         specifier: ^8.16.3
         version: 8.16.3
@@ -310,6 +307,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.4
         version: 0.31.4
+      drizzle-orm:
+        specifier: ^0.44.4
+        version: 0.44.4(@types/pg@8.15.5)(pg@8.16.3)
       eslint:
         specifier: ^9.31.0
         version: 9.33.0(jiti@2.5.1)

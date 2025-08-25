@@ -1,6 +1,6 @@
 import { Controller, Get, Inject } from '@nestjs/common';
-import { sql } from 'drizzle-orm';
-import { type Db, DRIZZLE } from 'src/db/db.module';
+import { sql, type Db } from '@site-haus/db';
+import { DRIZZLE } from 'src/db/db.module';
 
 @Controller('health')
 export class HealthController {

@@ -1,4 +1,6 @@
-import { clientsTable, NewClient, rolesTable, schema } from "@site-haus/db";
+import { schema } from "@site-haus/db";
+import { clientsTable, NewClient } from "@site-haus/db/iam/clients";
+import { rolesTable } from "@site-haus/db/iam/roles";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
