@@ -21,8 +21,8 @@ export const fakeProjects: Project[] = [
     startDate: new Date("2024-04-15"),
     dueDate: new Date("2024-09-01"),
     launchedAt: new Date("2024-08-20"),
-    monthlyRateCents: 15000, // $150/mo
-    depositAmountCents: 50000, // $500 deposit
+    monthlyRateCents: 15000,
+    depositAmountCents: 50000,
     billingStatus: "paid",
     createdAt: new Date("2024-04-10"),
     updatedAt: new Date(),
@@ -41,8 +41,8 @@ export const fakeProjects: Project[] = [
     startDate: new Date("2024-06-01"),
     dueDate: new Date("2024-11-15"),
     launchedAt: null,
-    monthlyRateCents: 20000, // $200/mo
-    depositAmountCents: 75000, // $750 deposit
+    monthlyRateCents: 20000,
+    depositAmountCents: 75000,
     billingStatus: "pending",
     createdAt: new Date("2024-05-25"),
     updatedAt: new Date(),
@@ -61,8 +61,8 @@ export const fakeProjects: Project[] = [
     startDate: new Date("2024-02-10"),
     dueDate: new Date("2024-04-20"),
     launchedAt: null,
-    monthlyRateCents: 5000, // $50/mo
-    depositAmountCents: 25000, // $250 deposit
+    monthlyRateCents: 5000,
+    depositAmountCents: 25000,
     billingStatus: "outstanding",
     createdAt: new Date("2024-02-05"),
     updatedAt: new Date(),

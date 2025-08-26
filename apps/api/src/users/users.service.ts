@@ -2,13 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import { schema, User, type Db } from '@site-haus/db';
 import { DRIZZLE } from 'src/db/db.module';
 
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+
 @Injectable()
 export class UsersService {
   constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
   findByEmail(email: string) {
+    const e = normalizeEmail(email);
     return this.db.query.usersTable.findFirst({
-      where: (t, { eq }) => eq(t.email, email.toLowerCase().trim()),
+      where: (t, { eq }) => eq(t.email, e),
     });
   }
 
@@ -24,11 +27,13 @@ export class UsersService {
     });
   }
 
-  async createUser(input: Pick<User, 'email' | 'firstName' | 'lastName'>) {
+  async createUser(
+    input: Pick<User, 'email' | 'firstName' | 'lastName'>,
+  ): Promise<User> {
     const [u] = await this.db
       .insert(schema.usersTable)
       .values({
-        email: input.email.toLowerCase().trim(),
+        email: normalizeEmail(input.email),
         firstName: input.firstName,
         lastName: input.lastName,
       })
@@ -56,21 +61,40 @@ export class UsersService {
     lastName: string;
     passwordHash: string;
   }) {
+    const email = normalizeEmail(input.email);
+
     return this.db.transaction(async (tx) => {
-      const [user] = await tx
-        .insert(schema.usersTable)
-        .values({
-          email: input.email.toLowerCase().trim(),
-          firstName: input.firstName,
-          lastName: input.lastName,
-        })
-        .returning();
+      try {
+        const [user] = await tx
+          .insert(schema.usersTable)
+          .values({
+            email,
+            firstName: input.firstName,
+            lastName: input.lastName,
+          })
+          .returning();
 
-      await tx
-        .insert(schema.passwordCredentialsTable)
-        .values({ userId: user!.id, passwordHash: input.passwordHash });
+        await tx
+          .insert(schema.passwordCredentialsTable)
+          .values({ userId: user!.id, passwordHash: input.passwordHash });
 
-      return user!;
+        return user!;
+      } catch (err: any) {
+        // Postgres unique violation code
+        if (err?.code === '23505') {
+          const existing = await tx.query.usersTable.findFirst({
+            where: (t, { eq }) => eq(t.email, email),
+          });
+
+          if (existing) {
+            const e = new Error('User already exists.');
+            (e as any).code = 'USER_EXISTS';
+            throw e;
+          }
+        }
+
+        throw err;
+      }
     });
   }
 }
