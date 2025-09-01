@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { schema, User, type Db } from '@site-haus/db';
 import { DRIZZLE } from 'src/db/db.module';
+import { UserExistsError } from 'src/errors/auth.errors';
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
@@ -30,14 +31,19 @@ export class UsersService {
   async createUser(
     input: Pick<User, 'email' | 'firstName' | 'lastName'>,
   ): Promise<User> {
+    const email = normalizeEmail(input.email);
+
     const [u] = await this.db
       .insert(schema.usersTable)
       .values({
-        email: normalizeEmail(input.email),
+        email,
         firstName: input.firstName,
         lastName: input.lastName,
       })
+      .onConflictDoNothing({ target: schema.usersTable.email })
       .returning();
+
+    if (!u) throw new UserExistsError(email);
 
     return u!;
   }
@@ -64,37 +70,23 @@ export class UsersService {
     const email = normalizeEmail(input.email);
 
     return this.db.transaction(async (tx) => {
-      try {
-        const [user] = await tx
-          .insert(schema.usersTable)
-          .values({
-            email,
-            firstName: input.firstName,
-            lastName: input.lastName,
-          })
-          .returning();
+      const [user] = await tx
+        .insert(schema.usersTable)
+        .values({
+          email,
+          firstName: input.firstName,
+          lastName: input.lastName,
+        })
+        .onConflictDoNothing({ target: schema.usersTable.email })
+        .returning();
 
-        await tx
-          .insert(schema.passwordCredentialsTable)
-          .values({ userId: user!.id, passwordHash: input.passwordHash });
+      if (!user) throw new UserExistsError(email);
 
-        return user!;
-      } catch (err: any) {
-        // Postgres unique violation code
-        if (err?.code === '23505') {
-          const existing = await tx.query.usersTable.findFirst({
-            where: (t, { eq }) => eq(t.email, email),
-          });
+      await tx
+        .insert(schema.passwordCredentialsTable)
+        .values({ userId: user!.id, passwordHash: input.passwordHash });
 
-          if (existing) {
-            const e = new Error('User already exists.');
-            (e as any).code = 'USER_EXISTS';
-            throw e;
-          }
-        }
-
-        throw err;
-      }
+      return user!;
     });
   }
 }

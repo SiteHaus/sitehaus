@@ -20,6 +20,9 @@ export type AccessPayload = {
   exp: number;
 };
 
+type UserContext = { userId: string; clientId: string; sessionId: string };
+type AuthedRequest = Request & { user?: UserContext };
+
 @Injectable()
 export class AccessGuard implements CanActivate {
   constructor(
@@ -35,7 +38,7 @@ export class AccessGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
-    const req = ctx.switchToHttp().getRequest<Request>();
+    const req = ctx.switchToHttp().getRequest<AuthedRequest>();
     const auth = req.headers.authorization;
 
     if (!auth?.startsWith('Bearer '))
@@ -60,7 +63,7 @@ export class AccessGuard implements CanActivate {
     });
     if (!session) throw new UnauthorizedException('Session Expired');
 
-    (req as any).user = {
+    req.user = {
       userId: payload.sub,
       clientId: payload.aud,
       sessionId: payload.sid,

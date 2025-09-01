@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import authConfig from 'src/conf/auth.config';
+import { UserExistsError } from 'src/errors/auth.errors';
 import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
 import { CryptoService } from './crypto/crypto.service';
@@ -39,9 +40,10 @@ export class AuthService {
         passwordHash,
       });
       return this.issueTokens(user.id, ctx);
-    } catch (e: any) {
-      if (e?.code === 'USER_EXISTS')
-        throw new ConflictException('User already exists.');
+    } catch (e) {
+      if (e instanceof UserExistsError) {
+        throw new ConflictException(e.message);
+      }
       throw e;
     }
   }

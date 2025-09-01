@@ -13,7 +13,7 @@ export class TokenService {
     return this.jwt.signAsync(payload, { expiresIn: opts.expiresInSec });
   }
 
-  verify<T extends object = any>(token: string) {
+  verify<T extends object = Record<string, unknown>>(token: string) {
     return this.jwt.verifyAsync<T>(token, { algorithms: ['HS256'] as const });
   }
 
