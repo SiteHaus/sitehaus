@@ -25,6 +25,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@node-rs/argon2": "^2.0.2",
     "@site-haus/db": "workspace:*",
+    "@site-haus/utils": "workspace:*",
     "cookie-parser": "^1.4.7",
     "drizzle-orm": "^0.44.4",
     "pg": "^8.16.3",

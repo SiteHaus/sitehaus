@@ -1,0 +1,30 @@
+{
+  "name": "@site-haus/utils",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./core/*": {
+      "types": "./dist/core/*.d.ts",
+      "default": "./dist/core/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "@site-haus/eslint-config": "workspace:*",
+    "@site-haus/typescript-config": "workspace:*",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.3",
+    "eslint": "^9.31.0",
+    "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.6",
+    "express": "^5.1.0"
+  }
+}

@@ -41,6 +41,9 @@ importers:
       '@site-haus/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@site-haus/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -606,6 +609,34 @@ importers:
       tailwindcss:
         specifier: ^4.1.11
         version: 4.1.12
+      typescript:
+        specifier: 5.8.2
+        version: 5.8.2
+
+  packages/utils:
+    dependencies:
+      '@nestjs/common':
+        specifier: ^11.1.6
+        version: 11.1.6(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      express:
+        specifier: ^5.1.0
+        version: 5.1.0
+    devDependencies:
+      '@site-haus/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@site-haus/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/express':
+        specifier: ^5.0.3
+        version: 5.0.3
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.17.2
+      eslint:
+        specifier: ^9.31.0
+        version: 9.33.0(jiti@2.5.1)
       typescript:
         specifier: 5.8.2
         version: 5.8.2

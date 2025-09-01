@@ -20,8 +20,12 @@ export type AccessPayload = {
   exp: number;
 };
 
-type UserContext = { userId: string; clientId: string; sessionId: string };
-type AuthedRequest = Request & { user?: UserContext };
+export type UserContext = {
+  userId: string;
+  clientId: string;
+  sessionId: string;
+};
+export type AuthedRequest = Request & { user?: UserContext };
 
 @Injectable()
 export class AccessGuard implements CanActivate {
