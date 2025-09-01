@@ -2,11 +2,7 @@ import { registerAs } from '@nestjs/config';
 import { EnvValidator } from '@site-haus/validation/core/env';
 
 export default registerAs('auth', () => {
-  const env = EnvValidator.parse({
-    JWT_SECRET: process.env.JWT_SECRET,
-    JWT_SECRET_B64URL: process.env.JWT_SECRET_B64URL,
-    JWT_ALG: process.env.JWT_ALG,
-  });
+  const env = EnvValidator.parse(process.env);
 
   const secret = env.JWT_SECRET_B64URL
     ? Buffer.from(env.JWT_SECRET_B64URL, 'base64url')
@@ -21,5 +17,7 @@ export default registerAs('auth', () => {
   return {
     alg: env.JWT_ALG,
     secret,
+    accessTtlSec: env.ACCESS_TTL_SEC,
+    refreshTtlSec: env.REFRESH_TTL_SEC,
   } as const;
 });

@@ -34,7 +34,7 @@ export class CryptoService {
    * @param minLength
    * @returns
    */
-  randomOfIdLength(minLength = 64): string {
+  randomIdOfLength(minLength = 64): string {
     if (minLength < 1) minLength = 1;
     const bytes = Math.ceil((minLength * 3) / 4) + 2;
     return this.randomId(bytes).slice(0, minLength);

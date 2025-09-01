@@ -12,7 +12,7 @@ import { Request } from 'express';
 import { DRIZZLE } from 'src/db/db.module';
 import { IS_PUBLIC_KEY } from 'src/public.decorator';
 
-type AccessPayload = {
+export type AccessPayload = {
   sub: string;
   sid: string;
   aud: string;
