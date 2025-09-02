@@ -2,9 +2,7 @@ import { Global, Inject, Module, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createDb, type Db } from '@site-haus/db';
 import { Pool } from 'pg';
-
-export const PG_POOL = Symbol('PG_POOL');
-export const DRIZZLE = Symbol('DRIZZLE');
+import { DRIZZLE, PG_POOL } from './tokens';
 
 @Global()
 @Module({

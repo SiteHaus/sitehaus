@@ -9,7 +9,7 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { type Db } from '@site-haus/db';
 import { Request } from 'express';
-import { DRIZZLE } from 'src/db/db.module';
+import { DRIZZLE } from 'src/db/tokens';
 import { IS_PUBLIC_KEY } from 'src/public.decorator';
 
 export type AccessPayload = {

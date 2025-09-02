@@ -3,7 +3,7 @@ import { type ConfigType } from '@nestjs/config';
 import { and, eq, gt, isNull, ne, schema, type Db } from '@site-haus/db';
 import { CryptoService } from 'src/auth/crypto/crypto.service';
 import authConfig from 'src/conf/auth.config';
-import { DRIZZLE } from 'src/db/db.module';
+import { DRIZZLE } from 'src/db/tokens';
 
 @Injectable()
 export class SessionService {

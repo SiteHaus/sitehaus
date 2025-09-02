@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { schema, User, type Db } from '@site-haus/db';
-import { DRIZZLE } from 'src/db/db.module';
+import { DRIZZLE } from 'src/db/tokens';
 import { UserExistsError } from 'src/errors/auth.errors';
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();

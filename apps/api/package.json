@@ -67,20 +67,33 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "testEnvironment": "node",
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/test"
+    ],
     "moduleFileExtensions": [
+      "ts",
       "js",
-      "json",
-      "ts"
+      "json"
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+    "globals": {
+      "ts-jest": {
+        "useESM": true,
+        "tsconfig": "<rootDir>/tsconfig.json"
+      }
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "^@site-haus/db$": "<rootDir>/test/__mocks__/@site-haus/db.ts",
+      "^@site-haus/db/(.*)$": "<rootDir>/test/__mocks__/@site-haus/db.ts",
+      "^@site-haus/validation/core/env$": "<rootDir>/test/__mocks__/@site-haus/validation/core/env.ts",
+      "^@site-haus/validation(.*)$": "<rootDir>/../../packages/validation/src$1",
+      "^@site-haus/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1"
+    }
   }
 }
