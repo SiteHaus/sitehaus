@@ -81,19 +81,21 @@
       "js",
       "json"
     ],
-    "globals": {
-      "ts-jest": {
-        "useESM": true,
-        "tsconfig": "<rootDir>/tsconfig.json"
-      }
+    "transform": {
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "tsconfig": "<rootDir>/tsconfig.json"
+        }
+      ]
     },
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/src/$1",
-      "^@site-haus/db$": "<rootDir>/test/__mocks__/@site-haus/db.ts",
-      "^@site-haus/db/(.*)$": "<rootDir>/test/__mocks__/@site-haus/db.ts",
-      "^@site-haus/validation/core/env$": "<rootDir>/test/__mocks__/@site-haus/validation/core/env.ts",
+      "^@site-haus/validation/forms/users$": "<rootDir>/test/__mocks__/@site-haus/validation/forms/users.ts",
       "^@site-haus/validation(.*)$": "<rootDir>/../../packages/validation/src$1",
-      "^@site-haus/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1"
+      "^@site-haus/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1",
+      "^@site-haus/db$": "<rootDir>/../../packages/db/src/index.ts"
     }
   }
 }
