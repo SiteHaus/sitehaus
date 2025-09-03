@@ -22,7 +22,7 @@ import {
   clearRefreshCookie,
   REFRESH_COOKIE,
   setRefreshCookie,
-} from './cookies';
+} from './cookie/cookies';
 
 @Controller('auth')
 export class AuthController {

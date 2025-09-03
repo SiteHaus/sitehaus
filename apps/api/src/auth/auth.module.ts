@@ -10,6 +10,7 @@ import { AccessGuard } from './access/access.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CryptoService } from './crypto/crypto.service';
+import { PasswordController } from './password/password.controller';
 import { TokenService } from './token/token.service';
 
 @Module({
@@ -35,7 +36,7 @@ import { TokenService } from './token/token.service';
     AccessGuard,
     { provide: APP_GUARD, useExisting: AccessGuard },
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, PasswordController],
   exports: [JwtModule, TokenService, AuthService],
 })
 export class AuthModule {}

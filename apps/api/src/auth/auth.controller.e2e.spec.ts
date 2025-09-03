@@ -5,7 +5,7 @@ import cookieParser from 'cookie-parser';
 import request from 'supertest';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { REFRESH_COOKIE } from './cookies';
+import { REFRESH_COOKIE } from './cookie/cookies';
 
 const getSetCookie = (res: request.Response): string => {
   const raw = res.header['set-cookie'] as string[] | string | undefined;

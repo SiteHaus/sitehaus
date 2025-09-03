@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import authConfig from './conf/auth.config';
 import { DbModule } from './db/db.module';
 import { HealthModule } from './health/health.module';
+import { OtpService } from './otp/otp.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { HealthModule } from './health/health.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, OtpService],
 })
 export class AppModule {}
