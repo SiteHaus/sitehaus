@@ -23,7 +23,7 @@ export class PasswordController {
   ) {}
 
   @Post('change')
-  @HttpCode(HttpStatus.NOT_FOUND)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async changePassword(
     @Req() req: AuthedRequest,
     @Body() body: { currentPassword: string; newPassword: string },
@@ -55,6 +55,8 @@ export class PasswordController {
     //TODO: Hook into Amazon SES
   }
 
+  @Post('reset')
+  @HttpCode(HttpStatus.NO_CONTENT)
   async reset(
     @Body() body: { email: string; code: string; newPassword: string },
   ) {

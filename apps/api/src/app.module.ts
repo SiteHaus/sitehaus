@@ -7,6 +7,7 @@ import authConfig from './conf/auth.config';
 import { DbModule } from './db/db.module';
 import { HealthModule } from './health/health.module';
 import { OtpService } from './otp/otp.service';
+import { ClientsService } from './clients/clients.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { OtpService } from './otp/otp.service';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, OtpService],
+  providers: [AppService, OtpService, ClientsService],
 })
 export class AppModule {}

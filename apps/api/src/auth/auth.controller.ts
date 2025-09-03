@@ -2,20 +2,21 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Req,
   Res,
 } from '@nestjs/common';
-import { ReqCtx } from '@site-haus/utils/core/req-ctx.decorator';
-import { type RequestContext } from '@site-haus/utils/core/request-context';
 import { loginSchema, registerSchema } from '@site-haus/validation/forms/users';
 import {
   type Request as ExpressRequest,
   type Response as ExpressResponse,
 } from 'express';
+import { ClientInRequest } from 'src/clients/client.guard';
 import { Public } from 'src/public.decorator';
+import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from './access/access.guard';
 import { AuthService } from './auth.service';
 import {
@@ -26,18 +27,24 @@ import {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly users: UsersService,
+  ) {}
 
   @Public()
   @Post('register')
   async register(
     @Body() body: unknown,
-    @ReqCtx({ headerName: 'x-client-id' }) ctx: RequestContext,
-    @Res()
-    res: ExpressResponse,
+    @Req() req: ExpressRequest & ClientInRequest,
+    @Res() res: ExpressResponse,
   ) {
     const parsed = registerSchema.parse(body);
-    const result = await this.auth.register(parsed, ctx);
+    const result = await this.auth.register(parsed, {
+      clientId: req.client!.id,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
 
     setRefreshCookie(
       res,
@@ -54,13 +61,17 @@ export class AuthController {
   @Post('login')
   async login(
     @Body() body: unknown,
-    @ReqCtx({ headerName: 'x-client-id' }) ctx: RequestContext,
+    @Req() req: ExpressRequest & ClientInRequest,
     @Res() res: ExpressResponse,
   ) {
     const parsed = loginSchema.parse(body);
     const result = await this.auth.login(
       { email: parsed.email, password: parsed.password },
-      ctx,
+      {
+        clientId: req.client!.id,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
     );
 
     setRefreshCookie(
@@ -76,8 +87,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
   async refresh(
-    @Req() req: ExpressRequest,
-    @ReqCtx({ headerName: 'x-client-id' }) ctx: RequestContext,
+    @Req() req: ExpressRequest & ClientInRequest,
     @Res() res: ExpressResponse,
   ) {
     const token =
@@ -86,10 +96,10 @@ export class AuthController {
 
     try {
       const result = await this.auth.refresh({
-        clientId: ctx.clientId,
+        clientId: req.client!.id,
         refreshToken: token,
-        ip: ctx.ip,
-        ua: ctx.ua,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
       });
       setRefreshCookie(
         res,
@@ -111,5 +121,25 @@ export class AuthController {
     if (sid) await this.auth.logoutBySid(sid);
     clearRefreshCookie(res);
     return res.send();
+  }
+
+  @Get('me')
+  async me(@Req() req: AuthedRequest) {
+    const { userId, clientId, sessionId } = req.user!;
+    const user = await this.users.findById(userId);
+
+    return {
+      user: user
+        ? {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isVerified: user.isVerified,
+            status: user.status,
+          }
+        : null,
+      session: { id: sessionId, clientId },
+    };
   }
 }

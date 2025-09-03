@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { ClientGuard } from 'src/clients/client.guard';
 import authConfig from 'src/conf/auth.config';
 import { DbModule } from 'src/db/db.module';
 import { SessionService } from 'src/session/session.service';
@@ -34,6 +35,7 @@ import { TokenService } from './token/token.service';
     UsersService,
     CryptoService,
     AccessGuard,
+    { provide: APP_GUARD, useClass: ClientGuard },
     { provide: APP_GUARD, useExisting: AccessGuard },
   ],
   controllers: [AuthController, PasswordController],
