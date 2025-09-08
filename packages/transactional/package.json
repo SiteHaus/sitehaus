@@ -1,0 +1,43 @@
+{
+  "name": "@site-haus/transactional",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./emails/*": {
+      "types": "./dist/emails/*.d.ts",
+      "default": "./dist/emails/*.js"
+    },
+    "./render/*": {
+      "types": "./dist/render/*.d.ts",
+      "default": "./dist/render/*.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "email dev -p 6969 -d src/emails",
+    "build": "tsc",
+    "export": "email export -d src/emails -o ./exported"
+  },
+  "devDependencies": {
+    "@react-email/preview-server": "4.2.8",
+    "@site-haus/eslint-config": "workspace:*",
+    "@site-haus/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.1.0",
+    "eslint": "^9.31.0",
+    "react-email": "4.2.8",
+    "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "@react-email/components": "0.5.1",
+    "@react-email/tailwind": "1.2.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}
