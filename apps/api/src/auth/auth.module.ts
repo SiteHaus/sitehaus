@@ -3,14 +3,17 @@ import { ConfigModule, ConfigType } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ClientGuard } from 'src/clients/client.guard';
+import { ClientsModule } from 'src/clients/clients.module';
 import authConfig from 'src/conf/auth.config';
 import { DbModule } from 'src/db/db.module';
+import { EmailModule } from 'src/email/email.module';
 import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
 import { AccessGuard } from './access/access.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { CryptoService } from './crypto/crypto.service';
+import { OtpService } from './otp/otp.service';
 import { PasswordController } from './password/password.controller';
 import { TokenService } from './token/token.service';
 
@@ -18,6 +21,8 @@ import { TokenService } from './token/token.service';
   imports: [
     ConfigModule,
     DbModule,
+    EmailModule,
+    ClientsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [authConfig.KEY],
@@ -34,6 +39,7 @@ import { TokenService } from './token/token.service';
     SessionService,
     UsersService,
     CryptoService,
+    OtpService,
     AccessGuard,
     { provide: APP_GUARD, useClass: ClientGuard },
     { provide: APP_GUARD, useExisting: AccessGuard },

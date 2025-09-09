@@ -3,8 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import emailConfig from 'src/conf/email.config';
 import { EmailService } from './email.service';
-
-export const SESV2 = Symbol('SESV2');
+import { SESV2 } from './email.tokens';
 
 @Module({
   imports: [ConfigModule],

@@ -1,10 +1,11 @@
 import OTPCodeEmail, { OTPCodeEmailProps } from "../emails/OTPCode.js";
 import { renderHtml, renderText } from "./index.js";
 
-export async function renderOTPCodeEmail(props: OTPCodeEmailProps) {
+export const renderOTPCodeEmail = async (props: OTPCodeEmailProps) => {
   const subject = `${props.appName ?? "Site Haus"} verification code: ${props.code}`;
   const node = <OTPCodeEmail {...props} />;
-  return { subject, html: renderHtml(node), text: renderText(node) };
-}
+  const [html, text] = await Promise.all([renderHtml(node), renderText(node)]);
+  return { subject, html, text };
+};
 
 export type { OTPCodeEmailProps };

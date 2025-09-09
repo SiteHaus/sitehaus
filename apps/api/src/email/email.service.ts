@@ -1,18 +1,23 @@
-import { SendEmailCommand, type SendEmailRequest } from '@aws-sdk/client-sesv2';
+import {
+  SendEmailCommand,
+  SESv2Client,
+  type SendEmailRequest,
+} from '@aws-sdk/client-sesv2';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
+import { htmlToText, toArray } from '@site-haus/utils/core/helpers';
 import emailConfig from 'src/conf/email.config';
-import { SESV2 } from './email.module';
 
 import type { OTPCodeEmailProps } from '@site-haus/transactional/emails/OTPCode';
 import { renderOTPCodeEmail } from '@site-haus/transactional/render/otp';
+import { SESV2 } from './email.tokens';
 
 @Injectable()
 export class EmailService {
   private readonly log = new Logger(EmailService.name);
 
   constructor(
-    @Inject(SESV2) private readonly ses: any,
+    @Inject(SESV2) private readonly ses: SESv2Client,
     @Inject(emailConfig.KEY)
     private readonly cfg: ConfigType<typeof emailConfig>,
   ) {}
@@ -27,33 +32,19 @@ export class EmailService {
     configurationSet?: string;
     tags?: Record<string, string>;
   }): Promise<{ messageId: string }> {
-    const to = Array.isArray(opts.to) ? opts.to : [opts.to];
+    const to = toArray(opts.to)!;
+    const textFallback = opts.text ?? htmlToText(opts.html);
 
-    const textFallback =
-      opts.text ??
-      (opts.html
-        ? opts.html
-            .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim()
-        : '');
+    console.log('Here 1');
 
     const params: SendEmailRequest = {
       FromEmailAddress: opts.from ?? this.cfg.from,
       Destination: { ToAddresses: to },
-      ReplyToAddresses:
-        opts.replyTo != null
-          ? Array.isArray(opts.replyTo)
-            ? opts.replyTo
-            : [opts.replyTo]
-          : this.cfg.replyTo
-            ? [this.cfg.replyTo]
-            : undefined,
-      ConfigurationSetName: opts.configurationSet ?? this.cfg.configurationSet,
-      EmailTags:
-        opts.tags &&
-        Object.entries(opts.tags).map(([Name, Value]) => ({ Name, Value })),
+      ReplyToAddresses: toArray(opts.replyTo),
+      ConfigurationSetName: opts.configurationSet ?? this.cfg.configSet,
+      EmailTags: opts.tags
+        ? Object.entries(opts.tags).map(([Name, Value]) => ({ Name, Value }))
+        : undefined,
       Content: {
         Simple: {
           Subject: { Data: opts.subject, Charset: 'UTF-8' },
@@ -69,14 +60,18 @@ export class EmailService {
       },
     };
 
+    console.log('Here');
+
     const out = await this.ses.send(new SendEmailCommand(params));
     const messageId = out?.MessageId ?? '';
-    this.log.debug(`SES send ok: ${messageId} → ${to.join(', ')}`);
+    console.log(`SES send ok: ${messageId} → ${to.join(', ')}`);
+    this.log.log(`SES send ok: ${messageId} → ${to.join(', ')}`);
     return { messageId };
   }
 
   async sendOtpCode(to: string, props: OTPCodeEmailProps) {
     const { subject, html, text } = await renderOTPCodeEmail(props);
+    console.log('render otp code');
     return this.send({ to, subject, html, text });
   }
 }
