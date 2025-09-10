@@ -10,12 +10,17 @@ export const setRefreshCookie = (
   res.cookie(REFRESH_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/auth',
+    sameSite: 'none',
+    path: '/',
     expires,
   });
 };
 
 export const clearRefreshCookie = (res: Response) => {
-  res.clearCookie(REFRESH_COOKIE, { path: '/auth' });
+  res.clearCookie(REFRESH_COOKIE, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'none',
+    path: '/',
+  });
 };

@@ -12,6 +12,7 @@ import { HealthModule } from './health/health.module';
 import { SessionController } from './session/session.controller';
 import { SessionModule } from './session/session.module';
 import { CryptoModule } from './crypto/crypto.module';
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CryptoModule } from './crypto/crypto.module';
     ClientsModule,
     SessionModule,
     CryptoModule,
+    RolesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
   controllers: [SessionController],

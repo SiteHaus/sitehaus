@@ -1,7 +1,9 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
   pgTable,
+  primaryKey,
   timestamp,
   uniqueIndex,
   uuid,
@@ -58,6 +60,29 @@ export const userRolesTable = pgTable(
   (t) => [
     uniqueIndex("user_client_role_uq").on(t.userId, t.clientId, t.roleId),
     index("user_client_idx").on(t.userId, t.clientId),
+    uniqueIndex("roles_one_default_per_client")
+      .on(t.clientId)
+      .where(sql`is_default = true`),
+  ]
+);
+
+export const permissionsCatalogTable = pgTable("permissions_catalog", {
+  perm: varchar("perm", { length: 128 }).primaryKey(),
+});
+
+export const rolePermissionsTable = pgTable(
+  "role_permissions",
+  {
+    roleId: uuid("role_id")
+      .notNull()
+      .references(() => rolesTable.id, { onDelete: "cascade" }),
+    perm: varchar("perm", { length: 128 })
+      .notNull()
+      .references(() => permissionsCatalogTable.perm, { onDelete: "cascade" }),
+  },
+  (t) => [
+    primaryKey({ columns: [t.roleId, t.perm], name: "role_permissions_pk" }),
+    index("role_perms_perm_idx").on(t.perm),
   ]
 );
 
