@@ -8,6 +8,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { type AuthedRequest } from 'src/auth/access/access.guard';
+import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { VerifiedOptional } from 'src/auth/verified/verified.guard';
 import { SessionService } from './session.service';
 
@@ -16,6 +17,7 @@ import { SessionService } from './session.service';
 export class SessionController {
   constructor(private readonly sessions: SessionService) {}
 
+  @RequirePerms('sessions:read')
   @Get()
   async list(@Req() req: AuthedRequest & { client?: { id: string } }) {
     const { userId } = req.user!;
@@ -25,6 +27,7 @@ export class SessionController {
     return { sessions: rows };
   }
 
+  @RequirePerms('sessions:revoke')
   @Post('revoke-others')
   @HttpCode(HttpStatus.NO_CONTENT)
   async revokeOthers(@Req() req: AuthedRequest) {
@@ -32,6 +35,7 @@ export class SessionController {
     await this.sessions.revokeAllOthers(userId, sessionId);
   }
 
+  @RequirePerms('sessions:revoke')
   @Post(':sessionId/revoke')
   @HttpCode(HttpStatus.NO_CONTENT)
   async revokeOne(@Param('sessionId') sid: string) {

@@ -12,3 +12,13 @@ export type Permission = `${Resource}:${Action}`;
 export const ALL_PERMISSIONS: Permission[] = (
   Object.entries(PERM) as [Resource, readonly string[]][]
 ).flatMap(([res, actions]) => actions.map((a) => `${res}:${a}` as Permission));
+
+export const DEFAULT_ROLE_PERMS: Record<"admin" | "member", Permission[]> = {
+  admin: [...ALL_PERMISSIONS],
+  member: [
+    "sessions:read",
+    "sessions:revoke",
+    "devices:read",
+    "devices:revoke",
+  ],
+};

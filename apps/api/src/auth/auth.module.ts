@@ -8,6 +8,7 @@ import authConfig from 'src/conf/auth.config';
 import { CryptoModule } from 'src/crypto/crypto.module';
 import { DbModule } from 'src/db/db.module';
 import { EmailModule } from 'src/email/email.module';
+import { RolesModule } from 'src/roles/roles.module';
 import { SessionModule } from 'src/session/session.module';
 import { UsersService } from 'src/users/users.service';
 import { AccessGuard } from './access/access.guard';
@@ -15,6 +16,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { OtpService } from './otp/otp.service';
 import { PasswordController } from './password/password.controller';
+import { PermissionGuard } from './permission/permission.guard';
 import { TokenService } from './token/token.service';
 import { VerifiedGuard } from './verified/verified.guard';
 
@@ -26,6 +28,7 @@ import { VerifiedGuard } from './verified/verified.guard';
     ClientsModule,
     SessionModule,
     CryptoModule,
+    RolesModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [authConfig.KEY],
@@ -46,6 +49,7 @@ import { VerifiedGuard } from './verified/verified.guard';
     { provide: APP_GUARD, useClass: ClientGuard },
     { provide: APP_GUARD, useExisting: AccessGuard },
     { provide: APP_GUARD, useClass: VerifiedGuard },
+    { provide: APP_GUARD, useClass: PermissionGuard },
   ],
   controllers: [AuthController, PasswordController],
   exports: [JwtModule, TokenService, AuthService],
