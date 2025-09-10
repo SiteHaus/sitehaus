@@ -1,5 +1,5 @@
 {
-  "id": "2755826a-437e-4fd0-bf38-a06dbd2a21c9",
+  "id": "3b4b0c39-2b67-422c-94a0-d8d4682c0983",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -41,6 +41,12 @@
         },
         "code_challenge": {
           "name": "code_challenge",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code_challenge_method": {
+          "name": "code_challenge_method",
           "type": "code_challenge_method",
           "typeSchema": "public",
           "primaryKey": false,
@@ -57,7 +63,7 @@
           "name": "expires_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "default": "now() + interval '90 seconds'"
         },
         "consumed_at": {
@@ -152,6 +158,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "auth_codes_session_id_sessions_id_fk": {
+          "name": "auth_codes_session_id_sessions_id_fk",
+          "tableFrom": "auth_codes",
+          "tableTo": "sessions",
+          "columnsFrom": [
+            "session_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -599,6 +618,101 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.permissions_catalog": {
+      "name": "permissions_catalog",
+      "schema": "",
+      "columns": {
+        "perm": {
+          "name": "perm",
+          "type": "varchar(128)",
+          "primaryKey": true,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.role_permissions": {
+      "name": "role_permissions",
+      "schema": "",
+      "columns": {
+        "role_id": {
+          "name": "role_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "perm": {
+          "name": "perm",
+          "type": "varchar(128)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "role_perms_perm_idx": {
+          "name": "role_perms_perm_idx",
+          "columns": [
+            {
+              "expression": "perm",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "role_permissions_role_id_roles_id_fk": {
+          "name": "role_permissions_role_id_roles_id_fk",
+          "tableFrom": "role_permissions",
+          "tableTo": "roles",
+          "columnsFrom": [
+            "role_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "role_permissions_perm_permissions_catalog_perm_fk": {
+          "name": "role_permissions_perm_permissions_catalog_perm_fk",
+          "tableFrom": "role_permissions",
+          "tableTo": "permissions_catalog",
+          "columnsFrom": [
+            "perm"
+          ],
+          "columnsTo": [
+            "perm"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "role_permissions_pk": {
+          "name": "role_permissions_pk",
+          "columns": [
+            "role_id",
+            "perm"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.roles": {
       "name": "roles",
       "schema": "",
@@ -682,6 +796,22 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "roles_one_default_per_client": {
+          "name": "roles_one_default_per_client",
+          "columns": [
+            {
+              "expression": "client_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"roles\".\"is_default\" = true",
           "concurrently": false,
           "method": "btree",
           "with": {}

@@ -30,6 +30,9 @@ export const rolesTable = pgTable(
   (t) => [
     uniqueIndex("roles_client_key_uq").on(t.clientId, t.key),
     index("roles_client_idx").on(t.clientId),
+    uniqueIndex("roles_one_default_per_client")
+      .on(t.clientId)
+      .where(sql`${t.isDefault} = true`),
   ]
 );
 
@@ -60,9 +63,6 @@ export const userRolesTable = pgTable(
   (t) => [
     uniqueIndex("user_client_role_uq").on(t.userId, t.clientId, t.roleId),
     index("user_client_idx").on(t.userId, t.clientId),
-    uniqueIndex("roles_one_default_per_client")
-      .on(t.clientId)
-      .where(sql`is_default = true`),
   ]
 );
 

@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
 CREATE TYPE "public"."code_challenge_method" AS ENUM('S256');--> statement-breakpoint
 CREATE TYPE "public"."client_type" AS ENUM('public', 'confidential');--> statement-breakpoint
 CREATE TYPE "public"."otp_purpose" AS ENUM('email_verification', 'password_reset');--> statement-breakpoint
@@ -13,9 +11,10 @@ CREATE TABLE "auth_codes" (
 	"user_id" uuid,
 	"client_id" uuid,
 	"redirect_uri" varchar(512) NOT NULL,
-	"code_challenge" "code_challenge_method" DEFAULT 'S256' NOT NULL,
+	"code_challenge" varchar(128) NOT NULL,
+	"code_challenge_method" "code_challenge_method" DEFAULT 'S256' NOT NULL,
 	"session_id" uuid,
-	"expires_at" timestamp with time zone DEFAULT now() + interval '90 seconds',
+	"expires_at" timestamp with time zone DEFAULT now() + interval '90 seconds' NOT NULL,
 	"consumed_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now()
 );
@@ -63,6 +62,16 @@ CREATE TABLE "password_credentials" (
 	"password_hash" text NOT NULL,
 	"version" varchar(32) DEFAULT 'argon2id-1' NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "permissions_catalog" (
+	"perm" varchar(128) PRIMARY KEY NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "role_permissions" (
+	"role_id" uuid NOT NULL,
+	"perm" varchar(128) NOT NULL,
+	CONSTRAINT "role_permissions_pk" PRIMARY KEY("role_id","perm")
 );
 --> statement-breakpoint
 CREATE TABLE "roles" (
@@ -146,10 +155,13 @@ CREATE TABLE "projects" (
 --> statement-breakpoint
 ALTER TABLE "auth_codes" ADD CONSTRAINT "auth_codes_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "auth_codes" ADD CONSTRAINT "auth_codes_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "auth_codes" ADD CONSTRAINT "auth_codes_session_id_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."sessions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "client_redirect_uris" ADD CONSTRAINT "client_redirect_uris_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "devices" ADD CONSTRAINT "devices_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "otps" ADD CONSTRAINT "otps_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "password_credentials" ADD CONSTRAINT "password_credentials_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_role_id_roles_id_fk" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "role_permissions" ADD CONSTRAINT "role_permissions_perm_permissions_catalog_perm_fk" FOREIGN KEY ("perm") REFERENCES "public"."permissions_catalog"("perm") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "roles" ADD CONSTRAINT "roles_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -169,8 +181,10 @@ CREATE INDEX "devices_user_idx" ON "devices" USING btree ("user_id");--> stateme
 CREATE INDEX "devices_seen_idx" ON "devices" USING btree ("last_seen_at");--> statement-breakpoint
 CREATE INDEX "otp_user_purpose_idx" ON "otps" USING btree ("user_id","purpose");--> statement-breakpoint
 CREATE INDEX "otps_expires_idx" ON "otps" USING btree ("expires_at");--> statement-breakpoint
+CREATE INDEX "role_perms_perm_idx" ON "role_permissions" USING btree ("perm");--> statement-breakpoint
 CREATE UNIQUE INDEX "roles_client_key_uq" ON "roles" USING btree ("client_id","key");--> statement-breakpoint
 CREATE INDEX "roles_client_idx" ON "roles" USING btree ("client_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "roles_one_default_per_client" ON "roles" USING btree ("client_id") WHERE "roles"."is_default" = true;--> statement-breakpoint
 CREATE UNIQUE INDEX "user_client_role_uq" ON "user_roles" USING btree ("user_id","client_id","role_id");--> statement-breakpoint
 CREATE INDEX "user_client_idx" ON "user_roles" USING btree ("user_id","client_id");--> statement-breakpoint
 CREATE INDEX "sessions_user_idx" ON "sessions" USING btree ("user_id");--> statement-breakpoint
