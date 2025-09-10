@@ -35,8 +35,6 @@ export class EmailService {
     const to = toArray(opts.to)!;
     const textFallback = opts.text ?? htmlToText(opts.html);
 
-    console.log('Here 1');
-
     const params: SendEmailRequest = {
       FromEmailAddress: opts.from ?? this.cfg.from,
       Destination: { ToAddresses: to },
@@ -60,18 +58,14 @@ export class EmailService {
       },
     };
 
-    console.log('Here');
-
     const out = await this.ses.send(new SendEmailCommand(params));
     const messageId = out?.MessageId ?? '';
-    console.log(`SES send ok: ${messageId} → ${to.join(', ')}`);
     this.log.log(`SES send ok: ${messageId} → ${to.join(', ')}`);
     return { messageId };
   }
 
-  async sendOtpCode(to: string, props: OTPCodeEmailProps) {
+  async sendOtpCodeEmail(to: string, props: OTPCodeEmailProps) {
     const { subject, html, text } = await renderOTPCodeEmail(props);
-    console.log('render otp code');
     return this.send({ to, subject, html, text });
   }
 }

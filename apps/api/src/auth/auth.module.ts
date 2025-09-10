@@ -16,6 +16,7 @@ import { CryptoService } from './crypto/crypto.service';
 import { OtpService } from './otp/otp.service';
 import { PasswordController } from './password/password.controller';
 import { TokenService } from './token/token.service';
+import { VerifiedGuard } from './verified/verified.guard';
 
 @Module({
   imports: [
@@ -41,8 +42,10 @@ import { TokenService } from './token/token.service';
     CryptoService,
     OtpService,
     AccessGuard,
+    VerifiedGuard,
     { provide: APP_GUARD, useClass: ClientGuard },
     { provide: APP_GUARD, useExisting: AccessGuard },
+    { provide: APP_GUARD, useClass: VerifiedGuard },
   ],
   controllers: [AuthController, PasswordController],
   exports: [JwtModule, TokenService, AuthService],

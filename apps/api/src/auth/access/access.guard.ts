@@ -42,7 +42,9 @@ export class AccessGuard implements CanActivate {
     ]);
     if (isPublic) return true;
 
-    const req = ctx.switchToHttp().getRequest<AuthedRequest>();
+    const req = ctx
+      .switchToHttp()
+      .getRequest<AuthedRequest & { client?: { id: string } }>();
     const auth = req.headers.authorization;
 
     if (!auth?.startsWith('Bearer '))
@@ -50,9 +52,7 @@ export class AccessGuard implements CanActivate {
 
     const token = auth.slice('Bearer '.length);
     const payload = await this.jwt
-      .verifyAsync<AccessPayload>(token, {
-        algorithms: ['HS256'] as const,
-      })
+      .verifyAsync<AccessPayload>(token)
       .catch(() => {
         throw new UnauthorizedException('Invalid token');
       });
@@ -61,11 +61,17 @@ export class AccessGuard implements CanActivate {
       where: (t, { eq, isNull, gt, and }) =>
         and(
           eq(t.id, payload.sid),
+          eq(t.clientId, payload.aud),
           isNull(t.revokedAt),
           gt(t.expiresAt, new Date()),
         ),
     });
     if (!session) throw new UnauthorizedException('Session Expired');
+
+    const clientInReq = req.client?.id;
+    if (clientInReq && clientInReq !== payload.aud) {
+      throw new UnauthorizedException('Token audience mismatch');
+    }
 
     req.user = {
       userId: payload.sub,

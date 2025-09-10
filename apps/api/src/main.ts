@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { ApiExceptionFilter } from './http/api-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,14 +10,22 @@ async function bootstrap() {
 
   app.enableCors({
     origin: [
-      'https://localhost:3000',
-      'https://localhost:3001',
-      'https://localhost:3002',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://localhost:3002',
     ],
     credentials: true,
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'x-client-key',
+      'x-client-id',
+    ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    exposeHeaders: ['Retry-After'],
   });
+
+  app.useGlobalFilters(new ApiExceptionFilter());
 
   await app.listen(process.env.PORT ?? 3003);
 }

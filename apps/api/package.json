@@ -18,21 +18,23 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@site-haus/transactional": "workspace:*",
     "@aws-sdk/client-sesv2": "^3.879.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/throttler": "^6.4.0",
     "@node-rs/argon2": "^2.0.2",
     "@site-haus/db": "workspace:*",
+    "@site-haus/transactional": "workspace:*",
     "@site-haus/utils": "workspace:*",
     "cookie-parser": "^1.4.7",
     "drizzle-orm": "^0.44.4",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { schema, User, type Db } from '@site-haus/db';
+import { eq, schema, User, type Db } from '@site-haus/db';
 import { DRIZZLE } from 'src/db/tokens';
 import { UserExistsError } from 'src/errors/auth.errors';
 
@@ -88,5 +88,15 @@ export class UsersService {
 
       return user!;
     });
+  }
+
+  async setVerified(userId: string, isVerified = true) {
+    const [u] = await this.db
+      .update(schema.usersTable)
+      .set({ isVerified, emailVerifiedAt: new Date() })
+      .where(eq(schema.usersTable.id, userId))
+      .returning();
+
+    return u!;
   }
 }

@@ -1,12 +1,10 @@
 import { z } from "zod";
-import { emailSchema, nameSchema } from "../core/zod-helpers.js";
-
-export const passwordSchema = z
-  .string()
-  .min(8, "Use at least 8 characters")
-  .max(128, "Too long")
-  .regex(/[A-Za-z]/, "Must include a letter")
-  .regex(/\d/, "Must include a number");
+import {
+  codeSchema,
+  emailSchema,
+  nameSchema,
+  passwordSchema,
+} from "../core/zod-helpers.js";
 
 export const registerSchema = z.object({
   email: emailSchema,
@@ -18,6 +16,15 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Password is required"),
+});
+
+export const requestVerifySchema = z.object({
+  email: emailSchema,
+});
+
+export const verifySchema = z.object({
+  email: emailSchema,
+  code: codeSchema,
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

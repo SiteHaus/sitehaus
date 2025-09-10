@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
-import { ClientsService } from './clients/clients.service';
 import authConfig from './conf/auth.config';
 import emailConfig from './conf/email.config';
 import { DbModule } from './db/db.module';
@@ -15,12 +16,13 @@ import { HealthModule } from './health/health.module';
       isGlobal: true,
       load: [authConfig, emailConfig],
     }),
+    ThrottlerModule.forRoot([{ ttl: 60, limit: 20 }]),
     DbModule,
     HealthModule,
     AuthModule,
     EmailModule,
     ClientsModule,
   ],
-  providers: [ClientsService],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

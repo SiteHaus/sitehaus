@@ -5,16 +5,26 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Post,
   Req,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { loginSchema, registerSchema } from '@site-haus/validation/forms/users';
+import { type ConfigType } from '@nestjs/config';
+import {
+  loginSchema,
+  registerSchema,
+  requestVerifySchema,
+  verifySchema,
+} from '@site-haus/validation/forms/auth';
 import {
   type Request as ExpressRequest,
   type Response as ExpressResponse,
 } from 'express';
 import { ClientInRequest } from 'src/clients/client.guard';
+import emailConfig from 'src/conf/email.config';
+import { EmailService } from 'src/email/email.service';
 import { Public } from 'src/public.decorator';
 import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from './access/access.guard';
@@ -24,12 +34,18 @@ import {
   REFRESH_COOKIE,
   setRefreshCookie,
 } from './cookie/cookies';
+import { OtpService } from './otp/otp.service';
+import { VerifiedOptional } from './verified/verified.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly auth: AuthService,
     private readonly users: UsersService,
+    private readonly emailSvc: EmailService,
+    private readonly otps: OtpService,
+    @Inject(emailConfig.KEY)
+    private readonly emailCfg: ConfigType<typeof emailConfig>,
   ) {}
 
   @Public()
@@ -40,6 +56,7 @@ export class AuthController {
     @Res() res: ExpressResponse,
   ) {
     const parsed = registerSchema.parse(body);
+
     const result = await this.auth.register(parsed, {
       clientId: req.client!.id,
       ip: req.ip,
@@ -52,8 +69,23 @@ export class AuthController {
       new Date(result.refreshTokenExpiresAt),
     );
 
+    const user = await this.users.findById(result.userId);
+    let requiresEmailVerification = false;
+    if (user && !user.isVerified) {
+      const { code } = await this.otps.create(user.id, 'email_verification');
+      const verifyUrl = `${this.emailCfg.appBaseUrl}/verify?email=${encodeURIComponent(user.email)}&code=${code}`;
+      await this.emailSvc.sendOtpCodeEmail(user.email, {
+        code,
+        appName: 'Site Haus',
+        supportUrl: verifyUrl,
+      });
+      requiresEmailVerification = true;
+    }
+
     const { refreshToken, ...rest } = result;
-    return res.status(HttpStatus.OK).json(rest);
+    return res
+      .status(HttpStatus.OK)
+      .json({ ...rest, requiresEmailVerification });
   }
 
   @Public()
@@ -64,7 +96,34 @@ export class AuthController {
     @Req() req: ExpressRequest & ClientInRequest,
     @Res() res: ExpressResponse,
   ) {
+    const existing = req.cookies?.[REFRESH_COOKIE] as string | undefined;
+    if (existing) {
+      try {
+        const result = await this.auth.refresh({
+          clientId: req.client!.id,
+          refreshToken: existing,
+          ip: req.ip,
+          ua: req.headers['user-agent'] as string | undefined,
+        });
+        setRefreshCookie(
+          res,
+          result.refreshToken,
+          new Date(result.refreshTokenExpiresAt),
+        );
+        const { refreshToken, ...rest } = result;
+
+        return res.json(rest);
+      } catch (e) {
+        if (e instanceof UnauthorizedException) {
+          clearRefreshCookie(res);
+        } else {
+          throw e;
+        }
+      }
+    }
+
     const parsed = loginSchema.parse(body);
+
     const result = await this.auth.login(
       { email: parsed.email, password: parsed.password },
       {
@@ -114,6 +173,7 @@ export class AuthController {
     }
   }
 
+  @VerifiedOptional()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
   async logout(@Req() req: AuthedRequest, @Res() res: ExpressResponse) {
@@ -123,6 +183,7 @@ export class AuthController {
     return res.send();
   }
 
+  @VerifiedOptional()
   @Get('me')
   async me(@Req() req: AuthedRequest) {
     const { userId, clientId, sessionId } = req.user!;
@@ -141,5 +202,43 @@ export class AuthController {
         : null,
       session: { id: sessionId, clientId },
     };
+  }
+
+  @Public()
+  @Post('request-email-verification')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async requestEmailVerification(@Body() body: unknown) {
+    const { email } = requestVerifySchema.parse(body);
+
+    const u = await this.users.findByEmail(email);
+    if (!u || u.isVerified) return;
+
+    const { code } = await this.otps.create(u.id, 'email_verification');
+    const verifyUrl = `${this.emailCfg.appBaseUrl}/verify?email=${encodeURIComponent(email)}&code=${code}`;
+
+    await this.emailSvc.sendOtpCodeEmail(email, {
+      code,
+      appName: 'Site Haus',
+      supportUrl: verifyUrl,
+    });
+  }
+
+  @Public()
+  @Post('verify-email')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async verifyEmail(@Body() body: unknown) {
+    console.log(body);
+    const { email, code } = verifySchema.parse(body);
+
+    console.log(email, code);
+
+    const u = await this.users.findByEmail(email);
+    if (!u) throw new BadRequestException('Invalid email or code');
+
+    const res = await this.otps.consume(u.id, 'email_verification', code);
+
+    if ('reason' in res)
+      throw new BadRequestException('Invalid or expired code');
+    await this.users.setVerified(u.id, true);
   }
 }
