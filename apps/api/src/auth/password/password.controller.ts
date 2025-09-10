@@ -19,8 +19,8 @@ import { EmailService } from 'src/email/email.service';
 import { Public } from 'src/public.decorator';
 import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
+import { CryptoService } from '../../crypto/crypto.service';
 import { type AuthedRequest } from '../access/access.guard';
-import { CryptoService } from '../crypto/crypto.service';
 import { VerifiedOptional } from '../verified/verified.guard';
 
 @VerifiedOptional()

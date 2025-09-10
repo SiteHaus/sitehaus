@@ -1,8 +1,8 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { and, eq, gt, isNull, ne, schema, type Db } from '@site-haus/db';
-import { CryptoService } from 'src/auth/crypto/crypto.service';
 import authConfig from 'src/conf/auth.config';
+import { CryptoService } from 'src/crypto/crypto.service';
 import { DRIZZLE } from 'src/db/tokens';
 
 @Injectable()
@@ -185,6 +185,28 @@ export class SessionService {
       .returning({ id: schema.sessionsTable.id });
 
     return updated.length;
+  }
+
+  async listForUserClient(userId: string, clientId: string) {
+    const now = new Date();
+    return this.db.query.sessionsTable.findMany({
+      where: (t, { and: _and, eq: _eq, gt: _gt, isNull: _isNull }) =>
+        _and(
+          _eq(t.userId, userId),
+          _eq(t.clientId, clientId),
+          _isNull(t.revokedAt),
+          _gt(t.expiresAt, now),
+        ),
+      columns: {
+        id: true,
+        createdAt: true,
+        lastUsedAt: true,
+        expiresAt: true,
+        ipHash: true,
+        uaHash: true,
+      },
+      orderBy: (t, { desc }) => [desc(t.createdAt)],
+    });
   }
 
   private async revokeAllForUserClientInTx(

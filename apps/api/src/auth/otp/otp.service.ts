@@ -9,7 +9,7 @@ import {
   type Db,
 } from '@site-haus/db';
 import { randomInt } from 'crypto';
-import { CryptoService } from 'src/auth/crypto/crypto.service';
+import { CryptoService } from 'src/crypto/crypto.service';
 import { DRIZZLE } from 'src/db/tokens';
 
 @Injectable()

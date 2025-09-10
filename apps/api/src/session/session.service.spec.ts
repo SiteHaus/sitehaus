@@ -1,5 +1,5 @@
 import { UnauthorizedException } from '@nestjs/common';
-import { CryptoService } from 'src/auth/crypto/crypto.service';
+import { CryptoService } from 'src/crypto/crypto.service';
 import { SessionService } from './session.service';
 
 describe('SessionService.rotate (simple stubs)', () => {

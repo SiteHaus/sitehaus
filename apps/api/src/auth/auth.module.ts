@@ -5,14 +5,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { ClientGuard } from 'src/clients/client.guard';
 import { ClientsModule } from 'src/clients/clients.module';
 import authConfig from 'src/conf/auth.config';
+import { CryptoModule } from 'src/crypto/crypto.module';
 import { DbModule } from 'src/db/db.module';
 import { EmailModule } from 'src/email/email.module';
-import { SessionService } from 'src/session/session.service';
+import { SessionModule } from 'src/session/session.module';
 import { UsersService } from 'src/users/users.service';
 import { AccessGuard } from './access/access.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { CryptoService } from './crypto/crypto.service';
 import { OtpService } from './otp/otp.service';
 import { PasswordController } from './password/password.controller';
 import { TokenService } from './token/token.service';
@@ -24,6 +24,8 @@ import { VerifiedGuard } from './verified/verified.guard';
     DbModule,
     EmailModule,
     ClientsModule,
+    SessionModule,
+    CryptoModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [authConfig.KEY],
@@ -37,9 +39,7 @@ import { VerifiedGuard } from './verified/verified.guard';
   providers: [
     AuthService,
     TokenService,
-    SessionService,
     UsersService,
-    CryptoService,
     OtpService,
     AccessGuard,
     VerifiedGuard,

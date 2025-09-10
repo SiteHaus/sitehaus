@@ -9,7 +9,7 @@ import authConfig from 'src/conf/auth.config';
 import { UserExistsError } from 'src/errors/auth.errors';
 import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
-import { CryptoService } from './crypto/crypto.service';
+import { CryptoService } from '../crypto/crypto.service';
 import { TokenService } from './token/token.service';
 
 @Injectable()

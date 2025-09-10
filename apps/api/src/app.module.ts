@@ -9,6 +9,9 @@ import emailConfig from './conf/email.config';
 import { DbModule } from './db/db.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
+import { SessionController } from './session/session.controller';
+import { SessionModule } from './session/session.module';
+import { CryptoModule } from './crypto/crypto.module';
 
 @Module({
   imports: [
@@ -22,7 +25,10 @@ import { HealthModule } from './health/health.module';
     AuthModule,
     EmailModule,
     ClientsModule,
+    SessionModule,
+    CryptoModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
+  controllers: [SessionController],
 })
 export class AppModule {}
