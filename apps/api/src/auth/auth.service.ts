@@ -7,6 +7,7 @@ import {
 import { type ConfigType } from '@nestjs/config';
 import authConfig from 'src/conf/auth.config';
 import { UserExistsError } from 'src/errors/auth.errors';
+import { RolesService } from 'src/roles/roles.service';
 import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
 import { CryptoService } from '../crypto/crypto.service';
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly crypto: CryptoService,
     private readonly sessions: SessionService,
     private readonly tokens: TokenService,
+    private readonly roles: RolesService,
     @Inject(authConfig.KEY) private readonly cfg: ConfigType<typeof authConfig>,
   ) {}
 
@@ -39,6 +41,9 @@ export class AuthService {
         lastName: input.lastName,
         passwordHash,
       });
+
+      await this.roles.assignDefaultIfAny(user.id, ctx.clientId, user.id);
+
       return this.issueTokens(user.id, ctx);
     } catch (e) {
       if (e instanceof UserExistsError) {
