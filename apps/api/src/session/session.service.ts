@@ -4,12 +4,14 @@ import { and, eq, gt, isNull, ne, schema, type Db } from '@site-haus/db';
 import authConfig from 'src/conf/auth.config';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { DRIZZLE } from 'src/db/tokens';
+import { DevicesService } from 'src/devices/devices.service';
 
 @Injectable()
 export class SessionService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly crypto: CryptoService,
+    private readonly devices: DevicesService,
     @Inject(authConfig.KEY) private readonly cfg: ConfigType<typeof authConfig>,
   ) {}
 
@@ -28,12 +30,18 @@ export class SessionService {
     const now = new Date();
     const expires = new Date(now.getTime() + ttl * 1000);
 
+    const deviceId = await this.devices.resolveOrCreateForSession(dbx, {
+      userId: input.userId,
+      ip: input.ip,
+      ua: input.ua,
+    });
+
     const [s] = await dbx
       .insert(schema.sessionsTable)
       .values({
         userId: input.userId,
         clientId: input.clientId,
-        deviceId: null,
+        deviceId: deviceId,
         refreshHash,
         ipHash: input.ip ? this.crypto.sha256b64url(input.ip) : null,
         uaHash: input.ua ? this.crypto.sha256b64url(input.ua) : null,

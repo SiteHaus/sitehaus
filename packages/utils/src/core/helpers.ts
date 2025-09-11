@@ -11,3 +11,32 @@ export const htmlToText = (html?: string): string | undefined => {
     .replace(/\s+/g, " ")
     .trim();
 };
+
+export const parseUserAgent = (ua?: string) => {
+  if (!ua) return {};
+  const u = ua.toLowerCase();
+  const platform =
+    u.includes("iphone") || u.includes("ipad")
+      ? "iOS"
+      : u.includes("android")
+        ? "Android"
+        : u.includes("windows")
+          ? "Windows"
+          : u.includes("mac os x") || u.includes("macintosh")
+            ? "macOS"
+            : u.includes("linux")
+              ? "Linux"
+              : undefined;
+
+  const browser = u.includes("edg")
+    ? "Edge"
+    : u.includes("crios") || (u.includes("chrome") && !u.includes("edg"))
+      ? "Chrome"
+      : u.includes("safari") && !u.includes("chrome")
+        ? "Safari"
+        : u.includes("firefox")
+          ? "Firefox"
+          : undefined;
+
+  return { platform, browser };
+};

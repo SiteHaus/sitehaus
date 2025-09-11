@@ -13,6 +13,7 @@ import { SessionController } from './session/session.controller';
 import { SessionModule } from './session/session.module';
 import { CryptoModule } from './crypto/crypto.module';
 import { RolesModule } from './roles/roles.module';
+import { DevicesModule } from './devices/devices.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { RolesModule } from './roles/roles.module';
     SessionModule,
     CryptoModule,
     RolesModule,
+    DevicesModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
   controllers: [SessionController],
