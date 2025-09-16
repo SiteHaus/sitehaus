@@ -32,6 +32,7 @@ export const userStatusValues = ["active", "suspended"] as const;
 export const otpPurposeValues = [
   "email_verification",
   "password_reset",
+  "invite",
 ] as const;
 
 export const clientTypeValues = ["public", "confidential"] as const;

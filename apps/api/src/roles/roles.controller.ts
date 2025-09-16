@@ -1,6 +1,6 @@
 import {
-  BadRequestException,
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -33,6 +33,7 @@ export class RolesController {
 
   @RequirePerms('roles:manage')
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   async createRole(
     @Req() req: AuthedRequest & { client?: { id: string } },
     @Body() body: unknown,
@@ -79,7 +80,7 @@ export class RolesController {
   }
 
   @RequirePerms('roles:manage')
-  @Post(':roleId/perms:replace')
+  @Post(':roleId/perms/replace')
   @HttpCode(HttpStatus.NO_CONTENT)
   async replaceRolePerms(
     @Req() req: AuthedRequest & { client?: { id: string } },
@@ -118,7 +119,7 @@ export class RolesController {
       req.user!.userId,
     );
 
-    if (!res) throw new BadRequestException('Already assigned');
+    if (!res) throw new ConflictException('Already assigned');
   }
 
   @RequirePerms('roles:assign')

@@ -26,6 +26,7 @@ import { ClientInRequest } from 'src/clients/client.guard';
 import emailConfig from 'src/conf/email.config';
 import { EmailService } from 'src/email/email.service';
 import { Public } from 'src/public.decorator';
+import { RolesService } from 'src/roles/roles.service';
 import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from './access/access.guard';
 import { AuthService } from './auth.service';
@@ -44,6 +45,7 @@ export class AuthController {
     private readonly users: UsersService,
     private readonly emailSvc: EmailService,
     private readonly otps: OtpService,
+    private readonly roles: RolesService,
     @Inject(emailConfig.KEY)
     private readonly emailCfg: ConfigType<typeof emailConfig>,
   ) {}
@@ -187,7 +189,9 @@ export class AuthController {
   @Get('me')
   async me(@Req() req: AuthedRequest) {
     const { userId, clientId, sessionId } = req.user!;
+
     const user = await this.users.findById(userId);
+    const perms = await this.roles.permsForUserClient(userId, clientId);
 
     return {
       user: user
@@ -201,6 +205,7 @@ export class AuthController {
           }
         : null,
       session: { id: sessionId, clientId },
+      permissions: [...perms],
     };
   }
 

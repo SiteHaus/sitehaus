@@ -235,4 +235,35 @@ export class SessionService {
         ),
       );
   }
+
+  async touch(sessionId: string, ip?: string, ua?: string) {
+    const s = await this.db.query.sessionsTable.findFirst({
+      where: (t, { eq: _eq }) => eq(t.id, sessionId),
+      columns: { lastUsedAt: true, ipHash: true, uaHash: true },
+    });
+
+    if (!s) return;
+
+    const now = new Date();
+
+    const tooSoon =
+      s.lastUsedAt && now.getTime() - s.lastUsedAt.getTime() < 60_000;
+
+    const ipHash = ip ? this.crypto.sha256b64url(ip.trim()) : undefined;
+    const uaHash = ua ? this.crypto.sha256b64url(ua.trim()) : undefined;
+
+    const ipChanged = ipHash && ipHash !== s.ipHash;
+    const uaChanged = uaHash && uaHash !== s.uaHash;
+
+    if (tooSoon && !ipChanged && !uaChanged) return;
+
+    await this.db
+      .update(schema.sessionsTable)
+      .set({
+        lastUsedAt: now,
+        ...(ipHash ? { ipHash } : {}),
+        ...(uaHash ? { uaHash } : {}),
+      })
+      .where(eq(schema.sessionsTable.id, sessionId));
+  }
 }

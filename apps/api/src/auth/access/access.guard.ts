@@ -11,6 +11,7 @@ import { type Db } from '@site-haus/db';
 import { Request } from 'express';
 import { DRIZZLE } from 'src/db/tokens';
 import { IS_PUBLIC_KEY } from 'src/public.decorator';
+import { SessionService } from 'src/session/session.service';
 
 export type AccessPayload = {
   sub: string;
@@ -32,6 +33,7 @@ export class AccessGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
     private readonly reflector: Reflector,
+    private readonly sessions: SessionService,
     @Inject(DRIZZLE) private readonly db: Db,
   ) {}
 
@@ -78,6 +80,12 @@ export class AccessGuard implements CanActivate {
       clientId: payload.aud,
       sessionId: payload.sid,
     } as const;
+
+    await this.sessions.touch(
+      payload.sid,
+      req.ip,
+      req.headers['user-agent'] as string | undefined,
+    );
 
     return true;
   }
