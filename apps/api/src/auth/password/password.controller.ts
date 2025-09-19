@@ -9,6 +9,7 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import {
   changePasswordSchema,
   requestPasswordResetSchema,
@@ -23,6 +24,7 @@ import { CryptoService } from '../../crypto/crypto.service';
 import { type AuthedRequest } from '../access/access.guard';
 import { VerifiedOptional } from '../verified/verified.guard';
 
+@Throttle({ auth: {} })
 @VerifiedOptional()
 @Controller('password')
 export class PasswordController {
@@ -60,6 +62,7 @@ export class PasswordController {
   @Public()
   @Post('request-password-reset')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ auth: { ttl: 15 * 60, limit: 5 } })
   async requestReset(@Body() body: unknown) {
     const parsed = requestPasswordResetSchema.parse(body);
 
@@ -72,6 +75,7 @@ export class PasswordController {
   @Public()
   @Post('reset')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ auth: { limit: 6 } })
   async reset(@Body() body: unknown) {
     const parsed = resetPasswordSchema.parse(body);
 

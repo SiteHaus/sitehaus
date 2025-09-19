@@ -12,6 +12,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
+import { Throttle } from '@nestjs/throttler';
 import {
   loginSchema,
   registerSchema,
@@ -38,6 +39,7 @@ import {
 import { OtpService } from './otp/otp.service';
 import { VerifiedOptional } from './verified/verified.guard';
 
+@Throttle({ auth: {} })
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -92,6 +94,7 @@ export class AuthController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
+  @Throttle({ auth: { limit: 5 } })
   @Post('login')
   async login(
     @Body() body: unknown,
@@ -212,6 +215,7 @@ export class AuthController {
   @Public()
   @Post('request-email-verification')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ auth: { ttl: 15 * 60, limit: 5 } })
   async requestEmailVerification(@Body() body: unknown) {
     const { email } = requestVerifySchema.parse(body);
 
@@ -231,6 +235,7 @@ export class AuthController {
   @Public()
   @Post('verify-email')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @Throttle({ auth: { limit: 6 } })
   async verifyEmail(@Body() body: unknown) {
     console.log(body);
     const { email, code } = verifySchema.parse(body);

@@ -6,6 +6,11 @@ import { ApiExceptionFilter } from './http/api-exception.filter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  const http = app.getHttpAdapter();
+  if (http.getType() === 'express') {
+    http.getInstance().set('trust proxy', true);
+  }
+
   app.use(cookieParser());
 
   app.enableCors({
