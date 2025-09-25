@@ -1,10 +1,9 @@
-import { Button } from "@site-haus/ui/components/base/button";
+import { LoginForm } from "@site-haus/ui/components/forms/login-form";
 
 export default function Home() {
   return (
     <div>
-      <Button>Click Me!</Button>
-      <Button variant="outline">Outline Button!</Button>
+      <LoginForm />
     </div>
   );
 }
