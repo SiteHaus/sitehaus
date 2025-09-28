@@ -1,3 +1,4 @@
+import { renameDeviceSchema } from "@site-haus/validation/forms/device";
 import { initContract } from "@ts-rest/core";
 import z from "zod";
 
@@ -24,7 +25,7 @@ export const devicesRouter = c.router({
     method: "POST",
     path: "/devices/:deviceId/rename",
     pathParams: c.type<{ deviceId: string }>(),
-    body: c.type<{ label?: string | null }>(),
+    body: renameDeviceSchema,
     responses: { 204: c.type<void>() },
   },
   revoke: {

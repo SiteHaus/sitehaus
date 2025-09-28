@@ -28,7 +28,7 @@ export const rolesRouter = c.router({
       description?: string;
       isDefault?: boolean;
     }>(),
-    responses: { 200: c.type<{ role: z.infer<typeof role> }>() },
+    responses: { 201: c.type<{ role: z.infer<typeof role> }>() },
   },
   update: {
     method: "PATCH",

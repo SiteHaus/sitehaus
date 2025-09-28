@@ -29,9 +29,16 @@ api.interceptors.request.use(async (config) => {
   if (t?.accessToken && t?.accessExpiration) {
     if (t.accessExpiration - now <= proactiveRefreshSkewSec) {
       await runSingleRefresh(refreshOnce);
+
+      const t2 = tokenProvider?.();
+      if (t2?.accessToken) {
+        config.headers.Authorization = `Bearer ${t2.accessToken}`;
+      } else {
+        config.headers.Authorization = `Bearer ${t.accessToken}`;
+      }
     }
-    config.headers.Authorization = `Bearer ${t.accessToken}`;
   }
+
   return config;
 });
 
@@ -47,7 +54,9 @@ api.interceptors.response.use(
       try {
         await runSingleRefresh(refreshOnce);
         return api(original);
-      } catch {}
+      } catch (e) {
+        getConfig().onRefreshError?.(e);
+      }
     }
     throw error;
   }
@@ -60,11 +69,26 @@ const refreshOnce = async () => {
     _retry: true,
   });
 
-  const { accessToken, accessTokenExpiresIn } =
-    res.data ?? ({} as { accessToken: string; accessTokenExpirseIn: number });
+  const data = res.data as {
+    accessToken?: string;
+    accessTokenExpiresIn?: number;
+  };
 
-  if (onAuthUpdate && accessToken && typeof accessTokenExpiresIn === "number") {
-    const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
-    onAuthUpdate({ accessToken, accessExpiration: exp });
+  if (
+    onAuthUpdate &&
+    data?.accessToken &&
+    typeof data?.accessTokenExpiresIn === "number"
+  ) {
+    const exp = Math.floor(Date.now() / 1000) + data.accessTokenExpiresIn;
+    onAuthUpdate({ accessToken: data?.accessToken, accessExpiration: exp });
   }
 };
+
+export const postPublic = <T = any>(
+  url: string,
+  data?: any,
+  config?: AxiosRequestConfig
+) => api.post<T>(url, data, { ...config, _skipAuth: true });
+
+export const getPublic = <T = any>(url: string, config?: AxiosRequestConfig) =>
+  api.get<T>(url, { ...config, _skipAuth: true });

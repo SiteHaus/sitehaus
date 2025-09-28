@@ -1,4 +1,5 @@
 import {
+  loginSchema,
   registerSchema,
   requestVerifySchema,
   verifySchema,
@@ -12,7 +13,7 @@ import {
   dateTime,
   sessionBrief,
   userBrief,
-} from "./primatives.js";
+} from "./primitives.js";
 
 type RegisterBody = z.infer<typeof registerSchema>;
 type RegisterResponse = z.infer<typeof registerResponse>;
@@ -22,7 +23,6 @@ const c = initContract();
 export const authTokens = z.object({
   accessToken: z.string(),
   accessTokenExpiresIn: z.number(),
-  refreshToken: z.string(),
   refreshTokenExpiresAt: dateTime,
   sessionId: z.uuid(),
   userId: z.uuid(),
@@ -38,21 +38,11 @@ export const registerResponse = authTokens.extend({
   requiresEmailVerification: z.boolean(),
 });
 
-export const authRouter = c.router({
+// No session required
+export const authPublicRouter = c.router({
   register: {
     method: "POST",
     path: "/auth/register",
-    body: registerSchema,
-    responses: {
-      200: registerResponse,
-      400: apiErrorValidation,
-      409: apiErrorHttp,
-      500: apiErrorServer,
-    },
-  },
-  login: {
-    method: "POST",
-    path: "/auth/login",
     body: registerSchema,
     responses: {
       200: registerResponse,
@@ -72,11 +62,6 @@ export const authRouter = c.router({
       500: apiErrorServer,
     },
   },
-  me: {
-    method: "GET",
-    path: "/auth/me",
-    responses: { 200: meResponse, 401: apiErrorHttp },
-  },
   requestEmailVerification: {
     method: "POST",
     path: "/auth/request-email-verification",
@@ -89,4 +74,38 @@ export const authRouter = c.router({
     body: verifySchema,
     responses: { 204: c.type<RegisterResponse>(), 400: apiErrorHttp },
   },
+});
+
+export const authLoginRouter = c.router({
+  login: {
+    method: "POST",
+    path: "/auth/login",
+    body: loginSchema,
+    responses: {
+      200: registerResponse,
+      400: apiErrorValidation,
+      409: apiErrorHttp,
+      500: apiErrorServer,
+    },
+  },
+});
+
+export const authPrivateRouter = c.router({
+  me: {
+    method: "GET",
+    path: "/auth/me",
+    responses: { 200: meResponse, 401: apiErrorHttp },
+  },
+  logout: {
+    method: "POST",
+    path: "/auth/logout",
+    body: z.void(),
+    responses: { 204: z.void() },
+  },
+});
+
+export const authContract = c.router({
+  public: authPublicRouter,
+  loginOnly: authLoginRouter,
+  private: authPrivateRouter,
 });
