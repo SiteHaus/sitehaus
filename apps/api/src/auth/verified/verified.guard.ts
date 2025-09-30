@@ -31,7 +31,7 @@ export class VerifiedGuard implements CanActivate {
 
     const isOptional = this.reflector.getAllAndOverride<boolean>(
       IS_VERIFIED_OPTIONAL,
-      [ctx.getHandler(), ctx.getClass],
+      [ctx.getHandler(), ctx.getClass()],
     );
     if (isOptional) return true;
 

@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
+import { ClientsOriginService } from './clients/clients-origin/clients-origin.service';
 import { ApiExceptionFilter } from './http/api-exception.filter';
 
 async function bootstrap() {
@@ -13,12 +14,15 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  const originsSvc = app.get(ClientsOriginService);
+  const allowed = await originsSvc.getAllowedOrigins();
+
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:3001',
-      'http://localhost:3002',
-    ],
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (allowed.has(origin)) return cb(null, true);
+      cb(new Error('Not allowed by CORS'));
+    },
     credentials: true,
     allowedHeaders: [
       'Content-Type',

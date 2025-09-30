@@ -30,13 +30,13 @@ export class PermissionGuard implements CanActivate {
         ctx.getClass(),
       ]) ?? [];
 
-    const requriedAny =
+    const requiredAny =
       this.reflector.getAllAndOverride<Permission[]>(REQ_PERMS_ANY, [
         ctx.getHandler(),
         ctx.getClass(),
       ]) ?? [];
 
-    if (requiredAll.length === 0 && requriedAny.length === 0) return true;
+    if (requiredAll.length === 0 && requiredAny.length === 0) return true;
 
     const req = ctx
       .switchToHttp()
@@ -49,7 +49,7 @@ export class PermissionGuard implements CanActivate {
 
     const hasAll = requiredAll.every((p) => perms.has(p));
     const hasAny =
-      requriedAny.length === 0 || requriedAny.some((p) => perms.has(p));
+      requiredAny.length === 0 || requiredAny.some((p) => perms.has(p));
 
     if (hasAll && hasAny) return true;
 
