@@ -1,5 +1,3 @@
-import { api } from "./http/client.js";
-
 export type TokenProvider = () => {
   accessToken: string | null;
   accessExpiration: number | null;
@@ -11,7 +9,6 @@ export type SDKConfig = {
   tokenProvider: TokenProvider;
   onAuthUpdate?: (p: { accessToken: string; accessExpiration: number }) => void;
   proactiveRefreshSkewSec?: number;
-  onRefreshError?: (err: unknown) => void;
 };
 
 let cfg: SDKConfig | null = null;
@@ -22,5 +19,4 @@ export const getConfig = () => {
 
 export const configureSDK = (c: SDKConfig) => {
   cfg = { proactiveRefreshSkewSec: 60, ...c };
-  api.defaults.baseURL = cfg.baseURL;
 };
