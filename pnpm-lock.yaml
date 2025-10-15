@@ -190,7 +190,7 @@ importers:
         specifier: ^19.1.0
         version: 19.1.1(react@19.1.1)
       zod:
-        specifier: ^4.0.14
+        specifier: ^4.0.17
         version: 4.0.17
     devDependencies:
       '@site-haus/eslint-config':
@@ -223,9 +223,24 @@ importers:
 
   apps/iam:
     dependencies:
+      '@site-haus/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@site-haus/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@site-haus/stores':
+        specifier: workspace:*
+        version: link:../../packages/stores
       '@site-haus/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@site-haus/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
+      '@ts-rest/core':
+        specifier: ^3.53.0-rc.1
+        version: 3.53.0-rc.1(@types/node@22.17.2)
       next:
         specifier: ^15.4.2
         version: 15.4.6(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -235,6 +250,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.1(react@19.1.1)
+      zod:
+        specifier: ^4.0.17
+        version: 4.0.17
     devDependencies:
       '@site-haus/eslint-config':
         specifier: workspace:*
@@ -313,13 +331,13 @@ importers:
         specifier: workspace:*
         version: link:../validation
       '@ts-rest/core':
-        specifier: ^3.52.1
-        version: 3.52.1(@types/node@22.17.2)(zod@4.0.17)
+        specifier: ^3.53.0-rc.1
+        version: 3.53.0-rc.1(@types/node@22.17.2)
       axios:
         specifier: ^1.12.2
         version: 1.12.2
       zod:
-        specifier: ^4.0.14
+        specifier: ^4.0.17
         version: 4.0.17
     devDependencies:
       '@site-haus/eslint-config':
@@ -417,8 +435,8 @@ importers:
         specifier: workspace:*
         version: link:../contracts
       '@ts-rest/core':
-        specifier: ^3.52.1
-        version: 3.52.1(@types/node@22.17.2)(zod@3.24.3)
+        specifier: ^3.53.0-rc.1
+        version: 3.53.0-rc.1(@types/node@22.17.2)
       axios:
         specifier: ^1.12.2
         version: 1.12.2
@@ -441,6 +459,15 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.3
         version: 1.2.3(@types/react@19.1.0)(react@19.1.1)
+      '@site-haus/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@site-haus/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      '@ts-rest/core':
+        specifier: ^3.53.0-rc.1
+        version: 3.53.0-rc.1(@types/node@22.17.2)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -542,8 +569,8 @@ importers:
   packages/ui:
     dependencies:
       '@hookform/resolvers':
-        specifier: ^5.2.1
-        version: 5.2.1(react-hook-form@7.62.0(react@19.1.1))
+        specifier: ^5.2.2
+        version: 5.2.2(react-hook-form@7.62.0(react@19.1.1))
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -647,7 +674,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       zod:
-        specifier: ^4.0.14
+        specifier: ^4.0.17
         version: 4.0.17
     devDependencies:
       '@site-haus/eslint-config':
@@ -709,7 +736,7 @@ importers:
   packages/validation:
     dependencies:
       zod:
-        specifier: ^4.0.14
+        specifier: ^4.0.17
         version: 4.0.17
     devDependencies:
       '@site-haus/eslint-config':
@@ -1580,8 +1607,8 @@ packages:
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
 
-  '@hookform/resolvers@5.2.1':
-    resolution: {integrity: sha512-u0+6X58gkjMcxur1wRWokA7XsiiBJ6aK17aPZxhkoYiK5J+HcTx0Vhu9ovXe6H+dVpO6cjrn2FkJTryXEMlryQ==}
+  '@hookform/resolvers@5.2.2':
+    resolution: {integrity: sha512-A/IxlMLShx3KjV/HeTcTfaMxdwy690+L/ZADoeaTltLx+CVuzkeVIPuybK3jrRfw7YZnmdKsVVHAlEPIAEUNlA==}
     peerDependencies:
       react-hook-form: ^7.55.0
 
@@ -3778,15 +3805,12 @@ packages:
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
 
-  '@ts-rest/core@3.52.1':
-    resolution: {integrity: sha512-tAjz7Kxq/grJodcTA1Anop4AVRDlD40fkksEV5Mmal88VoZeRKAG8oMHsDwdwPZz+B/zgnz0q2sF+cm5M7Bc7g==}
+  '@ts-rest/core@3.53.0-rc.1':
+    resolution: {integrity: sha512-hDMXqKHSys6w+kXFW1Q6EvN8QgRvtXKXJ2TpYByKI4TquaPjiTOv99aLD26X4LNRzdna8Ci1PVyzr0jYZv0oNQ==}
     peerDependencies:
       '@types/node': ^18.18.7 || >=20.8.4
-      zod: ^3.22.3
     peerDependenciesMeta:
       '@types/node':
-        optional: true
-      zod:
         optional: true
 
   '@tsconfig/node10@1.0.11':
@@ -8732,7 +8756,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@hookform/resolvers@5.2.1(react-hook-form@7.62.0(react@19.1.1))':
+  '@hookform/resolvers@5.2.2(react-hook-form@7.62.0(react@19.1.1))':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.62.0(react@19.1.1)
@@ -11100,15 +11124,9 @@ snapshots:
 
   '@tokenizer/token@0.3.0': {}
 
-  '@ts-rest/core@3.52.1(@types/node@22.17.2)(zod@3.24.3)':
+  '@ts-rest/core@3.53.0-rc.1(@types/node@22.17.2)':
     optionalDependencies:
       '@types/node': 22.17.2
-      zod: 3.24.3
-
-  '@ts-rest/core@3.52.1(@types/node@22.17.2)(zod@4.0.17)':
-    optionalDependencies:
-      '@types/node': 22.17.2
-      zod: 4.0.17
 
   '@tsconfig/node10@1.0.11': {}
 

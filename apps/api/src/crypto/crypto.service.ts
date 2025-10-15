@@ -4,7 +4,7 @@ import {
   verify as argon2Verify,
   type Options as Argon2Options,
 } from '@node-rs/argon2';
-import { createHash, randomBytes, timingSafeEqual } from 'crypto';
+import { createHash, randomBytes, randomInt, timingSafeEqual } from 'crypto';
 
 const ARGON2_OPTS: Argon2Options = {
   memoryCost: 19_456,
@@ -15,6 +15,18 @@ const ARGON2_OPTS: Argon2Options = {
 
 @Injectable()
 export class CryptoService {
+  /**
+   * Generates a code for use in OTP, and invites with a
+   * variable length.
+   *
+   * @param len
+   * @returns
+   */
+  generateCode(len = 6) {
+    const max = 10 ** len;
+    return String(randomInt(0, max)).padStart(len, '0');
+  }
+
   /**
    * Cryptographically-strong random, URL-safe string.
    * Note: resulting string length != requested bytes

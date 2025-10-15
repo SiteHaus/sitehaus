@@ -8,8 +8,12 @@ import { type ConfigType } from '@nestjs/config';
 import { htmlToText, toArray } from '@site-haus/utils/core/helpers';
 import emailConfig from 'src/conf/email.config';
 
+import { renderOTPCodeEmail } from '@site-haus/transactional';
 import type { OTPCodeEmailProps } from '@site-haus/transactional/emails/OTPCode';
-import { renderOTPCodeEmail } from '@site-haus/transactional/render/otp';
+import {
+  InviteEmailProps,
+  renderInviteRoleEmail,
+} from '@site-haus/transactional/render/invite';
 import { SESV2 } from './email.tokens';
 
 @Injectable()
@@ -66,6 +70,11 @@ export class EmailService {
 
   async sendOtpCodeEmail(to: string, props: OTPCodeEmailProps) {
     const { subject, html, text } = await renderOTPCodeEmail(props);
+    return this.send({ to, subject, html, text });
+  }
+
+  async sendInviteCodeEmail(to: string, props: InviteEmailProps) {
+    const { subject, html, text } = await renderInviteRoleEmail(props);
     return this.send({ to, subject, html, text });
   }
 }

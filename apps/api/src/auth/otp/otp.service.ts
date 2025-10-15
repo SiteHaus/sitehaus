@@ -8,7 +8,6 @@ import {
   schema,
   type Db,
 } from '@site-haus/db';
-import { randomInt } from 'crypto';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { DRIZZLE } from 'src/db/tokens';
 
@@ -19,14 +18,9 @@ export class OtpService {
     private readonly crypto: CryptoService,
   ) {}
 
-  private generateCode(len = 6) {
-    const max = 10 ** len;
-    return String(randomInt(0, max)).padStart(len, '0');
-  }
-
   async create(userId: string, purpose: OtpPurpose, ttlSec = 15 * 60) {
     const now = new Date();
-    const code = this.generateCode();
+    const code = this.crypto.generateCode();
     const codeHash = this.crypto.sha256b64url(code);
     const expiresAt = new Date(Date.now() + ttlSec * 1000);
 

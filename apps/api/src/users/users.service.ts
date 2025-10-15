@@ -1,17 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { eq, schema, User, type Db } from '@site-haus/db';
+import { normalizeEmail } from '@site-haus/utils/core/helpers';
 import { DRIZZLE } from 'src/db/tokens';
 import { UserExistsError } from 'src/errors/auth.errors';
-
-const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 @Injectable()
 export class UsersService {
   constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
-  findByEmail(email: string) {
+  private use(db?: Db) {
+    return db ?? this.db;
+  }
+
+  findByEmail(email: string, db?: Db) {
     const e = normalizeEmail(email);
-    return this.db.query.usersTable.findFirst({
+    return this.use(db).query.usersTable.findFirst({
       where: (t, { eq }) => eq(t.email, e),
     });
   }

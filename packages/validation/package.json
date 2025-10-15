@@ -20,7 +20,7 @@
     "build": "tsc"
   },
   "dependencies": {
-    "zod": "^4.0.14"
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",

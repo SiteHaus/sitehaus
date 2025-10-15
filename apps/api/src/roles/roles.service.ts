@@ -12,6 +12,19 @@ import { DRIZZLE } from 'src/db/tokens';
 export class RolesService {
   constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
+  async namesByIds(roleIds: string[], clientId?: string): Promise<string[]> {
+    if (!roleIds.length) return [];
+
+    const rows = await this.db.query.rolesTable.findMany({
+      where: (t, { and: _and, inArray: _in, eq: _eq }) =>
+        clientId
+          ? _and(_eq(t.clientId, clientId), _in(t.id, roleIds))
+          : _in(t.id, roleIds),
+      columns: { name: true },
+    });
+    return rows.map((r) => r.name).filter(Boolean);
+  }
+
   async getDefaultRoleId(clientId: string) {
     const r = await this.db.query.rolesTable.findFirst({
       where: (t, { and: _and, eq: _eq }) =>
@@ -122,7 +135,7 @@ export class RolesService {
     return this.db.transaction(async (tx) => {
       const role = await tx.query.rolesTable.findFirst({
         where: (t, { and: _and, eq: _eq }) =>
-          _and(_eq(t.id, role.id), _eq(t.clientId, clientId)),
+          _and(_eq(t.id, roleId), _eq(t.clientId, clientId)),
       });
 
       if (!role) throw new NotFoundException('Role not found');
@@ -192,7 +205,7 @@ export class RolesService {
 
   async replaceRolePerms(roleId: string, clientId: string, perms: string[]) {
     return this.db.transaction(async (tx) => {
-      const role = await this.db.query.rolesTable.findFirst({
+      const role = await tx.query.rolesTable.findFirst({
         where: (t, { and: _and, eq: _eq }) =>
           _and(_eq(t.id, roleId), _eq(t.clientId, clientId)),
         columns: { id: true },
@@ -270,7 +283,7 @@ export class RolesService {
       .delete(schema.userRolesTable)
       .where(
         and(
-          eq(schema.userRolesTable, userId),
+          eq(schema.userRolesTable.userId, userId),
           eq(schema.userRolesTable.clientId, clientId),
           eq(schema.userRolesTable.roleId, roleId),
         ),

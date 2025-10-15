@@ -13,9 +13,14 @@
   "dependencies": {
     "@site-haus/ui": "workspace:*",
     "@site-haus/validation": "workspace:*",
+    "@site-haus/sdk": "workspace:*",
+    "@site-haus/stores": "workspace:*",
+    "@site-haus/contracts": "workspace:*",
+    "@ts-rest/core": "^3.53.0-rc.1",
     "next": "^15.4.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",

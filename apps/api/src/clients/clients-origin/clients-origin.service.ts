@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { schema, type Db } from '@site-haus/db';
+import { DRIZZLE } from 'src/db/tokens';
 
 @Injectable()
 export class ClientsOriginService {
-  constructor(private readonly db: Db) {}
+  constructor(@Inject(DRIZZLE) private readonly db: Db) {}
 
   async getAllowedOrigins(): Promise<Set<string>> {
     const rows = await this.db

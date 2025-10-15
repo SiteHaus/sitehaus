@@ -14,6 +14,10 @@ import { HealthModule } from './health/health.module';
 import { RolesModule } from './roles/roles.module';
 import { SessionController } from './session/session.controller';
 import { SessionModule } from './session/session.module';
+import { InvitesService } from './invites/invites.service';
+import { InvitesController } from './invites/invites.controller';
+import { InvitesModule } from './invites/invites.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -34,8 +38,10 @@ import { SessionModule } from './session/session.module';
     CryptoModule,
     RolesModule,
     DevicesModule,
+    InvitesModule,
+    UsersModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
-  controllers: [SessionController],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, InvitesService],
+  controllers: [SessionController, InvitesController],
 })
 export class AppModule {}

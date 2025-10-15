@@ -1,13 +1,5 @@
 import { getConfig } from "./config.js";
 
-let refreshPromise: Promise<void> | null = null;
-export const runSingleRefresh = (fn: () => Promise<void>) => {
-  if (!refreshPromise) {
-    refreshPromise = fn().finally(() => (refreshPromise = null));
-  }
-  return refreshPromise;
-};
-
 export const refreshOnce = async () => {
   const { baseURL, clientKey, onAuthUpdate } = getConfig();
 
@@ -16,6 +8,7 @@ export const refreshOnce = async () => {
     credentials: "include",
     headers: { "x-client-key": clientKey },
   });
+
   if (!resp.ok) throw new Error("Refresh Failed.");
 
   const data = (await resp.json()) as {

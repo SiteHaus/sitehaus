@@ -10,7 +10,7 @@ import { DbModule } from 'src/db/db.module';
 import { EmailModule } from 'src/email/email.module';
 import { RolesModule } from 'src/roles/roles.module';
 import { SessionModule } from 'src/session/session.module';
-import { UsersService } from 'src/users/users.service';
+import { UsersModule } from 'src/users/users.module';
 import { AccessGuard } from './access/access.guard';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -29,6 +29,7 @@ import { VerifiedGuard } from './verified/verified.guard';
     SessionModule,
     CryptoModule,
     RolesModule,
+    UsersModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [authConfig.KEY],
@@ -42,7 +43,6 @@ import { VerifiedGuard } from './verified/verified.guard';
   providers: [
     AuthService,
     TokenService,
-    UsersService,
     OtpService,
     AccessGuard,
     VerifiedGuard,

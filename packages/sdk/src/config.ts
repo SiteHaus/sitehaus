@@ -12,11 +12,12 @@ export type SDKConfig = {
 };
 
 let cfg: SDKConfig | null = null;
-export const getConfig = () => {
-  if (!cfg) throw new Error("SDK not configured");
-  return cfg;
-};
 
 export const configureSDK = (c: SDKConfig) => {
   cfg = { proactiveRefreshSkewSec: 60, ...c };
+};
+
+export const getConfig = () => {
+  if (!cfg) throw new Error("SDK not configured");
+  return cfg;
 };

@@ -1,5 +1,6 @@
 import { getConfig } from "./config.js";
-import { refreshOnce, runSingleRefresh } from "./refresh.js";
+import { refreshOnce } from "./refresh.js";
+import { runSingleRefresh } from "./run-single-refresh.js";
 
 export type FetchArgs = {
   url: string;

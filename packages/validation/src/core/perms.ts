@@ -3,6 +3,7 @@ export const PERM = {
   sessions: ["read", "revoke"] as const,
   roles: ["read", "manage", "assign"] as const,
   devices: ["read", "revoke", "rename"] as const,
+  invites: ["read", "manage"],
 } as const;
 
 type Resource = keyof typeof PERM;

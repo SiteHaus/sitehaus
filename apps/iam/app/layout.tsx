@@ -25,9 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex items-center justify-center bg-gray-50`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex items-center justify-center bg-background`}
       >
-        <div className="w-full max-w-md p-6 bg-white rounded-2xl shadow-md">
+        <div className="w-full max-w-md p-6 bg-card rounded-2xl shadow-md">
           {children}
         </div>
       </body>

@@ -1,9 +1,9 @@
-import { apiContract } from "@site-haus/contracts";
-import { ApiFetcherArgs, initClient, tsRestFetchApi } from "@ts-rest/core";
+import { ApiFetcherArgs, tsRestFetchApi } from "@ts-rest/core";
 import { getConfig } from "./config.js";
-import { refreshOnce, runSingleRefresh } from "./refresh.js";
+import { refreshOnce } from "./refresh.js";
+import { runSingleRefresh } from "./run-single-refresh.js";
 
-const tinyApi = async (args: ApiFetcherArgs) => {
+export const apiFetcher = async (args: ApiFetcherArgs) => {
   const {
     clientKey,
     tokenProvider,
@@ -34,13 +34,3 @@ const tinyApi = async (args: ApiFetcherArgs) => {
     fetchOptions: { credentials: "include", ...(args.fetchOptions ?? {}) },
   });
 };
-
-export const createApiClient = () => {
-  initClient(apiContract, {
-    baseUrl: getConfig().baseURL,
-    credentials: "include",
-    api: tinyApi,
-  });
-};
-
-export type ApiClient = ReturnType<typeof createApiClient>;

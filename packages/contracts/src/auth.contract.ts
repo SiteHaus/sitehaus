@@ -4,6 +4,7 @@ import {
   requestVerifySchema,
   verifySchema,
 } from "@site-haus/validation/forms/auth";
+import { acceptInviteSchema } from "@site-haus/validation/forms/invite";
 import { initContract } from "@ts-rest/core";
 import * as z from "zod";
 import {
@@ -73,6 +74,18 @@ export const authPublicRouter = c.router({
     path: "/auth/verify-email",
     body: verifySchema,
     responses: { 204: c.type<RegisterResponse>(), 400: apiErrorHttp },
+  },
+  acceptInvite: {
+    method: "POST",
+    path: "/auth/accept-invite",
+    body: acceptInviteSchema,
+    responses: {
+      200: authTokens,
+      400: apiErrorValidation,
+      401: apiErrorHttp,
+      409: apiErrorHttp,
+      500: apiErrorServer,
+    },
   },
 });
 
