@@ -33,56 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {/* Hero / Main Content */}
-        <div className="bg-background text-foreground font-sans min-h-screen">
-          {/* Modern Container */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Navigation */}
-            <header className="flex justify-end items-center py-2 pt-20 border-b border-gray-800">
-              {" "}
-              <NavigationMenu>
-                <NavigationMenuList className="flex space-x-6">
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href="/docs"
-                        className="text-gray-300 hover:text-white transition-colors"
-                      >
-                        Documentation
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href="/"
-                        className="text-foreground hover:text-primary"
-                      >
-                        Home
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <NavigationMenuLink asChild>
-                      <Link
-                        href="/about"
-                        className="text-foreground hover:text-primary"
-                      >
-                        About
-                      </Link>
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </header>
-            {children}
-            {/* Footer */}
-            <footer className="text-gray-500 text-center py-5  mt-10">
-              {" "}
-              © {currentYear} SiteHaus. All rights reserved.{" "}
-            </footer>
-          </div>
-        </div>{" "}
+        {children}
       </body>
     </html>
   );
