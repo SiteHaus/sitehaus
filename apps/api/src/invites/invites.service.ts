@@ -165,17 +165,20 @@ export class InvitesService {
       if (!user) {
         const passwordHash = await this.crypto.hashPassword(params.password);
 
-        user = await this.users.createUser({
-          email,
-          firstName: params.firstName,
-          lastName: params.lastName,
-        });
+        user = await this.users.createUser(
+          {
+            email,
+            firstName: params.firstName,
+            lastName: params.lastName,
+          },
+          tx,
+        );
 
-        await this.users.setPassword(user.id, passwordHash);
+        await this.users.setPassword(user.id, passwordHash, tx);
 
-        user = await this.users.setVerified(user.id, true);
+        user = await this.users.setVerified(user.id, true, tx);
       } else if (!user.isVerified) {
-        user = await this.users.setVerified(user.id, true);
+        user = await this.users.setVerified(user.id, true, tx);
       }
 
       if (roleIds.length) {

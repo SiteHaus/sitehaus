@@ -15,7 +15,7 @@ export class ClientsOriginService {
     for (const { uri } of rows) {
       try {
         const u = new URL(uri);
-        if (u.protocol === 'http' || u.protocol === 'https:') {
+        if (u.protocol === 'http:' || u.protocol === 'https:') {
           origins.add(u.origin);
         }
       } catch {}

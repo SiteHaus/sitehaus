@@ -19,24 +19,25 @@ export class UsersService {
     });
   }
 
-  findById(id: string) {
-    return this.db.query.usersTable.findFirst({
+  findById(id: string, db?: Db) {
+    return this.use(db).query.usersTable.findFirst({
       where: (t, { eq }) => eq(t.id, id),
     });
   }
 
-  getPasswordCredential(userId: string) {
-    return this.db.query.passwordCredentialsTable.findFirst({
+  getPasswordCredential(userId: string, db?: Db) {
+    return this.use(db).query.passwordCredentialsTable.findFirst({
       where: (t, { eq }) => eq(t.userId, userId),
     });
   }
 
   async createUser(
     input: Pick<User, 'email' | 'firstName' | 'lastName'>,
+    db?: Db,
   ): Promise<User> {
     const email = normalizeEmail(input.email);
 
-    const [u] = await this.db
+    const [u] = await this.use(db)
       .insert(schema.usersTable)
       .values({
         email,
@@ -51,8 +52,8 @@ export class UsersService {
     return u!;
   }
 
-  async setPassword(userId: string, passwordHash: string) {
-    const [pc] = await this.db
+  async setPassword(userId: string, passwordHash: string, db?: Db) {
+    const [pc] = await this.use(db)
       .insert(schema.passwordCredentialsTable)
       .values({ userId, passwordHash })
       .onConflictDoUpdate({
@@ -64,15 +65,18 @@ export class UsersService {
     return pc!;
   }
 
-  async createUserWithPassword(input: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    passwordHash: string;
-  }) {
+  async createUserWithPassword(
+    input: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      passwordHash: string;
+    },
+    db?: Db,
+  ) {
     const email = normalizeEmail(input.email);
 
-    return this.db.transaction(async (tx) => {
+    return this.use(db).transaction(async (tx) => {
       const [user] = await tx
         .insert(schema.usersTable)
         .values({
@@ -93,8 +97,8 @@ export class UsersService {
     });
   }
 
-  async setVerified(userId: string, isVerified = true) {
-    const [u] = await this.db
+  async setVerified(userId: string, isVerified = true, db?: Db) {
+    const [u] = await this.use(db)
       .update(schema.usersTable)
       .set({ isVerified, emailVerifiedAt: new Date() })
       .where(eq(schema.usersTable.id, userId))

@@ -1,5 +1,5 @@
-import type { Session } from "@site-haus/db/iam/sessions";
-import type { User } from "@site-haus/db/iam/users";
+import { MeSession, MeUser } from "@site-haus/contracts";
+import { refreshOnce } from "@site-haus/sdk";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistOptions } from "zustand/middleware";
 import { getApi } from "./api.js";
@@ -8,14 +8,14 @@ type AuthState = {
   accessToken: string | null;
   accessExpiration: number | null;
 
-  user: User | null;
-  session: Session | null;
+  user: MeUser | null;
+  session: MeSession | null;
   permissions: Set<string>;
 
   setAccess: (p: { accessToken: string; accessExpiration: number }) => void;
   setMe: (p: {
-    user: User | null;
-    session: Session | null;
+    user: MeUser | null;
+    session: MeSession | null;
     permissions?: string[];
   }) => void;
   clearAuth: () => void;
@@ -74,14 +74,8 @@ export const useAuthStore = create<AuthState>()(
       hasPerm: (perm: string) => get().permissions.has(perm),
 
       bootstrap: async () => {
-        const { auth } = getApi();
-
         try {
-          const r = await auth.public.refresh();
-          if (r.status === 200) {
-            const { accessToken, accessExpiration } = r.body;
-            get().setAccess({ accessToken, accessExpiration });
-          }
+          await refreshOnce();
         } catch {}
         if (get().accessToken) {
           await get().me();
@@ -92,8 +86,11 @@ export const useAuthStore = create<AuthState>()(
         const { auth } = getApi();
         const r = await auth.loginOnly.login({ body: { email, password } });
         if (r.status !== 200) throw new Error("Login failed");
-        const { accessToken, accessExpiration } = r.body;
-        get().setAccess({ accessToken, accessExpiration });
+        const { accessToken, accessTokenExpiresIn } = r.body;
+        get().setAccess({
+          accessToken,
+          accessExpiration: accessTokenExpiresIn,
+        });
         await get().me();
       },
 

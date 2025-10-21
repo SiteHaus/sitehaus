@@ -1,5 +1,7 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@site-haus/ui/components/base/button";
 import {
   Form,
   FormControl,
@@ -9,17 +11,26 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import { Button } from "@site-haus/ui/components/base/button";
-import { useForm } from "react-hook-form";
-import { RegisterInput, registerSchema } from "@site-haus/validation/forms/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  RegisterInput,
+  registerSchema,
+} from "@site-haus/validation/forms/auth";
 import { ReactNode } from "react";
+import { useForm } from "react-hook-form";
+
+export interface RegisterFormProps {
+  onSubmit: (values: RegisterInput) => Promise<void>;
+  defaultValues?: Partial<RegisterInput>;
+}
 
 export const FormGroup = ({ children }: { children: ReactNode }) => {
   return <div className="flex flex-col md:flex-row gap-2">{children}</div>;
 };
 
-export const RegisterForm = () => {
+export const RegisterForm = ({
+  onSubmit,
+  defaultValues,
+}: RegisterFormProps) => {
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -27,22 +38,29 @@ export const RegisterForm = () => {
       password: "",
       firstName: "",
       lastName: "",
+      ...defaultValues,
     },
   });
 
-  const onSubmit = async (values: RegisterInput) => {
+  const { setError } = form;
+
+  // Offload submissions to IAM
+  const submit = async (values: RegisterInput) => {
     try {
-      const response = await fetch(""); // your API endpoint
-    } catch (err) {
-      console.error(err);
+      await onSubmit(values);
+    } catch (err: any) {
+      const msg = err?.message ?? "Something went wrong.";
+      setError("email", { message: msg });
     }
   };
 
   return (
     <div className="w-full max-w-md mx-auto  p-8">
-      <h2 className="text-2xl font-semibold text-center mb-6">Create an Account</h2>
+      <h2 className="text-2xl font-semibold text-center mb-6">
+        Create an Account
+      </h2>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
           <FormField
             control={form.control}
             name="email"

@@ -46,12 +46,17 @@ CREATE TABLE "devices" (
 	"last_ip_hash" varchar(64)
 );
 --> statement-breakpoint
+CREATE TABLE "invite_roles" (
+	"invite_id" uuid NOT NULL,
+	"role_id" uuid NOT NULL,
+	CONSTRAINT "invite_roles_pk" PRIMARY KEY("invite_id","role_id")
+);
+--> statement-breakpoint
 CREATE TABLE "invites" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"client_id" uuid NOT NULL,
 	"email" varchar(256) NOT NULL,
 	"code_hash" varchar(128) NOT NULL,
-	"role_ids" jsonb DEFAULT '[]'::jsonb NOT NULL,
 	"invited_by" uuid,
 	"expires_at" timestamp with time zone NOT NULL,
 	"accepted_at" timestamp with time zone,
@@ -171,6 +176,8 @@ ALTER TABLE "auth_codes" ADD CONSTRAINT "auth_codes_client_id_clients_id_fk" FOR
 ALTER TABLE "auth_codes" ADD CONSTRAINT "auth_codes_session_id_sessions_id_fk" FOREIGN KEY ("session_id") REFERENCES "public"."sessions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "client_redirect_uris" ADD CONSTRAINT "client_redirect_uris_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "devices" ADD CONSTRAINT "devices_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "invite_roles" ADD CONSTRAINT "invite_roles_invite_id_invites_id_fk" FOREIGN KEY ("invite_id") REFERENCES "public"."invites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "invite_roles" ADD CONSTRAINT "invite_roles_role_id_roles_id_fk" FOREIGN KEY ("role_id") REFERENCES "public"."roles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invites" ADD CONSTRAINT "invites_client_id_clients_id_fk" FOREIGN KEY ("client_id") REFERENCES "public"."clients"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invites" ADD CONSTRAINT "invites_invited_by_users_id_fk" FOREIGN KEY ("invited_by") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "otps" ADD CONSTRAINT "otps_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -194,6 +201,7 @@ CREATE UNIQUE INDEX "clients_key_uq" ON "clients" USING btree ("key");--> statem
 CREATE INDEX "clients_aud_idx" ON "clients" USING btree ("audience");--> statement-breakpoint
 CREATE INDEX "devices_user_idx" ON "devices" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "devices_seen_idx" ON "devices" USING btree ("last_seen_at");--> statement-breakpoint
+CREATE INDEX "invite_roles_role_idx" ON "invite_roles" USING btree ("role_id");--> statement-breakpoint
 CREATE INDEX "invites_client_idx" ON "invites" USING btree ("client_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "invites_open_email_uq" ON "invites" USING btree ("client_id","email") WHERE accepted_at IS NULL AND revoked_at IS NULL;--> statement-breakpoint
 CREATE INDEX "otp_user_purpose_idx" ON "otps" USING btree ("user_id","purpose");--> statement-breakpoint

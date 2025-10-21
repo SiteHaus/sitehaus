@@ -1,9 +1,9 @@
-import { RegisterForm } from "@site-haus/ui/components/forms/register-form";
+import RegisterContainer from "./register-container";
 
-export default function Home() {
+export default function AuthRegisterRoute() {
   return (
     <div>
-      <RegisterForm />
+      <RegisterContainer />
     </div>
   );
 }

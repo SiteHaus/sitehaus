@@ -238,7 +238,7 @@ export class SessionService {
 
   async touch(sessionId: string, ip?: string, ua?: string) {
     const s = await this.db.query.sessionsTable.findFirst({
-      where: (t, { eq: _eq }) => eq(t.id, sessionId),
+      where: (t, { eq: _eq }) => _eq(t.id, sessionId),
       columns: { lastUsedAt: true, ipHash: true, uaHash: true },
     });
 

@@ -112,7 +112,7 @@ export const authPrivateRouter = c.router({
   logout: {
     method: "POST",
     path: "/auth/logout",
-    body: z.void(),
+    body: c.noBody(),
     responses: { 204: z.void() },
   },
 });
@@ -122,3 +122,6 @@ export const authContract = c.router({
   loginOnly: authLoginRouter,
   private: authPrivateRouter,
 });
+
+export type MeUser = z.infer<typeof userBrief>;
+export type MeSession = z.infer<typeof sessionBrief>;

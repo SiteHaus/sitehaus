@@ -1,5 +1,5 @@
 {
-  "id": "1e0841ab-5c77-4318-9f71-c857e48e2fd6",
+  "id": "a1b11c16-cff8-4e51-b8c9-126816be3580",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -448,6 +448,82 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.invite_roles": {
+      "name": "invite_roles",
+      "schema": "",
+      "columns": {
+        "invite_id": {
+          "name": "invite_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "invite_roles_role_idx": {
+          "name": "invite_roles_role_idx",
+          "columns": [
+            {
+              "expression": "role_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "invite_roles_invite_id_invites_id_fk": {
+          "name": "invite_roles_invite_id_invites_id_fk",
+          "tableFrom": "invite_roles",
+          "tableTo": "invites",
+          "columnsFrom": [
+            "invite_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "invite_roles_role_id_roles_id_fk": {
+          "name": "invite_roles_role_id_roles_id_fk",
+          "tableFrom": "invite_roles",
+          "tableTo": "roles",
+          "columnsFrom": [
+            "role_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "invite_roles_pk": {
+          "name": "invite_roles_pk",
+          "columns": [
+            "invite_id",
+            "role_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.invites": {
       "name": "invites",
       "schema": "",
@@ -476,13 +552,6 @@
           "type": "varchar(128)",
           "primaryKey": false,
           "notNull": true
-        },
-        "role_ids": {
-          "name": "role_ids",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'[]'::jsonb"
         },
         "invited_by": {
           "name": "invited_by",

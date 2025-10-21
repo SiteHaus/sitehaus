@@ -1,26 +1,36 @@
 import { apiContract } from "@site-haus/contracts";
-import { apiFetcher, configureSDK, getConfig } from "@site-haus/sdk";
+import { apiFetcher, configureSDK } from "@site-haus/sdk";
 import { initClient } from "@ts-rest/core";
 import { useAuthStore } from "./auth-store.js";
 
-let configured = false;
-let client: any = null;
+const __clientType = () =>
+  initClient(apiContract, {
+    baseUrl: "" as string,
+    api: (async () => ({
+      status: 200,
+      body: null,
+      headers: new Headers(),
+    })) as any,
+  });
 
-export const configureStoresSdk = (opts: {
+export type StoresInitOptions = {
   baseURL: string;
   clientKey: string;
   proactiveRefreshSkewSec?: number;
-}) => {
-  if (configured) return;
+};
 
-  const baseURL = opts.baseURL;
-  const clientKey = opts.clientKey;
-  const skew = opts?.proactiveRefreshSkewSec ?? 60;
+export type Api = ReturnType<typeof __clientType>;
+
+let configured = false;
+let client: Api | null = null;
+
+export function initStoresSdk(opts: StoresInitOptions) {
+  if (configured && client) return client;
 
   configureSDK({
-    baseURL,
-    clientKey,
-    proactiveRefreshSkewSec: skew,
+    baseURL: opts.baseURL,
+    clientKey: opts.clientKey,
+    proactiveRefreshSkewSec: opts.proactiveRefreshSkewSec ?? 60,
     tokenProvider: () => {
       const s = useAuthStore.getState();
       return {
@@ -28,26 +38,25 @@ export const configureStoresSdk = (opts: {
         accessExpiration: s.accessExpiration,
       };
     },
-
     onAuthUpdate: ({ accessToken, accessExpiration }) => {
       useAuthStore.getState().setAccess({ accessToken, accessExpiration });
     },
   });
 
+  client = initClient(apiContract, { baseUrl: opts.baseURL, api: apiFetcher });
   configured = true;
-};
-
-export const getApi = () => {
-  if (!client) {
-    if (!configured) {
-      throw new Error(
-        "[x] SITE HAUS INTERNAL -> configureStoresSdk must be called before getApi()"
-      );
-    }
-
-    const { baseURL } = getConfig();
-    client = initClient(apiContract, { baseUrl: baseURL, api: apiFetcher });
-  }
-
   return client;
-};
+}
+
+export function getApi() {
+  if (!client) {
+    throw new Error(
+      "Stores SDK not initialized. Call initStoresSdk(...) first."
+    );
+  }
+  return client;
+}
+
+export function isStoresConfigured() {
+  return configured;
+}
