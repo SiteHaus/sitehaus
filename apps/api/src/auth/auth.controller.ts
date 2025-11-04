@@ -9,7 +9,6 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
@@ -101,32 +100,6 @@ export class AuthController {
     @Req() req: ExpressRequest & ClientInRequest,
     @Res() res: ExpressResponse,
   ) {
-    const existing = req.cookies?.[REFRESH_COOKIE] as string | undefined;
-    if (existing) {
-      try {
-        const result = await this.auth.refresh({
-          clientId: req.client!.id,
-          refreshToken: existing,
-          ip: req.ip,
-          ua: req.headers['user-agent'] as string | undefined,
-        });
-        setRefreshCookie(
-          res,
-          result.refreshToken,
-          new Date(result.refreshTokenExpiresAt),
-        );
-        const { refreshToken, ...rest } = result;
-
-        return res.json(rest);
-      } catch (e) {
-        if (e instanceof UnauthorizedException) {
-          clearRefreshCookie(res);
-        } else {
-          throw e;
-        }
-      }
-    }
-
     const parsed = loginSchema.parse(body);
 
     const result = await this.auth.login(
@@ -237,10 +210,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Throttle({ auth: { limit: 6 } })
   async verifyEmail(@Body() body: unknown) {
-    console.log(body);
     const { email, code } = verifySchema.parse(body);
-
-    console.log(email, code);
 
     const u = await this.users.findByEmail(email);
     if (!u) throw new BadRequestException('Invalid email or code');

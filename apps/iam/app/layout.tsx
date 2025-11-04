@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
+import { Toaster } from "@site-haus/ui/components/base/sonner";
 import "./globals.css";
 import Providers from "./providers/providers";
 
@@ -33,6 +34,7 @@ export default function RootLayout({
             {children}
           </div>
         </Providers>
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

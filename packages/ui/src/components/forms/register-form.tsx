@@ -11,12 +11,14 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
+import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import {
   RegisterInput,
   registerSchema,
 } from "@site-haus/validation/forms/auth";
 import { ReactNode } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 export interface RegisterFormProps {
   onSubmit: (values: RegisterInput) => Promise<void>;
@@ -42,15 +44,12 @@ export const RegisterForm = ({
     },
   });
 
-  const { setError } = form;
-
-  // Offload submissions to IAM
   const submit = async (values: RegisterInput) => {
     try {
       await onSubmit(values);
-    } catch (err: any) {
-      const msg = err?.message ?? "Something went wrong.";
-      setError("email", { message: msg });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      toast.error(getDisplayMessage(parsed));
     }
   };
 
@@ -122,9 +121,9 @@ export const RegisterForm = ({
             Sign Up
           </Button>
 
-          <p className="text-sm text-center text-gray-500 mt-4">
+          <p className="text-sm text-center text-foreground mt-4">
             Already have an account?{" "}
-            <a href="/" className="text-blue-600 hover:underline">
+            <a href="/" className="text-blue-500 hover:underline">
               Log in
             </a>
           </p>

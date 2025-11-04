@@ -17,6 +17,7 @@ export type StoresInitOptions = {
   baseURL: string;
   clientKey: string;
   proactiveRefreshSkewSec?: number;
+  targetClientIdProvider?: () => string | null;
 };
 
 export type Api = ReturnType<typeof __clientType>;

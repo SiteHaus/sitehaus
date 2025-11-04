@@ -17,25 +17,29 @@ export class ClientGuard implements CanActivate {
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest<Request & ClientInRequest>();
-
     const key = req.header('x-client-key')?.trim();
     const id = req.header('x-client-id')?.trim();
 
-    let client = null;
+    const caller = key ? await this.clients.resolveByKey(key) : null;
+    if (key && !caller) throw new BadRequestException('Unknown client (key)');
 
-    if (key) {
-      client = await this.clients.resolveByKey(key);
-      if (!client) throw new BadRequestException('Unknown client (key)');
-    } else if (id) {
-      client = await this.clients.resolveById(id);
-      if (!client) throw new BadRequestException('Unknown client (id)');
+    const target = id ? await this.clients.resolveById(id) : null;
+    if (id && !target) throw new BadRequestException('Unknown client (id)');
+
+    if (caller && target && caller.id !== target.id) {
+      if (!caller.firstParty) {
+        throw new BadRequestException('Client header mismatch');
+      }
+
+      req.client = {
+        id: target.id,
+        audience: target.audience,
+        key: caller.key,
+        firstParty: target.firstParty,
+      };
     }
 
-    if (key && id && client && client.id != id) {
-      throw new BadRequestException('Client header mismatch');
-    }
-
-    req.client = client ?? undefined;
+    req.client = target ?? caller ?? undefined;
     return true;
   }
 }

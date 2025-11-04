@@ -9,6 +9,7 @@ export type SDKConfig = {
   tokenProvider: TokenProvider;
   onAuthUpdate?: (p: { accessToken: string; accessExpiration: number }) => void;
   proactiveRefreshSkewSec?: number;
+  targetClientIdProvider?: () => string | null;
 };
 
 let cfg: SDKConfig | null = null;

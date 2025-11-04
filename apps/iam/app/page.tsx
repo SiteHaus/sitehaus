@@ -1,9 +1,15 @@
-import { LoginForm } from "@site-haus/ui/components/forms/login-form";
+import { redirect } from "next/navigation";
 
-export default function Home() {
-  return (
-    <div>
-      <LoginForm />
-    </div>
-  );
+interface HomeProps {
+  searchParams?: Record<string, string | string[] | undefined>;
+}
+
+export default function Home({ searchParams }: HomeProps) {
+  const qp = new URLSearchParams(
+    Object.entries(searchParams ?? {}).flatMap(([k, v]) =>
+      Array.isArray(v) ? v.map((x) => [k, x]) : v != null ? [[k, v]] : []
+    )
+  ).toString();
+
+  redirect(`/login${qp ? `?${qp}` : ""}`);
 }

@@ -1,10 +1,10 @@
 import { RequireParams } from "@/lib/require-params";
-import RegisterContainer from "./register-container";
+import VerifyCodeContainer from "./verify-container";
 
-export default function AuthRegisterRoute() {
+export default function AuthVerifyCodeRoute() {
   return (
     <RequireParams requireClient requireNext>
-      <RegisterContainer />
+      <VerifyCodeContainer />
     </RequireParams>
   );
 }

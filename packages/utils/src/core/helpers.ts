@@ -53,3 +53,32 @@ export const buildAcceptUrl = (
   u.searchParams.set("code", p.code);
   return u.toString();
 };
+
+export const maskEmail = (email: string): string => {
+  const [user, domain] = email.split("@");
+  if (!user || !domain) return email;
+
+  if (user.length <= 2) return `${user[0]}***@${domain}`;
+
+  const first = user[0];
+  const last = user[user.length - 1];
+  const maskedUser = `${first}${"*".repeat(Math.max(2, user.length - 2))}${last}`;
+
+  return `${maskedUser}@${domain}`;
+};
+
+export const deriveAuthForLabel = (
+  nextUrl?: string,
+  fallback: string = "Unknown App"
+) => {
+  try {
+    if (!nextUrl) return fallback;
+
+    const url = new URL(nextUrl);
+    const host = url.hostname.replace(/^www\./, "");
+
+    return host;
+  } catch {
+    return fallback;
+  }
+};

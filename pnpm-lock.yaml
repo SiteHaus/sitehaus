@@ -235,6 +235,9 @@ importers:
       '@site-haus/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@site-haus/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       '@site-haus/validation':
         specifier: workspace:*
         version: link:../../packages/validation
@@ -622,9 +625,15 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.7
         version: 1.2.8(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@site-haus/utils':
+        specifier: workspace:*
+        version: link:../utils
       '@site-haus/validation':
         specifier: workspace:*
         version: link:../validation
+      '@ts-rest/core':
+        specifier: ^3.53.0-rc.1
+        version: 3.53.0-rc.1(@types/node@22.17.2)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

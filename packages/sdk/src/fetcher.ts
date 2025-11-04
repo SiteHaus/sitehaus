@@ -8,6 +8,7 @@ export const apiFetcher = async (args: ApiFetcherArgs) => {
     clientKey,
     tokenProvider,
     proactiveRefreshSkewSec = 60,
+    targetClientIdProvider,
   } = getConfig();
 
   const headers: Record<string, string> = {
@@ -27,6 +28,9 @@ export const apiFetcher = async (args: ApiFetcherArgs) => {
 
   const t2 = tokenProvider?.();
   if (t2?.accessToken) headers.Authorization = `Bearer ${t2.accessToken}`;
+
+  const target = targetClientIdProvider?.();
+  if (target) headers["x-client-id"] = target;
 
   return tsRestFetchApi({
     ...args,

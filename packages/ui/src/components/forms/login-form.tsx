@@ -1,5 +1,7 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@site-haus/ui/components/base/button";
 import {
   Form,
   FormControl,
@@ -9,47 +11,88 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import { Button } from "@site-haus/ui/components/base/button";
-import { useForm } from "react-hook-form";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@site-haus/ui/components/base/input-group";
+import { Separator } from "@site-haus/ui/components/base/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@site-haus/ui/components/base/tooltip";
+import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import { LoginInput, loginSchema } from "@site-haus/validation/forms/auth";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { ExternalLink, HelpCircle } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
-export const LoginForm = () => {
+export interface LoginFormProps {
+  onSubmit: (values: LoginInput) => Promise<void>;
+  defaultValues?: Partial<LoginInput>;
+  authForLabel?: string;
+}
+
+export const LoginForm = ({
+  onSubmit,
+  defaultValues,
+  authForLabel,
+}: LoginFormProps) => {
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
+      ...defaultValues,
     },
   });
 
-  const onSubmit = async (values: LoginInput) => {
+  const submit = async (values: LoginInput) => {
     try {
-      const response = await fetch("http://localhost:3001/auth/login", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-
-      const data = await response.json();
-      console.log(data);
+      await onSubmit(values);
     } catch (err) {
-      console.error("Login failed:", err);
+      const parsed = parseApiError(err);
+      toast.error(getDisplayMessage(parsed));
     }
   };
 
   return (
     <div className="w-full max-w-md mx-auto p-8">
-      <h2 className="text-2xl font-semibold text-center mb-2">Welcome</h2>
+      <h1 className="text-2xl font-semibold text-center mb-2">Welcome</h1>
       <p className="text-sm text-gray-500 text-center mb-6">
         Please log in to your account
       </p>
 
+      <InputGroup>
+        <InputGroupInput id="auth-for" value={authForLabel} readOnly />
+        <InputGroupAddon align="inline-end">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <InputGroupButton
+                variant="ghost"
+                aria-label="Help"
+                size="icon-sm"
+              >
+                <HelpCircle />
+              </InputGroupButton>
+            </TooltipTrigger>
+            <TooltipContent>
+              This app requested you to sign in. We'll send you back after
+              login.
+            </TooltipContent>
+          </Tooltip>
+        </InputGroupAddon>
+        <InputGroupAddon align="inline-start">
+          <ExternalLink />
+        </InputGroupAddon>
+      </InputGroup>
+
+      <Separator className="my-6" />
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
           <FormField
             control={form.control}
             name="email"
@@ -71,7 +114,7 @@ export const LoginForm = () => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <Input type="password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -84,14 +127,17 @@ export const LoginForm = () => {
 
           <p className="text-sm text-center text-gray-500 mt-4">
             Forgot username or password?{" "}
-            <a href="/request-password" className="text-blue-600 hover:underline">
+            <a
+              href="/request-password"
+              className="text-blue-500 hover:underline"
+            >
               Reset Password
             </a>
           </p>
 
           <p className="text-sm text-center text-gray-500 mt-4">
-            Don’t have an account?{" "}
-            <a href="/register" className="text-blue-600 hover:underline">
+            Don't have an account?{" "}
+            <a href="/register" className="text-blue-500 hover:underline">
               Sign up
             </a>
           </p>

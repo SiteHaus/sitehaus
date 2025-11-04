@@ -85,7 +85,7 @@ export const useAuthStore = create<AuthState>()(
       login: async ({ email, password }) => {
         const { auth } = getApi();
         const r = await auth.loginOnly.login({ body: { email, password } });
-        if (r.status !== 200) throw new Error("Login failed");
+        if (r.status !== 200) throw new Error("");
         const { accessToken, accessTokenExpiresIn } = r.body;
         get().setAccess({
           accessToken,

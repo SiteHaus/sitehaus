@@ -29,3 +29,4 @@ export const verifySchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type VerifyInput = z.infer<typeof verifySchema>;
