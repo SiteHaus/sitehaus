@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthLink } from "@/lib/auth-nav";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -123,9 +124,9 @@ export const RegisterForm = ({
 
           <p className="text-sm text-center text-foreground mt-4">
             Already have an account?{" "}
-            <a href="/" className="text-blue-500 hover:underline">
+            <AuthLink href="/login" className="text-blue-500 hover:underline">
               Log in
-            </a>
+            </AuthLink>
           </p>
         </form>
       </Form>

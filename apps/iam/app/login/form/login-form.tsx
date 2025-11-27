@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthLink } from "@/lib/auth-nav";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -127,19 +128,23 @@ export const LoginForm = ({
 
           <p className="text-sm text-center text-gray-500 mt-4">
             Forgot username or password?{" "}
-            <a
+            <AuthLink
               href="/request-password"
+              add={{ mode: "reset" }}
               className="text-blue-500 hover:underline"
             >
               Reset Password
-            </a>
+            </AuthLink>
           </p>
 
           <p className="text-sm text-center text-gray-500 mt-4">
             Don't have an account?{" "}
-            <a href="/register" className="text-blue-500 hover:underline">
+            <AuthLink
+              href="/register"
+              className="text-blue-500 hover:underline"
+            >
               Sign up
-            </a>
+            </AuthLink>
           </p>
         </form>
       </Form>

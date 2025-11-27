@@ -9,6 +9,7 @@ import {
   Post,
   Req,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
@@ -18,6 +19,7 @@ import {
   requestVerifySchema,
   verifySchema,
 } from '@site-haus/validation/forms/auth';
+import { resetPasswordSchema } from '@site-haus/validation/forms/password';
 import {
   type Request as ExpressRequest,
   type Response as ExpressResponse,
@@ -220,5 +222,48 @@ export class AuthController {
     if ('reason' in res)
       throw new BadRequestException('Invalid or expired code');
     await this.users.setVerified(u.id, true);
+  }
+
+  @Public()
+  @Post('login-with-reset-code')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ auth: { limit: 6 } })
+  async loginWithResetCode(
+    @Body() body: unknown,
+    @Req() req: ExpressRequest & ClientInRequest,
+    @Res() res: ExpressResponse,
+  ) {
+    const parsed = resetPasswordSchema
+      .pick({ email: true, code: true })
+      .parse(body);
+
+    const u = await this.users.findByEmail(parsed.email);
+    if (!u) throw new UnauthorizedException('Invalid Email or code');
+
+    const otpRes = await this.otps.consume(u.id, 'password_reset', parsed.code);
+
+    if ('reason' in otpRes) {
+      throw new UnauthorizedException('Invalid or expired code');
+    }
+
+    const tokens = await this.auth.issueTokensForOTP(u.id, {
+      clientId: req.client!.id,
+      ip: req.ip,
+      ua: req.headers['user-agent'],
+    });
+
+    setRefreshCookie(
+      res,
+      tokens.refreshToken,
+      new Date(tokens.refreshTokenExpiresAt),
+    );
+
+    const { refreshToken, ...rest } = tokens;
+
+    return res.json({
+      ...rest,
+      isOtpLogin: true,
+      requiresEmailVerification: !u.isVerified,
+    });
   }
 }

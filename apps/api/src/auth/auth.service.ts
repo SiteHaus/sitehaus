@@ -133,4 +133,11 @@ export class AuthService {
       userId,
     };
   }
+
+  async issueTokensForOTP(
+    userId: string,
+    ctx: { clientId: string; ip?: string; ua?: string },
+  ) {
+    return this.issueTokens(userId, ctx);
+  }
 }

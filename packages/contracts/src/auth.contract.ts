@@ -5,6 +5,7 @@ import {
   verifySchema,
 } from "@site-haus/validation/forms/auth";
 import { acceptInviteSchema } from "@site-haus/validation/forms/invite";
+import { resetPasswordSchema } from "@site-haus/validation/forms/password";
 import { initContract } from "@ts-rest/core";
 import * as z from "zod";
 import {
@@ -37,6 +38,11 @@ export const meResponse = z.object({
 
 export const registerResponse = authTokens.extend({
   requiresEmailVerification: z.boolean(),
+});
+
+export const otpLoginResponse = authTokens.extend({
+  isOtpLogin: z.boolean().default(true),
+  requiresEmailVerification: z.boolean().default(false),
 });
 
 // No session required
@@ -98,6 +104,18 @@ export const authLoginRouter = c.router({
       200: registerResponse,
       400: apiErrorValidation,
       409: apiErrorHttp,
+      500: apiErrorServer,
+    },
+  },
+  loginWithCode: {
+    method: "POST",
+    path: "/auth/login-with-reset-code",
+    body: resetPasswordSchema.pick({ email: true, code: true }),
+    responses: {
+      200: otpLoginResponse,
+      400: apiErrorHttp,
+      409: apiErrorHttp,
+      429: apiErrorHttp,
       500: apiErrorServer,
     },
   },

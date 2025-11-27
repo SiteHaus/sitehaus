@@ -1,12 +1,14 @@
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { useRouter } from "next/navigation";
 import { ReactElement, useEffect } from "react";
+import { useAuthNav } from "./auth-nav";
 
 interface RequireAuthProps {
   children: ReactElement;
 }
 
 export const RequireAuth = ({ children }: RequireAuthProps) => {
+  const { replace } = useAuthNav();
   const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
 
@@ -18,7 +20,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
             window.location.search +
             window.location.hash
           : "/";
-      router.replace(`/login?next=${encodeURIComponent(next)}`);
+      replace(`/login`);
     }
   }, [accessToken, router]);
 

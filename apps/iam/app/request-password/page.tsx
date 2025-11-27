@@ -1,9 +1,10 @@
-import { RequestPasswordResetForm } from "@site-haus/ui/components/forms/request-password-reset-form";
+import { RequireParams } from "@/lib/require-params";
+import RequestPasswordResetContainer from "./request-password-reset-container";
 
 export default function Home() {
   return (
-    <div>
-      <RequestPasswordResetForm />
-    </div>
+    <RequireParams requireClient requireNext>
+      <RequestPasswordResetContainer />
+    </RequireParams>
   );
 }

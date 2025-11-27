@@ -18,6 +18,5 @@ export const changePasswordSchema = z.object({
   newPassword: passwordSchema,
 });
 
-
 export type RequestInput = z.infer<typeof requestPasswordResetSchema>;
 export type ResetInput = z.infer<typeof resetPasswordSchema>;

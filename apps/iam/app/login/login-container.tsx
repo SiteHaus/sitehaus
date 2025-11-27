@@ -1,12 +1,15 @@
 "use client";
 
+import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
-import { LoginForm } from "@site-haus/ui/components/forms/login-form";
 import { LoginInput } from "@site-haus/validation/forms/auth";
 import { useRouter, useSearchParams } from "next/navigation";
+import { LoginForm } from "./form/login-form";
 
 export default function LoginContainer() {
+  const { replace } = useAuthNav();
+
   const api = useApi();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -25,9 +28,7 @@ export default function LoginContainer() {
       r.body;
 
     if (requiresEmailVerification) {
-      router.replace(
-        `/verify?email=${encodeURIComponent(values.email)}&next=${encodeURIComponent(next)}`
-      );
+      replace("/verify", { add: { email: values.email, mode: "email" } });
       return;
     }
 
@@ -37,7 +38,7 @@ export default function LoginContainer() {
     // Hydrate user/session/permissions
     await useAuthStore.getState().me();
 
-    router.replace(next);
+    replace(next || "/");
   };
 
   return <LoginForm onSubmit={onSubmit} authForLabel={clientName} />;

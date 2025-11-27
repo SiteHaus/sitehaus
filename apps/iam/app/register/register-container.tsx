@@ -1,12 +1,14 @@
 "use client";
 
+import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
-import { RegisterForm } from "@site-haus/ui/components/forms/register-form";
 import { RegisterInput } from "@site-haus/validation/forms/auth";
 import { useRouter, useSearchParams } from "next/navigation";
+import { RegisterForm } from "./form/register-form";
 
 export default function RegisterContainer() {
+  const { replace } = useAuthNav();
   const api = useApi();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,15 +24,13 @@ export default function RegisterContainer() {
       r.body;
 
     if (requiresEmailVerification) {
-      router.replace(
-        `/verify?email=${encodeURIComponent(values.email)}&next=${encodeURIComponent(next)}&${encodeURIComponent(client)}`
-      );
+      replace(`/verify`, { add: { email: values.email, mode: "email" } });
       return;
     }
 
     const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
     setAccess({ accessToken, accessExpiration: exp });
-    router.replace(next);
+    replace(next);
   };
 
   return <RegisterForm onSubmit={onSubmit} />;

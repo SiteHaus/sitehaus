@@ -33,6 +33,7 @@ export const otpPurposeValues = [
   "email_verification",
   "password_reset",
   "invite",
+  "login",
 ] as const;
 
 export const clientTypeValues = ["public", "confidential"] as const;
