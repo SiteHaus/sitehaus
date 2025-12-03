@@ -79,7 +79,7 @@ export const RequestPasswordResetForm = ({
         Request Password Reset
       </h2>
       <p className="text-sm text-gray-500 text-center mb-6">
-        Enter your email and we'll send you a link to reset your password.
+        Enter your email and we&lsquo;ll send you a link to reset your password.
       </p>
 
       <InputGroup>
@@ -96,7 +96,7 @@ export const RequestPasswordResetForm = ({
               </InputGroupButton>
             </TooltipTrigger>
             <TooltipContent>
-              This app requested you to sign in. We'll send you back after
+              This app requested you to sign in. We&lsquo;ll send you back after
               login.
             </TooltipContent>
           </Tooltip>

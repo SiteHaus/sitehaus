@@ -18,7 +18,9 @@ export class ClientsOriginService {
         if (u.protocol === 'http:' || u.protocol === 'https:') {
           origins.add(u.origin);
         }
-      } catch {}
+      } catch (e) {
+        console.error(e);
+      }
     }
 
     origins.add('http://localhost:3000');

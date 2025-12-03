@@ -8,7 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { LoginForm } from "./form/login-form";
 
 export default function LoginContainer() {
-  const { replace, push } = useAuthNav();
+  const { replace } = useAuthNav();
 
   const api = useApi();
   const router = useRouter();

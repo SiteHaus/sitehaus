@@ -25,6 +25,8 @@ export type UserContext = {
   userId: string;
   clientId: string;
   sessionId: string;
+  firstName?: string;
+  lastName?: string;
 };
 export type AuthedRequest = Request & { user?: UserContext };
 

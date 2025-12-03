@@ -80,7 +80,7 @@ export const LoginForm = ({
               </InputGroupButton>
             </TooltipTrigger>
             <TooltipContent>
-              This app requested you to sign in. We'll send you back after
+              This app requested you to sign in. We&apos;ll send you back after
               login.
             </TooltipContent>
           </Tooltip>
@@ -142,7 +142,7 @@ export const LoginForm = ({
           </p>
 
           <p className="text-sm text-center text-gray-500 mt-4">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <AuthLink
               href="/register"
               className="text-blue-500 hover:underline"

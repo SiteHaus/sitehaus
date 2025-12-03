@@ -1,5 +1,4 @@
 import { useAuthStore } from "@site-haus/stores/auth-store";
-import { useRouter } from "next/navigation";
 import { ReactElement, useEffect } from "react";
 import { useAuthNav } from "./auth-nav";
 
@@ -9,7 +8,6 @@ interface RequireAuthProps {
 
 export const RequireAuth = ({ children }: RequireAuthProps) => {
   const { replace } = useAuthNav();
-  const router = useRouter();
   const accessToken = useAuthStore((s) => s.accessToken);
 
   useEffect(() => {
@@ -21,8 +19,11 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
             window.location.hash
           : "/";
       replace(`/login`);
+
+      // TODO: Use next in the redirect, or take another look at this method.
+      console.log(next);
     }
-  }, [accessToken, router]);
+  }, [accessToken, replace]);
 
   if (!accessToken) return null;
   return <>{children}</>;

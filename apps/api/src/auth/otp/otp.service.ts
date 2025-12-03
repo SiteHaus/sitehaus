@@ -67,7 +67,7 @@ export class OtpService {
     return this.db.transaction(async (tx) => {
       const otp = await tx.query.otpsTable.findFirst({
         where: (t, { and: _and, eq: _eq, isNull: _isNull, gt: _gt }) =>
-          and(
+          _and(
             _eq(t.userId, userId),
             _eq(t.purpose, purpose),
             _isNull(t.consumedAt),
@@ -78,7 +78,7 @@ export class OtpService {
       if (!otp) {
         const expired = await tx.query.otpsTable.findFirst({
           where: (t, { and: _and, eq: _eq, isNull: _isNull, lt: _lt }) =>
-            and(
+            _and(
               _eq(t.userId, userId),
               _eq(t.purpose, purpose),
               _isNull(t.consumedAt),

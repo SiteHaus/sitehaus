@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   ArgumentsHost,
   Catch,
@@ -30,6 +32,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const resp = exception.getResponse();
+
       const message =
         typeof resp === 'string' ? resp : ((resp as any).message ?? 'Error');
 

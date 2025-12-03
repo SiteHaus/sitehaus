@@ -68,13 +68,11 @@ export class AuthController {
       ua: req.headers['user-agent'] as string | undefined,
     });
 
-    setRefreshCookie(
-      res,
-      result.refreshToken,
-      new Date(result.refreshTokenExpiresAt),
-    );
+    const { refreshToken, refreshTokenExpiresAt, userId, ...rest } = result;
 
-    const user = await this.users.findById(result.userId);
+    setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
+
+    const user = await this.users.findById(userId);
     let requiresEmailVerification = false;
     if (user && !user.isVerified) {
       const { code } = await this.otps.create(user.id, 'email_verification');
@@ -87,7 +85,6 @@ export class AuthController {
       requiresEmailVerification = true;
     }
 
-    const { refreshToken, ...rest } = result;
     return res
       .status(HttpStatus.OK)
       .json({ ...rest, requiresEmailVerification });
@@ -113,12 +110,9 @@ export class AuthController {
       },
     );
 
-    setRefreshCookie(
-      res,
-      result.refreshToken,
-      new Date(result.refreshTokenExpiresAt),
-    );
-    const { refreshToken, ...rest } = result;
+    const { refreshToken, refreshTokenExpiresAt, ...rest } = result;
+
+    setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
     return res.json(rest);
   }
 
@@ -140,12 +134,10 @@ export class AuthController {
         ip: req.ip,
         ua: req.headers['user-agent'] as string | undefined,
       });
-      setRefreshCookie(
-        res,
-        result.refreshToken,
-        new Date(result.refreshTokenExpiresAt),
-      );
-      const { refreshToken, ...rest } = result;
+
+      const { refreshToken, refreshTokenExpiresAt, ...rest } = result;
+
+      setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
       return res.json(rest);
     } catch (e) {
       clearRefreshCookie(res);
@@ -257,13 +249,9 @@ export class AuthController {
       ua: req.headers['user-agent'],
     });
 
-    setRefreshCookie(
-      res,
-      tokens.refreshToken,
-      new Date(tokens.refreshTokenExpiresAt),
-    );
+    const { refreshToken, refreshTokenExpiresAt, ...rest } = tokens;
 
-    const { refreshToken, ...rest } = tokens;
+    setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
 
     return res.json({
       ...rest,

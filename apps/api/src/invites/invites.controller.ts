@@ -18,6 +18,7 @@ import {
   createInviteSchema,
 } from '@site-haus/validation/forms/invite';
 import { type Request } from 'express';
+import { AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { type ClientInRequest } from 'src/clients/client.guard';
 import { ClientsService } from 'src/clients/clients.service';
@@ -49,7 +50,10 @@ export class InvitesController {
   @RequirePerms('invites:manage')
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Req() req: ClientInRequest, @Body() body: unknown) {
+  async create(
+    @Req() req: AuthedRequest & ClientInRequest,
+    @Body() body: unknown,
+  ) {
     if (!req.client) throw new BadRequestException('Unknown client');
 
     const parsed = createInviteSchema.parse(body);
@@ -58,7 +62,7 @@ export class InvitesController {
       clientId: req.client.id,
       email: parsed.email,
       roleIds: parsed.roleIds,
-      invitedBy: (req as any).user?.id ?? null,
+      invitedBy: req.user?.userId ?? null,
       ttlMinutes: parsed.ttlMinutes,
     });
 
@@ -87,7 +91,7 @@ export class InvitesController {
     await this.email.sendInviteCodeEmail(parsed.email, {
       appName: 'Site Haus',
       clientName: client?.name,
-      inviterName: (req as any).user?.firstName ?? null,
+      inviterName: req?.user?.firstName ?? null,
       roles: roleNames,
       code,
       acceptUrl,

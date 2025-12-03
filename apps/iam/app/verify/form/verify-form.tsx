@@ -87,7 +87,7 @@ export const VerifyCodeForm = ({
       <h1 className="text-2xl font-semibold">{title}</h1>
 
       <p className="text-muted-foreground mb-2 text-sm">
-        Didn't receive a code?{" "}
+        Didn&apos;t receive a code?{" "}
         <Button
           variant="link"
           onClick={handleResend}

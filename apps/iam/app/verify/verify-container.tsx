@@ -8,7 +8,7 @@ import {
   requestVerifySchema,
   VerifyInput,
 } from "@site-haus/validation/forms/auth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 export type VerificationMode = "email" | "reset";
@@ -16,12 +16,10 @@ export type VerificationMode = "email" | "reset";
 export default function VerifyCodeContainer() {
   const { replace } = useAuthNav();
   const api = useApi();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const next = searchParams.get("next") || "/";
   const email = searchParams.get("email") || "";
-  const client = searchParams.get("client") || "";
   const mode = searchParams.get("mode") as VerificationMode;
 
   const setAccess = useAuthStore((s) => s.setAccess);
