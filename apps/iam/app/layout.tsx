@@ -15,8 +15,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Auth App",
-  description: "Login/Register layout",
+  title: "Identity Gateway",
+  description:
+    "Identity gateway manages users, roles, and invites for all our first party clients.",
 };
 
 export default function RootLayout({

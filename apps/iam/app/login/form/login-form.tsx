@@ -122,8 +122,12 @@ export const LoginForm = ({
             )}
           />
 
-          <Button type="submit" className="w-full">
-            Log In
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? "Submitting..." : "Log In"}
           </Button>
 
           <p className="text-sm text-center text-gray-500 mt-4">

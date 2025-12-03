@@ -62,7 +62,7 @@ export class PasswordController {
   @Public()
   @Post('request-password-reset')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Throttle({ auth: { ttl: 15 * 60, limit: 5 } })
+  @Throttle({ auth: { ttl: 15 * 60_000, limit: 5 } })
   async requestReset(@Body() body: unknown) {
     const parsed = requestPasswordResetSchema.parse(body);
 

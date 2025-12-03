@@ -13,7 +13,11 @@ import { DRIZZLE, PG_POOL } from './tokens';
       useFactory: (config: ConfigService) => {
         const url = config.get<string>('DATABASE_URL', { infer: true });
         if (!url) throw new Error('DATABASE_URL is missing!');
-        return new Pool({ connectionString: url! });
+        return new Pool({
+          connectionString: url,
+          max: 15,
+          idleTimeoutMillis: 30_000,
+        });
       },
     },
     {

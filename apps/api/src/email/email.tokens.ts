@@ -1,1 +1,1 @@
-export const SESV2 = Symbol('SESV2');
+export const RESEND = Symbol('RESEND');

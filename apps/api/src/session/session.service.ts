@@ -36,6 +36,19 @@ export class SessionService {
       ua: input.ua,
     });
 
+    await dbx
+      .update(schema.sessionsTable)
+      .set({ revokedAt: now })
+      .where(
+        and(
+          eq(schema.sessionsTable.userId, input.userId),
+          eq(schema.sessionsTable.clientId, input.clientId),
+          eq(schema.sessionsTable.deviceId, deviceId),
+          isNull(schema.sessionsTable.revokedAt),
+          gt(schema.sessionsTable.expiresAt, now),
+        ),
+      );
+
     const [s] = await dbx
       .insert(schema.sessionsTable)
       .values({

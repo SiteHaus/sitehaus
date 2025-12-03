@@ -110,7 +110,7 @@ export const RequestPasswordResetForm = ({
 
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
           <FormField
             control={form.control}
             name="email"
@@ -129,8 +129,12 @@ export const RequestPasswordResetForm = ({
             )}
           />
 
-          <Button type="submit" className="w-full">
-            Request Password
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? "Sending..." : "Request Password"}
           </Button>
         </form>
       </Form>

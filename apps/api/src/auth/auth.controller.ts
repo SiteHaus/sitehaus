@@ -190,7 +190,7 @@ export class AuthController {
   @Public()
   @Post('request-email-verification')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Throttle({ auth: { ttl: 15 * 60, limit: 5 } })
+  @Throttle({ auth: { ttl: 15 * 60_000, limit: 5 } })
   async requestEmailVerification(@Body() body: unknown) {
     const { email } = requestVerifySchema.parse(body);
 
@@ -244,6 +244,11 @@ export class AuthController {
 
     if ('reason' in otpRes) {
       throw new UnauthorizedException('Invalid or expired code');
+    }
+
+    if (!u.isVerified) {
+      await this.users.setVerified(u.id, true);
+      u.isVerified = true;
     }
 
     const tokens = await this.auth.issueTokensForOTP(u.id, {

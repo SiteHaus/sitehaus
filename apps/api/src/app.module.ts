@@ -11,12 +11,12 @@ import { DbModule } from './db/db.module';
 import { DevicesModule } from './devices/devices.module';
 import { EmailModule } from './email/email.module';
 import { HealthModule } from './health/health.module';
+import { InvitesController } from './invites/invites.controller';
+import { InvitesModule } from './invites/invites.module';
+import { InvitesService } from './invites/invites.service';
 import { RolesModule } from './roles/roles.module';
 import { SessionController } from './session/session.controller';
 import { SessionModule } from './session/session.module';
-import { InvitesService } from './invites/invites.service';
-import { InvitesController } from './invites/invites.controller';
-import { InvitesModule } from './invites/invites.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -26,8 +26,8 @@ import { UsersModule } from './users/users.module';
       load: [authConfig, emailConfig],
     }),
     ThrottlerModule.forRoot([
-      { name: 'default', ttl: 60, limit: 45 },
-      { name: 'auth', ttl: 60, limit: 20 },
+      { name: 'default', ttl: 60_000, limit: 45 },
+      { name: 'auth', ttl: 60_000, limit: 20 },
     ]),
     DbModule,
     HealthModule,

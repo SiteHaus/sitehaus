@@ -1,18 +1,19 @@
-import { SESv2Client } from '@aws-sdk/client-sesv2';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
+import { Resend } from 'resend';
 import emailConfig from 'src/conf/email.config';
 import { EmailService } from './email.service';
-import { SESV2 } from './email.tokens';
+import { RESEND } from './email.tokens';
 
 @Module({
   imports: [ConfigModule],
   providers: [
     {
-      provide: SESV2,
+      provide: RESEND,
       inject: [emailConfig.KEY],
-      useFactory: (cfg: ConfigType<typeof emailConfig>) =>
-        new SESv2Client({ region: cfg.region }),
+      useFactory: (cfg: ConfigType<typeof emailConfig>) => {
+        return new Resend(cfg.resendApiKey);
+      },
     },
     EmailService,
   ],

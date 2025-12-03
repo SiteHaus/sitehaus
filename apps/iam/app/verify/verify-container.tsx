@@ -22,7 +22,7 @@ export default function VerifyCodeContainer() {
   const next = searchParams.get("next") || "/";
   const email = searchParams.get("email") || "";
   const client = searchParams.get("client") || "";
-  const mode = (searchParams.get("mode") as VerificationMode) || "email";
+  const mode = searchParams.get("mode") as VerificationMode;
 
   const setAccess = useAuthStore((s) => s.setAccess);
 
