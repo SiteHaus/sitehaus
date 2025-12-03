@@ -1,12 +1,14 @@
 import { redirect } from "next/navigation";
 
 interface HomeProps {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default function Home({ searchParams }: HomeProps) {
+export default async function Home({ searchParams }: HomeProps) {
+  const raw = (await searchParams) ?? {};
+
   const qp = new URLSearchParams(
-    Object.entries(searchParams ?? {}).flatMap(([k, v]) =>
+    Object.entries(raw).flatMap(([k, v]) =>
       Array.isArray(v) ? v.map((x) => [k, x]) : v != null ? [[k, v]] : []
     )
   ).toString();
