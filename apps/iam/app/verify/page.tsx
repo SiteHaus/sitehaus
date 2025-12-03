@@ -1,5 +1,6 @@
 import { RequireParams } from "@/lib/require-params";
 import { Metadata } from "next";
+import { Suspense } from "react";
 import VerifyCodeContainer from "./verify-container";
 
 export const metadata: Metadata = {
@@ -9,8 +10,10 @@ export const metadata: Metadata = {
 
 export default function AuthVerifyCodeRoute() {
   return (
-    <RequireParams requireClient requireNext>
-      <VerifyCodeContainer />
-    </RequireParams>
+    <Suspense fallback={null}>
+      <RequireParams requireClient requireNext>
+        <VerifyCodeContainer />
+      </RequireParams>
+    </Suspense>
   );
 }

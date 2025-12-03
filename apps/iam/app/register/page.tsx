@@ -1,5 +1,6 @@
 import { RequireParams } from "@/lib/require-params";
 import { Metadata } from "next";
+import { Suspense } from "react";
 import RegisterContainer from "./register-container";
 
 export const metadata: Metadata = {
@@ -10,8 +11,10 @@ export const metadata: Metadata = {
 
 export default function AuthRegisterRoute() {
   return (
-    <RequireParams requireClient requireNext>
-      <RegisterContainer />
-    </RequireParams>
+    <Suspense fallback={null}>
+      <RequireParams requireClient requireNext>
+        <RegisterContainer />
+      </RequireParams>
+    </Suspense>
   );
 }
