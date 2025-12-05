@@ -36,7 +36,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new ApiExceptionFilter());
 
-  await app.listen(process.env.PORT ?? 3003);
+  await app.listen(process.env.PORT ?? 3000);
 }
 
 bootstrap();
