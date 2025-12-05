@@ -33,7 +33,7 @@ services:
       args: { APP_NAME: api }
     restart: always
     env_file:
-      - .env
+      - ./apps/api/.env
     networks:
       - sitehaus-network
 
