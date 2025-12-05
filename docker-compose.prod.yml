@@ -26,6 +26,17 @@ services:
     networks:
       - sitehaus-network
 
+  api:
+    build:
+      context: .
+      dockerfile: ./apps/api/Dockerfile
+      args: { APP_NAME: api }
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - sitehaus-network
+
   caddy:
     image: caddy:2.10.0-alpine
     restart: always
