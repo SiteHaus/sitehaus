@@ -16,7 +16,6 @@ import { DRIZZLE, PG_POOL } from './tokens';
         return new Pool({
           connectionString: url,
           max: 15,
-          idleTimeoutMillis: 30_000,
         });
       },
     },
