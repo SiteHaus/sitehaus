@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@site-haus/ui/components/base/button";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-import { useState, useEffect } from "react";
 
 export default function App() {
   const [currentYear, setCurrentYear] = useState("");

@@ -1,4 +1,4 @@
-import { Project, UserRole } from "@site-haus/db/types";
+import { Project } from "@site-haus/db";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,7 @@ import { useState } from "react";
 
 interface AppSideBarHeaderProps {
   isMobile: boolean;
-  userRole?: UserRole;
+  userRole?: string;
   projects?: Project[];
   currentProjectId?: string;
 }

@@ -1,5 +1,6 @@
 {
   "$schema": "https://turborepo.com/schema.json",
+  "concurrency": "12",
   "ui": "tui",
   "tasks": {
     "build": {
@@ -16,6 +17,18 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "env": [
+        "NODE_ENV",
+        "DATABASE_URL",
+        "JWT_SECRET",
+        "JWT_SECRET_B64URL",
+        "ACCESS_TTL_SEC",
+        "REFRESH_TTL_SEC"
+      ]
     }
   }
 }

@@ -1,0 +1,40 @@
+import { ApiFetcherArgs, tsRestFetchApi } from "@ts-rest/core";
+import { getConfig } from "./config.js";
+import { refreshOnce } from "./refresh.js";
+import { runSingleRefresh } from "./run-single-refresh.js";
+
+export const apiFetcher = async (args: ApiFetcherArgs) => {
+  const {
+    clientKey,
+    tokenProvider,
+    proactiveRefreshSkewSec = 60,
+    targetClientIdProvider,
+  } = getConfig();
+
+  const headers: Record<string, string> = {
+    ...(args.headers ?? {}),
+    "x-client-key": clientKey,
+  };
+
+  const t = tokenProvider?.();
+  const now = Math.floor(Date.now() / 1000);
+  if (
+    t?.accessToken &&
+    t?.accessExpiration &&
+    t.accessExpiration - now <= proactiveRefreshSkewSec
+  ) {
+    await runSingleRefresh(refreshOnce);
+  }
+
+  const t2 = tokenProvider?.();
+  if (t2?.accessToken) headers.Authorization = `Bearer ${t2.accessToken}`;
+
+  const target = targetClientIdProvider?.();
+  if (target) headers["x-client-id"] = target;
+
+  return tsRestFetchApi({
+    ...args,
+    headers,
+    fetchOptions: { credentials: "include", ...(args.fetchOptions ?? {}) },
+  });
+};

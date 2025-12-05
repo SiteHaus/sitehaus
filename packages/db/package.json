@@ -2,26 +2,54 @@
   "name": "@site-haus/db",
   "type": "module",
   "private": true,
+  "exports": {
+    ".": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./schema": {
+      "types": "./dist/schema.d.ts",
+      "default": "./dist/schema.js"
+    },
+    "./core/*": {
+      "types": "./dist/core/*.d.ts",
+      "default": "./dist/core/*.js"
+    },
+    "./iam/*": {
+      "types": "./dist/iam/*.d.ts",
+      "default": "./dist/iam/*.js"
+    }
+  },
+  "types": "./dist/schema.d.ts",
+  "main": "./dist/schema.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc",
+    "db:gen": "drizzle-kit generate --config ./drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config ./drizzle.config.ts",
+    "db:push": "drizzle-kit push --config ./drizzle.config.ts",
+    "db:seed": "node --import=tsx ./scripts/seed.ts"
+  },
+  "peerDependencies": {
+    "drizzle-orm": "^0.44.4"
+  },
   "dependencies": {
     "@site-haus/validation": "workspace:*",
     "dotenv": "^17.2.1",
-    "drizzle-orm": "^0.44.4",
     "pg": "^8.16.3"
   },
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",
+    "drizzle-orm": "^0.44.4",
+    "drizzle-kit": "^0.31.4",
     "@types/node": "^22.15.3",
     "@types/pg": "^8.15.5",
-    "drizzle-kit": "^0.31.4",
     "eslint": "^9.31.0",
     "tsx": "^4.20.3",
     "typescript": "5.8.2"
-  },
-  "exports": {
-    "./core/*": "./src/core/*.ts",
-    "./iam/*": "./src/iam/*.ts",
-    "./types": "./src/types.ts",
-    "./forms/*": "./src/forms/*.ts"
   }
 }

@@ -1,0 +1,30 @@
+{
+  "name": "@site-haus/contracts",
+  "type": "module",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@site-haus/validation": "workspace:*",
+    "@ts-rest/core": "^3.53.0-rc.1",
+    "zod": "^4.0.17",
+    "axios": "^1.12.2"
+  },
+  "devDependencies": {
+    "@site-haus/eslint-config": "workspace:*",
+    "@site-haus/typescript-config": "workspace:*",
+    "eslint": "^9.31.0",
+    "typescript": "5.8.2"
+  }
+}

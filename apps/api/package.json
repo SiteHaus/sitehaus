@@ -19,25 +19,41 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/throttler": "^6.4.0",
+    "@node-rs/argon2": "^2.0.2",
+    "@site-haus/db": "workspace:*",
+    "@site-haus/transactional": "workspace:*",
+    "@site-haus/utils": "workspace:*",
+    "cookie-parser": "^1.4.7",
+    "drizzle-orm": "^0.44.4",
+    "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "resend": "^6.5.2",
+    "rxjs": "^7.8.1",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@site-haus/typescript-config": "workspace:*",
-    "@site-haus/eslint-config": "workspace:*",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@site-haus/eslint-config": "workspace:*",
+    "@site-haus/typescript-config": "workspace:*",
+    "@site-haus/validation": "workspace:*",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
+    "@types/cookie-parser": "^1.4.9",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
+    "@types/pg": "^8.15.5",
     "@types/supertest": "^6.0.2",
+    "drizzle-kit": "^0.31.4",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
@@ -50,24 +66,40 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.4",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
+    "preset": "ts-jest/presets/default-esm",
+    "testEnvironment": "node",
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/test"
+    ],
     "moduleFileExtensions": [
+      "ts",
       "js",
-      "json",
-      "ts"
+      "json"
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
     "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
+      "^.+\\.ts$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "tsconfig": "<rootDir>/tsconfig.json"
+        }
+      ]
     },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "^@site-haus/validation/forms/users$": "<rootDir>/test/__mocks__/@site-haus/validation/forms/users.ts",
+      "^@site-haus/validation(.*)$": "<rootDir>/../../packages/validation/src$1",
+      "^@site-haus/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1",
+      "^@site-haus/db$": "<rootDir>/../../packages/db/src/index.ts"
+    }
   }
 }

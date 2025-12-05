@@ -1,0 +1,109 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { eq, schema, User, type Db } from '@site-haus/db';
+import { normalizeEmail } from '@site-haus/utils/core/helpers';
+import { DRIZZLE } from 'src/db/tokens';
+import { UserExistsError } from 'src/errors/auth.errors';
+
+@Injectable()
+export class UsersService {
+  constructor(@Inject(DRIZZLE) private readonly db: Db) {}
+
+  private use(db?: Db) {
+    return db ?? this.db;
+  }
+
+  findByEmail(email: string, db?: Db) {
+    const e = normalizeEmail(email);
+    return this.use(db).query.usersTable.findFirst({
+      where: (t, { eq }) => eq(t.email, e),
+    });
+  }
+
+  findById(id: string, db?: Db) {
+    return this.use(db).query.usersTable.findFirst({
+      where: (t, { eq }) => eq(t.id, id),
+    });
+  }
+
+  getPasswordCredential(userId: string, db?: Db) {
+    return this.use(db).query.passwordCredentialsTable.findFirst({
+      where: (t, { eq }) => eq(t.userId, userId),
+    });
+  }
+
+  async createUser(
+    input: Pick<User, 'email' | 'firstName' | 'lastName'>,
+    db?: Db,
+  ): Promise<User> {
+    const email = normalizeEmail(input.email);
+
+    const [u] = await this.use(db)
+      .insert(schema.usersTable)
+      .values({
+        email,
+        firstName: input.firstName,
+        lastName: input.lastName,
+      })
+      .onConflictDoNothing({ target: schema.usersTable.email })
+      .returning();
+
+    if (!u) throw new UserExistsError(email);
+
+    return u!;
+  }
+
+  async setPassword(userId: string, passwordHash: string, db?: Db) {
+    const [pc] = await this.use(db)
+      .insert(schema.passwordCredentialsTable)
+      .values({ userId, passwordHash })
+      .onConflictDoUpdate({
+        target: schema.passwordCredentialsTable.userId,
+        set: { passwordHash, updatedAt: new Date() },
+      })
+      .returning();
+
+    return pc!;
+  }
+
+  async createUserWithPassword(
+    input: {
+      email: string;
+      firstName: string;
+      lastName: string;
+      passwordHash: string;
+    },
+    db?: Db,
+  ) {
+    const email = normalizeEmail(input.email);
+
+    return this.use(db).transaction(async (tx) => {
+      const [user] = await tx
+        .insert(schema.usersTable)
+        .values({
+          email,
+          firstName: input.firstName,
+          lastName: input.lastName,
+        })
+        .onConflictDoNothing({ target: schema.usersTable.email })
+        .returning();
+
+      if (!user) throw new UserExistsError(email);
+
+      await tx
+        .insert(schema.passwordCredentialsTable)
+        .values({ userId: user!.id, passwordHash: input.passwordHash });
+
+      return user!;
+    });
+  }
+
+  async setVerified(userId: string, isVerified = true, db?: Db) {
+    const [u] = await this.use(db)
+      .update(schema.usersTable)
+      .set({ isVerified, emailVerifiedAt: new Date() })
+      .where(eq(schema.usersTable.id, userId))
+      .returning();
+
+    return u!;
+  }
+}

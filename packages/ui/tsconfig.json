@@ -6,6 +6,12 @@
       "@site-haus/ui/*": ["./src/"]
     }
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "../../apps/iam/lib/auth-nav.tsx",
+    "../../apps/iam/app/request-password/form/request-password-reset-form.tsx",
+    "../../apps/iam/app/verify/form/verify-form.tsx",
+    "../../apps/iam/app/register/register-form.tsx"
+  ],
   "exclude": ["node_modules"]
 }

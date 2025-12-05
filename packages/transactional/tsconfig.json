@@ -1,0 +1,9 @@
+{
+  "extends": "@site-haus/typescript-config/react-library.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "src",
+    "declaration": true
+  },
+  "include": ["src"]
+}

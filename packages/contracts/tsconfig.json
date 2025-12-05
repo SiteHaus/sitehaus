@@ -1,0 +1,10 @@
+{
+  "extends": "@site-haus/typescript-config/base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "src",
+    "strict": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
