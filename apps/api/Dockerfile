@@ -1,7 +1,6 @@
 FROM node:20-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-
 RUN apk add --no-cache libc6-compat && \
     corepack enable && \
     corepack prepare pnpm@10.14.0 --activate && \
@@ -11,7 +10,6 @@ FROM base AS prune
 WORKDIR /app
 
 COPY . .
-
 RUN --mount=type=cache,target=/root/.cache/turbo \
     turbo prune api --docker
 
@@ -42,16 +40,10 @@ RUN --mount=type=cache,target=/root/.cache/turbo \
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-RUN addgroup --system --gid 1001 nodejs \
-  && adduser --system --uid 1001 nestjs
-USER nestjs
-
-COPY --from=build /app/apps/api/dist ./apps/api/dist
-COPY --from=build /app/apps/api/package.json ./apps/api/package.json
-COPY --from=build /app/node_modules ./node_modules
-
 ENV NODE_ENV=production
 ENV PORT=3000
+
+COPY --from=build /app ./
 
 EXPOSE 3000
 
