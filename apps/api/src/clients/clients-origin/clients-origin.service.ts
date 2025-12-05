@@ -27,6 +27,11 @@ export class ClientsOriginService {
     origins.add('http://localhost:3001');
     origins.add('http://localhost:3002');
 
+    // Temporary!!
+    origins.add('https://sitehaus.dev');
+    origins.add('https://dashboard.sitehaus.dev');
+    origins.add('https://iam.sitehaus.dev');
+
     return origins;
   }
 }
