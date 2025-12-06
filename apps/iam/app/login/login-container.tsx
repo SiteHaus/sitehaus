@@ -27,8 +27,6 @@ export default function LoginContainer() {
     const { accessToken, accessTokenExpiresIn, requiresEmailVerification } =
       r.body;
 
-    console.log(requiresEmailVerification);
-
     if (requiresEmailVerification) {
       replace("/verify", { add: { email: values.email, mode: "email" } });
       return;

@@ -39,8 +39,8 @@ function UnauthorizedMessage({
       </p>
       <p className="text-muted-foreground">
         If you think this is a mistake, contact{" "}
-        <Link href="mailto:support@sitehaus.dev" className="underline">
-          support@sitehaus.dev
+        <Link href="mailto:support@notify.sitehaus.dev" className="underline">
+          support@notify.sitehaus.dev
         </Link>
         .
       </p>

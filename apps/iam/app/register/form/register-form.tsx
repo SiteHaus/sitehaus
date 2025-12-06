@@ -12,6 +12,8 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
+import { Separator } from "@site-haus/ui/components/base/separator";
+import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import {
   RegisterInput,
@@ -23,6 +25,7 @@ import { toast } from "sonner";
 
 export interface RegisterFormProps {
   onSubmit: (values: RegisterInput) => Promise<void>;
+  authForLabel: string;
   defaultValues?: Partial<RegisterInput>;
 }
 
@@ -32,6 +35,7 @@ export const FormGroup = ({ children }: { children: ReactNode }) => {
 
 export const RegisterForm = ({
   onSubmit,
+  authForLabel,
   defaultValues,
 }: RegisterFormProps) => {
   const form = useForm<RegisterInput>({
@@ -61,6 +65,39 @@ export const RegisterForm = ({
       </h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
+          <ClientReadOnlyField authForLabel={authForLabel || "SiteHaus"} />
+
+          <Separator />
+
+          <FormGroup>
+            <FormField
+              control={form.control}
+              name="firstName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>First Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="lastName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Last Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </FormGroup>
+
           <FormField
             control={form.control}
             name="email"
@@ -82,41 +119,12 @@ export const RegisterForm = ({
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <Input type="password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
-          <FormGroup>
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="First Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Last Name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </FormGroup>
 
           <Button type="submit" className="w-full mt-2">
             Sign Up

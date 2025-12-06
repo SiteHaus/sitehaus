@@ -27,14 +27,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex items-center justify-center bg-background`}
-      >
-        <Providers>
-          <div className="w-full max-w-md p-6 bg-card rounded-2xl shadow-md">
-            {children}
-          </div>
-        </Providers>
+      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <div className="min-h-screen w-full flex items-center justify-center bg-background bg-hazy-dots">
+          <Providers>
+            <div
+              className="
+                w-full max-w-md mx-4 p-6
+                rounded-3xl
+                bg-card/80
+                backdrop-blur-xl
+                border
+                "
+            >
+              {children}
+            </div>
+          </Providers>
+        </div>
         <Toaster position="top-right" richColors />
       </body>
     </html>

@@ -16,6 +16,7 @@ import {
   InputOTPSlot,
 } from "@site-haus/ui/components/base/input-otp";
 import { Separator } from "@site-haus/ui/components/base/separator";
+import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import { maskEmail } from "@site-haus/utils/core/helpers";
 import { VerifyInput, verifySchema } from "@site-haus/validation/forms/auth";
@@ -31,6 +32,7 @@ export interface VerifyCodeFormProps {
   requestCode: () => Promise<void>;
   resending: boolean;
   cooldown: number;
+  authForLabel: string;
 }
 
 export const VerifyCodeForm = ({
@@ -40,6 +42,7 @@ export const VerifyCodeForm = ({
   requestCode,
   resending,
   cooldown,
+  authForLabel,
 }: VerifyCodeFormProps) => {
   const form = useForm<VerifyInput>({
     resolver: zodResolver(verifySchema),
@@ -101,6 +104,8 @@ export const VerifyCodeForm = ({
               : "Resend OTP"}
         </Button>
       </p>
+
+      <ClientReadOnlyField authForLabel={authForLabel} />
 
       <Separator className="my-4" />
 
