@@ -12,6 +12,8 @@ export default function RegisterContainer() {
   const api = useApi();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/";
+  const clientName = searchParams.get("client") || "";
+
   const setAccess = useAuthStore((s) => s.setAccess);
 
   const onSubmit = async (values: RegisterInput) => {
@@ -31,5 +33,5 @@ export default function RegisterContainer() {
     replace(next);
   };
 
-  return <RegisterForm onSubmit={onSubmit} />;
+  return <RegisterForm onSubmit={onSubmit} authForLabel={clientName} />;
 }

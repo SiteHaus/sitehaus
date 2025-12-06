@@ -12,24 +12,14 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@site-haus/ui/components/base/input-group";
 import { Separator } from "@site-haus/ui/components/base/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@site-haus/ui/components/base/tooltip";
+import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import {
   RequestInput,
   requestPasswordResetSchema,
 } from "@site-haus/validation/forms/password";
-import { ArrowLeft, ExternalLink, HelpCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -82,29 +72,7 @@ export const RequestPasswordResetForm = ({
         Enter your email and we&lsquo;ll send you a link to reset your password.
       </p>
 
-      <InputGroup>
-        <InputGroupInput id="auth-for" value={authForLabel} readOnly />
-        <InputGroupAddon align="inline-end">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <InputGroupButton
-                variant="ghost"
-                aria-label="Help"
-                size="icon-sm"
-              >
-                <HelpCircle />
-              </InputGroupButton>
-            </TooltipTrigger>
-            <TooltipContent>
-              This app requested you to sign in. We&lsquo;ll send you back after
-              login.
-            </TooltipContent>
-          </Tooltip>
-        </InputGroupAddon>
-        <InputGroupAddon align="inline-start">
-          <ExternalLink />
-        </InputGroupAddon>
-      </InputGroup>
+      <ClientReadOnlyField authForLabel={authForLabel || "SiteHaus"} />
 
       <Separator className="my-6" />
 

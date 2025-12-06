@@ -12,21 +12,10 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@site-haus/ui/components/base/input-group";
 import { Separator } from "@site-haus/ui/components/base/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@site-haus/ui/components/base/tooltip";
+import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import { LoginInput, loginSchema } from "@site-haus/validation/forms/auth";
-import { ExternalLink, HelpCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -66,29 +55,7 @@ export const LoginForm = ({
         Please log in to your account
       </p>
 
-      <InputGroup>
-        <InputGroupInput id="auth-for" value={authForLabel} readOnly />
-        <InputGroupAddon align="inline-end">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <InputGroupButton
-                variant="ghost"
-                aria-label="Help"
-                size="icon-sm"
-              >
-                <HelpCircle />
-              </InputGroupButton>
-            </TooltipTrigger>
-            <TooltipContent>
-              This app requested you to sign in. We&apos;ll send you back after
-              login.
-            </TooltipContent>
-          </Tooltip>
-        </InputGroupAddon>
-        <InputGroupAddon align="inline-start">
-          <ExternalLink />
-        </InputGroupAddon>
-      </InputGroup>
+      <ClientReadOnlyField authForLabel={authForLabel || "SiteHaus"} />
 
       <Separator className="my-6" />
 

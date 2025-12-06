@@ -20,6 +20,7 @@ export default function VerifyCodeContainer() {
 
   const next = searchParams.get("next") || "/";
   const email = searchParams.get("email") || "";
+  const clientName = searchParams.get("client") || "";
   const mode = searchParams.get("mode") as VerificationMode;
 
   const setAccess = useAuthStore((s) => s.setAccess);
@@ -101,6 +102,7 @@ export default function VerifyCodeContainer() {
       requestCode={requestCode}
       resending={resending}
       cooldown={cooldown}
+      authForLabel={clientName}
     />
   );
 }

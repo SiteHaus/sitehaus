@@ -9,3 +9,31 @@
  * you can always add it with the @source directive.
  */
 @source '../node_modules/@site-haus/ui';
+
+@layer utilities {
+  .bg-hazy-dots {
+    background-image:
+      radial-gradient(
+        circle at 20% 20%,
+        rgba(129, 194, 237, 0.17) 0,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 80% 30%,
+        rgba(240, 179, 179, 0.25) 0,
+        transparent 45%
+      ),
+      radial-gradient(
+        circle at 30% 70%,
+        rgba(241, 136, 136, 0.082) 0,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 75% 80%,
+        rgba(221, 237, 170, 0.23) 0,
+        transparent 55%
+      );
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+}
