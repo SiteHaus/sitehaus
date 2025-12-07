@@ -2,8 +2,8 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./apps/web/Dockerfile
-      args: { APP_NAME: web }
+      dockerfile: ./Dockerfile
+      target: web-runner
     restart: always
     networks:
       - sitehaus-network
@@ -11,8 +11,8 @@ services:
   dashboard:
     build:
       context: .
-      dockerfile: ./apps/dashboard/Dockerfile
-      args: { APP_NAME: dashboard }
+      dockerfile: ./Dockerfile
+      target: dashboard-runner
     restart: always
     networks:
       - sitehaus-network
@@ -20,8 +20,8 @@ services:
   iam:
     build:
       context: .
-      dockerfile: ./apps/iam/Dockerfile
-      args: { APP_NAME: iam }
+      dockerfile: ./Dockerfile
+      target: iam-runner
     restart: always
     networks:
       - sitehaus-network
@@ -29,8 +29,8 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./apps/api/Dockerfile
-      args: { APP_NAME: api }
+      dockerfile: ./Dockerfile
+      target: api-runner
     restart: always
     env_file:
       - ./apps/api/.env
