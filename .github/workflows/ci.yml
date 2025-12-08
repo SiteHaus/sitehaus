@@ -44,8 +44,5 @@ jobs:
       - name: Lint
         run: pnpm turbo run lint --cache-dir=.turbo
 
-      # - name: Type check
-      #   run: pnpm turbo run check-types --cache-dir=.turbo
-
-      - name: Build (all)
-        run: pnpm turbo run build --cache-dir=.turbo
+      - name: Type check
+        run: pnpm turbo run check-types --cache-dir=.turbo
