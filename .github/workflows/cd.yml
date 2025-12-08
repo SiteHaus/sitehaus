@@ -14,6 +14,10 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      NODE_ENV: production
+      API_URL: https://api.sitehaus.dev
+      CLIENT_KEY: dummy-ci-client-key
 
     steps:
       - name: Checkout
@@ -33,25 +37,22 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
-      # - name: Type check
-      #   run: pnpm turbo run check-types --cache-dir=.turbo
+      - name: Type check
+        run: pnpm turbo run check-types --cache-dir=.turbo
 
-      - name: Build workspace
-        run: pnpm turbo run build --cache-dir=.turbo
-
-      - name: Deploy to Droplet
+      - name: Deploy to Production
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.DROPLET_IP }}
+          host: ${{ secrets.VULTR_IP }}
           username: deploy
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          key: ${{ secrets.VULTR_SSH_KEY }}
           script: |
             set -euo pipefail
 
             export DOCKER_BUILDKIT=1
             export COMPOSE_DOCKER_CLI_BUILD=1
 
-            cd /var/www/sitehaus
+            cd /srv/sitehaus
 
             git pull origin main
 

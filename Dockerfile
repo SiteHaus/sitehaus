@@ -29,7 +29,7 @@ COPY --from=prune /app/out/full/ ./
 COPY turbo.json turbo.json
 
 RUN --mount=type=cache,target=/pnpm/store \
-  pnpm install -r --offline
+  pnpm install -r
 
 FROM base AS build
 
@@ -42,13 +42,10 @@ RUN --mount=type=cache,target=/root/.cache/turbo \
 # RUNTIME IMAGES
 # ========================================
 
-FROM node:20-alpine AS api-runner
+FROM build AS api-runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
-
-COPY --from=build /app/apps/api/dist ./apps/api/dist
-COPY --from=build /app/apps/api/package.json ./apps/api/package.json
 
 CMD ["node", "apps/api/dist/main.js"]
 
