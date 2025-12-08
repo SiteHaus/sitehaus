@@ -40,7 +40,7 @@ jobs:
       - name: Type check
         run: pnpm turbo run check-types --cache-dir=.turbo
 
-      - name: Deploy to Droplet
+      - name: Deploy to Production
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VULTR_IP }}
