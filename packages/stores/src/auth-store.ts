@@ -12,6 +12,9 @@ type AuthState = {
   session: MeSession | null;
   permissions: Set<string>;
 
+  hydrated: boolean;
+  setHydrated: () => void;
+
   setAccess: (p: { accessToken: string; accessExpiration: number }) => void;
   setMe: (p: {
     user: MeUser | null;
@@ -28,7 +31,10 @@ type AuthState = {
   hasPerm: (perm: string) => boolean;
 };
 
-type Persisted = Pick<AuthState, "user" | "session">;
+type Persisted = Pick<
+  AuthState,
+  "user" | "session" | "accessToken" | "accessExpiration"
+>;
 
 const persistOptions: PersistOptions<AuthState, Persisted> = {
   name: "auth",
@@ -39,7 +45,12 @@ const persistOptions: PersistOptions<AuthState, Persisted> = {
   partialize: (s) => ({
     user: s.user,
     session: s.session,
+    accessToken: s.accessToken,
+    accessExpiration: s.accessExpiration,
   }),
+  onRehydrateStorage: () => (state) => {
+    state?.setHydrated();
+  },
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -51,6 +62,9 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       session: null,
       permissions: new Set(),
+
+      hydrated: false,
+      setHydrated: () => set({ hydrated: true }),
 
       setAccess: ({ accessToken, accessExpiration }) =>
         set({ accessToken, accessExpiration }),
@@ -74,9 +88,26 @@ export const useAuthStore = create<AuthState>()(
       hasPerm: (perm: string) => get().permissions.has(perm),
 
       bootstrap: async () => {
+        const { accessToken, accessExpiration } = get();
+        const now = Math.floor(Date.now() / 1000);
+
+        const hasFreshToken =
+          !!accessToken &&
+          typeof accessExpiration === "number" &&
+          accessExpiration > now + 30;
+
+        if (hasFreshToken) {
+          await get().me();
+          return;
+        }
+
         try {
           await refreshOnce();
-        } catch {}
+        } catch {
+          get().clearAuth();
+          return;
+        }
+
         if (get().accessToken) {
           await get().me();
         }
@@ -86,10 +117,13 @@ export const useAuthStore = create<AuthState>()(
         const { auth } = getApi();
         const r = await auth.loginOnly.login({ body: { email, password } });
         if (r.status !== 200) throw new Error("");
+
         const { accessToken, accessTokenExpiresIn } = r.body;
+        const now = Math.floor(Date.now() / 1000);
+
         get().setAccess({
           accessToken,
-          accessExpiration: accessTokenExpiresIn,
+          accessExpiration: now + accessTokenExpiresIn,
         });
         await get().me();
       },

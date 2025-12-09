@@ -31,7 +31,8 @@
     "db:gen": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config ./drizzle.config.ts",
     "db:push": "drizzle-kit push --config ./drizzle.config.ts",
-    "db:seed": "node --import=tsx ./scripts/seed.ts"
+    "db:seed": "node --import=tsx ./scripts/seed.ts",
+    "grant-admin": "node --import=tsx ./scripts/grant-admin.ts"
   },
   "peerDependencies": {
     "drizzle-orm": "^0.44.4"

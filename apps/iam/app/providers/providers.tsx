@@ -30,9 +30,13 @@ initStoresSdk({
 });
 
 const Providers = ({ children }: ProvidersProps) => {
+  const hydrated = useAuthStore((s) => s.hydrated);
+
   useEffect(() => {
-    void useAuthStore.getState().bootstrap();
-  }, []);
+    if (hydrated) {
+      void useAuthStore.getState().bootstrap();
+    }
+  }, [hydrated]);
 
   return <>{children}</>;
 };

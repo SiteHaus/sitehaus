@@ -21,7 +21,7 @@ export class InvitesService {
   ) {}
 
   async list(clientId: string) {
-    return this.db.query.invitesTable.findMany({
+    return await this.db.query.invitesTable.findMany({
       where: (t, { eq: _eq }) => _eq(t.clientId, clientId),
       orderBy: (t, { desc: _desc }) => [_desc(t.createdAt)],
     });

@@ -28,6 +28,7 @@
     "@site-haus/db": "workspace:*",
     "@site-haus/transactional": "workspace:*",
     "@site-haus/utils": "workspace:*",
+    "@site-haus/contracts": "workspace:*",
     "cookie-parser": "^1.4.7",
     "drizzle-orm": "^0.44.4",
     "pg": "^8.16.3",
