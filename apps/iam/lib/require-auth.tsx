@@ -7,24 +7,30 @@ interface RequireAuthProps {
 }
 
 export const RequireAuth = ({ children }: RequireAuthProps) => {
-  const { replace } = useAuthNav();
+  const { replace, params } = useAuthNav();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const hydrated = useAuthStore((s) => s.hydrated);
 
   useEffect(() => {
-    if (!accessToken) {
-      const next =
-        typeof window !== "undefined"
-          ? window.location.pathname +
-            window.location.search +
-            window.location.hash
-          : "/";
-      replace(`/login`);
+    if (!hydrated) return;
 
-      // TODO: Use next in the redirect, or take another look at this method.
-      console.log(next);
-    }
-  }, [accessToken, replace]);
+    if (accessToken) return;
+
+    const computedNext =
+      window.location.pathname + window.location.search + window.location.hash;
+
+    const next = params.next ?? computedNext;
+
+    replace(`/login`, {
+      preserve: ["client", "email", "mode"],
+      strip: ["next"],
+      add: { next },
+    });
+  }, [accessToken, replace, hydrated, params.next]);
+
+  if (!hydrated) return null;
 
   if (!accessToken) return null;
+
   return <>{children}</>;
 };
