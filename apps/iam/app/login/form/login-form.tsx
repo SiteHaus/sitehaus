@@ -12,10 +12,18 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@site-haus/ui/components/base/input-group";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import { LoginInput, loginSchema } from "@site-haus/validation/forms/auth";
+import { Eye, EyeClosed } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -38,6 +46,8 @@ export const LoginForm = ({
       ...defaultValues,
     },
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const submit = async (values: LoginInput) => {
     try {
@@ -82,7 +92,23 @@ export const LoginForm = ({
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" {...field} />
+                  <InputGroup>
+                    <InputGroupInput
+                      type={showPassword ? "text" : "password"}
+                      {...field}
+                    />
+
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupButton
+                        type="button"
+                        title={showPassword ? "Hide password" : "Show password"}
+                        size="icon-xs"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                      >
+                        {showPassword ? <Eye /> : <EyeClosed />}
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>
