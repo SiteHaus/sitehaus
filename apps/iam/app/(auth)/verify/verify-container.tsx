@@ -1,6 +1,6 @@
 "use client";
 
-import { VerifyCodeForm } from "@/app/verify/form/verify-form";
+import { VerifyCodeForm } from "@/app/(auth)/verify/form/verify-form";
 import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";

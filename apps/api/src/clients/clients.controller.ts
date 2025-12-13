@@ -1,6 +1,7 @@
 import { Controller, Get, Inject, Req } from '@nestjs/common';
 import { type ClientMember } from '@site-haus/contracts';
 import { and, eq, schema, type Db } from '@site-haus/db';
+import { type AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { DRIZZLE } from 'src/db/tokens';
 import { type ClientInRequest } from './client.guard';
@@ -67,5 +68,34 @@ export class ClientsController {
     const members = Array.from(byUser.values());
 
     return { members };
+  }
+
+  @RequirePerms('members:read')
+  @Get('me/clients')
+  async listMyClients(@Req() req: AuthedRequest) {
+    const userId = req.user!.userId;
+
+    const rows = await this.db
+      .select({
+        id: schema.clientsTable.id,
+        key: schema.clientsTable.key,
+        name: schema.clientsTable.name,
+        type: schema.clientsTable.type,
+        firstParty: schema.clientsTable.firstParty,
+      })
+      .from(schema.userRolesTable)
+      .innerJoin(
+        schema.clientsTable,
+        and(
+          eq(schema.userRolesTable.clientId, schema.clientsTable.id),
+          eq(schema.userRolesTable.userId, userId),
+        ),
+      );
+
+    const byId = new Map<string, (typeof rows)[number]>();
+    for (const r of rows) byId.set(r.id, r);
+
+    const clients = Array.from(byId.values());
+    return { clients };
   }
 }

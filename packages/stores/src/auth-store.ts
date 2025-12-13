@@ -1,4 +1,4 @@
-import { MeSession, MeUser } from "@site-haus/contracts";
+import { MeClient, MeSession, MeUser } from "@site-haus/contracts";
 import { refreshOnce } from "@site-haus/sdk";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistOptions } from "zustand/middleware";
@@ -11,6 +11,10 @@ type AuthState = {
   user: MeUser | null;
   session: MeSession | null;
   permissions: Set<string>;
+
+  clients: MeClient[];
+  setClients: (clients: MeClient[]) => void;
+  loadMyClients: () => Promise<void>;
 
   hydrated: boolean;
   setHydrated: () => void;
@@ -63,6 +67,15 @@ export const useAuthStore = create<AuthState>()(
       session: null,
       permissions: new Set(),
 
+      clients: [],
+      setClients: (clients) => set({ clients }),
+
+      loadMyClients: async () => {
+        const { clients } = getApi();
+        const r = await clients.meClients();
+        if (r.status === 200) set({ clients: r.body.clients });
+      },
+
       hydrated: false,
       setHydrated: () => set({ hydrated: true }),
 
@@ -98,6 +111,7 @@ export const useAuthStore = create<AuthState>()(
 
         if (hasFreshToken) {
           await get().me();
+          await get().loadMyClients();
           return;
         }
 
@@ -110,6 +124,7 @@ export const useAuthStore = create<AuthState>()(
 
         if (get().accessToken) {
           await get().me();
+          await get().loadMyClients();
         }
       },
 
