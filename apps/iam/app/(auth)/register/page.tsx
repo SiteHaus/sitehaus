@@ -1,20 +1,29 @@
+"use client";
+
 import { RequireParams } from "@/lib/require-params";
-import { Metadata } from "next";
 import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import RegisterContainer from "./register-container";
 
-export const metadata: Metadata = {
-  title: "Identity Gateway - Register",
-  description:
-    "Register for a SiteHaus account, and gain access to our first party client apps.",
-};
+function RegisterPage() {
+  const searchParams = useSearchParams();
+  const hasOAuthParams = !!searchParams.get("oauth_params");
+  const hasClient = !!searchParams.get("client");
+
+  return (
+    <RequireParams
+      requireClient={!hasOAuthParams && !hasClient}
+      requireNext={false} // OAuth flow doesn't use 'next'
+    >
+      <RegisterContainer />
+    </RequireParams>
+  );
+}
 
 export default function AuthRegisterRoute() {
   return (
     <Suspense fallback={null}>
-      <RequireParams requireClient requireNext>
-        <RegisterContainer />
-      </RequireParams>
+      <RegisterPage />
     </Suspense>
   );
 }

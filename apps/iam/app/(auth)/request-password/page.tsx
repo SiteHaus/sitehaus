@@ -1,19 +1,29 @@
+"use client";
+
 import { RequireParams } from "@/lib/require-params";
-import { Metadata } from "next";
 import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import RequestPasswordResetContainer from "./request-password-reset-container";
 
-export const metadata: Metadata = {
-  title: "Identity Gateway - Request Password Reset",
-  description: "Request a password reset, and gain access to your account.",
-};
+function RequestPasswordPage() {
+  const searchParams = useSearchParams();
+  const hasOAuthParams = !!searchParams.get("oauth_params");
+  const hasClient = !!searchParams.get("client");
+
+  return (
+    <RequireParams
+      requireClient={!hasOAuthParams && !hasClient}
+      requireNext={false} // OAuth flow doesn't use 'next'
+    >
+      <RequestPasswordResetContainer />
+    </RequireParams>
+  );
+}
 
 export default function Home() {
   return (
     <Suspense fallback={null}>
-      <RequireParams requireClient requireNext>
-        <RequestPasswordResetContainer />
-      </RequireParams>
+      <RequestPasswordPage />
     </Suspense>
   );
 }

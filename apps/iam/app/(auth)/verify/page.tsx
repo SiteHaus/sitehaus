@@ -1,19 +1,29 @@
+"use client";
+
 import { RequireParams } from "@/lib/require-params";
-import { Metadata } from "next";
 import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import VerifyCodeContainer from "./verify-container";
 
-export const metadata: Metadata = {
-  title: "Identity Gateway - Verify",
-  description: "Verify the code we've sent to your email.",
-};
+function VerifyPage() {
+  const searchParams = useSearchParams();
+  const hasOAuthParams = !!searchParams.get("oauth_params");
+  const hasClient = !!searchParams.get("client");
+
+  return (
+    <RequireParams
+      requireClient={!hasOAuthParams && !hasClient}
+      requireNext={false} // OAuth flow doesn't use 'next'
+    >
+      <VerifyCodeContainer />
+    </RequireParams>
+  );
+}
 
 export default function AuthVerifyCodeRoute() {
   return (
     <Suspense fallback={null}>
-      <RequireParams requireClient requireNext>
-        <VerifyCodeContainer />
-      </RequireParams>
+      <VerifyPage />
     </Suspense>
   );
 }

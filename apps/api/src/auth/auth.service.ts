@@ -60,6 +60,10 @@ export class AuthService {
     const user = await this.users.findByEmail(input.email);
     if (!user) throw new UnauthorizedException('Invalid email or password');
 
+    if (user.status !== 'active') {
+      throw new UnauthorizedException('Account is suspended or inactive');
+    }
+
     const pc = await this.users.getPasswordCredential(user.id);
     if (!pc) throw new UnauthorizedException('Invalid email or password');
 
@@ -106,17 +110,30 @@ export class AuthService {
     await this.sessions.revoke(sessionId);
   }
 
-  private async issueTokens(
+  async issueTokens(
     userId: string,
-    ctx: { clientId: string; ip?: string; ua?: string },
+    ctx: { clientId: string; sessionId?: string; ip?: string; ua?: string },
   ) {
-    const { sessionId, refreshToken, refreshExpiresAt } =
-      await this.sessions.createSession({
+    let sessionId: string;
+    let refreshToken: string | undefined;
+    let refreshExpiresAt: Date | undefined;
+
+    if (ctx.sessionId) {
+      // OAuth flow: reuse existing session (created by auth code consumption)
+      sessionId = ctx.sessionId;
+      // Don't return refresh token for OAuth flow (standard for public clients with PKCE)
+    } else {
+      // Direct login flow: create new session
+      const session = await this.sessions.createSession({
         userId,
         clientId: ctx.clientId,
         ip: ctx.ip,
         ua: ctx.ua,
       });
+      sessionId = session.sessionId;
+      refreshToken = session.refreshToken;
+      refreshExpiresAt = session.refreshExpiresAt;
+    }
 
     const accessTtlSec = this.cfg.accessTtlSec;
     const accessToken = await this.tokens.signAccessToken(
@@ -127,8 +144,10 @@ export class AuthService {
     return {
       accessToken,
       accessTokenExpiresIn: accessTtlSec,
-      refreshToken,
-      refreshTokenExpiresAt: refreshExpiresAt.toISOString(),
+      ...(refreshToken && {
+        refreshToken,
+        refreshTokenExpiresAt: refreshExpiresAt!.toISOString(),
+      }),
       sessionId,
       userId,
     };

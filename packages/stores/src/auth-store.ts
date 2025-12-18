@@ -35,10 +35,7 @@ type AuthState = {
   hasPerm: (perm: string) => boolean;
 };
 
-type Persisted = Pick<
-  AuthState,
-  "user" | "session" | "accessToken" | "accessExpiration"
->;
+type Persisted = Pick<AuthState, "user" | "session">;
 
 const persistOptions: PersistOptions<AuthState, Persisted> = {
   name: "auth",
@@ -49,8 +46,6 @@ const persistOptions: PersistOptions<AuthState, Persisted> = {
   partialize: (s) => ({
     user: s.user,
     session: s.session,
-    accessToken: s.accessToken,
-    accessExpiration: s.accessExpiration,
   }),
   onRehydrateStorage: () => (state) => {
     state?.setHydrated();
@@ -101,27 +96,18 @@ export const useAuthStore = create<AuthState>()(
       hasPerm: (perm: string) => get().permissions.has(perm),
 
       bootstrap: async () => {
-        const { accessToken, accessExpiration } = get();
-        const now = Math.floor(Date.now() / 1000);
-
-        const hasFreshToken =
-          !!accessToken &&
-          typeof accessExpiration === "number" &&
-          accessExpiration > now + 30;
-
-        if (hasFreshToken) {
-          await get().me();
-          await get().loadMyClients();
-          return;
-        }
+        // Always attempt refresh on bootstrap
+        // Don't rely on persisted accessToken (it's not persisted anymore)
 
         try {
           await refreshOnce();
         } catch {
+          // Refresh failed - user needs to log in
           get().clearAuth();
           return;
         }
 
+        // If refresh succeeded, fetch user data
         if (get().accessToken) {
           await get().me();
           await get().loadMyClients();

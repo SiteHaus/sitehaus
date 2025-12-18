@@ -34,6 +34,7 @@ export const authCodesTable = pgTable(
     method: codeChallengeMethodEnum("code_challenge_method")
       .notNull()
       .default("S256"),
+    scope: varchar("scope", { length: 512 }),
     sessionId: uuid("session_id").references(() => sessionsTable.id, {
       onDelete: "set null",
     }),
