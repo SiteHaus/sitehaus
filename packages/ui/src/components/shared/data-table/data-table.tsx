@@ -90,7 +90,7 @@ export function DataTable<TData extends Record<string, unknown>>({
   }, [defaultColumns, columns]);
 
   return (
-    <div className="overflow-hidden rounded-md border p-4">
+    <div className="overflow-hidden rounded-md border p-4 bg-card">
       <div className="flex">
         <div>
           <Input

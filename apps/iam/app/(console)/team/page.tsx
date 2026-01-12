@@ -51,7 +51,7 @@ export default function TeamPage() {
 
   return (
     <RequireAuth>
-      <>
+      <div className="container mx-auto mt-12">
         <div className="mb-12">
           <h1 className="text-3xl font-bold">Your Team</h1>
           <p className="text-lg text-muted-foreground tracking-wide">
@@ -68,14 +68,12 @@ export default function TeamPage() {
         )}
 
         {!loading && !error && (
-          <div className="bg-card">
-            <DataTable<ClientMember>
-              data={members}
-              defaultColumns={DEFAULT_COLUMNS}
-            />
-          </div>
+          <DataTable<ClientMember>
+            data={members}
+            defaultColumns={DEFAULT_COLUMNS}
+          />
         )}
-      </>
+      </div>
     </RequireAuth>
   );
 }

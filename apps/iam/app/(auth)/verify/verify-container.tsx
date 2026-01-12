@@ -13,6 +13,33 @@ import { useEffect, useRef, useState } from "react";
 
 export type VerificationMode = "email" | "reset";
 
+/**
+ * Redirect to OAuth authorize endpoint if oauth_params is present
+ */
+function redirectToOAuth(oauthParams: string): boolean {
+  try {
+    const params = JSON.parse(
+      atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/"))
+    );
+
+    const authorizeUrl = new URL(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`
+    );
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) {
+        authorizeUrl.searchParams.set(key, value as string);
+      }
+    });
+
+    window.location.href = authorizeUrl.toString();
+    return true;
+  } catch (err) {
+    console.error("Failed to parse oauth_params:", err);
+    return false;
+  }
+}
+
 export default function VerifyCodeContainer() {
   const { replace } = useAuthNav();
   const api = useApi();
@@ -22,6 +49,7 @@ export default function VerifyCodeContainer() {
   const email = searchParams.get("email") || "";
   const clientName = searchParams.get("client") || "";
   const mode = searchParams.get("mode") as VerificationMode;
+  const oauthParams = searchParams.get("oauth_params");
 
   const setAccess = useAuthStore((s) => s.setAccess);
 
@@ -46,6 +74,11 @@ export default function VerifyCodeContainer() {
       const r = await api.auth.public.verifyEmail({ body: { email, code } });
       if (r.status !== 204) throw r;
 
+      // Check if this is an OAuth flow
+      if (oauthParams && redirectToOAuth(oauthParams)) {
+        return;
+      }
+
       replace(next || "/");
       return;
     }
@@ -59,7 +92,14 @@ export default function VerifyCodeContainer() {
       r.body;
 
     if (requiresEmailVerification) {
-      replace("/verify", { add: { email, mode: "email" } });
+      replace("/verify", {
+        add: {
+          email,
+          mode: "email",
+          ...(oauthParams ? { oauth_params: oauthParams } : {}),
+          ...(clientName ? { client: clientName } : {}),
+        },
+      });
       return;
     }
 
@@ -67,6 +107,11 @@ export default function VerifyCodeContainer() {
     setAccess({ accessToken, accessExpiration: exp });
 
     await useAuthStore.getState().me();
+
+    // Check if this is an OAuth flow
+    if (oauthParams && redirectToOAuth(oauthParams)) {
+      return;
+    }
 
     replace(next || "/");
   };

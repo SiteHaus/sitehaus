@@ -96,9 +96,25 @@ export const useAuthStore = create<AuthState>()(
       hasPerm: (perm: string) => get().permissions.has(perm),
 
       bootstrap: async () => {
-        // Always attempt refresh on bootstrap
-        // Don't rely on persisted accessToken (it's not persisted anymore)
+        // If we already have a valid access token in memory (e.g., just logged in),
+        // skip the refresh and just fetch user data
+        const currentState = get();
+        const now = Math.floor(Date.now() / 1000);
+        const hasValidToken =
+          currentState.accessToken &&
+          currentState.accessExpiration &&
+          currentState.accessExpiration > now;
 
+        if (hasValidToken) {
+          // Already have a valid token, just ensure user data is loaded
+          if (!currentState.user) {
+            await get().me();
+            await get().loadMyClients();
+          }
+          return;
+        }
+
+        // No valid token in memory, try to refresh using cookie
         try {
           await refreshOnce();
         } catch {

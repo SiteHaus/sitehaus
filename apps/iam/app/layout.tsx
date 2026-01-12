@@ -32,6 +32,7 @@ export default function RootLayout({
           ${geistSans.variable} ${geistMono.variable}
           bg-muted text-foreground
           min-h-screen
+          bg-hazy-dots
         `}
       >
         <Providers>{children}</Providers>

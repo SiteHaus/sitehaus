@@ -10,10 +10,9 @@ const getSameSite = (): 'strict' | 'lax' | 'none' => {
     | 'lax'
     | 'none'
     | undefined;
-  if (isProd) {
-    return sameSite || 'none';
-  }
-  return sameSite || 'lax';
+  if (sameSite) return sameSite;
+  // Default to 'lax' for development, 'none' for production (cross-origin OAuth)
+  return isProd ? 'none' : 'lax';
 };
 
 export const setRefreshCookie = (
@@ -25,13 +24,11 @@ export const setRefreshCookie = (
 
   res.cookie(REFRESH_COOKIE, token, {
     httpOnly: true,
-    secure: isProd,
+    secure: isProd || sameSite === 'none',
     sameSite,
     path: '/',
     expires,
-    ...(isProd && process.env.COOKIE_DOMAIN
-      ? { domain: process.env.COOKIE_DOMAIN }
-      : {}),
+    ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {}),
   });
 };
 
@@ -40,11 +37,9 @@ export const clearRefreshCookie = (res: Response) => {
 
   res.clearCookie(REFRESH_COOKIE, {
     httpOnly: true,
-    secure: isProd,
+    secure: isProd || sameSite === 'none',
     sameSite,
     path: '/',
-    ...(isProd && process.env.COOKIE_DOMAIN
-      ? { domain: process.env.COOKIE_DOMAIN }
-      : {}),
+    ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {}),
   });
 };

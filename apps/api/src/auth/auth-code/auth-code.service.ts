@@ -127,7 +127,7 @@ export class AuthCodeService {
       ua?: string;
     },
     db?: Db,
-  ): Promise<{ sessionId: string; userId: string }> {
+  ): Promise<{ sessionId: string; userId: string; scope: string | null }> {
     const dbInstance = db ?? this.db;
 
     // Hash the provided code (SHA256)
@@ -178,6 +178,7 @@ export class AuthCodeService {
     return {
       sessionId: session.sessionId,
       userId: authCode.userId,
+      scope: authCode.scope,
     };
   }
 

@@ -21,10 +21,6 @@ export default function LoginContainer() {
   const setAccess = useAuthStore((s) => s.setAccess);
 
   const onSubmit = async (values: LoginInput) => {
-    console.log("=== Login Submit Debug ===");
-    console.log("oauth_params:", oauthParams);
-    console.log("client:", clientName);
-
     const r = await api.auth.loginOnly.login({ body: values });
 
     if (r.status !== 200) throw r;
@@ -39,16 +35,16 @@ export default function LoginContainer() {
 
     const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
     setAccess({ accessToken, accessExpiration: exp });
-    console.log("Access token set");
 
     // Hydrate user/session/permissions
-    await useAuthStore.getState().me();
-    console.log("User loaded:", useAuthStore.getState().user);
+    try {
+      await useAuthStore.getState().me();
+    } catch {
+      // Continue with redirect even if me() fails - user is authenticated
+    }
 
     // Check if this is an OAuth flow
-    console.log("Checking oauth_params...");
     if (oauthParams) {
-      console.log("OAuth flow detected, decoding params...");
       try {
         // Decode the OAuth parameters
         const params = JSON.parse(
@@ -68,16 +64,13 @@ export default function LoginContainer() {
 
         // Redirect to the API authorize endpoint
         // The browser will automatically send the refresh token cookie
-        console.log("Redirecting to authorize URL:", authorizeUrl.toString());
         window.location.href = authorizeUrl.toString();
         return;
-      } catch (err) {
-        console.error("Failed to parse oauth_params:", err);
+      } catch {
         // Fall through to normal redirect
       }
     }
 
-    console.log("No oauth_params, redirecting to:", next || "/");
     router.replace(next || "/");
   };
 

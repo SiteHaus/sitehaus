@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { TopNav } from "../components/navigation/top-nav";
+import { SiteNav } from "../components/navigation/site-nav";
 
 export default function ConsoleLayout({
   children,
@@ -8,7 +8,7 @@ export default function ConsoleLayout({
 }) {
   return (
     <div className="min-h-screen">
-      <TopNav />
+      <SiteNav />
       {children}
     </div>
   );

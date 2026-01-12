@@ -3,18 +3,20 @@
 import { generatePKCE } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Shield } from "lucide-react";
-import { TopNav } from "./components/navigation/top-nav";
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@site-haus/ui/components/base/card";
+import { Fingerprint, GlobeLock, IdCard, MoveRight, UsersRound } from "lucide-react";
+import { SiteNav } from "./components/navigation/site-nav";
 
 export default function HomePage() {
   const user = useAuthStore((s) => s.user);
   const hydrated = useAuthStore((s) => s.hydrated);
 
-  console.log("=== HomePage Debug ===");
-  console.log("Hydrated:", hydrated);
-  console.log("User:", user);
-
-  // Handle OAuth login
   const handleLogin = async () => {
     const { codeVerifier, codeChallenge } = await generatePKCE();
     const state = Math.random().toString(36).substring(7);
@@ -50,28 +52,66 @@ export default function HomePage() {
   // Unauthenticated landing page
   if (!user) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <header className="border-b">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Shield className="h-6 w-6" />
-              <h1 className="text-xl font-bold">SiteHaus Identity</h1>
-            </div>
-            <Button onClick={handleLogin}>Log In</Button>
-          </div>
-        </header>
+      <div className="flex flex-col min-h-screen">
+        <SiteNav />
 
-        <main className="flex-1 flex items-center justify-center">
-          <div className="text-center max-w-2xl px-4">
-            <h2 className="text-4xl font-bold mb-4">
-              Secure Identity Management
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Authentication and access control for SiteHaus clients
-            </p>
+        <main className="flex-1">
+          <div className="container px-4 text-center mx-auto h-[40vh] flex flex-col justify-center items-center">
+            <div>
+              <div className="flex items-center justify-start gap-4">
+                <div className="p-2 bg-card/70 border rounded-2xl flex items-center justify-center">
+                  <IdCard className="h-10 w-10" />
+                </div>
+                <h2 className="text-4xl font-bold">
+                  SiteHaus Identity Management
+                </h2>
+              </div>
+              <p className="text-lg text-muted-foreground mb-8">
+                Authentication and access control for SiteHaus clients
+              </p>
+            </div>
             <Button onClick={handleLogin} size="lg">
-              Access Your Account
+              Access Your Account <MoveRight />
             </Button>
+          </div>
+          <div className="container mx-auto flex items-center justify-center gap-2">
+            <Card className="flex-1 shadow-none">
+              <CardHeader>
+                <CardTitle className="text-xl">Secure Access</CardTitle>
+              </CardHeader>
+              <CardFooter className="flex items-center justify-between">
+                <CardDescription>
+                  Control who has access to your apps.
+                </CardDescription>
+                <div className="p-2 bg-background/70 border rounded-2xl flex items-center justify-center">
+                  <GlobeLock className="h-10 w-10" />
+                </div>
+              </CardFooter>
+            </Card>
+            <Card className="flex-1 shadow-none">
+              <CardHeader>
+                <CardTitle className="text-xl">Team Management</CardTitle>
+              </CardHeader>
+              <CardFooter className="flex items-center justify-between">
+                <CardDescription>
+                  Invite and organize your team.
+                </CardDescription>
+                <div className="p-2 bg-background/70 border rounded-2xl flex items-center justify-center">
+                  <UsersRound className="h-10 w-10" />
+                </div>
+              </CardFooter>
+            </Card>
+            <Card className="flex-1 shadow-none">
+              <CardHeader>
+                <CardTitle className="text-xl">Single Sign-On</CardTitle>
+              </CardHeader>
+              <CardFooter className="flex items-center justify-between">
+                <CardDescription>One identity, all your apps!</CardDescription>
+                <div className="p-2 bg-background/70 border rounded-2xl flex items-center justify-center">
+                  <Fingerprint className="h-10 w-10" />
+                </div>
+              </CardFooter>
+            </Card>
           </div>
         </main>
 
@@ -85,7 +125,7 @@ export default function HomePage() {
   // Authenticated view
   return (
     <div className="min-h-screen">
-      <TopNav />
+      <SiteNav />
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-4">
           Welcome back, {user.firstName}!

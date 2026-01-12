@@ -17,6 +17,7 @@ import {
 } from 'express';
 import { ClientsService } from 'src/clients/clients.service';
 import { Public } from 'src/public.decorator';
+import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from '../access/access.guard';
 import { AuthService } from '../auth.service';
@@ -62,6 +63,7 @@ export class OAuthController {
     private readonly authService: AuthService,
     private readonly clientsService: ClientsService,
     private readonly usersService: UsersService,
+    private readonly sessionService: SessionService,
   ) {}
 
   /**
@@ -148,21 +150,33 @@ export class OAuthController {
     if (req.user) {
       userId = req.user.userId;
     } else {
-      // Verify refresh token JWT and extract session/user info
+      // Verify refresh token against the database
       const refreshToken = req.cookies['sh_refresh'];
+
       try {
-        const payload = await this.jwtService.verifyAsync(refreshToken);
-        userId = payload.sub; // User ID from JWT payload
-      } catch {
-        // Invalid or expired refresh token, redirect to login
-        const oauthParams = Buffer.from(JSON.stringify(query)).toString('base64url');
-        const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
-        const loginUrl = new URL(`${iamUrl}/login`);
-        loginUrl.searchParams.set('oauth_params', oauthParams);
-        if (clientName) {
-          loginUrl.searchParams.set('client', clientName);
+        const session = await this.sessionService.validateRefreshToken(refreshToken);
+
+        if (!session) {
+          // Invalid or expired refresh token, redirect to login
+          const oauthParams = Buffer.from(JSON.stringify(query)).toString(
+            'base64url',
+          );
+          const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+          const loginUrl = new URL(`${iamUrl}/login`);
+          loginUrl.searchParams.set('oauth_params', oauthParams);
+          if (clientName) {
+            loginUrl.searchParams.set('client', clientName);
+          }
+          return res.redirect(loginUrl.toString());
         }
-        return res.redirect(loginUrl.toString());
+
+        userId = session.userId;
+      } catch (err) {
+        console.error('[OAuth] Error validating refresh token:', err);
+        return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          error: 'server_error',
+          error_description: 'Failed to validate session',
+        });
       }
     }
 
@@ -250,7 +264,7 @@ export class OAuthController {
 
     try {
       // Consume the authorization code (validates PKCE and creates session)
-      const { sessionId, userId } = await this.authCodeService.consume({
+      const { sessionId, userId, scope } = await this.authCodeService.consume({
         code: body.code,
         codeVerifier: body.code_verifier,
         clientId,
@@ -266,16 +280,12 @@ export class OAuthController {
         ua: req.headers['user-agent'],
       });
 
-      // Get the authorization code details for scope
-      // Note: We could store scope in session or retrieve from consumed code
-      const scope = 'openid profile email'; // Default scope
-
       // Return OAuth2 token response
       return res.json({
         access_token: tokens.accessToken,
         token_type: 'Bearer',
         expires_in: tokens.accessTokenExpiresIn,
-        scope,
+        scope: scope || 'openid profile email',
         // Optional: refresh_token if implementing refresh grant
         // Optional: id_token if implementing OIDC
       });
