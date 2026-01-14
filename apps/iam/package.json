@@ -21,6 +21,7 @@
     "@hookform/resolvers": "^5.2.2",
     "react-hook-form": "^7.61.1",
     "lucide-react": "^0.534.0",
+    "date-fns": "^4.1.0",
     "sonner": "^2.0.6",
     "next": "^15.4.2",
     "react": "^19.1.0",

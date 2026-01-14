@@ -266,6 +266,9 @@ importers:
       '@ts-rest/core':
         specifier: ^3.53.0-rc.1
         version: 3.53.0-rc.1(@types/node@22.17.2)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       lucide-react:
         specifier: ^0.534.0
         version: 0.534.0(react@19.1.1)

@@ -19,6 +19,8 @@ type AuthState = {
   hydrated: boolean;
   setHydrated: () => void;
 
+  bootstrapped: boolean;
+
   setAccess: (p: { accessToken: string; accessExpiration: number }) => void;
   setMe: (p: {
     user: MeUser | null;
@@ -74,6 +76,8 @@ export const useAuthStore = create<AuthState>()(
       hydrated: false,
       setHydrated: () => set({ hydrated: true }),
 
+      bootstrapped: false,
+
       setAccess: ({ accessToken, accessExpiration }) =>
         set({ accessToken, accessExpiration }),
 
@@ -111,6 +115,7 @@ export const useAuthStore = create<AuthState>()(
             await get().me();
             await get().loadMyClients();
           }
+          set({ bootstrapped: true });
           return;
         }
 
@@ -120,6 +125,7 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           // Refresh failed - user needs to log in
           get().clearAuth();
+          set({ bootstrapped: true });
           return;
         }
 
@@ -128,6 +134,7 @@ export const useAuthStore = create<AuthState>()(
           await get().me();
           await get().loadMyClients();
         }
+        set({ bootstrapped: true });
       },
 
       login: async ({ email, password }) => {

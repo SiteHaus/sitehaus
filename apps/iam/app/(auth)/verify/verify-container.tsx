@@ -74,6 +74,9 @@ export default function VerifyCodeContainer() {
       const r = await api.auth.public.verifyEmail({ body: { email, code } });
       if (r.status !== 204) throw r;
 
+      // Refresh user data so isVerified is updated
+      await useAuthStore.getState().me();
+
       // Check if this is an OAuth flow
       if (oauthParams && redirectToOAuth(oauthParams)) {
         return;

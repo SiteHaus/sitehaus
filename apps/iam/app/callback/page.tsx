@@ -1,11 +1,11 @@
 "use client";
 
-import { exchangeCodeForTokens } from "@site-haus/sdk/oauth";
+import { exchangeCodeForTokens } from "@site-haus/sdk";
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Suspense } from "react";
 
 function CallbackContent() {
   const router = useRouter();
@@ -31,13 +31,11 @@ function CallbackContent() {
       }
 
       try {
-        // Get stored code verifier
         const codeVerifier = sessionStorage.getItem("oauth_code_verifier");
         if (!codeVerifier) {
           throw new Error("Code verifier not found");
         }
 
-        // Exchange code for tokens
         const tokens = await exchangeCodeForTokens({
           tokenUrl: `${process.env.NEXT_PUBLIC_API_URL}/auth/token`,
           code,
@@ -46,10 +44,8 @@ function CallbackContent() {
           redirectUri: `${window.location.origin}/callback`,
         });
 
-        // Calculate expiration
         const exp = Math.floor(Date.now() / 1000) + tokens.expires_in;
 
-        // Store access token
         console.log("=== OAuth Callback Debug ===");
         console.log("Tokens received:", tokens);
         setAccess({
@@ -58,19 +54,14 @@ function CallbackContent() {
         });
         console.log("Access token stored");
 
-        // Hydrate user/session/permissions
         await useAuthStore.getState().me();
         const user = useAuthStore.getState().user;
         console.log("User after me():", user);
 
-        // Clean up
         sessionStorage.removeItem("oauth_code_verifier");
 
-        // Wait a bit for Zustand persist middleware to save to localStorage
-        // This ensures the user data is persisted before navigating
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // Redirect to dashboard
         console.log("Redirecting to /");
         router.replace("/");
       } catch (err) {
@@ -107,9 +98,11 @@ function CallbackContent() {
 
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Completing authentication...</p>
+      <div className="flex flex-col items-center justify-center">
+        <Spinner className="size-6 text-primary" />
+        <p className="mt-4 text-gray-600">
+          Completing Your Authentication Request
+        </p>
       </div>
     </div>
   );
@@ -117,14 +110,18 @@ function CallbackContent() {
 
 export default function CallbackPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="flex flex-col items-center justify-center">
+              <Spinner className="size-6 text-primary" />
+              <p className="mt-4 text-gray-600">Loading...</p>
+            </div>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <CallbackContent />
     </Suspense>
   );

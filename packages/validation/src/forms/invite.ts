@@ -12,11 +12,30 @@ export const createInviteSchema = z.object({
     .optional(),
 });
 
-export const acceptInviteSchema = z.object({
+// Base schema for invite acceptance (shared fields)
+const acceptInviteBaseSchema = z.object({
   clientId: z.uuid(),
   email: z.email(),
   code: z.string().min(6),
+});
+
+// Schema for new users - requires password and name
+export const acceptInviteNewUserSchema = acceptInviteBaseSchema.extend({
   password: passwordSchema,
   firstName: nameSchema,
   lastName: nameSchema,
 });
+
+// Schema for existing users - no additional fields needed
+export const acceptInviteExistingUserSchema = acceptInviteBaseSchema;
+
+// Combined schema for API validation (makes fields optional for existing users)
+export const acceptInviteSchema = acceptInviteBaseSchema.extend({
+  password: passwordSchema.optional(),
+  firstName: nameSchema.optional(),
+  lastName: nameSchema.optional(),
+});
+
+export type AcceptInviteInput = z.infer<typeof acceptInviteSchema>;
+export type AcceptInviteNewUserInput = z.infer<typeof acceptInviteNewUserSchema>;
+export type AcceptInviteExistingUserInput = z.infer<typeof acceptInviteExistingUserSchema>;

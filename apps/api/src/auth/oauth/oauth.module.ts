@@ -1,6 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { ClientsModule } from 'src/clients/clients.module';
 import { DbModule } from 'src/db/db.module';
+import { RolesModule } from 'src/roles/roles.module';
 import { SessionModule } from 'src/session/session.module';
 import { UsersModule } from 'src/users/users.module';
 import { AuthCodeModule } from '../auth-code/auth-code.module';
@@ -12,6 +13,7 @@ import { OAuthService } from './oauth.service';
   imports: [
     DbModule,
     ClientsModule,
+    RolesModule,
     UsersModule,
     SessionModule,
     AuthCodeModule,

@@ -1,5 +1,6 @@
 "use client";
 
+import { RequireAuth } from "@/lib/require-auth";
 import { generatePKCE } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
@@ -10,7 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@site-haus/ui/components/base/card";
-import { Fingerprint, GlobeLock, IdCard, MoveRight, UsersRound } from "lucide-react";
+import {
+  Fingerprint,
+  GlobeLock,
+  IdCard,
+  MoveRight,
+  UsersRound,
+} from "lucide-react";
 import { SiteNav } from "./components/navigation/site-nav";
 
 export default function HomePage() {
@@ -124,17 +131,19 @@ export default function HomePage() {
 
   // Authenticated view
   return (
-    <div className="min-h-screen">
-      <SiteNav />
-      <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">
-          Welcome back, {user.firstName}!
-        </h1>
-        <p className="text-muted-foreground mb-8">
-          Manage your identity and access settings
-        </p>
-        {/* TODO: Add quick links or dashboard content */}
-      </main>
-    </div>
+    <RequireAuth>
+      <div className="min-h-screen">
+        <SiteNav />
+        <main className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-4">
+            Welcome back, {user.firstName}!
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            Manage your identity and access settings
+          </p>
+          {/* TODO: Add quick links or dashboard content */}
+        </main>
+      </div>
+    </RequireAuth>
   );
 }

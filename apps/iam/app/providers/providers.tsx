@@ -2,6 +2,7 @@
 
 import { initStoresSdk } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
 import { ReactNode, useEffect } from "react";
 
 interface ProvidersProps {
@@ -38,7 +39,16 @@ const Providers = ({ children }: ProvidersProps) => {
     }
   }, [hydrated]);
 
-  return <>{children}</>;
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
+  );
 };
 
 export default Providers;

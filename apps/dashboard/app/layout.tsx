@@ -3,6 +3,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@site-haus/ui/components/base/sidebar";
+import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { AppSideBar } from "./components/sidebar/app-sidebar";
@@ -22,17 +23,24 @@ export default async function RootLayout({
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body>
-        <SidebarProvider defaultOpen={defaultOpen}>
-          <AppSideBar />
-          <SidebarInset>
-            <main>
-              <SidebarTrigger className="ml-6 lg:ml-2 mt-2" />
-              <div className="px-6 lg:px-0">{children}</div>
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SidebarProvider defaultOpen={defaultOpen}>
+            <AppSideBar />
+            <SidebarInset>
+              <main>
+                <SidebarTrigger className="ml-6 lg:ml-2 mt-2" />
+                <div className="px-6 lg:px-0">{children}</div>
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

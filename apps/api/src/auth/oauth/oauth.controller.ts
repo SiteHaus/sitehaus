@@ -272,6 +272,9 @@ export class OAuthController {
         ua: req.headers['user-agent'],
       });
 
+      // Ensure user is a member of this client (auto-join with default role)
+      await this.oauthService.ensureClientMembership(userId, clientId);
+
       // Issue tokens using the created session
       const tokens = await this.authService.issueTokens(userId, {
         clientId,

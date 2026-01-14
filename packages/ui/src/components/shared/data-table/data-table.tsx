@@ -9,7 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@site-haus/ui/components/base/table";
-import { createColumnsFromData } from "@site-haus/ui/components/shared/data-table/columns";
+import {
+  createColumnsFromData,
+  RowActions,
+} from "@site-haus/ui/components/shared/data-table/columns";
 import { DataTableViewOptions } from "@site-haus/ui/components/shared/data-table/data-table-column-toggle";
 import { DataTablePagination } from "@site-haus/ui/components/shared/data-table/data-table-pagination";
 import {
@@ -31,17 +34,19 @@ type KeyOf<T> = Extract<keyof T, string>;
 interface DataTableProps<TData extends Record<string, unknown>> {
   data: TData[];
   defaultColumns: KeyOf<TData>[];
+  actions?: RowActions<TData>;
 }
 
 export function DataTable<TData extends Record<string, unknown>>({
   data,
   defaultColumns,
+  actions,
 }: DataTableProps<TData>) {
   if (!data || !data.length) return <div>No data.</div>;
 
   const columns = useMemo<ColumnDef<TData, unknown>[]>(
-    () => createColumnsFromData<TData>(data),
-    [data]
+    () => createColumnsFromData<TData>(data, actions),
+    [data, actions]
   );
   const [globalFilter, setGlobalFilter] = useState("");
 

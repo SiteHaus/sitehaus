@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, eq, schema, type Db } from '@site-haus/db';
 import { ClientsService } from 'src/clients/clients.service';
 import { DRIZZLE } from 'src/db/tokens';
+import { RolesService } from 'src/roles/roles.service';
 
 export interface AuthorizationRequest {
   clientId: string;
@@ -24,6 +25,7 @@ export class OAuthService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly clientsService: ClientsService,
+    private readonly roles: RolesService,
   ) {}
 
   /**
@@ -214,5 +216,25 @@ export class OAuthService {
     });
 
     return url.toString();
+  }
+
+  /**
+   * Ensure user is a member of the client (auto-join with default role)
+   * Called during OAuth token exchange to implement SSO-style membership
+   */
+  async ensureClientMembership(
+    userId: string,
+    clientId: string,
+  ): Promise<void> {
+    // Check if user already has any role in this client
+    const existing = await this.db.query.userRolesTable.findFirst({
+      where: (t, { and: _and, eq: _eq }) =>
+        _and(_eq(t.userId, userId), _eq(t.clientId, clientId)),
+    });
+
+    if (existing) return; // Already a member
+
+    // Add with default role if one exists
+    await this.roles.assignDefaultIfAny(userId, clientId);
   }
 }

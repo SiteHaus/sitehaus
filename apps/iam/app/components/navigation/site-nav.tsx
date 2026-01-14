@@ -3,6 +3,7 @@
 import { generatePKCE } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
+import { ModeToggle } from "@site-haus/ui/components/base/mode-toggle";
 import { cn } from "@site-haus/ui/lib/utils";
 import {
   AppWindow,
@@ -89,7 +90,6 @@ export function SiteNav() {
     <nav className="border-b bg-background/70">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          {/* Left: Logo */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
               <Image
@@ -97,11 +97,11 @@ export function SiteNav() {
                 width={25}
                 height={25}
                 alt="Sitehaus"
+                className="filter dark:invert"
               />
               <span className="text-xl font-bold">SH-IAM</span>
             </Link>
 
-            {/* Authed: Nav Links */}
             {user && (
               <div className="hidden md:flex items-center gap-1">
                 {mainNavLinks.map((link) => {
@@ -126,8 +126,9 @@ export function SiteNav() {
             )}
           </div>
 
-          {/* Right: Auth-dependent content */}
           <div className="flex items-center gap-4">
+            <ModeToggle />
+
             {user ? (
               <>
                 {canManageApps && (
