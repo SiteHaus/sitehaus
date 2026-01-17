@@ -69,7 +69,7 @@ export class OAuthService {
     let client;
     try {
       client = await this.clientsService.resolveById(params.clientId);
-    } catch (error) {
+    } catch {
       return {
         valid: false,
         error: 'invalid_client',
