@@ -19,6 +19,22 @@ jobs:
       contents: read
       packages: write
 
+    strategy:
+      matrix:
+        include:
+          - app: web
+            dockerfile: apps/web/Dockerfile
+            client_key: ""
+          - app: dashboard
+            dockerfile: apps/dashboard/Dockerfile
+            client_key: dashboard
+          - app: iam
+            dockerfile: apps/iam/Dockerfile
+            client_key: iam
+          - app: api
+            dockerfile: apps/api/Dockerfile
+            client_key: ""
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,57 +49,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build and push all 4 images from the same build
-      - name: Build and push web
+      - name: Build and push ${{ matrix.app }}
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile
-          target: web-runner
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ${{ env.IMAGE_PREFIX }}-web:latest
-            ${{ env.IMAGE_PREFIX }}-web:${{ github.sha }}
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:latest
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_API_URL=https://api.sitehaus.dev
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build and push dashboard
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          target: dashboard-runner
-          push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}-dashboard:latest
-            ${{ env.IMAGE_PREFIX }}-dashboard:${{ github.sha }}
-          cache-from: type=gha
-
-      - name: Build and push iam
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          target: iam-runner
-          push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}-iam:latest
-            ${{ env.IMAGE_PREFIX }}-iam:${{ github.sha }}
-          cache-from: type=gha
-
-      - name: Build and push api
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: ./Dockerfile
-          target: api-runner
-          push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}-api:latest
-            ${{ env.IMAGE_PREFIX }}-api:${{ github.sha }}
-          cache-from: type=gha
+            NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,scope=${{ matrix.app }},mode=max
 
   deploy:
     needs: build-and-push
