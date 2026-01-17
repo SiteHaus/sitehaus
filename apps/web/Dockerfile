@@ -32,6 +32,9 @@ RUN --mount=type=cache,target=/pnpm/store \
 FROM base AS build
 WORKDIR /app
 
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
 COPY --from=installer /app ./
 
 RUN --mount=type=cache,target=/root/.cache/turbo \
