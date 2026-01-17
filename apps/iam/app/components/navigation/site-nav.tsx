@@ -54,6 +54,7 @@ const mainNavLinks: NavLink[] = [
 
 export function SiteNav() {
   const user = useAuthStore((s) => s.user);
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
   const hasPerm = useAuthStore((s) => s.hasPerm);
 
   const hasPermission = (permission?: string | string[]): boolean => {
@@ -102,7 +103,7 @@ export function SiteNav() {
               <span className="text-xl font-bold">SH-IAM</span>
             </Link>
 
-            {user && (
+            {user && bootstrapped && (
               <div className="hidden md:flex items-center gap-1">
                 {mainNavLinks.map((link) => {
                   if (!hasPermission(link.permission)) return null;
@@ -127,9 +128,7 @@ export function SiteNav() {
           </div>
 
           <div className="flex items-center gap-4">
-            <ModeToggle />
-
-            {user ? (
+            {user && bootstrapped ? (
               <>
                 {canManageApps && (
                   <Link
@@ -143,10 +142,12 @@ export function SiteNav() {
                     Apps
                   </Link>
                 )}
+                <ModeToggle />
                 <UserMenu />
               </>
             ) : (
               <>
+                <ModeToggle />
                 <Button variant="outline" className="bg-card">
                   Need Help
                   <HelpCircle />

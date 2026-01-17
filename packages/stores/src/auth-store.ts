@@ -101,7 +101,7 @@ export const useAuthStore = create<AuthState>()(
 
       bootstrap: async () => {
         // If we already have a valid access token in memory (e.g., just logged in),
-        // skip the refresh and just fetch user data
+        // skip the refresh but still fetch user data (permissions depend on client context)
         const currentState = get();
         const now = Math.floor(Date.now() / 1000);
         const hasValidToken =
@@ -110,11 +110,9 @@ export const useAuthStore = create<AuthState>()(
           currentState.accessExpiration > now;
 
         if (hasValidToken) {
-          // Already have a valid token, just ensure user data is loaded
-          if (!currentState.user) {
-            await get().me();
-            await get().loadMyClients();
-          }
+          // Always fetch user data and clients - permissions depend on current client context
+          await get().me();
+          await get().loadMyClients();
           set({ bootstrapped: true });
           return;
         }

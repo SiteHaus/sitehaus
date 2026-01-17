@@ -19,7 +19,7 @@ const CLIENTS: NewClient[] = [
     type: "public",
     firstParty: true,
     audience: "sitehaus.dashboard",
-    requiresConsent: false,
+    requiresConsent: true, // Enable consent screen for testing
   },
   {
     key: "iam",

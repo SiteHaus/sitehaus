@@ -77,12 +77,20 @@ export class AccessGuard implements CanActivate {
           isNull(t.revokedAt),
           gt(t.expiresAt, new Date()),
         ),
+      with: {
+        client: {
+          columns: { firstParty: true },
+        },
+      },
     });
     if (!session) throw new UnauthorizedException('Session Expired');
 
     const clientInReq = req.client?.id;
     if (clientInReq && clientInReq !== payload.aud) {
-      throw new UnauthorizedException('Token audience mismatch');
+      // Allow first-party clients to make cross-client requests
+      if (!session.client?.firstParty) {
+        throw new UnauthorizedException('Token audience mismatch');
+      }
     }
 
     req.user = {

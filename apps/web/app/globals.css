@@ -9,3 +9,34 @@
  * you can always add it with the @source directive.
  */
 @source '../node_modules/@site-haus/ui';
+
+:root {
+  --font-body: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+@layer utilities {
+  .font-body {
+    font-family: var(--font-body), system-ui, sans-serif;
+  }
+
+  .font-display {
+    font-family: var(--font-display), system-ui, sans-serif;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+p {
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+button {
+  font-family: var(--font-display), system-ui, sans-serif;
+}

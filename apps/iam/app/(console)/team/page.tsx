@@ -2,10 +2,13 @@
 
 import { RequireAuth } from "@/lib/require-auth";
 import { useApi } from "@/lib/typed-api";
+import { useClientContext } from "@/lib/use-client-context";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ClientMember } from "@site-haus/contracts";
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
+import { Checkbox } from "@site-haus/ui/components/base/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -23,7 +26,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@site-haus/ui/components/base/form";
-import { Checkbox } from "@site-haus/ui/components/base/checkbox";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import {
@@ -35,7 +37,7 @@ import {
 import { DataTable } from "@site-haus/ui/components/shared/data-table/data-table";
 import { createInviteSchema } from "@site-haus/validation/forms/invite";
 import { formatDistanceToNow } from "date-fns";
-import { MailPlus } from "lucide-react";
+import { MailPlus, ShieldX } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -101,6 +103,7 @@ function getInviteStatus(invite: Invite): string {
 export default function TeamPage() {
   const api = useApi();
   const accessToken = useAuthStore((s) => s.accessToken);
+  const { selectedClient } = useClientContext();
 
   const [members, setMembers] = useState<ClientMember[]>([]);
   const [invites, setInvites] = useState<Invite[]>([]);
@@ -108,6 +111,7 @@ export default function TeamPage() {
   const [loadingMembers, setLoadingMembers] = useState(true);
   const [loadingInvites, setLoadingInvites] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = useState(false);
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [editMemberDialogOpen, setEditMemberDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<ClientMember | null>(null);
@@ -117,6 +121,9 @@ export default function TeamPage() {
     const res = await api.clients.meMembers();
     if (res.status === 200) {
       setMembers(res.body.members);
+      setPermissionDenied(false);
+    } else if (res.status === 403) {
+      setPermissionDenied(true);
     } else {
       setError("Failed to load team members.");
     }
@@ -245,6 +252,28 @@ export default function TeamPage() {
       })),
     [invites]
   );
+
+  if (permissionDenied) {
+    return (
+      <RequireAuth>
+        <div className="container mx-auto mt-12">
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="rounded-full bg-muted p-4 mb-4">
+              <ShieldX className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+            <p className="text-muted-foreground max-w-md">
+              You don&apos;t have permission to manage the team for{" "}
+              <span className="font-medium text-foreground">
+                {selectedClient?.name ?? "this client"}
+              </span>
+              . Contact an administrator to request access.
+            </p>
+          </div>
+        </div>
+      </RequireAuth>
+    );
+  }
 
   return (
     <RequireAuth>
@@ -386,7 +415,11 @@ export default function TeamPage() {
                         checked={hasRole}
                         onCheckedChange={() => {
                           if (editingMember) {
-                            handleToggleRole(editingMember.id, role.id, hasRole);
+                            handleToggleRole(
+                              editingMember.id,
+                              role.id,
+                              hasRole
+                            );
                           }
                         }}
                       />
@@ -416,11 +449,14 @@ export default function TeamPage() {
         <Tabs defaultValue="members">
           <TabsList>
             <TabsTrigger value="members">
-              Members {members.length > 0 && `(${members.length})`}
+              <span>Members</span>
+              {members.length > 0 && <Badge>{members.length}</Badge>}
             </TabsTrigger>
             <TabsTrigger value="invites">
-              Invites{" "}
-              {pendingInvites.length > 0 && `(${pendingInvites.length})`}
+              <span>Invites</span>
+              {pendingInvites.length > 0 && (
+                <Badge>{pendingInvites.length}</Badge>
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -446,7 +482,9 @@ export default function TeamPage() {
 
           <TabsContent value="invites" className="mt-4">
             {loadingInvites && (
-              <p className="text-sm text-muted-foreground">Loading invites...</p>
+              <p className="text-sm text-muted-foreground">
+                Loading invites...
+              </p>
             )}
 
             {!loadingInvites && invites.length === 0 && (

@@ -196,11 +196,13 @@ export class AuthController {
    */
   @VerifiedOptional()
   @Get('me')
-  async me(@Req() req: AuthedRequest) {
-    const { userId, clientId, sessionId } = req.user!;
+  async me(@Req() req: AuthedRequest & ClientInRequest) {
+    const { userId, clientId: sessionClientId, sessionId } = req.user!;
+    // Use x-client-id header if provided, otherwise fall back to session's client
+    const targetClientId = req.client?.id ?? sessionClientId;
 
     const user = await this.users.findById(userId);
-    const perms = await this.roles.permsForUserClient(userId, clientId);
+    const perms = await this.roles.permsForUserClient(userId, targetClientId);
 
     return {
       user: user
@@ -213,7 +215,7 @@ export class AuthController {
             status: user.status,
           }
         : null,
-      session: { id: sessionId, clientId },
+      session: { id: sessionId, clientId: targetClientId },
       permissions: [...perms],
     };
   }

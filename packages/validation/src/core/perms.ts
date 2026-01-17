@@ -24,3 +24,18 @@ export const DEFAULT_ROLE_PERMS: Record<"admin" | "member", Permission[]> = {
     "devices:revoke",
   ],
 };
+
+/** Permissions that grant access to organization-level IAM features */
+export const ADMIN_PERMISSIONS: Permission[] = [
+  "members:read",
+  "members:manage",
+  "roles:read",
+  "roles:manage",
+  "roles:assign",
+  "invites:read",
+  "invites:manage",
+  "users:read",
+  "users:write",
+  "users:invite",
+  "users:suspend",
+];

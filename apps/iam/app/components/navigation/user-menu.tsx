@@ -24,12 +24,12 @@ export function UserMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button className="focus:outline-none">
-          <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity border">
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-        </button>
+      <DropdownMenuTrigger>
+        <Avatar className="h-9 w-9 cursor-pointer hover:opacity-80 transition-opacity border">
+          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold leading-none">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">

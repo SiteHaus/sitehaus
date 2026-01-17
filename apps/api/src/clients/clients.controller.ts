@@ -1,6 +1,7 @@
 import { Controller, Get, Inject, Req } from '@nestjs/common';
-import { type ClientMember } from '@site-haus/contracts';
+import { type ClientMember, type MeClient } from '@site-haus/contracts';
 import { and, eq, schema, type Db } from '@site-haus/db';
+import { ADMIN_PERMISSIONS } from '@site-haus/validation/core/perms';
 import { type AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { DRIZZLE } from 'src/db/tokens';
@@ -70,11 +71,11 @@ export class ClientsController {
     return { members };
   }
 
-  @RequirePerms('members:read')
   @Get('me/clients')
   async listMyClients(@Req() req: AuthedRequest) {
     const userId = req.user!.userId;
 
+    // Get all clients where user has any role (LEFT JOIN to include roles with no permissions)
     const rows = await this.db
       .select({
         id: schema.clientsTable.id,
@@ -82,18 +83,34 @@ export class ClientsController {
         name: schema.clientsTable.name,
         type: schema.clientsTable.type,
         firstParty: schema.clientsTable.firstParty,
+        perm: schema.rolePermissionsTable.perm,
       })
       .from(schema.userRolesTable)
       .innerJoin(
         schema.clientsTable,
-        and(
-          eq(schema.userRolesTable.clientId, schema.clientsTable.id),
-          eq(schema.userRolesTable.userId, userId),
-        ),
-      );
+        eq(schema.userRolesTable.clientId, schema.clientsTable.id),
+      )
+      .leftJoin(
+        schema.rolePermissionsTable,
+        eq(schema.userRolesTable.roleId, schema.rolePermissionsTable.roleId),
+      )
+      .where(eq(schema.userRolesTable.userId, userId));
 
-    const byId = new Map<string, (typeof rows)[number]>();
-    for (const r of rows) byId.set(r.id, r);
+    // Dedupe by client and compute canManage
+    const adminSet = new Set<string>(ADMIN_PERMISSIONS);
+    const byId = new Map<string, MeClient>();
+
+    for (const r of rows) {
+      const existing = byId.get(r.id);
+      byId.set(r.id, {
+        id: r.id,
+        key: r.key,
+        name: r.name,
+        type: r.type,
+        firstParty: r.firstParty,
+        canManage: existing?.canManage || (r.perm ? adminSet.has(r.perm) : false),
+      });
+    }
 
     const clients = Array.from(byId.values());
     return { clients };

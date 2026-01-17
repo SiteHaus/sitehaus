@@ -40,11 +40,14 @@ export class PermissionGuard implements CanActivate {
 
     const req = ctx
       .switchToHttp()
-      .getRequest<{ user?: { userId: string; clientId: string } }>();
+      .getRequest<{ user?: { userId: string; clientId: string }; client?: { id: string } }>();
+
+    // Use target client from x-client-id header if set, otherwise fall back to session's client
+    const targetClientId = req.client?.id ?? req.user.clientId;
 
     const perms = await this.roles.permsForUserClient(
       req.user.userId,
-      req.user.clientId,
+      targetClientId,
     );
 
     const hasAll = requiredAll.every((p) => perms.has(p));

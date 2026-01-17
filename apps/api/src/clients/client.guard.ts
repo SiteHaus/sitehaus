@@ -31,15 +31,17 @@ export class ClientGuard implements CanActivate {
         throw new BadRequestException('Client header mismatch');
       }
 
+      // First-party client targeting another client
       req.client = {
         id: target.id,
         audience: target.audience,
         key: caller.key,
         firstParty: target.firstParty,
       };
+    } else {
+      // Same client or only one specified
+      req.client = target ?? caller ?? undefined;
     }
-
-    req.client = target ?? caller ?? undefined;
     return true;
   }
 }

@@ -22,6 +22,7 @@ export const meClient = z.object({
   name: z.string(),
   type: z.enum(clientTypeValues),
   firstParty: z.boolean(),
+  canManage: z.boolean(),
 });
 
 export type MeClient = z.infer<typeof meClient>;
