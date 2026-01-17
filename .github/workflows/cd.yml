@@ -27,16 +27,12 @@ jobs:
         include:
           - app: web
             target: web-runner
-            client_key: ""
           - app: dashboard
             target: dashboard-runner
-            client_key: dashboard
           - app: iam
             target: iam-runner
-            client_key: iam
           - app: api
             target: api-runner
-            client_key: ""
 
     steps:
       - name: Checkout
@@ -64,7 +60,6 @@ jobs:
             ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:${{ github.sha }}
           build-args: |
             NEXT_PUBLIC_API_URL=https://api.sitehaus.dev
-            NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
