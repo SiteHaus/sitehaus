@@ -33,6 +33,12 @@ RUN --mount=type=cache,target=/pnpm/store \
 
 FROM base AS build
 
+# Build args for Next.js apps (NEXT_PUBLIC_* are exposed to browser - not secrets)
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_CLIENT_KEY
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_CLIENT_KEY=${NEXT_PUBLIC_CLIENT_KEY}
+
 COPY --from=installer /app ./
 
 RUN --mount=type=cache,target=/root/.cache/turbo \

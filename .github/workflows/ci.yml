@@ -14,6 +14,9 @@ concurrency:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: https://api.sitehaus.dev
+      NEXT_PUBLIC_CLIENT_KEY: iam
 
     steps:
       - name: Checkout
