@@ -66,6 +66,9 @@ importers:
       '@site-haus/utils':
         specifier: workspace:*
         version: link:../../packages/utils
+      '@site-haus/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -112,9 +115,6 @@ importers:
       '@site-haus/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
-      '@site-haus/validation':
-        specifier: workspace:*
-        version: link:../../packages/validation
       '@swc/cli':
         specifier: ^0.6.0
         version: 0.6.0(@swc/core@1.13.3)(chokidar@4.0.3)
