@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, gt, isNull, lt, schema, type Db } from '@site-haus/db';
+import { and, eq, isNull, lt, schema, type Db } from '@site-haus/db';
 import { randomBytes } from 'crypto';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { DRIZZLE } from 'src/db/tokens';

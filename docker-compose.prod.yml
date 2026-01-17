@@ -1,36 +1,24 @@
 services:
   web:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: web-runner
+    image: ghcr.io/sitehaus/sitehaus-web:latest
     restart: always
     networks:
       - sitehaus-network
 
   dashboard:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: dashboard-runner
+    image: ghcr.io/sitehaus/sitehaus-dashboard:latest
     restart: always
     networks:
       - sitehaus-network
 
   iam:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: iam-runner
+    image: ghcr.io/sitehaus/sitehaus-iam:latest
     restart: always
     networks:
       - sitehaus-network
 
   api:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: api-runner
+    image: ghcr.io/sitehaus/sitehaus-api:latest
     restart: always
     env_file:
       - ./apps/api/.env
@@ -55,6 +43,7 @@ services:
       - web
       - dashboard
       - iam
+      - api
 
 networks:
   sitehaus-network:

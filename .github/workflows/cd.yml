@@ -1,8 +1,5 @@
 name: CD
 
-permissions:
-  contents: read
-
 on:
   push:
     branches: [main]
@@ -11,35 +8,71 @@ concurrency:
   group: cd-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}/sitehaus
+
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-    env:
-      NODE_ENV: production
-      API_URL: https://api.sitehaus.dev
-      CLIENT_KEY: dummy-ci-client-key
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    strategy:
+      matrix:
+        app: [web, dashboard, iam, api]
+        include:
+          - app: web
+            target: web-runner
+            client_key: ""
+          - app: dashboard
+            target: dashboard-runner
+            client_key: dashboard
+          - app: iam
+            target: iam-runner
+            client_key: iam
+          - app: api
+            target: api-runner
+            client_key: ""
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          run_install: false
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
-          node-version: "20"
-          cache: "pnpm"
+          context: .
+          file: ./Dockerfile
+          target: ${{ matrix.target }}
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:latest
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.sitehaus.dev
+            NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      - name: Install deps
-        run: pnpm install --frozen-lockfile
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
 
-      - name: Type check
-        run: pnpm turbo run check-types --cache-dir=.turbo
-
+    steps:
       - name: Deploy to Production
         uses: appleboy/ssh-action@master
         with:
@@ -49,11 +82,15 @@ jobs:
           script: |
             set -euo pipefail
 
-            export DOCKER_BUILDKIT=1
-            export COMPOSE_DOCKER_CLI_BUILD=1
-
             cd /srv/sitehaus
 
             git pull origin main
 
-            docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+            # Pull pre-built images
+            docker compose -f docker-compose.prod.yml pull
+
+            # Deploy
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            # Cleanup
+            docker image prune -f

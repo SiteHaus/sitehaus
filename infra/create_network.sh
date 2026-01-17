@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 NETWORK_NAME="sitehaus-prod-network"
 

@@ -198,8 +198,8 @@ export class OAuthController {
           ...query,
           client_id: clientId,
           client: client.name, // Include client name for display
-        } as any);
-        delete (consentParams as any).client_key; // Remove client_key if present
+        } as Record<string, string>);
+        consentParams.delete('client_key'); // Remove client_key if present
         const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
         const consentUrl = `${iamUrl}/consent?${consentParams.toString()}`;
         return res.redirect(consentUrl);
