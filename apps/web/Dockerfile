@@ -27,7 +27,7 @@ COPY --from=prune /app/out/full/ ./
 COPY turbo.json turbo.json
 
 RUN --mount=type=cache,target=/pnpm/store \
-    pnpm install -r --offline
+    pnpm install -r
 
 FROM base AS build
 WORKDIR /app
