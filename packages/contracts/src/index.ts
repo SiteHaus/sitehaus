@@ -1,5 +1,6 @@
 import { initContract } from "@ts-rest/core";
 import { authContract } from "./auth.contract.js";
+import { clientsRouter } from "./clients.contract.js";
 import { devicesRouter } from "./device.contract.js";
 import { invitesRouter } from "./invite.contract.js";
 import { passwordRouter } from "./password.contract.js";
@@ -15,9 +16,11 @@ export const apiContract = c.router({
   sessions: sessionRouter,
   password: passwordRouter,
   invites: invitesRouter,
+  clients: clientsRouter,
 });
 
 export * from "./auth.contract.js";
+export * from "./clients.contract.js";
 export * from "./device.contract.js";
 export * from "./invite.contract.js";
 export * from "./password.contract.js";

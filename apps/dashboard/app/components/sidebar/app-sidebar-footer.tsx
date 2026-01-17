@@ -1,3 +1,6 @@
+"use client";
+
+import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Avatar, AvatarFallback } from "@site-haus/ui/components/base/avatar";
 import {
   DropdownMenu,
@@ -28,6 +31,18 @@ interface AppSideBarFooterProps {
 }
 
 export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
+
+  if (!user) return null;
+
+  const initials =
+    `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() ||
+    user.email?.[0]?.toUpperCase() ||
+    "?";
+  const fullName =
+    `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+
   return (
     <SidebarFooter>
       <SidebarMenu>
@@ -40,11 +55,13 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border shadow-accent"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">LB</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Luna Bear</span>
-                  <span className="truncate text-xs">lunabear@gmail.com</span>
+                  <span className="truncate font-medium">{fullName}</span>
+                  <span className="truncate text-xs">{user.email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
               </SidebarMenuButton>
@@ -58,11 +75,13 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg">LB</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">
+                      {initials}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">Luna Bear</span>
-                    <span className="truncate text-xs">lunabear@gmail.com</span>
+                    <span className="truncate font-medium">{fullName}</span>
+                    <span className="truncate text-xs">{user.email}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
@@ -89,9 +108,12 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={logout}
+                className="text-red-600 cursor-pointer"
+              >
                 <LogOut />
-                Log out
+                Sign out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

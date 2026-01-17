@@ -25,7 +25,6 @@ const c = initContract();
 export const authTokens = z.object({
   accessToken: z.string(),
   accessTokenExpiresIn: z.number(),
-  refreshTokenExpiresAt: dateTime,
   sessionId: z.uuid(),
   userId: z.uuid(),
 });
@@ -135,10 +134,88 @@ export const authPrivateRouter = c.router({
   },
 });
 
+// OAuth2 Authorization Code Flow with PKCE
+export const oauthRouter = c.router({
+  authorize: {
+    method: "GET",
+    path: "/auth/authorize",
+    query: z.object({
+      client_id: z.string().uuid(),
+      redirect_uri: z.string().url(),
+      response_type: z.literal("code"),
+      code_challenge: z.string().min(43).max(128),
+      code_challenge_method: z.literal("S256"),
+      state: z.string().optional(),
+      scope: z.string().optional(),
+    }),
+    responses: {
+      302: z.void(), // Redirect response
+      400: z.object({
+        error: z.string(),
+        error_description: z.string().optional(),
+      }),
+    },
+  },
+  token: {
+    method: "POST",
+    path: "/auth/token",
+    contentType: "application/x-www-form-urlencoded",
+    body: z.object({
+      grant_type: z.literal("authorization_code"),
+      code: z.string(),
+      redirect_uri: z.string().url(),
+      code_verifier: z.string().min(43).max(128),
+      client_id: z.string().uuid(),
+    }),
+    responses: {
+      200: z.object({
+        access_token: z.string(),
+        token_type: z.literal("Bearer"),
+        expires_in: z.number(),
+        scope: z.string(),
+        refresh_token: z.string().optional(),
+        id_token: z.string().optional(),
+      }),
+      400: z.object({
+        error: z.enum([
+          "invalid_request",
+          "invalid_grant",
+          "unsupported_grant_type",
+          "invalid_client",
+        ]),
+        error_description: z.string().optional(),
+      }),
+    },
+  },
+  consent: {
+    method: "POST",
+    path: "/auth/consent",
+    body: z.object({
+      client_id: z.string().uuid(),
+      redirect_uri: z.string().url(),
+      scope: z.string(),
+      state: z.string().optional(),
+      code_challenge: z.string().min(43).max(128),
+      code_challenge_method: z.literal("S256"),
+      approved: z.boolean(),
+    }),
+    responses: {
+      200: z.object({
+        redirect_url: z.string().url(),
+      }),
+      400: z.object({
+        error: z.string(),
+        error_description: z.string().optional(),
+      }),
+    },
+  },
+});
+
 export const authContract = c.router({
   public: authPublicRouter,
   loginOnly: authLoginRouter,
   private: authPrivateRouter,
+  oauth: oauthRouter,
 });
 
 export type MeUser = z.infer<typeof userBrief>;

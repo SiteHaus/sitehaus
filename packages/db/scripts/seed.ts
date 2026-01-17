@@ -1,5 +1,5 @@
 import { schema } from "@site-haus/db";
-import { NewClient } from "@site-haus/db/iam/clients";
+import { NewClient, NewClientRedirectUri } from "@site-haus/db/iam/clients";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -19,6 +19,7 @@ const CLIENTS: NewClient[] = [
     type: "public",
     firstParty: true,
     audience: "sitehaus.dashboard",
+    requiresConsent: true, // Enable consent screen for testing
   },
   {
     key: "iam",
@@ -26,6 +27,7 @@ const CLIENTS: NewClient[] = [
     type: "public",
     firstParty: true,
     audience: "sitehaus.iam",
+    requiresConsent: false,
   },
   {
     key: "api",
@@ -33,6 +35,7 @@ const CLIENTS: NewClient[] = [
     type: "public",
     firstParty: true,
     audience: "sitehaus.api",
+    requiresConsent: false,
   },
   {
     key: "web",
@@ -40,8 +43,25 @@ const CLIENTS: NewClient[] = [
     type: "public",
     firstParty: true,
     audience: "sitehaus.web",
+    requiresConsent: false,
   },
 ];
+
+// Redirect URIs for OAuth clients (keyed by client key)
+const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
+  dashboard: [
+    "http://localhost:3001/callback",
+    "http://localhost:3001/auth/callback",
+  ],
+  iam: [
+    "http://localhost:3002/callback",
+    "http://localhost:3002/auth/callback",
+  ],
+  web: [
+    "http://localhost:3000/callback",
+    "http://localhost:3000/auth/callback",
+  ],
+};
 async function seed() {
   await db.transaction(async (tx) => {
     await tx
@@ -50,6 +70,17 @@ async function seed() {
       .onConflictDoNothing({ target: schema.clientsTable.key });
 
     const clients = await tx.select().from(schema.clientsTable);
+
+    // Insert redirect URIs for OAuth clients
+    for (const client of clients) {
+      const uris = CLIENT_REDIRECT_URIS[client.key];
+      if (uris && uris.length > 0) {
+        await tx
+          .insert(schema.clientRedirectUrisTable)
+          .values(uris.map((uri) => ({ clientId: client.id, uri })))
+          .onConflictDoNothing();
+      }
+    }
 
     await tx
       .insert(schema.permissionsCatalogTable)

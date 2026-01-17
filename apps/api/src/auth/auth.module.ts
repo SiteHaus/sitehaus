@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -19,6 +19,7 @@ import { PasswordController } from './password/password.controller';
 import { PermissionGuard } from './permission/permission.guard';
 import { TokenService } from './token/token.service';
 import { VerifiedGuard } from './verified/verified.guard';
+import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { VerifiedGuard } from './verified/verified.guard';
     CryptoModule,
     RolesModule,
     UsersModule,
+    forwardRef(() => OAuthModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [authConfig.KEY],

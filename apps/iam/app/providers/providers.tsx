@@ -2,6 +2,7 @@
 
 import { initStoresSdk } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
 import { ReactNode, useEffect } from "react";
 
 interface ProvidersProps {
@@ -22,7 +23,8 @@ initStoresSdk({
   targetClientIdProvider: () => {
     try {
       const searchParams = new URLSearchParams(window.location.search);
-      return searchParams.get("client");
+      // Use "manage" param for client switching (not "client" which is used for OAuth)
+      return searchParams.get("manage");
     } catch {
       return null;
     }
@@ -30,11 +32,24 @@ initStoresSdk({
 });
 
 const Providers = ({ children }: ProvidersProps) => {
-  useEffect(() => {
-    void useAuthStore.getState().bootstrap();
-  }, []);
+  const hydrated = useAuthStore((s) => s.hydrated);
 
-  return <>{children}</>;
+  useEffect(() => {
+    if (hydrated) {
+      void useAuthStore.getState().bootstrap();
+    }
+  }, [hydrated]);
+
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
+  );
 };
 
 export default Providers;

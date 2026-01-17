@@ -21,7 +21,7 @@ export class InvitesService {
   ) {}
 
   async list(clientId: string) {
-    return this.db.query.invitesTable.findMany({
+    return await this.db.query.invitesTable.findMany({
       where: (t, { eq: _eq }) => _eq(t.clientId, clientId),
       orderBy: (t, { desc: _desc }) => [_desc(t.createdAt)],
     });
@@ -99,13 +99,72 @@ export class InvitesService {
       throw new BadRequestException('Invite not found or already revoked.');
   }
 
+  async check(params: { clientId: string; email: string; code: string }) {
+    const email = normalizeEmail(params.email);
+    const now = new Date();
+
+    // Find valid invite
+    const invite = await this.db.query.invitesTable.findFirst({
+      where: (t, { and: _and, eq: _eq, isNull: _isNull, gt: _gt }) =>
+        _and(
+          _eq(t.clientId, params.clientId),
+          _eq(t.email, email),
+          _isNull(t.acceptedAt),
+          _isNull(t.revokedAt),
+          _gt(t.expiresAt, now),
+        ),
+      columns: { id: true, codeHash: true },
+      with: { inviteRoles: true },
+    });
+
+    if (!invite) {
+      return { valid: false, userExists: false, clientName: '', roles: [] };
+    }
+
+    // Verify code
+    const submittedHash = this.crypto.sha256b64url(params.code);
+    const ok = this.crypto.safeEqual(invite.codeHash, submittedHash);
+
+    if (!ok) {
+      return { valid: false, userExists: false, clientName: '', roles: [] };
+    }
+
+    // Check if user exists
+    const user = await this.users.findByEmail(email);
+    const userExists = !!user;
+
+    // Get client name
+    const client = await this.db.query.clientsTable.findFirst({
+      where: (t, { eq: _eq }) => _eq(t.id, params.clientId),
+      columns: { name: true },
+    });
+
+    // Get role names
+    const roleIds = invite.inviteRoles.map((r) => r.roleId);
+    let roleNames: string[] = [];
+    if (roleIds.length) {
+      const roles = await this.db.query.rolesTable.findMany({
+        where: (t, { inArray: _in }) => _in(t.id, roleIds),
+        columns: { name: true },
+      });
+      roleNames = roles.map((r) => r.name);
+    }
+
+    return {
+      valid: true,
+      userExists,
+      clientName: client?.name ?? '',
+      roles: roleNames,
+    };
+  }
+
   async accept(params: {
     clientId: string;
     email: string;
     code: string;
-    password: string;
-    firstName: string;
-    lastName: string;
+    password?: string;
+    firstName?: string;
+    lastName?: string;
     ip?: string;
     ua?: string;
   }) {
@@ -163,6 +222,13 @@ export class InvitesService {
 
       let user = await this.users.findByEmail(email, tx);
       if (!user) {
+        // New user - password and name are required
+        if (!params.password || !params.firstName || !params.lastName) {
+          throw new BadRequestException(
+            'Password, first name, and last name are required for new users',
+          );
+        }
+
         const passwordHash = await this.crypto.hashPassword(params.password);
 
         user = await this.users.createUser(
@@ -178,8 +244,10 @@ export class InvitesService {
 
         user = await this.users.setVerified(user.id, true, tx);
       } else if (!user.isVerified) {
+        // Existing user - just verify them
         user = await this.users.setVerified(user.id, true, tx);
       }
+      // Existing verified user - just add roles (handled below)
 
       if (roleIds.length) {
         const existing = await tx.query.userRolesTable.findMany({

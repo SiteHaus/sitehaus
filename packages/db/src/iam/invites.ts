@@ -29,6 +29,7 @@ export const invitesTable = pgTable(
   },
   (t) => [
     index("invites_client_idx").on(t.clientId),
+    index("invites_code_hash_idx").on(t.codeHash),
     uniqueIndex("invites_open_email_uq")
       .on(t.clientId, t.email)
       .where(sql`accepted_at IS NULL AND revoked_at IS NULL`),

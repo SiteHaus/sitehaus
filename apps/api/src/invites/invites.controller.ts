@@ -8,6 +8,7 @@ import {
   Inject,
   Param,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
@@ -43,7 +44,7 @@ export class InvitesController {
   @RequirePerms('invites:read')
   @Get()
   async list(@Req() req: ClientInRequest) {
-    const invites = this.invites.list(req.client.id);
+    const invites = await this.invites.list(req.client.id);
     return { invites };
   }
 
@@ -102,7 +103,21 @@ export class InvitesController {
   }
 
   @Public()
+  @Get('check')
+  async check(
+    @Query('clientId') clientId: string,
+    @Query('email') email: string,
+    @Query('code') code: string,
+  ) {
+    if (!clientId || !email || !code) {
+      throw new BadRequestException('Missing required query parameters');
+    }
+    return this.invites.check({ clientId, email, code });
+  }
+
+  @Public()
   @Post('accept')
+  @HttpCode(HttpStatus.OK)
   async accept(@Body() body: unknown, @Req() req: Request) {
     const parsed = acceptInviteSchema.parse(body);
     const res = await this.invites.accept({

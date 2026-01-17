@@ -33,3 +33,6 @@ export const sessionRouter = c.router({
     responses: { 204: z.void() },
   },
 });
+
+export type SessionListReponse = { sessions: z.infer<typeof sessionItem>[] };
+export type SessionItem = z.infer<typeof sessionItem>;

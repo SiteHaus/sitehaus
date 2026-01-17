@@ -32,6 +32,7 @@ export function initStoresSdk(opts: StoresInitOptions) {
     baseURL: opts.baseURL,
     clientKey: opts.clientKey,
     proactiveRefreshSkewSec: opts.proactiveRefreshSkewSec ?? 60,
+    targetClientIdProvider: opts.targetClientIdProvider,
     tokenProvider: () => {
       const s = useAuthStore.getState();
       return {

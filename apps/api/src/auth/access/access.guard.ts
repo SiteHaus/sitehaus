@@ -44,15 +44,23 @@ export class AccessGuard implements CanActivate {
       ctx.getHandler(),
       ctx.getClass(),
     ]);
-    if (isPublic) return true;
 
     const req = ctx
       .switchToHttp()
       .getRequest<AuthedRequest & { client?: { id: string } }>();
     const auth = req.headers.authorization;
 
-    if (!auth?.startsWith('Bearer '))
-      throw new UnauthorizedException('Missing token');
+    // For public routes, still try to populate req.user if token is present
+    if (isPublic) {
+      if (!auth?.startsWith('Bearer ')) {
+        return true; // No token, but route is public, so allow access
+      }
+      // Has token, continue to populate req.user
+    } else {
+      // For protected routes, require token
+      if (!auth?.startsWith('Bearer '))
+        throw new UnauthorizedException('Missing token');
+    }
 
     const token = auth.slice('Bearer '.length);
     const payload = await this.jwt
@@ -69,12 +77,20 @@ export class AccessGuard implements CanActivate {
           isNull(t.revokedAt),
           gt(t.expiresAt, new Date()),
         ),
+      with: {
+        client: {
+          columns: { firstParty: true },
+        },
+      },
     });
     if (!session) throw new UnauthorizedException('Session Expired');
 
     const clientInReq = req.client?.id;
     if (clientInReq && clientInReq !== payload.aud) {
-      throw new UnauthorizedException('Token audience mismatch');
+      // Allow first-party clients to make cross-client requests
+      if (!session.client?.firstParty) {
+        throw new UnauthorizedException('Token audience mismatch');
+      }
     }
 
     req.user = {

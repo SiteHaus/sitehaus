@@ -13,9 +13,11 @@ export const nameSchema = z
 
 export const passwordSchema = z
   .string()
-  .min(8, "Use at least 8 characters")
-  .max(128, "Too long")
-  .regex(/[A-Za-z]/, "Must include a letter")
-  .regex(/\d/, "Must include a number");
+  .min(8, "Password must be at least 8 characters")
+  .max(128, "Password is too long")
+  .regex(/[a-z]/, "Password must include a lowercase letter")
+  .regex(/[A-Z]/, "Password must include an uppercase letter")
+  .regex(/\d/, "Password must include a number")
+  .regex(/[@$!%*?&#^()_+\-=\[\]{}|;:'",.<>\/\\]/, "Password must include a special character");
 
 export const codeSchema = z.string().regex(/^\d{6}$/, "Code must be 6 digits");

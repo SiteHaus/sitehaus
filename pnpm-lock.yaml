@@ -15,6 +15,7 @@ overrides:
   next@>=15.0.0 <=15.4.4: '>=15.4.5'
   next@>=15.0.0-canary.0 <15.4.7: '>=15.4.7'
   next@>=15.4.0-canary.0 <15.4.8: '>=15.4.8'
+  next@>=16.0.0-beta.0 <16.0.9: '>=16.0.9'
 
 importers:
 
@@ -53,6 +54,9 @@ importers:
       '@node-rs/argon2':
         specifier: ^2.0.2
         version: 2.0.2
+      '@site-haus/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@site-haus/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -68,6 +72,9 @@ importers:
       drizzle-orm:
         specifier: ^0.44.4
         version: 0.44.4(@types/pg@8.15.5)(pg@8.16.3)
+      helmet:
+        specifier: ^8.1.0
+        version: 8.1.0
       pg:
         specifier: ^8.16.3
         version: 8.16.3
@@ -183,12 +190,24 @@ importers:
 
   apps/dashboard:
     dependencies:
+      '@site-haus/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@site-haus/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@site-haus/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@site-haus/stores':
+        specifier: workspace:*
+        version: link:../../packages/stores
       '@site-haus/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@site-haus/validation':
+        specifier: workspace:*
+        version: link:../../packages/validation
       lucide-react:
         specifier: ^0.534.0
         version: 0.534.0(react@19.1.1)
@@ -201,6 +220,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.1.1(react@19.1.1)
+      sonner:
+        specifier: ^2.0.6
+        version: 2.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       zod:
         specifier: ^4.0.17
         version: 4.0.17
@@ -259,6 +281,9 @@ importers:
       '@ts-rest/core':
         specifier: ^3.53.0-rc.1
         version: 3.53.0-rc.1(@types/node@22.17.2)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
       lucide-react:
         specifier: ^0.534.0
         version: 0.534.0(react@19.1.1)
@@ -314,6 +339,9 @@ importers:
       '@site-haus/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      lucide-react:
+        specifier: ^0.534.0
+        version: 0.534.0(react@19.1.1)
       next:
         specifier: '>=15.4.8'
         version: 16.0.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -655,6 +683,9 @@ importers:
       '@site-haus/validation':
         specifier: workspace:*
         version: link:../validation
+      '@tanstack/react-table':
+        specifier: ^8.21.3
+        version: 8.21.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@ts-rest/core':
         specifier: ^3.53.0-rc.1
         version: 3.53.0-rc.1(@types/node@22.17.2)
@@ -3376,6 +3407,17 @@ packages:
   '@tailwindcss/postcss@4.1.12':
     resolution: {integrity: sha512-5PpLYhCAwf9SJEeIsSmCDLgyVfdBhdBpzX1OJ87anT9IVR0Z9pjM0FNixCAUAHGnMBGB8K99SwAheXrT0Kh6QQ==}
 
+  '@tanstack/react-table@8.21.3':
+    resolution: {integrity: sha512-5nNMTSETP4ykGegmVkhjcS8tTLW6Vl4axfEGQN3v0zdHYbK4UfoqfPChclTrJ4EoK9QynqAu9oUf8VEmrpZ5Ww==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+
+  '@tanstack/table-core@8.21.3':
+    resolution: {integrity: sha512-ldZXEhOBb8Is7xLs01fR3YEc3DERiz5silj8tnGkFZytt1abEvl/GhUmCE0PMLaMPTa3Jk4HbKmRlHmu+gCftg==}
+    engines: {node: '>=12'}
+
   '@tokenizer/inflate@0.2.7':
     resolution: {integrity: sha512-MADQgmZT1eKjp06jpI2yozxaU9uVs4GzzgSL+uEq7bVcJ9V1ZXQkeGNql1fsSI0gMy1vhvNTNbUqrx+pZfJVmg==}
     engines: {node: '>=18'}
@@ -5058,6 +5100,10 @@ packages:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
 
+  helmet@8.1.0:
+    resolution: {integrity: sha512-jOiHyAZsmnr8LqoPGmCjYAaiuWwjAPLgY8ZX2XrmHawt99/u1y6RgrZMTeoPfpUbV96HOalYgz1qzkRbw54Pmg==}
+    engines: {node: '>=18.0.0'}
+
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
@@ -5888,6 +5934,7 @@ packages:
   next@16.0.7:
     resolution: {integrity: sha512-3mBRJyPxT4LOxAJI6IsXeFtKfiJUbjCLgvXO02fV8Wy/lIhPvP94Fe7dGhUgHXcQy4sSuYwQNcOLhIfOm0rL0A==}
     engines: {node: '>=20.9.0'}
+    deprecated: This version has a security vulnerability. Please upgrade to a patched version. See https://nextjs.org/blog/security-update-2025-12-11 for more details.
     hasBin: true
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
@@ -9963,6 +10010,14 @@ snapshots:
       postcss: 8.5.6
       tailwindcss: 4.1.12
 
+  '@tanstack/react-table@8.21.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+    dependencies:
+      '@tanstack/table-core': 8.21.3
+      react: 19.1.1
+      react-dom: 19.1.1(react@19.1.1)
+
+  '@tanstack/table-core@8.21.3': {}
+
   '@tokenizer/inflate@0.2.7':
     dependencies:
       debug: 4.4.1
@@ -11921,6 +11976,8 @@ snapshots:
       function-bind: 1.1.2
 
   he@1.2.0: {}
+
+  helmet@8.1.0: {}
 
   html-escaper@2.0.2: {}
 

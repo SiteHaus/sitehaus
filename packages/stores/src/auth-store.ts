@@ -1,4 +1,4 @@
-import { MeSession, MeUser } from "@site-haus/contracts";
+import { MeClient, MeSession, MeUser } from "@site-haus/contracts";
 import { refreshOnce } from "@site-haus/sdk";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistOptions } from "zustand/middleware";
@@ -11,6 +11,15 @@ type AuthState = {
   user: MeUser | null;
   session: MeSession | null;
   permissions: Set<string>;
+
+  clients: MeClient[];
+  setClients: (clients: MeClient[]) => void;
+  loadMyClients: () => Promise<void>;
+
+  hydrated: boolean;
+  setHydrated: () => void;
+
+  bootstrapped: boolean;
 
   setAccess: (p: { accessToken: string; accessExpiration: number }) => void;
   setMe: (p: {
@@ -40,6 +49,9 @@ const persistOptions: PersistOptions<AuthState, Persisted> = {
     user: s.user,
     session: s.session,
   }),
+  onRehydrateStorage: () => (state) => {
+    state?.setHydrated();
+  },
 };
 
 export const useAuthStore = create<AuthState>()(
@@ -51,6 +63,20 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       session: null,
       permissions: new Set(),
+
+      clients: [],
+      setClients: (clients) => set({ clients }),
+
+      loadMyClients: async () => {
+        const { clients } = getApi();
+        const r = await clients.meClients();
+        if (r.status === 200) set({ clients: r.body.clients });
+      },
+
+      hydrated: false,
+      setHydrated: () => set({ hydrated: true }),
+
+      bootstrapped: false,
 
       setAccess: ({ accessToken, accessExpiration }) =>
         set({ accessToken, accessExpiration }),
@@ -74,22 +100,52 @@ export const useAuthStore = create<AuthState>()(
       hasPerm: (perm: string) => get().permissions.has(perm),
 
       bootstrap: async () => {
+        // If we already have a valid access token in memory (e.g., just logged in),
+        // skip the refresh but still fetch user data (permissions depend on client context)
+        const currentState = get();
+        const now = Math.floor(Date.now() / 1000);
+        const hasValidToken =
+          currentState.accessToken &&
+          currentState.accessExpiration &&
+          currentState.accessExpiration > now;
+
+        if (hasValidToken) {
+          // Always fetch user data and clients - permissions depend on current client context
+          await get().me();
+          await get().loadMyClients();
+          set({ bootstrapped: true });
+          return;
+        }
+
+        // No valid token in memory, try to refresh using cookie
         try {
           await refreshOnce();
-        } catch {}
+        } catch {
+          // Refresh failed - user needs to log in
+          get().clearAuth();
+          set({ bootstrapped: true });
+          return;
+        }
+
+        // If refresh succeeded, fetch user data
         if (get().accessToken) {
           await get().me();
+          await get().loadMyClients();
         }
+        set({ bootstrapped: true });
       },
 
       login: async ({ email, password }) => {
         const { auth } = getApi();
         const r = await auth.loginOnly.login({ body: { email, password } });
         if (r.status !== 200) throw new Error("");
+
         const { accessToken, accessTokenExpiresIn } = r.body;
+        const now = Math.floor(Date.now() / 1000);
+
         get().setAccess({
           accessToken,
-          accessExpiration: accessTokenExpiresIn,
+          accessExpiration: now + accessTokenExpiresIn,
         });
         await get().me();
       },

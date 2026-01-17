@@ -43,6 +43,10 @@ import { VerifiedOptional } from './verified/verified.guard';
 @Throttle({ auth: {} })
 @Controller('auth')
 export class AuthController {
+  /**
+   * Authentication endpoints: registration, login, session refresh,
+   * verification flows, and OTP-backed login.
+   */
   constructor(
     private readonly auth: AuthService,
     private readonly users: UsersService,
@@ -53,6 +57,14 @@ export class AuthController {
     private readonly emailCfg: ConfigType<typeof emailConfig>,
   ) {}
 
+  /**
+   * Create a user account and start a session. Sets refresh cookie and
+   * optionally sends an email verification code.
+   *
+   * @param body
+   * @param req
+   * @param res
+   */
   @Public()
   @Post('register')
   async register(
@@ -90,6 +102,14 @@ export class AuthController {
       .json({ ...rest, requiresEmailVerification });
   }
 
+  /**
+   * Email/password login. Issues tokens, sets refresh cookie,
+   * enforces auth rate limit.
+   *
+   * @param body
+   * @param req
+   * @param res
+   */
   @Public()
   @HttpCode(HttpStatus.OK)
   @Throttle({ auth: { limit: 5 } })
@@ -116,6 +136,13 @@ export class AuthController {
     return res.json(rest);
   }
 
+  /**
+   * Exchange a refresh cookie for new tokens. Clears the cookie on any
+   * failure to prevent reuse of bad tokens.
+   *
+   * @param req
+   * @param res
+   */
   @Public()
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
@@ -145,6 +172,12 @@ export class AuthController {
     }
   }
 
+  /**
+   * Invalidate the active session (if any) and clear the refresh cookie.
+   *
+   * @param req
+   * @param res
+   */
   @VerifiedOptional()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
@@ -155,13 +188,21 @@ export class AuthController {
     return res.send();
   }
 
+  /**
+   * Return current user profile, session metadata, and permissions.
+   *
+   * @param req
+   * @returns
+   */
   @VerifiedOptional()
   @Get('me')
-  async me(@Req() req: AuthedRequest) {
-    const { userId, clientId, sessionId } = req.user!;
+  async me(@Req() req: AuthedRequest & ClientInRequest) {
+    const { userId, clientId: sessionClientId, sessionId } = req.user!;
+    // Use x-client-id header if provided, otherwise fall back to session's client
+    const targetClientId = req.client?.id ?? sessionClientId;
 
     const user = await this.users.findById(userId);
-    const perms = await this.roles.permsForUserClient(userId, clientId);
+    const perms = await this.roles.permsForUserClient(userId, targetClientId);
 
     return {
       user: user
@@ -174,11 +215,16 @@ export class AuthController {
             status: user.status,
           }
         : null,
-      session: { id: sessionId, clientId },
+      session: { id: sessionId, clientId: targetClientId },
       permissions: [...perms],
     };
   }
 
+  /**
+   * Send a verification email if the user exists and is unverified.
+   *
+   * @param body
+   */
   @Public()
   @Post('request-email-verification')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -199,6 +245,11 @@ export class AuthController {
     });
   }
 
+  /**
+   * Validate an email verification code and mark the user verified.
+   *
+   * @param body
+   */
   @Public()
   @Post('verify-email')
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -216,6 +267,15 @@ export class AuthController {
     await this.users.setVerified(u.id, true);
   }
 
+  /**
+   * Login using a password-reset OTP. Verifies code, upgrades to a full
+   * session, and issues fresh tokens with refresh cookie.
+   *
+   * @param body
+   * @param req
+   * @param res
+   * @returns
+   */
   @Public()
   @Post('login-with-reset-code')
   @HttpCode(HttpStatus.OK)

@@ -1,15 +1,20 @@
+import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
+import { SiteNav } from "./components/SiteNav";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+const funnelDisplay = localFont({
+  src: "./fonts/FunnelDisplay[wght].woff2",
+  variable: "--font-display",
+  display: "swap",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+
+const commumSans = localFont({
+  src: "./fonts/ComumSans-Regular.otf",
+  variable: "--font-body",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -23,9 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${funnelDisplay.variable} ${commumSans.variable}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SiteNav />
+          {children}
+          <footer>{new Date().getFullYear().toString()} © SiteHaus</footer>
+        </ThemeProvider>
       </body>
     </html>
   );

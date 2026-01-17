@@ -50,6 +50,24 @@ export const invitesRouter = c.router({
     body: c.type<undefined>(),
     responses: { 204: c.type<void>(), 404: apiErrorHttp },
   },
+  check: {
+    method: "GET",
+    path: "/invites/check",
+    query: z.object({
+      clientId: z.string().uuid(),
+      email: z.string().email(),
+      code: z.string().min(6),
+    }),
+    responses: {
+      200: c.type<{
+        valid: boolean;
+        userExists: boolean;
+        clientName: string;
+        roles: string[];
+      }>(),
+      400: apiErrorHttp,
+    },
+  },
   accept: {
     method: "POST",
     path: "/invites/accept",

@@ -15,5 +15,7 @@ export * from "./roles.js";
 export * from "./roles.relations.js";
 export * from "./sessions.js";
 export * from "./sessions.relations.js";
+export * from "./user-consents.js";
+export * from "./user-consents.relations.js";
 export * from "./users.js";
 export * from "./users.relations.js";

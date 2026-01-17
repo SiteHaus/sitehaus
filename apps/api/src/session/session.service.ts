@@ -249,6 +249,50 @@ export class SessionService {
       );
   }
 
+  /**
+   * Validate a refresh token and return the user ID if valid.
+   * Does NOT rotate the token - use this for checking auth status only.
+   * If clientId is provided, validates against that specific client.
+   * If not provided, validates any valid session with that token.
+   */
+  async validateRefreshToken(
+    refreshToken: string,
+    clientId?: string,
+  ): Promise<{ userId: string; sessionId: string; clientId: string } | null> {
+    const hash = this.crypto.sha256b64url(refreshToken);
+
+    const sessions = await this.db
+      .select()
+      .from(schema.sessionsTable)
+      .where(
+        clientId
+          ? and(
+              eq(schema.sessionsTable.refreshHash, hash),
+              eq(schema.sessionsTable.clientId, clientId),
+              isNull(schema.sessionsTable.revokedAt),
+              gt(schema.sessionsTable.expiresAt, new Date()),
+            )
+          : and(
+              eq(schema.sessionsTable.refreshHash, hash),
+              isNull(schema.sessionsTable.revokedAt),
+              gt(schema.sessionsTable.expiresAt, new Date()),
+            ),
+      )
+      .limit(1);
+
+    const session = sessions[0];
+
+    if (!session) {
+      return null;
+    }
+
+    return {
+      userId: session.userId,
+      sessionId: session.id,
+      clientId: session.clientId,
+    };
+  }
+
   async touch(sessionId: string, ip?: string, ua?: string) {
     const s = await this.db.query.sessionsTable.findFirst({
       where: (t, { eq: _eq }) => _eq(t.id, sessionId),

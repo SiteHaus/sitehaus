@@ -7,6 +7,16 @@ const nextConfig = {
     "@site-haus/ui",
     "@site-haus/validation",
   ],
+  async rewrites() {
+    // In development, proxy API calls through Next.js to avoid cross-origin cookie issues
+    const apiUrl = process.env.API_PROXY_URL || "http://localhost:3000";
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiUrl}/:path*`,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

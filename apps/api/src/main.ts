@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { ClientsOriginService } from './clients/clients-origin/clients-origin.service';
 import { ApiExceptionFilter } from './http/api-exception.filter';
@@ -11,6 +12,23 @@ async function bootstrap() {
   if (http.getType() === 'express') {
     http.getInstance().set('trust proxy', true);
   }
+
+  app.use(
+    helmet({
+      strictTransportSecurity: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+      },
+      frameguard: { action: 'deny' },
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+        },
+      },
+      noSniff: true,
+      xssFilter: true,
+    }),
+  );
 
   app.use(cookieParser());
 
