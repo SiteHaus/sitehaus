@@ -20,6 +20,14 @@ type SessionDisplayKey = Extract<keyof SessionItem, string>;
 const DEFAULT_SESSION_COLUMNS: SessionDisplayKey[] = [""];
 
 export default function SessionsPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto px-4 py-8">Loading...</div>}>
+      <SessionsContent />
+    </Suspense>
+  );
+}
+
+function SessionsContent() {
   const api = useApi();
   const accessToken = useAuthStore((s) => s.accessToken);
 
@@ -83,19 +91,17 @@ export default function SessionsPage() {
   }
 
   return (
-    <Suspense>
-      <RequireAuth>
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-3xl font-bold mb-4">Sessions</h1>
-          <p className="text-muted-foreground">
-            View and manage active sessions for the current client.
-          </p>
-          <DataTable<SessionItem>
-            data={sessionsForDisplay}
-            defaultColumns={DEFAULT_SESSION_COLUMNS}
-          />
-        </div>
-      </RequireAuth>
-    </Suspense>
+    <RequireAuth>
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-4">Sessions</h1>
+        <p className="text-muted-foreground">
+          View and manage active sessions for the current client.
+        </p>
+        <DataTable<SessionItem>
+          data={sessionsForDisplay}
+          defaultColumns={DEFAULT_SESSION_COLUMNS}
+        />
+      </div>
+    </RequireAuth>
   );
 }

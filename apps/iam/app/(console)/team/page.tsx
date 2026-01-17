@@ -38,7 +38,7 @@ import { DataTable } from "@site-haus/ui/components/shared/data-table/data-table
 import { createInviteSchema } from "@site-haus/validation/forms/invite";
 import { formatDistanceToNow } from "date-fns";
 import { MailPlus, ShieldX } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -101,6 +101,14 @@ function getInviteStatus(invite: Invite): string {
 }
 
 export default function TeamPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto mt-12">Loading...</div>}>
+      <TeamContent />
+    </Suspense>
+  );
+}
+
+function TeamContent() {
   const api = useApi();
   const accessToken = useAuthStore((s) => s.accessToken);
   const { selectedClient } = useClientContext();
