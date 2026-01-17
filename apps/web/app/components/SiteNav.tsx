@@ -22,6 +22,10 @@ const topNavLinks: Link[] = [
     text: "About",
     href: "/about",
   },
+  {
+    text: "Our Method",
+    href: "/our-method",
+  },
 ];
 
 export const SiteNav = () => {
