@@ -34,15 +34,16 @@ RUN --mount=type=cache,target=/pnpm/store \
 FROM base AS build
 
 # Build args for Next.js apps (NEXT_PUBLIC_* are exposed to browser - not secrets)
-ARG NEXT_PUBLIC_API_URL
-ARG NEXT_PUBLIC_CLIENT_KEY
+ARG NEXT_PUBLIC_API_URL=https://api.sitehaus.dev
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-ENV NEXT_PUBLIC_CLIENT_KEY=${NEXT_PUBLIC_CLIENT_KEY}
 
 COPY --from=installer /app ./
 
+# Build each app with its specific CLIENT_KEY
 RUN --mount=type=cache,target=/root/.cache/turbo \
-  turbo run build --filter=api... --filter=iam... --filter=web... --filter=dashboard...
+  NEXT_PUBLIC_CLIENT_KEY=iam turbo run build --filter=iam... && \
+  NEXT_PUBLIC_CLIENT_KEY=dashboard turbo run build --filter=dashboard... && \
+  turbo run build --filter=api... --filter=web...
 
 # ========================================
 # RUNTIME IMAGES
