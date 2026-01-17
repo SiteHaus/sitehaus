@@ -37,16 +37,20 @@ COPY --from=installer /app ./
 RUN --mount=type=cache,target=/root/.cache/turbo \
     turbo run build --filter=api...
 
+# Use pnpm deploy to create a production bundle with all deps resolved
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm --filter=api deploy --prod --legacy /app/deploy
+
 FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# Copy built API and dependencies
+# Copy the deployed bundle (includes node_modules with all deps)
+COPY --from=build /app/deploy ./
+# Copy built dist (pnpm deploy doesn't include build outputs)
 COPY --from=build /app/apps/api/dist ./dist
-COPY --from=build /app/apps/api/package.json ./package.json
-COPY --from=build /app/node_modules ./node_modules
 
 EXPOSE 3000
 
