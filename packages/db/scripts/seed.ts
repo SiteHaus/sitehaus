@@ -52,14 +52,20 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
   dashboard: [
     "http://localhost:3001/callback",
     "http://localhost:3001/auth/callback",
+    "https://dashboard.sitehaus.dev/callback",
+    "https://dashboard.sitehaus.dev/auth/callback",
   ],
   iam: [
     "http://localhost:3002/callback",
     "http://localhost:3002/auth/callback",
+    "https://iam.sitehaus.dev/callback",
+    "https://iam.sitehaus.dev/auth/callback",
   ],
   web: [
     "http://localhost:3000/callback",
     "http://localhost:3000/auth/callback",
+    "https://sitehaus.dev/callback",
+    "https://sitehaus.dev/auth/callback",
   ],
 };
 async function seed() {

@@ -24,6 +24,7 @@ import { AuthService } from '../auth.service';
 import { VerifiedOptional } from '../verified/verified.guard';
 import { AuthCodeService } from '../auth-code/auth-code.service';
 import { OAuthService } from './oauth.service';
+import { setRefreshCookie } from '../cookie/cookies';
 
 interface AuthorizeQuery {
   client_id?: string;
@@ -264,13 +265,16 @@ export class OAuthController {
 
     try {
       // Consume the authorization code (validates PKCE and creates session)
-      const { sessionId, userId, scope } = await this.authCodeService.consume({
+      const { sessionId, userId, scope, refreshToken, refreshExpiresAt } = await this.authCodeService.consume({
         code: body.code,
         codeVerifier: body.code_verifier,
         clientId,
         ip: req.ip,
         ua: req.headers['user-agent'],
       });
+
+      // Set refresh token cookie for cross-origin session persistence
+      setRefreshCookie(res, refreshToken, refreshExpiresAt);
 
       // Ensure user is a member of this client (auto-join with default role)
       await this.oauthService.ensureClientMembership(userId, clientId);
