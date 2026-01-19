@@ -30,7 +30,7 @@ export default function LandingPage() {
   // Redirect logged-in users to the console
   useEffect(() => {
     if (hydrated && bootstrapped && user) {
-      router.replace("/sessions");
+      router.replace("/my-sessions");
     }
   }, [hydrated, bootstrapped, user, router]);
 

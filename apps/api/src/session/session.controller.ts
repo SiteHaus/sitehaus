@@ -20,11 +20,16 @@ export class SessionController {
   @RequirePerms('sessions:read')
   @Get()
   async list(@Req() req: AuthedRequest & { client?: { id: string } }) {
-    const { userId } = req.user!;
+    const { userId, sessionId: currentSessionId } = req.user!;
     const clientId = req.client!.id;
     const rows = await this.sessions.listForUserClient(userId, clientId);
 
-    return { sessions: rows };
+    return {
+      sessions: rows.map((session) => ({
+        ...session,
+        isCurrent: session.id === currentSessionId,
+      })),
+    };
   }
 
   @RequirePerms('sessions:revoke')

@@ -30,7 +30,8 @@ export default function ConsentContainer() {
   const scope = searchParams.get("scope") || "openid profile email";
   const state = searchParams.get("state") || "";
   const codeChallenge = searchParams.get("code_challenge") || "";
-  const codeChallengeMethod = searchParams.get("code_challenge_method") || "S256";
+  const codeChallengeMethod =
+    searchParams.get("code_challenge_method") || "S256";
   const clientName = searchParams.get("client") || "Application";
 
   const scopes = scope.split(" ").filter(Boolean);
@@ -70,7 +71,7 @@ export default function ConsentContainer() {
       <h1 className="text-2xl font-semibold text-center mb-2">
         Authorize Application
       </h1>
-      <p className="text-sm text-gray-500 text-center mb-6">
+      <p className="text-sm text-muted-foreground text-center mb-6">
         {clientName} is requesting access to your account
       </p>
 
@@ -79,7 +80,7 @@ export default function ConsentContainer() {
       <Separator className="my-6" />
 
       <div className="space-y-4 mb-6">
-        <h2 className="text-sm font-medium text-gray-700">
+        <h2 className="text-sm font-medium text-muted-foreground">
           This application will be able to:
         </h2>
 
@@ -88,11 +89,11 @@ export default function ConsentContainer() {
             <li key={s} className="flex items-start gap-3">
               <Check className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium">
                   {SCOPE_DESCRIPTIONS[s] || s}
                 </p>
                 {s !== SCOPE_DESCRIPTIONS[s] && (
-                  <p className="text-xs text-gray-500">Scope: {s}</p>
+                  <p className="text-xs text-muted-foreground">Scope: {s}</p>
                 )}
               </div>
             </li>
@@ -119,7 +120,7 @@ export default function ConsentContainer() {
         </Button>
       </div>
 
-      <p className="text-xs text-gray-500 text-center mt-6">
+      <p className="text-xs text-muted-foreground text-center mt-6">
         By clicking "Allow", you authorize {clientName} to access the
         information listed above. You can revoke this access at any time from
         your account settings.

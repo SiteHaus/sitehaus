@@ -226,6 +226,15 @@ export class SessionService {
         ipHash: true,
         uaHash: true,
       },
+      with: {
+        device: {
+          columns: {
+            browser: true,
+            platform: true,
+            label: true,
+          },
+        },
+      },
       orderBy: (t, { desc }) => [desc(t.createdAt)],
     });
   }

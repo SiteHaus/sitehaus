@@ -119,6 +119,7 @@ export async function exchangeCodeForTokens(params: {
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
+    credentials: "include",
     body: body.toString(),
   });
 

@@ -4,6 +4,12 @@ import { dateTime } from "./primitives.js";
 
 const c = initContract();
 
+export const deviceInfo = z.object({
+  browser: z.string().nullable(),
+  platform: z.string().nullable(),
+  label: z.string().nullable(),
+});
+
 export const sessionItem = z.object({
   id: z.uuid(),
   createdAt: dateTime,
@@ -11,6 +17,8 @@ export const sessionItem = z.object({
   expiresAt: dateTime,
   ipHash: z.string().nullable().optional(),
   uaHash: z.string().nullable().optional(),
+  device: deviceInfo.nullable(),
+  isCurrent: z.boolean(),
 });
 
 export const sessionRouter = c.router({
@@ -21,7 +29,7 @@ export const sessionRouter = c.router({
   },
   revokeOthers: {
     method: "POST",
-    path: "/sessions/revoke-others",
+    path: "/session/revoke-others",
     body: z.void(),
     responses: { 204: z.void() },
   },
@@ -36,3 +44,4 @@ export const sessionRouter = c.router({
 
 export type SessionListReponse = { sessions: z.infer<typeof sessionItem>[] };
 export type SessionItem = z.infer<typeof sessionItem>;
+export type DeviceInfo = z.infer<typeof deviceInfo>;

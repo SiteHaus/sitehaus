@@ -10,7 +10,6 @@ import {
   HelpCircle,
   LogIn,
   Mail,
-  Monitor,
   Shield,
   Users,
 } from "lucide-react";
@@ -43,12 +42,6 @@ const mainNavLinks: NavLink[] = [
     label: "Roles",
     icon: Shield,
     permission: "roles:read",
-  },
-  {
-    href: "/sessions",
-    label: "Sessions",
-    icon: Monitor,
-    permission: "sessions:read",
   },
 ];
 
