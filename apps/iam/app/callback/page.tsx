@@ -55,15 +55,19 @@ function CallbackContent() {
         console.log("Access token stored");
 
         await useAuthStore.getState().me();
+        await useAuthStore.getState().loadMyClients();
         const user = useAuthStore.getState().user;
         console.log("User after me():", user);
 
+        // Get the stored next URL and clean up sessionStorage
+        const nextUrl = sessionStorage.getItem("oauth_next") || "/";
         sessionStorage.removeItem("oauth_code_verifier");
+        sessionStorage.removeItem("oauth_next");
 
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        console.log("Redirecting to /");
-        router.replace("/");
+        console.log("Redirecting to", nextUrl);
+        router.replace(nextUrl);
       } catch (err) {
         const message =
           err instanceof Error

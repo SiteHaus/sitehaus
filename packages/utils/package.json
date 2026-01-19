@@ -20,11 +20,13 @@
     "@site-haus/typescript-config": "workspace:*",
     "@types/express": "^5.0.3",
     "@types/node": "^22.15.3",
+    "@types/ua-parser-js": "^0.7.39",
     "eslint": "^9.31.0",
     "typescript": "5.8.2"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "ua-parser-js": "^1.0.41"
   }
 }

@@ -9,7 +9,6 @@ const PAGE_NAMES: Record<string, string> = {
   "/team": "Team",
   "/roles": "Roles",
   "/invites": "Invites",
-  "/sessions": "Sessions",
   "/my-sessions": "My Sessions",
   "/account": "Account",
   "/apps": "Apps",
@@ -43,12 +42,12 @@ export function useClientContext() {
 
   // Function to switch to a different client
   // Uses window.location for hard navigation to ensure all data reloads
-  // Always redirects to /sessions (a page all users have access to)
+  // Always redirects to /my-sessions (a page all users have access to)
   const setSelectedClient = useCallback(
     (clientId: string) => {
       const params = new URLSearchParams();
       params.set("manage", clientId);
-      window.location.href = `/sessions?${params.toString()}`;
+      window.location.href = `/my-sessions?${params.toString()}`;
     },
     []
   );
