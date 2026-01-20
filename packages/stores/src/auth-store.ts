@@ -37,17 +37,24 @@ type AuthState = {
   hasPerm: (perm: string) => boolean;
 };
 
-type Persisted = Pick<AuthState, "user" | "session">;
+type Persisted = Pick<
+  AuthState,
+  "user" | "session" | "accessToken" | "accessExpiration"
+>;
 
 const persistOptions: PersistOptions<AuthState, Persisted> = {
   name: "auth",
+  // Use sessionStorage: cleared when tab closes, more secure than localStorage
+  // Access tokens won't persist across browser sessions, reducing XSS risk window
   storage:
     typeof window !== "undefined"
-      ? createJSONStorage<Persisted>(() => localStorage)
+      ? createJSONStorage<Persisted>(() => sessionStorage)
       : undefined,
   partialize: (s) => ({
     user: s.user,
     session: s.session,
+    accessToken: s.accessToken,
+    accessExpiration: s.accessExpiration,
   }),
   onRehydrateStorage: () => (state) => {
     state?.setHydrated();
@@ -100,8 +107,7 @@ export const useAuthStore = create<AuthState>()(
       hasPerm: (perm: string) => get().permissions.has(perm),
 
       bootstrap: async () => {
-        // If we already have a valid access token in memory (e.g., just logged in),
-        // skip the refresh but still fetch user data (permissions depend on client context)
+        // If we already have a valid access token, skip the refresh
         const currentState = get();
         const now = Math.floor(Date.now() / 1000);
         const hasValidToken =
@@ -110,7 +116,13 @@ export const useAuthStore = create<AuthState>()(
           currentState.accessExpiration > now;
 
         if (hasValidToken) {
-          // Always fetch user data and clients - permissions depend on current client context
+          // If we already have user data loaded (e.g., same-tab navigation),
+          // skip the API calls entirely for faster page loads
+          if (currentState.user && currentState.session) {
+            set({ bootstrapped: true });
+            return;
+          }
+          // Fetch user data and clients (permissions depend on client context)
           await get().me();
           await get().loadMyClients();
           set({ bootstrapped: true });
