@@ -39,7 +39,7 @@ type AuthState = {
 
 type Persisted = Pick<
   AuthState,
-  "user" | "session" | "accessToken" | "accessExpiration"
+  "user" | "session" | "accessToken" | "accessExpiration" | "clients"
 >;
 
 const persistOptions: PersistOptions<AuthState, Persisted> = {
@@ -55,6 +55,7 @@ const persistOptions: PersistOptions<AuthState, Persisted> = {
     session: s.session,
     accessToken: s.accessToken,
     accessExpiration: s.accessExpiration,
+    clients: s.clients,
   }),
   onRehydrateStorage: () => (state) => {
     state?.setHydrated();
@@ -116,9 +117,14 @@ export const useAuthStore = create<AuthState>()(
           currentState.accessExpiration > now;
 
         if (hasValidToken) {
-          // If we already have user data loaded (e.g., same-tab navigation),
+          // If we already have all data loaded (e.g., same-tab navigation),
           // skip the API calls entirely for faster page loads
-          if (currentState.user && currentState.session) {
+          const hasAllData =
+            currentState.user &&
+            currentState.session &&
+            currentState.clients.length > 0;
+
+          if (hasAllData) {
             set({ bootstrapped: true });
             return;
           }

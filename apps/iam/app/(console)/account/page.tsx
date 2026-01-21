@@ -1,10 +1,13 @@
 "use client";
 
 import { RequireAuth } from "@/lib/require-auth";
-import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
+import { DeleteSection } from "./components/delete-section";
+import { PasswordSection } from "./components/password-section";
+import { ProfileSection } from "./components/profile-section";
+import { TotpSection } from "./components/totp-section";
 
 export default function AccountPage() {
   return (
@@ -21,26 +24,26 @@ export default function AccountPage() {
 }
 
 function AccountPageContent() {
-  const api = useApi();
-  const accessToken = useAuthStore((s) => s.accessToken);
-
   const user = useAuthStore((s) => s.user);
-
-  useEffect(() => {
-    if (!accessToken) return;
-  }, [accessToken]);
 
   return (
     <RequireAuth>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Your Account</h1>
-            <p className="text-muted-foreground">
-              Manage your account details.
-            </p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Your Account</h1>
+          <p className="text-muted-foreground">
+            Manage your account settings and security.
+          </p>
         </div>
+
+        {user && (
+          <div className="space-y-6 max-w-2xl">
+            <ProfileSection />
+            <PasswordSection />
+            <TotpSection />
+            <DeleteSection />
+          </div>
+        )}
       </div>
     </RequireAuth>
   );

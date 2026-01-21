@@ -1,4 +1,12 @@
 import {
+  changeEmailConfirmSchema,
+  changeEmailRequestSchema,
+  disable2faSchema,
+  enable2faSchema,
+  updateProfileSchema,
+  deleteAccountSchema,
+} from "@site-haus/validation/forms/account";
+import {
   loginSchema,
   registerSchema,
   requestVerifySchema,
@@ -211,11 +219,120 @@ export const oauthRouter = c.router({
   },
 });
 
+// Account management (requires authentication)
+export const accountRouter = c.router({
+  // Update profile (first name, last name)
+  updateProfile: {
+    method: "PATCH",
+    path: "/auth/profile",
+    body: updateProfileSchema,
+    responses: {
+      200: userBrief,
+      401: apiErrorHttp,
+      500: apiErrorServer,
+    },
+  },
+  // Request email change (sends OTP to new email)
+  requestEmailChange: {
+    method: "POST",
+    path: "/auth/email/request",
+    body: changeEmailRequestSchema,
+    responses: {
+      204: z.void(),
+      400: apiErrorValidation,
+      401: apiErrorHttp,
+      409: apiErrorHttp, // Email already in use
+      500: apiErrorServer,
+    },
+  },
+  // Confirm email change with OTP
+  confirmEmailChange: {
+    method: "POST",
+    path: "/auth/email/confirm",
+    body: changeEmailConfirmSchema,
+    responses: {
+      200: userBrief,
+      400: apiErrorHttp, // Invalid or expired code
+      401: apiErrorHttp,
+      500: apiErrorServer,
+    },
+  },
+  // Delete account
+  deleteAccount: {
+    method: "DELETE",
+    path: "/auth/account",
+    body: deleteAccountSchema,
+    responses: {
+      204: z.void(),
+      401: apiErrorHttp, // Wrong password
+      500: apiErrorServer,
+    },
+  },
+  // 2FA: Setup (generate TOTP secret and QR code)
+  setup2fa: {
+    method: "POST",
+    path: "/auth/2fa/setup",
+    body: c.noBody(),
+    responses: {
+      200: z.object({
+        secret: z.string(),
+        qrCodeDataUrl: z.string(),
+        otpauthUrl: z.string(),
+      }),
+      401: apiErrorHttp,
+      409: apiErrorHttp, // Already enabled
+      500: apiErrorServer,
+    },
+  },
+  // 2FA: Enable (verify TOTP code and activate)
+  enable2fa: {
+    method: "POST",
+    path: "/auth/2fa/enable",
+    body: enable2faSchema,
+    responses: {
+      200: z.object({
+        enabled: z.boolean(),
+        backupCodes: z.array(z.string()),
+      }),
+      400: apiErrorHttp, // Invalid code
+      401: apiErrorHttp,
+      409: apiErrorHttp, // Already enabled
+      500: apiErrorServer,
+    },
+  },
+  // 2FA: Disable
+  disable2fa: {
+    method: "POST",
+    path: "/auth/2fa/disable",
+    body: disable2faSchema,
+    responses: {
+      204: z.void(),
+      401: apiErrorHttp, // Wrong password
+      409: apiErrorHttp, // Not enabled
+      500: apiErrorServer,
+    },
+  },
+  // 2FA: Get status
+  get2faStatus: {
+    method: "GET",
+    path: "/auth/2fa/status",
+    responses: {
+      200: z.object({
+        enabled: z.boolean(),
+        enabledAt: dateTime.nullable(),
+      }),
+      401: apiErrorHttp,
+      500: apiErrorServer,
+    },
+  },
+});
+
 export const authContract = c.router({
   public: authPublicRouter,
   loginOnly: authLoginRouter,
   private: authPrivateRouter,
   oauth: oauthRouter,
+  account: accountRouter,
 });
 
 export type MeUser = z.infer<typeof userBrief>;

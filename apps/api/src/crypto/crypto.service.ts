@@ -1,10 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { type ConfigType } from '@nestjs/config';
 import {
   hash as argon2Hash,
   verify as argon2Verify,
   type Options as Argon2Options,
 } from '@node-rs/argon2';
-import { createHash, randomBytes, randomInt, timingSafeEqual } from 'crypto';
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  randomBytes,
+  randomInt,
+  scryptSync,
+  timingSafeEqual,
+} from 'crypto';
+import authConfig from 'src/conf/auth.config';
 
 const ARGON2_OPTS: Argon2Options = {
   memoryCost: 19_456,
@@ -13,8 +23,54 @@ const ARGON2_OPTS: Argon2Options = {
   outputLen: 32,
 } as const;
 
+const ENCRYPTION_ALGO = 'aes-256-gcm';
+
 @Injectable()
 export class CryptoService {
+  private readonly encryptionKey: Buffer;
+
+  constructor(
+    @Inject(authConfig.KEY)
+    private readonly authCfg: ConfigType<typeof authConfig>,
+  ) {
+    // Derive a 32-byte key from the JWT secret using scrypt
+    this.encryptionKey = scryptSync(this.authCfg.secret, 'totp-salt', 32);
+  }
+
+  /**
+   * Encrypt a string using AES-256-GCM
+   * Returns: iv:authTag:ciphertext (all base64url encoded)
+   */
+  encrypt(plaintext: string): string {
+    const iv = randomBytes(12); // 96-bit IV for GCM
+    const cipher = createCipheriv(ENCRYPTION_ALGO, this.encryptionKey, iv);
+
+    let encrypted = cipher.update(plaintext, 'utf8', 'base64url');
+    encrypted += cipher.final('base64url');
+
+    const authTag = cipher.getAuthTag();
+
+    return `${iv.toString('base64url')}:${authTag.toString('base64url')}:${encrypted}`;
+  }
+
+  /**
+   * Decrypt a string encrypted with encrypt()
+   */
+  decrypt(encrypted: string): string {
+    const [ivB64, authTagB64, ciphertext] = encrypted.split(':');
+
+    const iv = Buffer.from(ivB64, 'base64url');
+    const authTag = Buffer.from(authTagB64, 'base64url');
+
+    const decipher = createDecipheriv(ENCRYPTION_ALGO, this.encryptionKey, iv);
+    decipher.setAuthTag(authTag);
+
+    let decrypted = decipher.update(ciphertext, 'base64url', 'utf8');
+    decrypted += decipher.final('utf8');
+
+    return decrypted;
+  }
+
   /**
    * Generates a code for use in OTP, and invites with a
    * variable length.

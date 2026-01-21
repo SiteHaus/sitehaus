@@ -27,13 +27,14 @@ export const projectBillingStatusValues = [
   "late",
 ] as const;
 
-export const userStatusValues = ["active", "suspended"] as const;
+export const userStatusValues = ["active", "suspended", "deleted"] as const;
 
 export const otpPurposeValues = [
   "email_verification",
   "password_reset",
   "invite",
   "login",
+  "email_change",
 ] as const;
 
 export const clientTypeValues = ["public", "confidential"] as const;

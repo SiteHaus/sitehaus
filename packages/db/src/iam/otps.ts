@@ -3,6 +3,7 @@ import { sql } from "drizzle-orm";
 import {
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   timestamp,
@@ -25,6 +26,8 @@ export const otpsTable = pgTable(
     purpose: otpPurposeEnum("purpose").notNull(),
     codeHash: varchar("code_hash", { length: 128 }).notNull(),
     attempts: integer("attempts").notNull().default(0),
+    /** Optional metadata for OTP-specific data (e.g., new email for email_change) */
+    meta: jsonb("meta").$type<Record<string, unknown>>(),
     expiresAt: timestamp("expires_at", { withTimezone: true })
       .default(sql`now() + interval '15 minutes'`)
       .notNull(),
