@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Inject,
@@ -102,6 +103,24 @@ export class AuthController {
     return res
       .status(HttpStatus.OK)
       .json({ ...rest, requiresEmailVerification });
+  }
+
+  /**
+   * Introspect an access token. Used by external client SDKs to validate
+   * tokens and retrieve user info without direct database access.
+   *
+   * @param authorization Bearer token from Authorization header
+   */
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @Post('introspect')
+  async introspect(@Headers('authorization') authorization?: string) {
+    if (!authorization?.startsWith('Bearer ')) {
+      return { active: false };
+    }
+
+    const token = authorization.slice('Bearer '.length);
+    return this.auth.introspect(token);
   }
 
   /**

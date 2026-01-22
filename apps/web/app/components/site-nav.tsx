@@ -31,7 +31,7 @@ const topNavLinks: Link[] = [
 export const SiteNav = () => {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
-      <div className="flex items-center justify-between container mx-auto bg-background/50 backdrop-blur mt-2 px-6 py-2 rounded-2xl border shadow-md">
+      <div className="flex items-center justify-between container mx-auto bg-muted/50 backdrop-blur mt-2 px-6 py-2 rounded-2xl border shadow-md">
         <Link href="/" className="flex items-center gap-2">
           <Image
             src="/sitehaus-icon.svg"
@@ -53,7 +53,10 @@ export const SiteNav = () => {
           <div className="flex gap-2 ml-4">
             <ModeToggle />
 
-            <Button variant="outline" className="tracking-wide">
+            <Button
+              variant="secondary"
+              className="border border-muted shadow-sm tracking-wide"
+            >
               Contact Us
             </Button>
             <Button className="tracking-wide">

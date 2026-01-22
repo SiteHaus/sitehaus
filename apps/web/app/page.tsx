@@ -7,7 +7,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@site-haus/ui/components/base/input-group";
-import { ArrowDown, Mail, MoveRight, Sparkles } from "lucide-react";
+import { ArrowDown, Mail, MoveRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -29,11 +29,10 @@ export default function App() {
           <div className="flex flex-col z-10">
             <Link href="/contact">
               <Badge
-                variant="secondary"
-                className="font-display group inline-flex items-center gap-2 text-md mb-6 bg-secondary/70 border shadow-md"
+                variant="default"
+                className="font-display group inline-flex items-center gap-2 text-lg mb-6 border shadow-md p-4"
               >
-                <Sparkles className="text-yellow-500" /> We're available for new
-                projects
+                We're available for new projects
                 <MoveRight className="ml-2 group transition-all duration-200 ease-out group-hover:ml-6" />
               </Badge>
             </Link>
@@ -44,20 +43,20 @@ export default function App() {
               <span className="italic font-bold tracking-wide">partner</span> in
               software
             </h1>
-            <p className="text-2xl tracking-wider pt-6">
+            <p className="text-2xl pt-6">
               We design and build web, mobile, and desktop software — with clear{" "}
               <br />
               plans, shared milestones, and software built to be owned.
             </p>
 
             <div className="flex items-center justify-center gap-2 mt-12">
-              <InputGroup className="h-12 bg-secondary/70 border shadow-lg">
+              <InputGroup className="h-12 bg-muted border shadow-lg">
                 <InputGroupAddon align="inline-start">
                   <Mail />
                 </InputGroupAddon>
                 <InputGroupInput placeholder="Email" className="!text-lg" />
               </InputGroup>
-              <Button size="lg" className="h-12">
+              <Button size="lg" className="h-12 shadow-sm">
                 Start a conversation <MoveRight />
               </Button>
             </div>

@@ -5,12 +5,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
+import { type Db } from '@site-haus/db';
 import authConfig from 'src/conf/auth.config';
+import { DRIZZLE } from 'src/db/tokens';
 import { UserExistsError } from 'src/errors/auth.errors';
 import { RolesService } from 'src/roles/roles.service';
 import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
 import { CryptoService } from '../crypto/crypto.service';
+import { type AccessPayload } from './access/access.guard';
 import { TokenService } from './token/token.service';
 import { TotpService } from './totp/totp.service';
 
@@ -26,6 +29,7 @@ export class AuthService {
     private readonly roles: RolesService,
     private readonly totp: TotpService,
     @Inject(authConfig.KEY) private readonly cfg: ConfigType<typeof authConfig>,
+    @Inject(DRIZZLE) private readonly db: Db,
   ) {}
 
   async register(
@@ -203,6 +207,70 @@ export class AuthService {
       accessTokenExpiresIn: accessTtlSec,
       sessionId: ctx.sessionId,
       userId: ctx.userId,
+    };
+  }
+
+  /**
+   * Introspect an access token for external client SDKs.
+   * Returns token validity, user info, session info, and permissions.
+   */
+  async introspect(token: string) {
+    // Verify the token
+    let payload: AccessPayload;
+    try {
+      payload = await this.tokens.verifyAccess(token);
+    } catch {
+      return { active: false };
+    }
+
+    // Check if MFA is pending - token is technically valid but user hasn't completed 2FA
+    if (payload.mfa === 'pending') {
+      return { active: false };
+    }
+
+    // Validate session is still active
+    const session = await this.db.query.sessionsTable.findFirst({
+      where: (t, { eq, isNull, gt, and }) =>
+        and(
+          eq(t.id, payload.sid),
+          eq(t.clientId, payload.aud),
+          isNull(t.revokedAt),
+          gt(t.expiresAt, new Date()),
+        ),
+    });
+
+    if (!session) {
+      return { active: false };
+    }
+
+    // Get user info
+    const user = await this.users.findById(payload.sub);
+    if (!user || user.status !== 'active') {
+      return { active: false };
+    }
+
+    // Get permissions for user in the session's client context
+    const perms = await this.roles.permsForUserClient(
+      payload.sub,
+      payload.aud,
+    );
+
+    return {
+      active: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isVerified: user.isVerified,
+        status: user.status,
+      },
+      session: {
+        id: session.id,
+        clientId: session.clientId,
+      },
+      permissions: [...perms],
+      exp: payload.exp,
     };
   }
 }

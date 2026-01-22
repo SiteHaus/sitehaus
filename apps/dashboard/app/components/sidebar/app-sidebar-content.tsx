@@ -70,7 +70,7 @@ export const AppSideBarContent = () => {
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
-              )
+              ),
             )}
           </SidebarMenu>
         </SidebarGroupContent>
