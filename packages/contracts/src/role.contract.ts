@@ -55,7 +55,7 @@ export const rolesRouter = c.router({
   },
   replacePerms: {
     method: "POST",
-    path: "/roles/:roleId/perms:replace",
+    path: "/roles/:roleId/perms/replace",
     pathParams: c.type<{ roleId: string }>(),
     body: c.type<{ perms: string[] }>(),
     responses: { 204: c.type<void>() },
