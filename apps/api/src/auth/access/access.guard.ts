@@ -19,6 +19,7 @@ export type AccessPayload = {
   aud: string;
   iat: number;
   exp: number;
+  mfa?: 'pending' | 'complete';
 };
 
 export type UserContext = {
@@ -27,6 +28,7 @@ export type UserContext = {
   sessionId: string;
   firstName?: string;
   lastName?: string;
+  mfa?: 'pending' | 'complete';
 };
 export type AuthedRequest = Request & { user?: UserContext };
 
@@ -97,7 +99,8 @@ export class AccessGuard implements CanActivate {
       userId: payload.sub,
       clientId: payload.aud,
       sessionId: payload.sid,
-    } as const;
+      mfa: payload.mfa,
+    };
 
     await this.sessions.touch(
       payload.sid,

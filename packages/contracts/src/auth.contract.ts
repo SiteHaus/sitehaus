@@ -10,6 +10,7 @@ import {
   loginSchema,
   registerSchema,
   requestVerifySchema,
+  verify2faLoginSchema,
   verifySchema,
 } from "@site-haus/validation/forms/auth";
 import { acceptInviteSchema } from "@site-haus/validation/forms/invite";
@@ -45,6 +46,11 @@ export const meResponse = z.object({
 
 export const registerResponse = authTokens.extend({
   requiresEmailVerification: z.boolean(),
+});
+
+export const loginResponse = authTokens.extend({
+  requiresEmailVerification: z.boolean().optional(),
+  requires2FA: z.boolean().optional(),
 });
 
 export const otpLoginResponse = authTokens.extend({
@@ -108,7 +114,7 @@ export const authLoginRouter = c.router({
     path: "/auth/login",
     body: loginSchema,
     responses: {
-      200: registerResponse,
+      200: loginResponse,
       400: apiErrorValidation,
       409: apiErrorHttp,
       500: apiErrorServer,
@@ -122,6 +128,19 @@ export const authLoginRouter = c.router({
       200: otpLoginResponse,
       400: apiErrorHttp,
       409: apiErrorHttp,
+      429: apiErrorHttp,
+      500: apiErrorServer,
+    },
+  },
+  verify2faLogin: {
+    method: "POST",
+    path: "/auth/2fa/verify-login",
+    body: verify2faLoginSchema,
+    responses: {
+      200: authTokens,
+      400: apiErrorHttp,
+      401: apiErrorHttp,
+      403: apiErrorHttp,
       429: apiErrorHttp,
       500: apiErrorServer,
     },
@@ -183,6 +202,7 @@ export const oauthRouter = c.router({
         scope: z.string(),
         refresh_token: z.string().optional(),
         id_token: z.string().optional(),
+        requires_2fa: z.boolean().optional(),
       }),
       400: z.object({
         error: z.enum([

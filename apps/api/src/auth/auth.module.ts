@@ -15,6 +15,7 @@ import { AccessGuard } from './access/access.guard';
 import { AccountController } from './account/account.controller';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MfaGuard } from './mfa/mfa.guard';
 import { OAuthModule } from './oauth/oauth.module';
 import { OtpService } from './otp/otp.service';
 import { PasswordController } from './password/password.controller';
@@ -51,9 +52,11 @@ import { VerifiedGuard } from './verified/verified.guard';
     OtpService,
     AccessGuard,
     VerifiedGuard,
+    MfaGuard,
     { provide: APP_GUARD, useClass: ClientGuard },
     { provide: APP_GUARD, useExisting: AccessGuard },
     { provide: APP_GUARD, useClass: VerifiedGuard },
+    { provide: APP_GUARD, useClass: MfaGuard },
     { provide: APP_GUARD, useClass: PermissionGuard },
   ],
   controllers: [AuthController, PasswordController, AccountController],

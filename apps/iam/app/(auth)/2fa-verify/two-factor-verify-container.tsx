@@ -3,13 +3,13 @@
 import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
-import { LoginInput } from "@site-haus/validation/forms/auth";
+import type { Verify2faLoginInput } from "@site-haus/validation/forms/auth";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LoginForm } from "./form/login-form";
+import { useEffect } from "react";
+import { TwoFactorVerifyForm } from "./form/two-factor-verify-form";
 
-export default function LoginContainer() {
+export default function TwoFactorVerifyContainer() {
   const { replace } = useAuthNav();
-
   const api = useApi();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,35 +18,26 @@ export default function LoginContainer() {
   const clientName = searchParams.get("client") || "";
   const oauthParams = searchParams.get("oauth_params");
 
+  const accessToken = useAuthStore((s) => s.accessToken);
   const setAccess = useAuthStore((s) => s.setAccess);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
 
-  const onSubmit = async (values: LoginInput) => {
-    const r = await api.auth.loginOnly.login({ body: values });
+  // Redirect to login if no partial token exists
+  useEffect(() => {
+    if (!accessToken) {
+      replace("/login");
+    }
+  }, [accessToken, replace]);
+
+  const onSubmit = async (values: Verify2faLoginInput) => {
+    const r = await api.auth.loginOnly.verify2faLogin({ body: values });
 
     if (r.status !== 200) throw r;
 
-    const {
-      accessToken,
-      accessTokenExpiresIn,
-      requiresEmailVerification,
-      requires2FA,
-    } = r.body;
-
-    if (requiresEmailVerification) {
-      replace("/verify", { add: { email: values.email, mode: "email" } });
-      return;
-    }
-
-    // If 2FA is required, store partial token and redirect to 2FA verification
-    if (requires2FA) {
-      const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
-      setAccess({ accessToken, accessExpiration: exp });
-      replace("/2fa-verify");
-      return;
-    }
+    const { accessToken: newToken, accessTokenExpiresIn } = r.body;
 
     const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
-    setAccess({ accessToken, accessExpiration: exp });
+    setAccess({ accessToken: newToken, accessExpiration: exp });
 
     // Hydrate user/session/permissions
     try {
@@ -86,5 +77,20 @@ export default function LoginContainer() {
     router.replace(next || "/");
   };
 
-  return <LoginForm onSubmit={onSubmit} authForLabel={clientName} />;
+  const onCancel = () => {
+    clearAuth();
+    replace("/login");
+  };
+
+  if (!accessToken) {
+    return null;
+  }
+
+  return (
+    <TwoFactorVerifyForm
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      authForLabel={clientName}
+    />
+  );
 }

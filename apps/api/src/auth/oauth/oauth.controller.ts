@@ -25,6 +25,7 @@ import { VerifiedOptional } from '../verified/verified.guard';
 import { AuthCodeService } from '../auth-code/auth-code.service';
 import { OAuthService } from './oauth.service';
 import { setRefreshCookie } from '../cookie/cookies';
+import { TotpService } from '../totp/totp.service';
 
 interface AuthorizeQuery {
   client_id?: string;
@@ -65,6 +66,7 @@ export class OAuthController {
     private readonly clientsService: ClientsService,
     private readonly usersService: UsersService,
     private readonly sessionService: SessionService,
+    private readonly totpService: TotpService,
   ) {}
 
   /**
@@ -279,13 +281,20 @@ export class OAuthController {
       // Ensure user is a member of this client (auto-join with default role)
       await this.oauthService.ensureClientMembership(userId, clientId);
 
+      // Check if 2FA is enabled for this user
+      const has2fa = await this.totpService.isEnabled(userId);
+
       // Issue tokens using the created session
-      const tokens = await this.authService.issueTokens(userId, {
-        clientId,
-        sessionId, // Reuse the session created by consume
-        ip: req.ip,
-        ua: req.headers['user-agent'],
-      });
+      const tokens = await this.authService.issueTokens(
+        userId,
+        {
+          clientId,
+          sessionId, // Reuse the session created by consume
+          ip: req.ip,
+          ua: req.headers['user-agent'],
+        },
+        { mfaPending: has2fa },
+      );
 
       // Return OAuth2 token response
       return res.json({
@@ -293,6 +302,7 @@ export class OAuthController {
         token_type: 'Bearer',
         expires_in: tokens.accessTokenExpiresIn,
         scope: scope || 'openid profile email',
+        requires_2fa: has2fa,
         // Optional: refresh_token if implementing refresh grant
         // Optional: id_token if implementing OIDC
       });
