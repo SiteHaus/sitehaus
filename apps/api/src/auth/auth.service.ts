@@ -12,6 +12,9 @@ import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
 import { CryptoService } from '../crypto/crypto.service';
 import { TokenService } from './token/token.service';
+import { TotpService } from './totp/totp.service';
+
+const MFA_PENDING_TTL_SEC = 5 * 60; // 5 minutes for partial tokens
 
 @Injectable()
 export class AuthService {
@@ -21,6 +24,7 @@ export class AuthService {
     private readonly sessions: SessionService,
     private readonly tokens: TokenService,
     private readonly roles: RolesService,
+    private readonly totp: TotpService,
     @Inject(authConfig.KEY) private readonly cfg: ConfigType<typeof authConfig>,
   ) {}
 
@@ -73,6 +77,13 @@ export class AuthService {
     );
     if (!ok) throw new UnauthorizedException('Invalid email or password');
 
+    // Check if 2FA is enabled
+    const has2fa = await this.totp.isEnabled(user.id);
+    if (has2fa) {
+      // Issue partial token with mfa: 'pending'
+      return this.issueTokens(user.id, ctx, { mfaPending: true });
+    }
+
     return this.issueTokens(user.id, ctx);
   }
 
@@ -113,6 +124,7 @@ export class AuthService {
   async issueTokens(
     userId: string,
     ctx: { clientId: string; sessionId?: string; ip?: string; ua?: string },
+    opts?: { mfaPending?: boolean },
   ) {
     let sessionId: string;
     let refreshToken: string | undefined;
@@ -135,9 +147,13 @@ export class AuthService {
       refreshExpiresAt = session.refreshExpiresAt;
     }
 
-    const accessTtlSec = this.cfg.accessTtlSec;
+    // Use shorter TTL for MFA pending tokens
+    const mfaPending = opts?.mfaPending ?? false;
+    const accessTtlSec = mfaPending ? MFA_PENDING_TTL_SEC : this.cfg.accessTtlSec;
+    const mfaClaim = mfaPending ? 'pending' : undefined;
+
     const accessToken = await this.tokens.signAccessToken(
-      { sub: userId, sid: sessionId, aud: ctx.clientId },
+      { sub: userId, sid: sessionId, aud: ctx.clientId, mfa: mfaClaim },
       { expiresInSec: accessTtlSec },
     );
 
@@ -150,6 +166,7 @@ export class AuthService {
       }),
       sessionId,
       userId,
+      requires2FA: mfaPending,
     };
   }
 
@@ -158,5 +175,34 @@ export class AuthService {
     ctx: { clientId: string; ip?: string; ua?: string },
   ) {
     return this.issueTokens(userId, ctx);
+  }
+
+  /**
+   * Complete MFA login by verifying TOTP code and issuing full tokens.
+   * Uses the existing session created during initial login.
+   */
+  async completeMfaLogin(
+    code: string,
+    ctx: { userId: string; sessionId: string; clientId: string },
+  ) {
+    // Verify the TOTP code
+    const valid = await this.totp.verify(ctx.userId, code);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid 2FA code');
+    }
+
+    // Issue full access token (no mfa claim means complete)
+    const accessTtlSec = this.cfg.accessTtlSec;
+    const accessToken = await this.tokens.signAccessToken(
+      { sub: ctx.userId, sid: ctx.sessionId, aud: ctx.clientId },
+      { expiresInSec: accessTtlSec },
+    );
+
+    return {
+      accessToken,
+      accessTokenExpiresIn: accessTtlSec,
+      sessionId: ctx.sessionId,
+      userId: ctx.userId,
+    };
   }
 }

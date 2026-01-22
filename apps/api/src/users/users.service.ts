@@ -106,4 +106,48 @@ export class UsersService {
 
     return u!;
   }
+
+  async updateProfile(
+    userId: string,
+    data: { firstName?: string; lastName?: string },
+    db?: Db,
+  ) {
+    const [u] = await this.use(db)
+      .update(schema.usersTable)
+      .set(data)
+      .where(eq(schema.usersTable.id, userId))
+      .returning();
+
+    return u!;
+  }
+
+  async updateEmail(userId: string, newEmail: string, db?: Db) {
+    const email = normalizeEmail(newEmail);
+
+    // Check if email is already in use
+    const existing = await this.findByEmail(email, db);
+    if (existing && existing.id !== userId) {
+      throw new UserExistsError(email);
+    }
+
+    const [u] = await this.use(db)
+      .update(schema.usersTable)
+      .set({ email, isVerified: true, emailVerifiedAt: new Date() })
+      .where(eq(schema.usersTable.id, userId))
+      .returning();
+
+    return u!;
+  }
+
+  async deleteUser(userId: string, db?: Db) {
+    // Soft delete by setting status to 'deleted'
+    // Cascade will handle related records if using hard delete
+    const [u] = await this.use(db)
+      .update(schema.usersTable)
+      .set({ status: 'deleted' })
+      .where(eq(schema.usersTable.id, userId))
+      .returning();
+
+    return u;
+  }
 }

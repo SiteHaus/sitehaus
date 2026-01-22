@@ -3,6 +3,7 @@
 import { initStoresSdk } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
+import { usePathname } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 
 interface ProvidersProps {
@@ -24,12 +25,15 @@ initStoresSdk({
 
 const Providers = ({ children }: ProvidersProps) => {
   const hydrated = useAuthStore((s) => s.hydrated);
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (hydrated) {
+    // Skip bootstrap on callback page - it handles its own token exchange
+    // Running bootstrap here would race with the OAuth flow and cause session conflicts
+    if (hydrated && pathname !== "/callback") {
       void useAuthStore.getState().bootstrap();
     }
-  }, [hydrated]);
+  }, [hydrated, pathname]);
 
   return (
     <ThemeProvider

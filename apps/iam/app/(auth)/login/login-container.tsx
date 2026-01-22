@@ -25,11 +25,23 @@ export default function LoginContainer() {
 
     if (r.status !== 200) throw r;
 
-    const { accessToken, accessTokenExpiresIn, requiresEmailVerification } =
-      r.body;
+    const {
+      accessToken,
+      accessTokenExpiresIn,
+      requiresEmailVerification,
+      requires2FA,
+    } = r.body;
 
     if (requiresEmailVerification) {
       replace("/verify", { add: { email: values.email, mode: "email" } });
+      return;
+    }
+
+    // If 2FA is required, store partial token and redirect to 2FA verification
+    if (requires2FA) {
+      const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
+      setAccess({ accessToken, accessExpiration: exp });
+      replace("/2fa-verify");
       return;
     }
 

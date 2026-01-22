@@ -18,7 +18,12 @@ export class OtpService {
     private readonly crypto: CryptoService,
   ) {}
 
-  async create(userId: string, purpose: OtpPurpose, ttlSec = 15 * 60) {
+  async create(
+    userId: string,
+    purpose: OtpPurpose,
+    opts: { ttlSec?: number; meta?: Record<string, unknown> } = {},
+  ) {
+    const ttlSec = opts.ttlSec ?? 15 * 60;
     const now = new Date();
     const code = this.crypto.generateCode();
     const codeHash = this.crypto.sha256b64url(code);
@@ -39,7 +44,7 @@ export class OtpService {
 
     await this.db
       .insert(schema.otpsTable)
-      .values({ userId, purpose, codeHash, expiresAt });
+      .values({ userId, purpose, codeHash, expiresAt, meta: opts.meta });
 
     return { code, expiresAt };
   }
@@ -50,7 +55,7 @@ export class OtpService {
     code: string,
     opts: { maxAttempts?: number } = {},
   ): Promise<
-    | { ok: true }
+    | { ok: true; otp: { meta?: Record<string, unknown> | null } }
     | {
         ok: false;
         reason:
@@ -113,7 +118,9 @@ export class OtpService {
           )
           .returning({ id: schema.otpsTable.id });
 
-        return updated.length ? { ok: true } : { ok: false, reason: 'race' };
+        return updated.length
+          ? { ok: true, otp: { meta: otp.meta } }
+          : { ok: false, reason: 'race' };
       }
 
       const nextAttempts = (otp.attempts ?? 0) + 1;

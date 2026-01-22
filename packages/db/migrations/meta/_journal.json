@@ -15,6 +15,13 @@
       "when": 1765958848464,
       "tag": "0001_familiar_sphinx",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768961336966,
+      "tag": "0002_spicy_deathbird",
+      "breakpoints": true
     }
   ]
 }

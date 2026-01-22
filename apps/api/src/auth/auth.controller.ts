@@ -17,6 +17,7 @@ import {
   loginSchema,
   registerSchema,
   requestVerifySchema,
+  verify2faLoginSchema,
   verifySchema,
 } from '@site-haus/validation/forms/auth';
 import { resetPasswordSchema } from '@site-haus/validation/forms/password';
@@ -32,6 +33,7 @@ import { RolesService } from 'src/roles/roles.service';
 import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from './access/access.guard';
 import { AuthService } from './auth.service';
+import { MfaOptional, MfaPending } from './mfa/mfa.decorator';
 import {
   clearRefreshCookie,
   REFRESH_COOKIE,
@@ -173,12 +175,41 @@ export class AuthController {
   }
 
   /**
+   * Verify 2FA code during login. Only accessible with MFA pending tokens.
+   * Issues full tokens on successful verification.
+   *
+   * @param body
+   * @param req
+   * @param res
+   */
+  @MfaPending()
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ auth: { limit: 5 } })
+  @Post('2fa/verify-login')
+  async verify2faLogin(
+    @Body() body: unknown,
+    @Req() req: AuthedRequest,
+    @Res() res: ExpressResponse,
+  ) {
+    const { code } = verify2faLoginSchema.parse(body);
+
+    const result = await this.auth.completeMfaLogin(code, {
+      userId: req.user!.userId,
+      sessionId: req.user!.sessionId,
+      clientId: req.user!.clientId,
+    });
+
+    return res.json(result);
+  }
+
+  /**
    * Invalidate the active session (if any) and clear the refresh cookie.
    *
    * @param req
    * @param res
    */
   @VerifiedOptional()
+  @MfaOptional()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
   async logout(@Req() req: AuthedRequest, @Res() res: ExpressResponse) {
@@ -195,6 +226,7 @@ export class AuthController {
    * @returns
    */
   @VerifiedOptional()
+  @MfaOptional()
   @Get('me')
   async me(@Req() req: AuthedRequest & ClientInRequest) {
     const { userId, clientId: sessionClientId, sessionId } = req.user!;

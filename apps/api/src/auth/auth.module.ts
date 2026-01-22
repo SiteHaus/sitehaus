@@ -12,14 +12,17 @@ import { RolesModule } from 'src/roles/roles.module';
 import { SessionModule } from 'src/session/session.module';
 import { UsersModule } from 'src/users/users.module';
 import { AccessGuard } from './access/access.guard';
+import { AccountController } from './account/account.controller';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { MfaGuard } from './mfa/mfa.guard';
+import { OAuthModule } from './oauth/oauth.module';
 import { OtpService } from './otp/otp.service';
 import { PasswordController } from './password/password.controller';
 import { PermissionGuard } from './permission/permission.guard';
 import { TokenService } from './token/token.service';
+import { TotpModule } from './totp/totp.module';
 import { VerifiedGuard } from './verified/verified.guard';
-import { OAuthModule } from './oauth/oauth.module';
 
 @Module({
   imports: [
@@ -31,6 +34,7 @@ import { OAuthModule } from './oauth/oauth.module';
     CryptoModule,
     RolesModule,
     UsersModule,
+    TotpModule,
     forwardRef(() => OAuthModule),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -48,12 +52,14 @@ import { OAuthModule } from './oauth/oauth.module';
     OtpService,
     AccessGuard,
     VerifiedGuard,
+    MfaGuard,
     { provide: APP_GUARD, useClass: ClientGuard },
     { provide: APP_GUARD, useExisting: AccessGuard },
     { provide: APP_GUARD, useClass: VerifiedGuard },
+    { provide: APP_GUARD, useClass: MfaGuard },
     { provide: APP_GUARD, useClass: PermissionGuard },
   ],
-  controllers: [AuthController, PasswordController],
-  exports: [JwtModule, TokenService, AuthService],
+  controllers: [AuthController, PasswordController, AccountController],
+  exports: [JwtModule, TokenService, AuthService, TotpModule],
 })
 export class AuthModule {}

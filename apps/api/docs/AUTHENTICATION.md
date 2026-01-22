@@ -508,6 +508,7 @@ The frontend apps use Zustand for auth state with smart persistence and caching.
 | `accessExpiration` | sessionStorage | Paired with token |
 | `user` | sessionStorage | Quick hydration |
 | `session` | sessionStorage | Quick hydration |
+| `clients` | sessionStorage | Client switcher data |
 
 **Why sessionStorage over localStorage:**
 - Access tokens cleared when tab closes (reduces XSS risk window)
@@ -531,7 +532,7 @@ On page load, the auth store runs `bootstrap()`:
                           ▼
               ┌───────────────────────┐
               │ Has valid accessToken │
-              │   AND user loaded?    │
+              │ AND user AND clients? │
               └───────────┬───────────┘
                           │
             ┌─────────────┴─────────────┐
@@ -539,7 +540,7 @@ On page load, the auth store runs `bootstrap()`:
             ▼                           ▼
 ┌───────────────────────┐   ┌───────────────────────┐
 │  Skip all API calls   │   │ Has valid accessToken │
-│  (fast page load)     │   │    but no user?       │
+│  (fast page load)     │   │  but missing data?    │
 └───────────────────────┘   └───────────┬───────────┘
                                         │
                           ┌─────────────┴─────────────┐

@@ -230,6 +230,7 @@ partialize: (s) => ({
   session: s.session,
   accessToken: s.accessToken,
   accessExpiration: s.accessExpiration,
+  clients: s.clients,
 }),
 ```
 
@@ -250,8 +251,13 @@ The `bootstrap()` function is optimized to minimize API calls:
 
 ```typescript
 if (hasValidToken) {
-  // If user data already loaded, skip API calls entirely
-  if (currentState.user && currentState.session) {
+  // If all data already loaded, skip API calls entirely
+  const hasAllData =
+    currentState.user &&
+    currentState.session &&
+    currentState.clients.length > 0;
+
+  if (hasAllData) {
     set({ bootstrapped: true });
     return;  // Zero API calls!
   }
@@ -321,10 +327,10 @@ if (hydrated && pathname !== "/callback") {
 }
 ```
 
-### 2. Token Persistence
+### 2. Token & Client Persistence
 **File:** `packages/stores/src/auth-store.ts`
 
-Changed from localStorage to sessionStorage and added token persistence:
+Changed from localStorage to sessionStorage and added token + clients persistence:
 ```typescript
 storage: createJSONStorage(() => sessionStorage),
 partialize: (s) => ({
@@ -332,16 +338,22 @@ partialize: (s) => ({
   session: s.session,
   accessToken: s.accessToken,
   accessExpiration: s.accessExpiration,
+  clients: s.clients,
 }),
 ```
 
 ### 3. Bootstrap Optimization
 **File:** `packages/stores/src/auth-store.ts`
 
-Skip API calls if user data is already loaded:
+Skip API calls if all data is already loaded:
 ```typescript
 if (hasValidToken) {
-  if (currentState.user && currentState.session) {
+  const hasAllData =
+    currentState.user &&
+    currentState.session &&
+    currentState.clients.length > 0;
+
+  if (hasAllData) {
     set({ bootstrapped: true });
     return;  // No API calls needed
   }

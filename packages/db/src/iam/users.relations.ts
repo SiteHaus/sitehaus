@@ -6,12 +6,17 @@ import { otpsTable } from "./otps.js";
 import { passwordCredentialsTable } from "./password-credentials.js";
 import { userRolesTable } from "./roles.js";
 import { sessionsTable } from "./sessions.js";
+import { totpCredentialsTable } from "./totp-credentials.js";
 import { usersTable } from "./users.js";
 
 export const usersRelations = relations(usersTable, ({ one, many }) => ({
   passwordCredential: one(passwordCredentialsTable, {
     fields: [usersTable.id],
     references: [passwordCredentialsTable.userId],
+  }),
+  totpCredential: one(totpCredentialsTable, {
+    fields: [usersTable.id],
+    references: [totpCredentialsTable.userId],
   }),
   sessions: many(sessionsTable),
   devices: many(devicesTable),

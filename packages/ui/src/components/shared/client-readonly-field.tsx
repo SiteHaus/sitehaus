@@ -21,7 +21,7 @@ export const ClientReadOnlyField = ({
   return (
     <InputGroup>
       <InputGroupInput
-        className="bg-accent ml-2 border-l border-r text-center"
+        className="ml-2 border-l border-r text-center"
         id="auth-for"
         value={authForLabel}
         disabled

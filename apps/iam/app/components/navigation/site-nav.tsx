@@ -9,7 +9,7 @@ import {
   AppWindow,
   HelpCircle,
   LogIn,
-  Mail,
+  Monitor,
   Shield,
   Users,
 } from "lucide-react";
@@ -26,16 +26,16 @@ interface NavLink {
 
 const mainNavLinks: NavLink[] = [
   {
+    href: "/my-sessions",
+    label: "My Sessions",
+    icon: Monitor,
+    // No permission required - all authenticated users can view their own sessions
+  },
+  {
     href: "/team",
     label: "Team",
     icon: Users,
     permission: ["members:read", "users:read"],
-  },
-  {
-    href: "/invites",
-    label: "Invites",
-    icon: Mail,
-    permission: "invites:read",
   },
   {
     href: "/roles",
