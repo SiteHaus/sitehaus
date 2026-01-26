@@ -1,6 +1,6 @@
 {
   "name": "@sitehaus/client-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "private": false,
   "files": [
@@ -18,16 +18,11 @@
     "./nestjs": {
       "types": "./dist/nestjs/index.d.ts",
       "default": "./dist/nestjs/index.js"
-    },
-    "./frontend": {
-      "types": "./dist/frontend/index.d.ts",
-      "default": "./dist/frontend/index.js"
     }
   },
   "peerDependencies": {
     "@nestjs/common": "^11.0.0",
-    "@nestjs/core": "^11.0.0",
-    "react": "^18 || ^19"
+    "@nestjs/core": "^11.0.0"
   },
   "peerDependenciesMeta": {
     "@nestjs/common": {
@@ -35,19 +30,14 @@
     },
     "@nestjs/core": {
       "optional": true
-    },
-    "react": {
-      "optional": true
     }
-  },
-  "dependencies": {
-    "@site-haus/contracts": "workspace:*",
-    "@site-haus/sdk": "workspace:*",
-    "@site-haus/stores": "workspace:*"
   },
   "devDependencies": {
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
+    "@site-haus/contracts": "workspace:*",
+    "@site-haus/sdk": "workspace:*",
+    "@site-haus/stores": "workspace:*",
     "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",
     "eslint": "^9.31.0",

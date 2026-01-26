@@ -1,11 +1,11 @@
-# @site-haus/client-sdk
+# @sitehaus/client-sdk
 
-Unified SDK for integrating external applications with SiteHaus IAM. Handles authentication so your app does minimal work.
+NestJS SDK for integrating external applications with SiteHaus IAM. Handles backend authentication so your app does minimal work.
 
 ## Installation
 
 ```bash
-pnpm add @site-haus/client-sdk
+pnpm add @sitehaus/client-sdk
 ```
 
 ## Architecture
@@ -16,6 +16,18 @@ The SDK uses **token introspection** - your backend calls the IAM API to validat
 - Enables instant session revocation
 - Requires zero database access from clients
 
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Your App (e.g., GraceJeanne)                               │
+│                                                             │
+│  Frontend ──────────────────────────────────────────────────┼──► SiteHaus IAM
+│  (OAuth login, stores tokens)                               │    (issues tokens)
+│                                                             │
+│  Backend (NestJS + this SDK) ◄──────────────────────────────┼──► SiteHaus IAM
+│  (validates tokens via introspection)                       │    (/auth/introspect)
+└─────────────────────────────────────────────────────────────┘
+```
+
 ## NestJS Backend Integration
 
 ### Setup
@@ -23,12 +35,12 @@ The SDK uses **token introspection** - your backend calls the IAM API to validat
 ```typescript
 // app.module.ts
 import { Module } from '@nestjs/common';
-import { SiteHausAuthModule } from '@site-haus/client-sdk/nestjs';
+import { SiteHausAuthModule } from '@sitehaus/client-sdk/nestjs';
 
 @Module({
   imports: [
     SiteHausAuthModule.forRoot({
-      iamUrl: process.env.IAM_URL,        // e.g., 'https://api.sitehaus.io'
+      iamUrl: process.env.IAM_URL,        // e.g., 'https://api.sitehaus.dev'
       clientKey: process.env.IAM_CLIENT_KEY,
       cacheTtlMs: 5000,                    // Optional: introspection cache TTL
     }),
@@ -66,7 +78,7 @@ import {
   RequirePerms,
   RequirePermsAny,
   UserContext,
-} from '@site-haus/client-sdk/nestjs';
+} from '@sitehaus/client-sdk/nestjs';
 
 @Controller('orders')
 export class OrdersController {
@@ -126,125 +138,7 @@ interface UserContext {
 }
 ```
 
-## Frontend Integration
-
-### Setup
-
-```typescript
-// lib/auth.ts
-import { initStoresSdk, useAuthStore } from '@site-haus/client-sdk/frontend';
-
-// Initialize once at app startup
-initStoresSdk({
-  baseURL: process.env.NEXT_PUBLIC_IAM_URL,
-  clientKey: process.env.NEXT_PUBLIC_IAM_CLIENT_KEY,
-});
-```
-
-### OAuth Login Flow
-
-```typescript
-import {
-  buildAuthorizationUrl,
-  generatePKCE,
-  generateState,
-  exchangeCodeForTokens,
-} from '@site-haus/client-sdk/frontend';
-
-// Login button handler
-const handleLogin = async () => {
-  const { codeVerifier, codeChallenge } = await generatePKCE();
-  const state = generateState();
-
-  // Store for callback
-  sessionStorage.setItem('pkce_verifier', codeVerifier);
-  sessionStorage.setItem('oauth_state', state);
-
-  const url = buildAuthorizationUrl({
-    clientId: process.env.NEXT_PUBLIC_IAM_CLIENT_ID,
-    redirectUri: `${window.location.origin}/callback`,
-    codeChallenge,
-    state,
-    scope: 'openid profile email',
-  });
-
-  window.location.href = url;
-};
-
-// Callback page handler
-const handleCallback = async (code: string, state: string) => {
-  const savedState = sessionStorage.getItem('oauth_state');
-  if (state !== savedState) throw new Error('State mismatch');
-
-  const codeVerifier = sessionStorage.getItem('pkce_verifier');
-  const tokens = await exchangeCodeForTokens({
-    code,
-    codeVerifier,
-    redirectUri: `${window.location.origin}/callback`,
-    clientId: process.env.NEXT_PUBLIC_IAM_CLIENT_ID,
-  });
-
-  // Store tokens and redirect
-  useAuthStore.getState().setAccess({
-    accessToken: tokens.access_token,
-    accessExpiration: Math.floor(Date.now() / 1000) + tokens.expires_in,
-  });
-};
-```
-
-### Using Auth State
-
-```typescript
-import { useAuthStore } from '@site-haus/client-sdk/frontend';
-
-function UserProfile() {
-  const { user, permissions, hasPerm, logout } = useAuthStore();
-
-  if (!user) return <LoginButton />;
-
-  return (
-    <div>
-      <p>Welcome, {user.firstName}!</p>
-      {hasPerm('admin') && <AdminPanel />}
-      <button onClick={logout}>Logout</button>
-    </div>
-  );
-}
-```
-
-### Making API Calls
-
-```typescript
-import { getApi } from '@site-haus/client-sdk/frontend';
-
-async function fetchUserData() {
-  const api = getApi();
-  const result = await api.auth.private.me();
-
-  if (result.status === 200) {
-    return result.body.user;
-  }
-}
-```
-
-## Client Registration
-
-Before using the SDK, register your application as a client in SiteHaus:
-
-1. Create a client record in the `clients` table:
-   - `key`: Unique identifier (e.g., 'my-app')
-   - `name`: Display name
-   - `redirectUris`: Allowed callback URLs
-   - `allowedScopes`: ['openid', 'profile', 'email']
-   - `firstParty`: false (for external apps)
-   - `requiresConsent`: true
-
-2. Use the client's `id` (UUID) as `clientId` in frontend OAuth flows
-3. Use the client's `key` as `clientKey` in backend configuration
-
-## API Reference
-
-### NestJS Exports (`@site-haus/client-sdk/nestjs`)
+### API Reference
 
 | Export | Description |
 |--------|-------------|
@@ -257,29 +151,194 @@ Before using the SDK, register your application as a client in SiteHaus:
 | `@RequirePermsAny()` | Require ANY permission |
 | `IntrospectionService` | Direct access to introspection API |
 
-### Frontend Exports (`@site-haus/client-sdk/frontend`)
+---
 
-| Export | Description |
-|--------|-------------|
-| `initStoresSdk()` | Initialize SDK with config |
-| `getApi()` | Get typed API client |
-| `useAuthStore` | Zustand auth state hook |
-| `buildAuthorizationUrl()` | Build OAuth authorize URL |
-| `generatePKCE()` | Generate PKCE challenge/verifier |
-| `generateState()` | Generate OAuth state parameter |
-| `exchangeCodeForTokens()` | Exchange auth code for tokens |
+## Frontend Integration (Manual)
+
+The SDK doesn't include frontend utilities - implement OAuth 2.0 with PKCE directly in your app.
+
+### 1. Login - Redirect to SiteHaus
+
+```typescript
+// lib/auth.ts
+
+// Generate PKCE challenge
+async function generatePKCE() {
+  const verifier = crypto.randomUUID() + crypto.randomUUID();
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+  return { verifier, challenge };
+}
+
+// Login handler
+async function login() {
+  const { verifier, challenge } = await generatePKCE();
+  const state = crypto.randomUUID();
+
+  // Store for callback
+  sessionStorage.setItem('pkce_verifier', verifier);
+  sessionStorage.setItem('oauth_state', state);
+
+  const params = new URLSearchParams({
+    client_id: process.env.NEXT_PUBLIC_IAM_CLIENT_ID,
+    redirect_uri: `${window.location.origin}/auth/callback`,
+    response_type: 'code',
+    code_challenge: challenge,
+    code_challenge_method: 'S256',
+    state,
+    scope: 'openid profile email',
+  });
+
+  window.location.href = `${process.env.NEXT_PUBLIC_IAM_URL}/auth/authorize?${params}`;
+}
+```
+
+### 2. Callback - Exchange Code for Tokens
+
+```typescript
+// app/auth/callback/page.tsx (Next.js example)
+
+async function handleCallback(searchParams: URLSearchParams) {
+  const code = searchParams.get('code');
+  const state = searchParams.get('state');
+  const savedState = sessionStorage.getItem('oauth_state');
+  const verifier = sessionStorage.getItem('pkce_verifier');
+
+  // Validate state
+  if (state !== savedState) {
+    throw new Error('Invalid state parameter');
+  }
+
+  // Exchange code for tokens
+  const response = await fetch(`${process.env.NEXT_PUBLIC_IAM_URL}/auth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: `${window.location.origin}/auth/callback`,
+      code_verifier: verifier,
+      client_id: process.env.NEXT_PUBLIC_IAM_CLIENT_ID,
+    }),
+  });
+
+  const tokens = await response.json();
+
+  // Store tokens (use httpOnly cookies for production!)
+  localStorage.setItem('access_token', tokens.access_token);
+  localStorage.setItem('token_expires', Date.now() + tokens.expires_in * 1000);
+
+  // Cleanup
+  sessionStorage.removeItem('pkce_verifier');
+  sessionStorage.removeItem('oauth_state');
+
+  // Redirect to app
+  window.location.href = '/dashboard';
+}
+```
+
+### 3. Making Authenticated API Calls
+
+```typescript
+// lib/api.ts
+
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
+  const token = localStorage.getItem('access_token');
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      ...options.headers,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (response.status === 401) {
+    // Token expired - redirect to login
+    localStorage.removeItem('access_token');
+    window.location.href = '/login';
+  }
+
+  return response;
+}
+
+// Usage
+const orders = await fetchWithAuth('https://your-api.com/orders').then(r => r.json());
+```
+
+### 4. Get Current User
+
+```typescript
+// Fetch user info from your backend (which uses introspection)
+async function getCurrentUser() {
+  const response = await fetchWithAuth('https://your-api.com/me');
+  if (!response.ok) return null;
+  return response.json();
+}
+```
+
+### 5. Logout
+
+```typescript
+async function logout() {
+  const token = localStorage.getItem('access_token');
+
+  // Optionally notify IAM to revoke session
+  await fetch(`${process.env.NEXT_PUBLIC_IAM_URL}/auth/logout`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    credentials: 'include',
+  });
+
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('token_expires');
+  window.location.href = '/';
+}
+```
+
+---
+
+## Client Registration
+
+Before integrating, register your application as a client in SiteHaus:
+
+1. Create a client record in the `clients` table:
+   - `key`: Unique identifier (e.g., 'gracejeanne')
+   - `name`: Display name (e.g., 'GraceJeanne')
+   - `redirectUris`: Allowed callback URLs (e.g., `['https://gracejeanne.com/auth/callback']`)
+   - `allowedScopes`: `['openid', 'profile', 'email']`
+   - `firstParty`: `false`
+   - `requiresConsent`: `true`
+
+2. Use the client's `id` (UUID) as `client_id` in OAuth flows
+3. Use the client's `key` as `clientKey` in backend SDK configuration
+
+---
 
 ## Environment Variables
 
 ### Backend
 ```env
-IAM_URL=https://api.sitehaus.io
+IAM_URL=https://api.sitehaus.dev
 IAM_CLIENT_KEY=your-client-key
 ```
 
 ### Frontend
 ```env
-NEXT_PUBLIC_IAM_URL=https://api.sitehaus.io
+NEXT_PUBLIC_IAM_URL=https://api.sitehaus.dev
 NEXT_PUBLIC_IAM_CLIENT_ID=your-client-uuid
-NEXT_PUBLIC_IAM_CLIENT_KEY=your-client-key
 ```
+
+---
+
+## Security Notes
+
+- **Never expose your client secret** - PKCE flow doesn't need one for public clients
+- **Use httpOnly cookies** in production instead of localStorage for token storage
+- **Validate the state parameter** to prevent CSRF attacks
+- **Token introspection** ensures revoked sessions are rejected immediately
