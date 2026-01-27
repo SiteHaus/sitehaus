@@ -14,6 +14,7 @@ import { HealthModule } from './health/health.module';
 import { InvitesController } from './invites/invites.controller';
 import { InvitesModule } from './invites/invites.module';
 import { InvitesService } from './invites/invites.service';
+import { ModulesModule } from './modules/modules.module';
 import { RolesModule } from './roles/roles.module';
 import { SessionController } from './session/session.controller';
 import { SessionModule } from './session/session.module';
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module';
     ClientsModule,
     SessionModule,
     CryptoModule,
+    ModulesModule,
     RolesModule,
     DevicesModule,
     InvitesModule,

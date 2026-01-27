@@ -164,6 +164,22 @@ export class TotpService {
 
     const delta = totp.validate({ token: code, window: 1 });
     if (delta !== null) {
+      // Calculate absolute counter for this token
+      // TOTP counter = floor(timestamp / period)
+      const currentCounter = Math.floor(Date.now() / 1000 / 30);
+      const tokenCounter = currentCounter + delta;
+
+      // Replay protection: reject if this counter was already used
+      if (cred.lastUsedCounter !== null && tokenCounter <= cred.lastUsedCounter) {
+        return false; // Code already used or older than last used
+      }
+
+      // Update the last used counter
+      await this.db
+        .update(schema.totpCredentialsTable)
+        .set({ lastUsedCounter: tokenCounter })
+        .where(eq(schema.totpCredentialsTable.userId, userId));
+
       return true;
     }
 

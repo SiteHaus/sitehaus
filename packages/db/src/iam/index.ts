@@ -1,5 +1,7 @@
 export * from "./auth-codes.js";
 export * from "./auth-codes.relations.js";
+export * from "./client-modules.js";
+export * from "./client-modules.relations.js";
 export * from "./clients.js";
 export * from "./clients.relations.js";
 export * from "./devices.js";
@@ -11,6 +13,8 @@ export * from "./otps.js";
 export * from "./otps.relations.js";
 export * from "./password-credentials.js";
 export * from "./password-credentials.relations.js";
+export * from "./permission-modules.js";
+export * from "./permission-modules.relations.js";
 export * from "./roles.js";
 export * from "./roles.relations.js";
 export * from "./sessions.js";

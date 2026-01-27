@@ -8,8 +8,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
 const db = drizzle(pool, { schema });
 
 import {
-  ALL_PERMISSIONS,
+  ALL_PERMISSIONS_WITH_MODULES,
   DEFAULT_ROLE_PERMS,
+  getModulesForSeed,
 } from "@site-haus/validation/core/perms";
 
 const CLIENTS: NewClient[] = [
@@ -70,6 +71,7 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
 };
 async function seed() {
   await db.transaction(async (tx) => {
+    // 1. Insert clients
     await tx
       .insert(schema.clientsTable)
       .values(CLIENTS as any)
@@ -77,7 +79,7 @@ async function seed() {
 
     const clients = await tx.select().from(schema.clientsTable);
 
-    // Insert redirect URIs for OAuth clients
+    // 2. Insert redirect URIs for OAuth clients
     for (const client of clients) {
       const uris = CLIENT_REDIRECT_URIS[client.key];
       if (uris && uris.length > 0) {
@@ -88,11 +90,44 @@ async function seed() {
       }
     }
 
+    // 3. Insert permission modules
+    const modulesData = getModulesForSeed();
+    await tx
+      .insert(schema.permissionModulesTable)
+      .values(modulesData)
+      .onConflictDoNothing({ target: schema.permissionModulesTable.key });
+
+    // 4. Get all modules for module ID lookup
+    const modules = await tx.select().from(schema.permissionModulesTable);
+    const modulesByKey = new Map(modules.map((m) => [m.key, m]));
+
+    // 5. Insert permissions with module references
+    const permsToInsert = ALL_PERMISSIONS_WITH_MODULES.map((p) => ({
+      perm: p.perm,
+      moduleId: modulesByKey.get(p.module)!.id,
+    }));
+
     await tx
       .insert(schema.permissionsCatalogTable)
-      .values(ALL_PERMISSIONS.map((perm) => ({ perm })))
+      .values(permsToInsert)
       .onConflictDoNothing();
 
+    // 6. Enable core modules for all clients (IAM is always enabled)
+    const coreModules = modules.filter((m) => m.isCore);
+    for (const client of clients) {
+      for (const mod of coreModules) {
+        await tx
+          .insert(schema.clientModulesTable)
+          .values({
+            clientId: client.id,
+            moduleId: mod.id,
+            enabled: true,
+          })
+          .onConflictDoNothing();
+      }
+    }
+
+    // 7. Create default roles for each client
     for (const c of clients) {
       await tx
         .insert(schema.rolesTable)

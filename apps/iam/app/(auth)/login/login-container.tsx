@@ -39,6 +39,7 @@ export default function LoginContainer() {
 
     // If 2FA is required, store partial token and redirect to 2FA verification
     if (requires2FA) {
+      console.log('[DEBUG] 2FA required, oauth_params:', oauthParams);
       const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
       setAccess({ accessToken, accessExpiration: exp });
       replace("/2fa-verify");

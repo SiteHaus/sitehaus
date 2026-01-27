@@ -1,7 +1,12 @@
 import { relations } from "drizzle-orm";
 import { clientsTable } from "./clients.js";
 import { inviteRolesTable } from "./invite-roles.js";
-import { rolesTable, userRolesTable } from "./roles.js";
+import { permissionModulesTable } from "./permission-modules.js";
+import {
+  permissionsCatalogTable,
+  rolesTable,
+  userRolesTable,
+} from "./roles.js";
 import { usersTable } from "./users.js";
 
 export const rolesRelations = relations(rolesTable, ({ one, many }) => ({
@@ -27,3 +32,13 @@ export const userRolesRelations = relations(userRolesTable, ({ one }) => ({
     references: [rolesTable.id],
   }),
 }));
+
+export const permissionsCatalogRelations = relations(
+  permissionsCatalogTable,
+  ({ one }) => ({
+    module: one(permissionModulesTable, {
+      fields: [permissionsCatalogTable.moduleId],
+      references: [permissionModulesTable.id],
+    }),
+  })
+);
