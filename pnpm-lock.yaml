@@ -390,19 +390,6 @@ importers:
         version: 5.8.2
 
   packages/client-sdk:
-    dependencies:
-      '@site-haus/contracts':
-        specifier: workspace:*
-        version: link:../contracts
-      '@site-haus/sdk':
-        specifier: workspace:*
-        version: link:../sdk
-      '@site-haus/stores':
-        specifier: workspace:*
-        version: link:../stores
-      react:
-        specifier: ^18 || ^19
-        version: 19.1.1
     devDependencies:
       '@nestjs/common':
         specifier: ^11.0.0
@@ -410,9 +397,18 @@ importers:
       '@nestjs/core':
         specifier: ^11.0.0
         version: 11.1.6(@nestjs/common@11.1.6(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.6)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@site-haus/contracts':
+        specifier: workspace:*
+        version: link:../contracts
       '@site-haus/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@site-haus/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      '@site-haus/stores':
+        specifier: workspace:*
+        version: link:../stores
       '@site-haus/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config

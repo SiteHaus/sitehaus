@@ -4,14 +4,13 @@ import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import type { Verify2faLoginInput } from "@site-haus/validation/forms/auth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { TwoFactorVerifyForm } from "./form/two-factor-verify-form";
 
 export default function TwoFactorVerifyContainer() {
   const { replace } = useAuthNav();
   const api = useApi();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const next = searchParams.get("next") || "/";
@@ -76,7 +75,7 @@ export default function TwoFactorVerifyContainer() {
       }
     }
 
-    router.replace(next || "/");
+    replace(next || "/");
   };
 
   const onCancel = () => {

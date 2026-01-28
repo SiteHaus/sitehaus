@@ -1,8 +1,9 @@
 "use client";
 
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { ComponentProps, useCallback, useEffect, useMemo, useRef } from "react";
 
 const PAGE_NAMES: Record<string, string> = {
   "/": "Home",
@@ -76,6 +77,17 @@ export function useClientContext() {
     prevClientIdRef.current = selectedClientId;
   }, [selectedClientId]);
 
+  // Build href that preserves the manage param
+  const buildHref = useCallback(
+    (path: string) => {
+      if (!selectedClientId) return path;
+      const url = new URL(path, "http://dummy");
+      url.searchParams.set("manage", selectedClientId);
+      return `${url.pathname}${url.search}`;
+    },
+    [selectedClientId]
+  );
+
   return {
     selectedClientId,
     selectedClient,
@@ -83,5 +95,17 @@ export function useClientContext() {
     clients,
     setSelectedClient,
     clearSelectedClient,
+    buildHref,
   };
+}
+
+/**
+ * Link component that preserves the ?manage= client selection param
+ */
+export function ClientLink({
+  href,
+  ...props
+}: Omit<ComponentProps<typeof Link>, "href"> & { href: string }) {
+  const { buildHref } = useClientContext();
+  return <Link href={buildHref(href)} {...props} />;
 }

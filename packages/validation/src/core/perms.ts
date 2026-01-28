@@ -20,6 +20,7 @@ export const MODULES = {
       devices: ["read", "revoke", "rename"] as const,
       invites: ["read", "manage"] as const,
       members: ["read", "manage"] as const,
+      clients: ["view_hidden"] as const,
     },
   },
   commerce: {
@@ -100,13 +101,17 @@ export const PERMISSIONS_BY_MODULE = (
   {} as Record<ModuleKey, string[]>
 );
 
-export const DEFAULT_ROLE_PERMS: Record<"admin" | "member", Permission[]> = {
+export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer", Permission[]> = {
   admin: [...ALL_PERMISSIONS],
   member: [
     "sessions:read",
     "sessions:revoke",
     "devices:read",
     "devices:revoke",
+  ],
+  developer: [
+    ...ALL_PERMISSIONS,
+    "clients:view_hidden",
   ],
 };
 

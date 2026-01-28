@@ -10,8 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@site-haus/ui/components/base/dropdown-menu";
+import { ClientLink } from "@/lib/use-client-context";
 import { LogOut, Monitor, Settings } from "lucide-react";
-import Link from "next/link";
 
 export function UserMenu() {
   const user = useAuthStore((s) => s.user);
@@ -45,17 +45,17 @@ export function UserMenu() {
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild>
-          <Link href="/account">
+          <ClientLink href="/account">
             <Settings className="mr-2 h-4 w-4" />
             Account
-          </Link>
+          </ClientLink>
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild>
-          <Link href="/my-sessions">
+          <ClientLink href="/my-sessions">
             <Monitor className="mr-2 h-4 w-4" />
             My Sessions
-          </Link>
+          </ClientLink>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />

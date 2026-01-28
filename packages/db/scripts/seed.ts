@@ -29,6 +29,7 @@ const CLIENTS: NewClient[] = [
     firstParty: true,
     audience: "sitehaus.iam",
     requiresConsent: false,
+    hidden: true,
   },
   {
     key: "api",
@@ -45,6 +46,14 @@ const CLIENTS: NewClient[] = [
     firstParty: true,
     audience: "sitehaus.web",
     requiresConsent: false,
+  },
+  {
+    key: "gracejeanne",
+    name: "Grace Jeanne",
+    type: "public",
+    firstParty: false,
+    audience: "gracejeanne.com",
+    requiresConsent: true,
   },
 ];
 
@@ -67,6 +76,10 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "http://localhost:3000/auth/callback",
     "https://sitehaus.dev/callback",
     "https://sitehaus.dev/auth/callback",
+  ],
+  gracejeanne: [
+    "https://gracejeanne.com/callback",
+    "https://gracejeanne.com/auth/callback",
   ],
 };
 async function seed() {
@@ -129,12 +142,24 @@ async function seed() {
 
     // 7. Create default roles for each client
     for (const c of clients) {
+      const rolesToCreate = [
+        { clientId: c.id, key: "admin", name: "Admin", isDefault: false },
+        { clientId: c.id, key: "member", name: "Member", isDefault: true },
+      ];
+
+      // Add developer role only for IAM client
+      if (c.key === "iam") {
+        rolesToCreate.push({
+          clientId: c.id,
+          key: "developer",
+          name: "Developer",
+          isDefault: false,
+        });
+      }
+
       await tx
         .insert(schema.rolesTable)
-        .values([
-          { clientId: c.id, key: "admin", name: "Admin", isDefault: false },
-          { clientId: c.id, key: "member", name: "Member", isDefault: true },
-        ])
+        .values(rolesToCreate)
         .onConflictDoNothing({
           target: [schema.rolesTable.clientId, schema.rolesTable.key],
         });
@@ -145,6 +170,7 @@ async function seed() {
 
       const admin = roles.find((r) => r.key === "admin");
       const member = roles.find((r) => r.key === "member");
+      const developer = roles.find((r) => r.key === "developer");
       if (!admin || !member) continue;
 
       await tx
@@ -160,6 +186,19 @@ async function seed() {
           DEFAULT_ROLE_PERMS.member.map((perm) => ({ roleId: member.id, perm }))
         )
         .onConflictDoNothing();
+
+      // Add developer role permissions for IAM
+      if (developer) {
+        await tx
+          .insert(schema.rolePermissionsTable)
+          .values(
+            DEFAULT_ROLE_PERMS.developer.map((perm) => ({
+              roleId: developer.id,
+              perm,
+            }))
+          )
+          .onConflictDoNothing();
+      }
     }
   });
 

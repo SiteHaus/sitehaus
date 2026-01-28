@@ -117,20 +117,14 @@ export const useAuthStore = create<AuthState>()(
           currentState.accessExpiration > now;
 
         if (hasValidToken) {
-          // If we already have all data loaded (e.g., same-tab navigation),
-          // skip the API calls entirely for faster page loads
-          const hasAllData =
-            currentState.user &&
-            currentState.session &&
-            currentState.clients.length > 0;
-
-          if (hasAllData) {
-            set({ bootstrapped: true });
-            return;
-          }
-          // Fetch user data and clients (permissions depend on client context)
+          // Always fetch me() to get correct permissions for the selected client
+          // (permissions depend on x-client-id header which changes with ?manage= param)
           await get().me();
-          await get().loadMyClients();
+
+          // Only fetch clients if not already loaded
+          if (currentState.clients.length === 0) {
+            await get().loadMyClients();
+          }
           set({ bootstrapped: true });
           return;
         }
