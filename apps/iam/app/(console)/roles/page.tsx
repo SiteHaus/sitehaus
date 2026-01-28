@@ -1,9 +1,9 @@
 "use client";
 
 import { ConsolePageWrapper } from "@/app/components/console-page-wrapper";
-import { EmptyState, LoadingState } from "@/app/components/states";
 import { PageHeader } from "@/app/components/page-header";
 import { PermissionDenied } from "@/app/components/permission-denied";
+import { EmptyState, LoadingState } from "@/app/components/states";
 import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { useClientContext } from "@/lib/use-client-context";
@@ -110,7 +110,7 @@ function RolesContent() {
             if (permsRes.status === 200) {
               permsMap[role.id] = permsRes.body.perms;
             }
-          })
+          }),
         );
         setRolePerms(permsMap);
       } else if (res.status === 403) {
@@ -182,7 +182,9 @@ function RolesContent() {
             <EmptyState
               icon={Shield}
               title="No roles defined yet."
-              description={canManage ? "Create your first role to get started." : undefined}
+              description={
+                canManage ? "Create your first role to get started." : undefined
+              }
             />
           </CardContent>
         </Card>
@@ -607,7 +609,7 @@ function EditPermissionsDialog({
 }) {
   const api = useApi();
   const [selectedPerms, setSelectedPerms] = useState<Set<string>>(
-    new Set(currentPerms)
+    new Set(currentPerms),
   );
   const [saving, setSaving] = useState(false);
 
@@ -680,7 +682,7 @@ function EditPermissionsDialog({
           ([resource, actions]) => {
             const resourcePerms = actions.map((a) => `${resource}:${a}`);
             const selectedCount = resourcePerms.filter((p) =>
-              selectedPerms.has(p)
+              selectedPerms.has(p),
             ).length;
             const allSelected = selectedCount === resourcePerms.length;
             const someSelected = selectedCount > 0 && !allSelected;
@@ -692,7 +694,9 @@ function EditPermissionsDialog({
                     checked={allSelected}
                     ref={(el) => {
                       if (el) {
-                        (el as HTMLButtonElement & { indeterminate: boolean }).indeterminate = someSelected;
+                        (
+                          el as HTMLButtonElement & { indeterminate: boolean }
+                        ).indeterminate = someSelected;
                       }
                     }}
                     onCheckedChange={() => toggleResource(resource, actions)}
@@ -729,7 +733,7 @@ function EditPermissionsDialog({
                 </div>
               </div>
             );
-          }
+          },
         )}
       </div>
 

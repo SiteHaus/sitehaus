@@ -54,8 +54,8 @@ export const invitesRouter = c.router({
     method: "GET",
     path: "/invites/check",
     query: z.object({
-      clientId: z.string().uuid(),
-      email: z.string().email(),
+      clientId: z.uuid(),
+      email: z.email(),
       code: z.string().min(6),
     }),
     responses: {

@@ -21,6 +21,7 @@ export const MODULES = {
       invites: ["read", "manage"] as const,
       members: ["read", "manage"] as const,
       clients: ["read", "manage", "view_hidden"] as const,
+      audit: ["read"] as const,
     },
   },
   commerce: {

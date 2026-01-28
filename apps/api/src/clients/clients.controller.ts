@@ -191,10 +191,14 @@ export class ClientsController {
   @RequirePerms('clients:manage')
   @Patch('current')
   async updateCurrent(
-    @Req() req: ClientInRequest,
+    @Req() req: AuthedRequest & ClientInRequest,
     @Body() body: UpdateClientInput,
   ) {
-    const client = await this.clientsService.update(req.client.id, body);
+    const client = await this.clientsService.update(req.client.id, body, {
+      userId: req.user?.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
     return {
       client: {
         id: client.id,
@@ -232,12 +236,17 @@ export class ClientsController {
   @RequirePerms('clients:manage')
   @Post('current/redirect-uris')
   async addRedirectUri(
-    @Req() req: ClientInRequest,
+    @Req() req: AuthedRequest & ClientInRequest,
     @Body() body: AddRedirectUriInput,
   ) {
     const uri = await this.clientsService.addRedirectUri(
       req.client.id,
       body.uri,
+      {
+        userId: req.user?.userId,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
     );
     return {
       redirectUri: {
@@ -254,9 +263,13 @@ export class ClientsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('current/redirect-uris/:uriId')
   async removeRedirectUri(
-    @Req() req: ClientInRequest,
+    @Req() req: AuthedRequest & ClientInRequest,
     @Param('uriId') uriId: string,
   ) {
-    await this.clientsService.removeRedirectUri(req.client.id, uriId);
+    await this.clientsService.removeRedirectUri(req.client.id, uriId, {
+      userId: req.user?.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 }

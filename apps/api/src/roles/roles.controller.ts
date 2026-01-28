@@ -39,10 +39,17 @@ export class RolesController {
     @Body() body: unknown,
   ) {
     const parsed = createRoleSchema.parse(body);
-    const role = await this.roles.createRole({
-      clientId: req.client!.id,
-      ...parsed,
-    });
+    const role = await this.roles.createRole(
+      {
+        clientId: req.client!.id,
+        ...parsed,
+      },
+      {
+        userId: req.user!.userId,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
+    );
 
     return { role };
   }
@@ -55,7 +62,11 @@ export class RolesController {
     @Body() body: unknown,
   ) {
     const parsed = updateRoleSchema.parse(body);
-    const perms = await this.roles.updateRole(roleId, req.client!.id, parsed);
+    const perms = await this.roles.updateRole(roleId, req.client!.id, parsed, {
+      userId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
     return { perms };
   }
 
@@ -66,7 +77,11 @@ export class RolesController {
     @Req() req: AuthedRequest & { client?: { id: string } },
     @Param('roleId') roleId: string,
   ) {
-    await this.roles.deleteRole(roleId, req.client!.id);
+    await this.roles.deleteRole(roleId, req.client!.id, {
+      userId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 
   @RequirePerms('roles:read')
@@ -88,7 +103,11 @@ export class RolesController {
     @Body() body: unknown,
   ) {
     const { perms } = replaceRolePermsSchema.parse(body);
-    await this.roles.replaceRolePerms(roleId, req.client!.id, perms);
+    await this.roles.replaceRolePerms(roleId, req.client!.id, perms, {
+      userId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 
   @RequirePerms('roles:read')
@@ -117,6 +136,10 @@ export class RolesController {
       req.client!.id,
       roleId,
       req.user!.userId,
+      {
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
     );
 
     if (!res) throw new ConflictException('Already assigned');
@@ -130,6 +153,10 @@ export class RolesController {
     @Param('userId') userId: string,
     @Param('roleId') roleId: string,
   ) {
-    await this.roles.unassignRoleFromUser(userId, req.client!.id, roleId);
+    await this.roles.unassignRoleFromUser(userId, req.client!.id, roleId, {
+      actorId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 }

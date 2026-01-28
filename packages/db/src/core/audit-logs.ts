@@ -6,12 +6,16 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { clientsTable } from "../iam/clients.js";
 import { usersTable } from "../iam/users.js";
 
 export const auditLogTable = pgTable(
   "audit_log",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    clientId: uuid("client_id").references(() => clientsTable.id, {
+      onDelete: "cascade",
+    }),
     userId: uuid("user_id").references(() => usersTable.id, {
       onDelete: "set null",
     }),
@@ -26,6 +30,7 @@ export const auditLogTable = pgTable(
       .defaultNow(),
   },
   (t) => [
+    index("audit_client_idx").on(t.clientId),
     index("audit_user_idx").on(t.userId),
     index("audit_created_idx").on(t.createdAt),
   ]

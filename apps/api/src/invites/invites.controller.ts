@@ -59,13 +59,19 @@ export class InvitesController {
 
     const parsed = createInviteSchema.parse(body);
 
-    const { inviteId, code, expiresAt } = await this.invites.create({
-      clientId: req.client.id,
-      email: parsed.email,
-      roleIds: parsed.roleIds,
-      invitedBy: req.user?.userId ?? null,
-      ttlMinutes: parsed.ttlMinutes,
-    });
+    const { inviteId, code, expiresAt } = await this.invites.create(
+      {
+        clientId: req.client.id,
+        email: parsed.email,
+        roleIds: parsed.roleIds,
+        invitedBy: req.user?.userId ?? null,
+        ttlMinutes: parsed.ttlMinutes,
+      },
+      {
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
+    );
 
     const client = await this.clients.resolveById(req.client.id);
     const roleNames = parsed.roleIds?.length
@@ -136,7 +142,14 @@ export class InvitesController {
   @RequirePerms('invites:manage')
   @Post(':id/cancel')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async cancel(@Req() req: ClientInRequest, @Param('id') id: string) {
-    await this.invites.revoke(id, req.client.id);
+  async cancel(
+    @Req() req: AuthedRequest & ClientInRequest,
+    @Param('id') id: string,
+  ) {
+    await this.invites.revoke(id, req.client.id, {
+      userId: req.user?.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 }

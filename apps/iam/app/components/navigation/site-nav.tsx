@@ -10,6 +10,7 @@ import {
   HelpCircle,
   LogIn,
   Monitor,
+  ScrollText,
   Shield,
   Users,
 } from "lucide-react";
@@ -42,6 +43,12 @@ const mainNavLinks: NavLink[] = [
     label: "Roles",
     icon: Shield,
     permission: "roles:read",
+  },
+  {
+    href: "/audit-log",
+    label: "Audit Log",
+    icon: ScrollText,
+    permission: "audit:read",
   },
 ];
 

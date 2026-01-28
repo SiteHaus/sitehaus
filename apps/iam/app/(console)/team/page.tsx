@@ -105,7 +105,7 @@ function getInviteStatus(invite: Invite): string {
 
 export default function TeamPage() {
   return (
-    <ConsolePageWrapper maxWidth="4xl" className="max-w-none">
+    <ConsolePageWrapper maxWidth="container">
       <TeamContent />
     </ConsolePageWrapper>
   );
@@ -198,7 +198,7 @@ function TeamContent() {
 
   const pendingInvites = useMemo(
     () => invites.filter((inv) => !inv.acceptedAt && !inv.revokedAt),
-    [invites]
+    [invites],
   );
 
   const handleDeleteInvite = async (invite: InviteDisplay) => {
@@ -219,7 +219,7 @@ function TeamContent() {
   const handleToggleRole = async (
     userId: string,
     roleId: string,
-    hasRole: boolean
+    hasRole: boolean,
   ) => {
     if (hasRole) {
       const res = await api.roles.unassignRole({ params: { userId, roleId } });
@@ -260,7 +260,7 @@ function TeamContent() {
           addSuffix: true,
         }),
       })),
-    [invites]
+    [invites],
   );
 
   if (permissionDenied) {
@@ -336,8 +336,8 @@ function TeamContent() {
                                     } else {
                                       field.onChange(
                                         current.filter(
-                                          (id: string) => id !== role.id
-                                        )
+                                          (id: string) => id !== role.id,
+                                        ),
                                       );
                                     }
                                   }}
@@ -394,7 +394,7 @@ function TeamContent() {
             {roles.map((role) => {
               const hasRole =
                 editingMember?.roles.some(
-                  (r: { id: string }) => r.id === role.id
+                  (r: { id: string }) => r.id === role.id,
                 ) ?? false;
               return (
                 <div key={role.id} className="flex items-center space-x-2">
@@ -403,11 +403,7 @@ function TeamContent() {
                     checked={hasRole}
                     onCheckedChange={() => {
                       if (editingMember) {
-                        handleToggleRole(
-                          editingMember.id,
-                          role.id,
-                          hasRole
-                        );
+                        handleToggleRole(editingMember.id, role.id, hasRole);
                       }
                     }}
                   />
@@ -469,9 +465,7 @@ function TeamContent() {
 
         <TabsContent value="invites" className="mt-4">
           {loadingInvites && (
-            <p className="text-sm text-muted-foreground">
-              Loading invites...
-            </p>
+            <p className="text-sm text-muted-foreground">Loading invites...</p>
           )}
 
           {!loadingInvites && invites.length === 0 && (

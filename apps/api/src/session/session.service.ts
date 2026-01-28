@@ -1,6 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { and, eq, gt, isNull, ne, schema, type Db } from '@site-haus/db';
+import { AuditService } from 'src/audit/audit.service';
 import authConfig from 'src/conf/auth.config';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { DRIZZLE } from 'src/db/tokens';
@@ -12,6 +13,7 @@ export class SessionService {
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly crypto: CryptoService,
     private readonly devices: DevicesService,
+    private readonly audit: AuditService,
     @Inject(authConfig.KEY) private readonly cfg: ConfigType<typeof authConfig>,
   ) {}
 
@@ -145,15 +147,33 @@ export class SessionService {
     });
   }
 
-  async revoke(sessionId: string) {
+  async revoke(
+    sessionId: string,
+    ctx?: { clientId: string; userId: string; ip?: string; ua?: string },
+  ) {
     await this.db
       .update(schema.sessionsTable)
       .set({ revokedAt: new Date() })
       .where(eq(schema.sessionsTable.id, sessionId));
+
+    if (ctx) {
+      await this.audit.log({
+        clientId: ctx.clientId,
+        userId: ctx.userId,
+        action: 'session.revoked',
+        targetType: 'session',
+        targetId: sessionId,
+        ip: ctx.ip,
+        ua: ctx.ua,
+      });
+    }
   }
 
   // Remove all sessions EVERYWHERE for a user
-  async revokeAllForUser(userId: string) {
+  async revokeAllForUser(
+    userId: string,
+    ctx?: { clientId: string; ip?: string; ua?: string },
+  ) {
     const now = new Date();
     const updated = await this.db
       .update(schema.sessionsTable)
@@ -166,6 +186,19 @@ export class SessionService {
         ),
       )
       .returning({ id: schema.sessionsTable.id });
+
+    if (ctx && updated.length > 0) {
+      await this.audit.log({
+        clientId: ctx.clientId,
+        userId,
+        action: 'sessions.revokedAll',
+        targetType: 'user',
+        targetId: userId,
+        ip: ctx.ip,
+        ua: ctx.ua,
+        meta: { count: updated.length },
+      });
+    }
 
     return updated.length;
   }

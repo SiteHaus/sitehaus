@@ -1,8 +1,8 @@
 "use client";
 
 import { ConsolePageWrapper } from "@/app/components/console-page-wrapper";
-import { EmptyState, LoadingState } from "@/app/components/states";
 import { PageHeader } from "@/app/components/page-header";
+import { EmptyState, LoadingState } from "@/app/components/states";
 import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { SessionItem } from "@site-haus/contracts";
@@ -26,13 +26,7 @@ import {
   DialogTrigger,
 } from "@site-haus/ui/components/base/dialog";
 import { formatDistanceToNow } from "date-fns";
-import {
-  Chrome,
-  Globe,
-  LogOut,
-  Monitor,
-  Smartphone,
-} from "lucide-react";
+import { Chrome, Globe, LogOut, Monitor, Smartphone } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -40,7 +34,11 @@ function getBrowserIcon(browser: string | null | undefined) {
   if (!browser) return Globe;
   const lower = browser.toLowerCase();
   if (lower.includes("chrome")) return Chrome;
-  if (lower.includes("mobile") || lower.includes("android") || lower.includes("ios"))
+  if (
+    lower.includes("mobile") ||
+    lower.includes("android") ||
+    lower.includes("ios")
+  )
     return Smartphone;
   return Monitor;
 }
@@ -58,7 +56,7 @@ function getDeviceLabel(session: SessionItem): string {
 
 export default function MySessionsPage() {
   return (
-    <ConsolePageWrapper maxWidth="4xl" className="px-4 py-8 mt-0">
+    <ConsolePageWrapper maxWidth="container" className="px-4 py-8 mt-0">
       <MySessionsContent />
     </ConsolePageWrapper>
   );
@@ -139,8 +137,8 @@ function MySessionsContent() {
                   <DialogTitle>Sign out other devices?</DialogTitle>
                   <DialogDescription>
                     This will revoke {otherSessionsCount} other{" "}
-                    {otherSessionsCount === 1 ? "session" : "sessions"}. You will
-                    remain signed in on this device.
+                    {otherSessionsCount === 1 ? "session" : "sessions"}. You
+                    will remain signed in on this device.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
@@ -257,7 +255,11 @@ function RevokeSessionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Revoke
         </Button>

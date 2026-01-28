@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { ConfigModule, ConfigType } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { AuditModule } from 'src/audit/audit.module';
 import { ClientGuard } from 'src/clients/client.guard';
 import { ClientsModule } from 'src/clients/clients.module';
 import authConfig from 'src/conf/auth.config';
@@ -29,6 +30,7 @@ import { VerifiedGuard } from './verified/verified.guard';
     ConfigModule,
     DbModule,
     EmailModule,
+    AuditModule,
     ClientsModule,
     SessionModule,
     CryptoModule,

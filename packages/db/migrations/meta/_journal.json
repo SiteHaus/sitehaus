@@ -43,6 +43,13 @@
       "when": 1769570338251,
       "tag": "0005_sweet_khan",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1769627153341,
+      "tag": "0006_wild_black_tarantula",
+      "breakpoints": true
     }
   ]
 }
