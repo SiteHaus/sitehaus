@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { and, eq, inArray, schema, type Db } from '@site-haus/db';
+import { and, eq, schema, type Db } from '@site-haus/db';
 import { DRIZZLE } from 'src/db/tokens';
 
 @Injectable()
@@ -165,8 +165,8 @@ export class ModulesService {
 
       if (roles.length > 0) {
         // Check if any of these roles have permissions from this module
-        const rolePermsInUse = await this.db.query.rolePermissionsTable.findMany(
-          {
+        const rolePermsInUse =
+          await this.db.query.rolePermissionsTable.findMany({
             where: (t, { and: _and, inArray: _in }) =>
               _and(
                 _in(
@@ -176,11 +176,12 @@ export class ModulesService {
                 _in(t.perm, permStrings),
               ),
             columns: { roleId: true, perm: true },
-          },
-        );
+          });
 
         if (rolePermsInUse.length > 0) {
-          const affectedRoleIds = [...new Set(rolePermsInUse.map((rp) => rp.roleId))];
+          const affectedRoleIds = [
+            ...new Set(rolePermsInUse.map((rp) => rp.roleId)),
+          ];
           const affectedRoles = roles.filter((r) =>
             affectedRoleIds.includes(r.id),
           );
