@@ -8,11 +8,15 @@ import {
 } from '@nestjs/common';
 import { eq, schema, type Db } from '@site-haus/db';
 import { type UpdateClientInput } from '@site-haus/validation/forms/client';
+import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
 
 @Injectable()
 export class ClientsService {
-  constructor(@Inject(DRIZZLE) private readonly db: Db) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Db,
+    private readonly audit: AuditService,
+  ) {}
 
   async resolveByKey(key?: string) {
     if (!key) throw new BadRequestException('Missing x-client-key');
@@ -51,7 +55,11 @@ export class ClientsService {
   /**
    * Update client settings
    */
-  async update(id: string, data: UpdateClientInput) {
+  async update(
+    id: string,
+    data: UpdateClientInput,
+    ctx?: { userId?: string; ip?: string; ua?: string },
+  ) {
     const [updated] = await this.db
       .update(schema.clientsTable)
       .set(data)
@@ -59,6 +67,18 @@ export class ClientsService {
       .returning();
 
     if (!updated) throw new NotFoundException('Client not found');
+
+    await this.audit.log({
+      clientId: id,
+      userId: ctx?.userId,
+      action: 'client.updated',
+      targetType: 'client',
+      targetId: id,
+      ip: ctx?.ip,
+      ua: ctx?.ua,
+      meta: data,
+    });
+
     return updated;
   }
 
@@ -74,7 +94,11 @@ export class ClientsService {
   /**
    * Add a redirect URI to a client
    */
-  async addRedirectUri(clientId: string, uri: string) {
+  async addRedirectUri(
+    clientId: string,
+    uri: string,
+    ctx?: { userId?: string; ip?: string; ua?: string },
+  ) {
     // Check for duplicates
     const existing = await this.db.query.clientRedirectUrisTable.findFirst({
       where: (t, { eq, and }) =>
@@ -90,13 +114,28 @@ export class ClientsService {
       .values({ clientId, uri })
       .returning();
 
+    await this.audit.log({
+      clientId,
+      userId: ctx?.userId,
+      action: 'client.redirectUri.added',
+      targetType: 'client',
+      targetId: clientId,
+      ip: ctx?.ip,
+      ua: ctx?.ua,
+      meta: { uri },
+    });
+
     return created;
   }
 
   /**
    * Remove a redirect URI from a client
    */
-  async removeRedirectUri(clientId: string, uriId: string) {
+  async removeRedirectUri(
+    clientId: string,
+    uriId: string,
+    ctx?: { userId?: string; ip?: string; ua?: string },
+  ) {
     const [deleted] = await this.db
       .delete(schema.clientRedirectUrisTable)
       .where(
@@ -111,6 +150,17 @@ export class ClientsService {
       // This shouldn't happen due to the query, but just in case
       throw new NotFoundException('Redirect URI not found');
     }
+
+    await this.audit.log({
+      clientId,
+      userId: ctx?.userId,
+      action: 'client.redirectUri.removed',
+      targetType: 'client',
+      targetId: clientId,
+      ip: ctx?.ip,
+      ua: ctx?.ua,
+      meta: { uri: deleted.uri },
+    });
 
     return deleted;
   }

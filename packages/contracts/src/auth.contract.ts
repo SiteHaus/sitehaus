@@ -1,10 +1,10 @@
 import {
   changeEmailConfirmSchema,
   changeEmailRequestSchema,
+  deleteAccountSchema,
   disable2faSchema,
   enable2faSchema,
   updateProfileSchema,
-  deleteAccountSchema,
 } from "@site-haus/validation/forms/account";
 import {
   loginSchema,
@@ -188,8 +188,8 @@ export const oauthRouter = c.router({
     method: "GET",
     path: "/auth/authorize",
     query: z.object({
-      client_id: z.string().uuid(),
-      redirect_uri: z.string().url(),
+      client_id: z.uuid(),
+      redirect_uri: z.url(),
       response_type: z.literal("code"),
       code_challenge: z.string().min(43).max(128),
       code_challenge_method: z.literal("S256"),
@@ -211,9 +211,9 @@ export const oauthRouter = c.router({
     body: z.object({
       grant_type: z.literal("authorization_code"),
       code: z.string(),
-      redirect_uri: z.string().url(),
+      redirect_uri: z.url(),
       code_verifier: z.string().min(43).max(128),
-      client_id: z.string().uuid(),
+      client_id: z.uuid(),
     }),
     responses: {
       200: z.object({
@@ -240,8 +240,8 @@ export const oauthRouter = c.router({
     method: "POST",
     path: "/auth/consent",
     body: z.object({
-      client_id: z.string().uuid(),
-      redirect_uri: z.string().url(),
+      client_id: z.uuid(),
+      redirect_uri: z.url(),
       scope: z.string(),
       state: z.string().optional(),
       code_challenge: z.string().min(43).max(128),
@@ -250,7 +250,7 @@ export const oauthRouter = c.router({
     }),
     responses: {
       200: z.object({
-        redirect_url: z.string().url(),
+        redirect_url: z.url(),
       }),
       400: z.object({
         error: z.string(),

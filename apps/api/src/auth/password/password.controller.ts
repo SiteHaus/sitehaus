@@ -15,7 +15,9 @@ import {
   requestPasswordResetSchema,
   resetPasswordSchema,
 } from '@site-haus/validation/forms/password';
+import { AuditService } from 'src/audit/audit.service';
 import { OtpService } from 'src/auth/otp/otp.service';
+import { type ClientInRequest } from 'src/clients/client.guard';
 import { EmailService } from 'src/email/email.service';
 import { Public } from 'src/public.decorator';
 import { SessionService } from 'src/session/session.service';
@@ -34,11 +36,12 @@ export class PasswordController {
     private readonly otps: OtpService,
     private readonly sessions: SessionService,
     private readonly email: EmailService,
+    private readonly audit: AuditService,
   ) {}
 
   @Post('change')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async changePassword(@Req() req: AuthedRequest, @Body() body: unknown) {
+  async changePassword(@Req() req: AuthedRequest & ClientInRequest, @Body() body: unknown) {
     const parsed = changePasswordSchema.parse(body);
 
     const u = await this.users.findById(req.user!.userId);
@@ -57,6 +60,16 @@ export class PasswordController {
     await this.users.setPassword(u.id, newHash);
 
     await this.sessions.revokeAllOthers(u.id, req.user!.sessionId);
+
+    await this.audit.log({
+      clientId: req.client?.id ?? req.user!.clientId,
+      userId: u.id,
+      action: 'user.password.changed',
+      targetType: 'user',
+      targetId: u.id,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 
   @Public()
@@ -76,7 +89,7 @@ export class PasswordController {
   @Post('reset')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Throttle({ auth: { limit: 6 } })
-  async reset(@Body() body: unknown) {
+  async reset(@Body() body: unknown, @Req() req: AuthedRequest & ClientInRequest) {
     const parsed = resetPasswordSchema.parse(body);
 
     const u = await this.users.findByEmail(parsed.email);
@@ -110,5 +123,15 @@ export class PasswordController {
     await this.users.setPassword(u.id, newHash);
 
     await this.sessions.revokeAllForUser(u.id);
+
+    await this.audit.log({
+      clientId: req.client?.id ?? '',
+      userId: u.id,
+      action: 'user.password.reset',
+      targetType: 'user',
+      targetId: u.id,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 }

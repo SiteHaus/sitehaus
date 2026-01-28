@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { type Db } from '@site-haus/db';
+import { AuditService } from 'src/audit/audit.service';
 import authConfig from 'src/conf/auth.config';
 import { DRIZZLE } from 'src/db/tokens';
 import { UserExistsError } from 'src/errors/auth.errors';
@@ -28,6 +29,7 @@ export class AuthService {
     private readonly tokens: TokenService,
     private readonly roles: RolesService,
     private readonly totp: TotpService,
+    private readonly audit: AuditService,
     @Inject(authConfig.KEY) private readonly cfg: ConfigType<typeof authConfig>,
     @Inject(DRIZZLE) private readonly db: Db,
   ) {}
@@ -51,6 +53,16 @@ export class AuthService {
       });
 
       await this.roles.assignDefaultIfAny(user.id, ctx.clientId, user.id);
+
+      await this.audit.log({
+        clientId: ctx.clientId,
+        userId: user.id,
+        action: 'user.registered',
+        targetType: 'user',
+        targetId: user.id,
+        ip: ctx.ip,
+        ua: ctx.ua,
+      });
 
       return this.issueTokens(user.id, ctx);
     } catch (e) {
@@ -88,6 +100,16 @@ export class AuthService {
       return this.issueTokens(user.id, ctx, { mfaPending: true });
     }
 
+    await this.audit.log({
+      clientId: ctx.clientId,
+      userId: user.id,
+      action: 'user.login',
+      targetType: 'user',
+      targetId: user.id,
+      ip: ctx.ip,
+      ua: ctx.ua,
+    });
+
     return this.issueTokens(user.id, ctx);
   }
 
@@ -121,8 +143,23 @@ export class AuthService {
     };
   }
 
-  async logoutBySid(sessionId: string) {
+  async logoutBySid(
+    sessionId: string,
+    ctx?: { clientId: string; userId: string; ip?: string; ua?: string },
+  ) {
     await this.sessions.revoke(sessionId);
+
+    if (ctx) {
+      await this.audit.log({
+        clientId: ctx.clientId,
+        userId: ctx.userId,
+        action: 'user.logout',
+        targetType: 'session',
+        targetId: sessionId,
+        ip: ctx.ip,
+        ua: ctx.ua,
+      });
+    }
   }
 
   async issueTokens(
@@ -187,7 +224,7 @@ export class AuthService {
    */
   async completeMfaLogin(
     code: string,
-    ctx: { userId: string; sessionId: string; clientId: string },
+    ctx: { userId: string; sessionId: string; clientId: string; ip?: string; ua?: string },
   ) {
     // Verify the TOTP code
     const valid = await this.totp.verify(ctx.userId, code);
@@ -201,6 +238,17 @@ export class AuthService {
       { sub: ctx.userId, sid: ctx.sessionId, aud: ctx.clientId },
       { expiresInSec: accessTtlSec },
     );
+
+    await this.audit.log({
+      clientId: ctx.clientId,
+      userId: ctx.userId,
+      action: 'user.login',
+      targetType: 'user',
+      targetId: ctx.userId,
+      ip: ctx.ip,
+      ua: ctx.ua,
+      meta: { with2fa: true },
+    });
 
     return {
       accessToken,

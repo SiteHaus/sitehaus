@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { and, eq, gt, isNull, schema, type Db } from '@site-haus/db';
 import { normalizeEmail } from '@site-haus/utils/core/helpers';
+import { AuditService } from 'src/audit/audit.service';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { DRIZZLE } from 'src/db/tokens';
 import { UsersService } from 'src/users/users.service';
@@ -18,6 +19,7 @@ export class InvitesService {
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly crypto: CryptoService,
     private readonly users: UsersService,
+    private readonly audit: AuditService,
   ) {}
 
   async list(clientId: string) {
@@ -27,13 +29,16 @@ export class InvitesService {
     });
   }
 
-  async create(params: {
-    clientId: string;
-    email: string;
-    roleIds?: string[];
-    invitedBy?: string | null;
-    ttlMinutes?: number;
-  }) {
+  async create(
+    params: {
+      clientId: string;
+      email: string;
+      roleIds?: string[];
+      invitedBy?: string | null;
+      ttlMinutes?: number;
+    },
+    ctx?: { ip?: string; ua?: string },
+  ) {
     const email = normalizeEmail(params.email);
     const ttlMinutes = params.ttlMinutes ?? 7 * 24 * 60;
     const expiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
@@ -79,10 +84,25 @@ export class InvitesService {
       );
     }
 
+    await this.audit.log({
+      clientId: params.clientId,
+      userId: params.invitedBy,
+      action: 'invite.created',
+      targetType: 'invite',
+      targetId: invite!.id,
+      ip: ctx?.ip,
+      ua: ctx?.ua,
+      meta: { email },
+    });
+
     return { inviteId: invite!.id, code, expiresAt };
   }
 
-  async revoke(inviteId: string, clientId: string) {
+  async revoke(
+    inviteId: string,
+    clientId: string,
+    ctx?: { userId?: string; ip?: string; ua?: string },
+  ) {
     const now = new Date();
 
     const { rowCount } = await this.db
@@ -97,6 +117,16 @@ export class InvitesService {
       );
     if (!rowCount)
       throw new BadRequestException('Invite not found or already revoked.');
+
+    await this.audit.log({
+      clientId,
+      userId: ctx?.userId,
+      action: 'invite.cancelled',
+      targetType: 'invite',
+      targetId: inviteId,
+      ip: ctx?.ip,
+      ua: ctx?.ua,
+    });
   }
 
   async check(params: { clientId: string; email: string; code: string }) {
@@ -277,6 +307,17 @@ export class InvitesService {
             });
         }
       }
+
+      await this.audit.log({
+        clientId: params.clientId,
+        userId: user.id,
+        action: 'invite.accepted',
+        targetType: 'invite',
+        targetId: invite.id,
+        ip: params.ip,
+        ua: params.ua,
+      });
+
       return { userId: user.id, acceptedAt: now, rolesAssigned: roleIds };
     });
   }

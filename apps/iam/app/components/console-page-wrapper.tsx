@@ -12,6 +12,8 @@ const maxWidthClasses = {
   xl: "max-w-xl",
   "2xl": "max-w-2xl",
   "4xl": "max-w-4xl",
+  "6xl": "max-w-6xl",
+  container: "container",
 } as const;
 
 interface ConsolePageWrapperProps {
@@ -32,7 +34,7 @@ export function ConsolePageWrapper({
       className={cn(
         "container mx-auto mt-12",
         maxWidthClasses[maxWidth],
-        className
+        className,
       )}
     >
       {children}

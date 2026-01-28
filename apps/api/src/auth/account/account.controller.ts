@@ -25,6 +25,8 @@ import {
   updateProfileSchema,
 } from '@site-haus/validation/forms/account';
 import { type Response as ExpressResponse } from 'express';
+import { AuditService } from 'src/audit/audit.service';
+import { type ClientInRequest } from 'src/clients/client.guard';
 import emailConfig from 'src/conf/email.config';
 import { CryptoService } from 'src/crypto/crypto.service';
 import { EmailService } from 'src/email/email.service';
@@ -43,6 +45,7 @@ export class AccountController {
     private readonly otps: OtpService,
     private readonly totp: TotpService,
     private readonly emailSvc: EmailService,
+    private readonly audit: AuditService,
     @Inject(emailConfig.KEY)
     private readonly emailCfg: ConfigType<typeof emailConfig>,
   ) {}
@@ -199,7 +202,7 @@ export class AccountController {
   @Post('2fa/enable')
   @HttpCode(HttpStatus.OK)
   @Throttle({ auth: { limit: 6 } })
-  async enable2fa(@Body() body: unknown, @Req() req: AuthedRequest) {
+  async enable2fa(@Body() body: unknown, @Req() req: AuthedRequest & ClientInRequest) {
     const { code } = enable2faSchema.parse(body);
 
     // The secret should be stored temporarily (e.g., in session or passed from client)
@@ -211,7 +214,19 @@ export class AccountController {
       );
     }
 
-    return this.totp.enable(req.user!.userId, secret, code);
+    const result = await this.totp.enable(req.user!.userId, secret, code);
+
+    await this.audit.log({
+      clientId: req.client?.id ?? req.user!.clientId,
+      userId: req.user!.userId,
+      action: 'user.2fa.enabled',
+      targetType: 'user',
+      targetId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
+
+    return result;
   }
 
   /**
@@ -219,7 +234,7 @@ export class AccountController {
    */
   @Post('2fa/disable')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async disable2fa(@Body() body: unknown, @Req() req: AuthedRequest) {
+  async disable2fa(@Body() body: unknown, @Req() req: AuthedRequest & ClientInRequest) {
     const { password } = disable2faSchema.parse(body);
 
     const user = await this.users.findById(req.user!.userId);
@@ -232,5 +247,15 @@ export class AccountController {
     if (!valid) throw new UnauthorizedException('Invalid password');
 
     await this.totp.disable(user.id);
+
+    await this.audit.log({
+      clientId: req.client?.id ?? req.user!.clientId,
+      userId: req.user!.userId,
+      action: 'user.2fa.disabled',
+      targetType: 'user',
+      targetId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 }

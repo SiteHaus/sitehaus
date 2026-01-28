@@ -43,7 +43,15 @@ export class SessionController {
   @RequirePerms('sessions:revoke')
   @Post(':sessionId/revoke')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async revokeOne(@Param('sessionId') sid: string) {
-    await this.sessions.revoke(sid);
+  async revokeOne(
+    @Param('sessionId') sid: string,
+    @Req() req: AuthedRequest & { client?: { id: string } },
+  ) {
+    await this.sessions.revoke(sid, {
+      clientId: req.client!.id,
+      userId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
   }
 }

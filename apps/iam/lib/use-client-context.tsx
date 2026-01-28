@@ -3,7 +3,14 @@
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 const PAGE_NAMES: Record<string, string> = {
   "/": "Home",
@@ -13,6 +20,7 @@ const PAGE_NAMES: Record<string, string> = {
   "/my-sessions": "My Sessions",
   "/account": "Account",
   "/apps": "Apps",
+  "/audit-log": "Audit Log",
 };
 
 export function useClientContext() {
@@ -49,14 +57,11 @@ export function useClientContext() {
   // Function to switch to a different client
   // Uses window.location for hard navigation to ensure all data reloads
   // Always redirects to /my-sessions (a page all users have access to)
-  const setSelectedClient = useCallback(
-    (clientId: string) => {
-      const params = new URLSearchParams();
-      params.set("manage", clientId);
-      window.location.href = `/my-sessions?${params.toString()}`;
-    },
-    []
-  );
+  const setSelectedClient = useCallback((clientId: string) => {
+    const params = new URLSearchParams();
+    params.set("manage", clientId);
+    window.location.href = `/my-sessions?${params.toString()}`;
+  }, []);
 
   // Function to clear client selection (go back to session default)
   const clearSelectedClient = useCallback(() => {
@@ -90,7 +95,7 @@ export function useClientContext() {
       url.searchParams.set("manage", selectedClientId);
       return `${url.pathname}${url.search}`;
     },
-    [selectedClientId]
+    [selectedClientId],
   );
 
   return {

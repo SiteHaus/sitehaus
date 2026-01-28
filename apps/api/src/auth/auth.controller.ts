@@ -207,7 +207,7 @@ export class AuthController {
   @Post('2fa/verify-login')
   async verify2faLogin(
     @Body() body: unknown,
-    @Req() req: AuthedRequest,
+    @Req() req: AuthedRequest & ExpressRequest,
     @Res() res: ExpressResponse,
   ) {
     const { code } = verify2faLoginSchema.parse(body);
@@ -216,6 +216,8 @@ export class AuthController {
       userId: req.user!.userId,
       sessionId: req.user!.sessionId,
       clientId: req.user!.clientId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
     });
 
     return res.json(result);
@@ -231,9 +233,19 @@ export class AuthController {
   @MfaOptional()
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('logout')
-  async logout(@Req() req: AuthedRequest, @Res() res: ExpressResponse) {
+  async logout(
+    @Req() req: AuthedRequest & ClientInRequest,
+    @Res() res: ExpressResponse,
+  ) {
     const sid = req.user?.sessionId;
-    if (sid) await this.auth.logoutBySid(sid);
+    if (sid) {
+      await this.auth.logoutBySid(sid, {
+        clientId: req.client?.id ?? req.user!.clientId,
+        userId: req.user!.userId,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      });
+    }
     clearRefreshCookie(res);
     return res.send();
   }

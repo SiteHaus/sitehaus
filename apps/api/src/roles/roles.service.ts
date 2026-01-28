@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { and, eq, ne, schema, type Db } from '@site-haus/db';
+import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
 import { ModulesService } from 'src/modules/modules.service';
 
@@ -14,6 +15,7 @@ export class RolesService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly modules: ModulesService,
+    private readonly audit: AuditService,
   ) {}
 
   async namesByIds(roleIds: string[], clientId?: string): Promise<string[]> {
@@ -92,13 +94,16 @@ export class RolesService {
     });
   }
 
-  async createRole(input: {
-    clientId: string;
-    key: string;
-    name: string;
-    description?: string;
-    isDefault?: boolean;
-  }) {
+  async createRole(
+    input: {
+      clientId: string;
+      key: string;
+      name: string;
+      description?: string;
+      isDefault?: boolean;
+    },
+    ctx?: { userId?: string; ip?: string; ua?: string },
+  ) {
     return this.db.transaction(async (tx) => {
       const [role] = await tx
         .insert(schema.rolesTable)
@@ -127,6 +132,17 @@ export class RolesService {
           );
       }
 
+      await this.audit.log({
+        clientId: input.clientId,
+        userId: ctx?.userId,
+        action: 'role.created',
+        targetType: 'role',
+        targetId: role.id,
+        ip: ctx?.ip,
+        ua: ctx?.ua,
+        meta: { key: input.key, name: input.name },
+      });
+
       return role;
     });
   }
@@ -135,6 +151,7 @@ export class RolesService {
     roleId: string,
     clientId: string,
     patch: { name?: string; description?: string; isDefault?: boolean },
+    ctx?: { userId?: string; ip?: string; ua?: string },
   ) {
     return this.db.transaction(async (tx) => {
       const role = await tx.query.rolesTable.findFirst({
@@ -166,11 +183,26 @@ export class RolesService {
           );
       }
 
+      await this.audit.log({
+        clientId,
+        userId: ctx?.userId,
+        action: 'role.updated',
+        targetType: 'role',
+        targetId: roleId,
+        ip: ctx?.ip,
+        ua: ctx?.ua,
+        meta: patch,
+      });
+
       return updated!;
     });
   }
 
-  async deleteRole(roleId: string, clientId: string) {
+  async deleteRole(
+    roleId: string,
+    clientId: string,
+    ctx?: { userId?: string; ip?: string; ua?: string },
+  ) {
     return this.db.transaction(async (tx) => {
       const role = await tx.query.rolesTable.findFirst({
         where: (t, { and: _and, eq: _eq }) =>
@@ -184,6 +216,17 @@ export class RolesService {
       await tx
         .delete(schema.rolesTable)
         .where(eq(schema.rolesTable.id, roleId));
+
+      await this.audit.log({
+        clientId,
+        userId: ctx?.userId,
+        action: 'role.deleted',
+        targetType: 'role',
+        targetId: roleId,
+        ip: ctx?.ip,
+        ua: ctx?.ua,
+        meta: { key: role.key, name: role.name },
+      });
 
       return { ok: true as const };
     });
@@ -207,7 +250,12 @@ export class RolesService {
     return rps.map((r) => r.perm);
   }
 
-  async replaceRolePerms(roleId: string, clientId: string, perms: string[]) {
+  async replaceRolePerms(
+    roleId: string,
+    clientId: string,
+    perms: string[],
+    ctx?: { userId?: string; ip?: string; ua?: string },
+  ) {
     return this.db.transaction(async (tx) => {
       const role = await tx.query.rolesTable.findFirst({
         where: (t, { and: _and, eq: _eq }) =>
@@ -252,6 +300,17 @@ export class RolesService {
           .values(perms.map((perm) => ({ roleId, perm })));
       }
 
+      await this.audit.log({
+        clientId,
+        userId: ctx?.userId,
+        action: 'role.permissions.updated',
+        targetType: 'role',
+        targetId: roleId,
+        ip: ctx?.ip,
+        ua: ctx?.ua,
+        meta: { permCount: perms.length },
+      });
+
       return { ok: true as const };
     });
   }
@@ -269,6 +328,7 @@ export class RolesService {
     clientId: string,
     roleId: string,
     assignedBy?: string,
+    ctx?: { ip?: string; ua?: string },
   ) {
     const role = await this.db.query.rolesTable.findFirst({
       where: (t, { and: _and, eq: _eq }) =>
@@ -290,10 +350,28 @@ export class RolesService {
       })
       .returning();
 
+    if (ur) {
+      await this.audit.log({
+        clientId,
+        userId: assignedBy,
+        action: 'role.assigned',
+        targetType: 'user',
+        targetId: userId,
+        ip: ctx?.ip,
+        ua: ctx?.ua,
+        meta: { roleId },
+      });
+    }
+
     return ur ?? null;
   }
 
-  async unassignRoleFromUser(userId: string, clientId: string, roleId: string) {
+  async unassignRoleFromUser(
+    userId: string,
+    clientId: string,
+    roleId: string,
+    ctx?: { actorId?: string; ip?: string; ua?: string },
+  ) {
     await this.db
       .delete(schema.userRolesTable)
       .where(
@@ -303,6 +381,18 @@ export class RolesService {
           eq(schema.userRolesTable.roleId, roleId),
         ),
       );
+
+    await this.audit.log({
+      clientId,
+      userId: ctx?.actorId,
+      action: 'role.unassigned',
+      targetType: 'user',
+      targetId: userId,
+      ip: ctx?.ip,
+      ua: ctx?.ua,
+      meta: { roleId },
+    });
+
     return { ok: true as const };
   }
 }
