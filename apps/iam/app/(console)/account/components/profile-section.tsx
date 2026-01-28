@@ -1,5 +1,6 @@
 "use client";
 
+import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@site-haus/stores/auth-store";
@@ -20,7 +21,6 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import {
   updateProfileSchema,
@@ -123,19 +123,11 @@ export function ProfileSection() {
                 />
               </div>
               <div className="flex gap-2">
-                <Button
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? (
-                    <>
-                      <Spinner className="mr-2 h-4 w-4" />
-                      Saving...
-                    </>
-                  ) : (
-                    "Save Changes"
-                  )}
-                </Button>
+                <SubmitButton
+                  isSubmitting={form.formState.isSubmitting}
+                  label="Save Changes"
+                  loadingLabel="Saving..."
+                />
                 <Button type="button" variant="outline" onClick={handleCancel}>
                   <X className="mr-2 h-4 w-4" />
                   Cancel

@@ -1,6 +1,10 @@
 "use client";
 
-import { RequireAuth } from "@/lib/require-auth";
+import { ConsolePageWrapper } from "@/app/components/console-page-wrapper";
+import { EmptyState, LoadingState } from "@/app/components/states";
+import { PageHeader } from "@/app/components/page-header";
+import { PermissionDenied } from "@/app/components/permission-denied";
+import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { useClientContext } from "@/lib/use-client-context";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,7 +40,6 @@ import {
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import { Separator } from "@site-haus/ui/components/base/separator";
-import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { Switch } from "@site-haus/ui/components/base/switch";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { ALL_PERMISSIONS, PERM } from "@site-haus/validation/core/perms";
@@ -47,10 +50,9 @@ import {
   Pencil,
   Plus,
   Shield,
-  ShieldX,
   Trash2,
 } from "lucide-react";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -68,15 +70,9 @@ type CreateRoleInput = z.infer<typeof createRoleSchema>;
 
 export default function RolesPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="container mx-auto mt-12">
-          <Spinner className="h-6 w-6" />
-        </div>
-      }
-    >
+    <ConsolePageWrapper>
       <RolesContent />
-    </Suspense>
+    </ConsolePageWrapper>
   );
 }
 
@@ -105,7 +101,6 @@ function RolesContent() {
         setRoles(res.body.roles);
         setPermissionDenied(false);
 
-        // Fetch permissions for each role
         const permsMap: Record<string, string[]> = {};
         await Promise.all(
           res.body.roles.map(async (role) => {
@@ -147,38 +142,17 @@ function RolesContent() {
 
   if (permissionDenied) {
     return (
-      <RequireAuth>
-        <div className="container mx-auto mt-12">
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <ShieldX className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-            <p className="text-muted-foreground max-w-md">
-              You don&apos;t have permission to manage roles for{" "}
-              <span className="font-medium text-foreground">
-                {selectedClient?.name ?? "this client"}
-              </span>
-              . Contact an administrator to request access.
-            </p>
-          </div>
-        </div>
-      </RequireAuth>
+      <PermissionDenied resource="roles" clientName={selectedClient?.name} />
     );
   }
 
   return (
-    <RequireAuth>
-      <div className="container mx-auto mt-12 max-w-4xl">
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Roles</h1>
-            <p className="text-lg text-muted-foreground tracking-wide">
-              Manage roles and permissions for this client.
-            </p>
-          </div>
-
-          {canManage && (
+    <>
+      <PageHeader
+        title="Roles"
+        description="Manage roles and permissions for this client."
+        action={
+          canManage && (
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
@@ -196,83 +170,77 @@ function RolesContent() {
                 />
               </DialogContent>
             </Dialog>
-          )}
+          )
+        }
+      />
+
+      {loading && <LoadingState />}
+
+      {!loading && roles.length === 0 && (
+        <Card>
+          <CardContent>
+            <EmptyState
+              icon={Shield}
+              title="No roles defined yet."
+              description={canManage ? "Create your first role to get started." : undefined}
+            />
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && roles.length > 0 && (
+        <div className="space-y-4">
+          {roles.map((role) => (
+            <RoleCard
+              key={role.id}
+              role={role}
+              perms={rolePerms[role.id] ?? []}
+              canManage={canManage}
+              onEdit={() => setEditingRole(role)}
+              onEditPerms={() => setEditPermsRole(role)}
+              onDelete={() => handleDeleteRole(role)}
+            />
+          ))}
         </div>
+      )}
 
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <Spinner className="h-6 w-6" />
-          </div>
-        )}
+      <Dialog
+        open={!!editingRole}
+        onOpenChange={(open) => !open && setEditingRole(null)}
+      >
+        <DialogContent>
+          {editingRole && (
+            <EditRoleDialog
+              role={editingRole}
+              onSuccess={() => {
+                setEditingRole(null);
+                fetchRoles();
+              }}
+              onCancel={() => setEditingRole(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
-        {!loading && roles.length === 0 && (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Shield className="h-12 w-12 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground text-center">
-                No roles defined yet.
-                {canManage && " Create your first role to get started."}
-              </p>
-            </CardContent>
-          </Card>
-        )}
-
-        {!loading && roles.length > 0 && (
-          <div className="space-y-4">
-            {roles.map((role) => (
-              <RoleCard
-                key={role.id}
-                role={role}
-                perms={rolePerms[role.id] ?? []}
-                canManage={canManage}
-                onEdit={() => setEditingRole(role)}
-                onEditPerms={() => setEditPermsRole(role)}
-                onDelete={() => handleDeleteRole(role)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Edit Role Dialog */}
-        <Dialog
-          open={!!editingRole}
-          onOpenChange={(open) => !open && setEditingRole(null)}
-        >
-          <DialogContent>
-            {editingRole && (
-              <EditRoleDialog
-                role={editingRole}
-                onSuccess={() => {
-                  setEditingRole(null);
-                  fetchRoles();
-                }}
-                onCancel={() => setEditingRole(null)}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Edit Permissions Dialog */}
-        <Dialog
-          open={!!editPermsRole}
-          onOpenChange={(open) => !open && setEditPermsRole(null)}
-        >
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            {editPermsRole && (
-              <EditPermissionsDialog
-                role={editPermsRole}
-                currentPerms={rolePerms[editPermsRole.id] ?? []}
-                onSuccess={() => {
-                  setEditPermsRole(null);
-                  fetchRoles();
-                }}
-                onCancel={() => setEditPermsRole(null)}
-              />
-            )}
-          </DialogContent>
-        </Dialog>
-      </div>
-    </RequireAuth>
+      <Dialog
+        open={!!editPermsRole}
+        onOpenChange={(open) => !open && setEditPermsRole(null)}
+      >
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          {editPermsRole && (
+            <EditPermissionsDialog
+              role={editPermsRole}
+              currentPerms={rolePerms[editPermsRole.id] ?? []}
+              onSuccess={() => {
+                setEditPermsRole(null);
+                fetchRoles();
+              }}
+              onCancel={() => setEditPermsRole(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -498,9 +466,11 @@ function CreateRoleDialog({
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Creating..." : "Create Role"}
-            </Button>
+            <SubmitButton
+              isSubmitting={form.formState.isSubmitting}
+              label="Create Role"
+              loadingLabel="Creating..."
+            />
           </DialogFooter>
         </form>
       </Form>
@@ -612,9 +582,11 @@ function EditRoleDialog({
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
-            </Button>
+            <SubmitButton
+              isSubmitting={form.formState.isSubmitting}
+              label="Save Changes"
+              loadingLabel="Saving..."
+            />
           </DialogFooter>
         </form>
       </Form>
@@ -765,9 +737,13 @@ function EditPermissionsDialog({
         <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Saving..." : "Save Permissions"}
-        </Button>
+        <SubmitButton
+          isSubmitting={saving}
+          label="Save Permissions"
+          loadingLabel="Saving..."
+          type="button"
+          onClick={handleSave}
+        />
       </DialogFooter>
     </>
   );

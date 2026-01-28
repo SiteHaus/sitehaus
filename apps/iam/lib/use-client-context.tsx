@@ -3,7 +3,7 @@
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ComponentProps, useCallback, useEffect, useMemo, useRef } from "react";
+import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const PAGE_NAMES: Record<string, string> = {
   "/": "Home",
@@ -25,16 +25,21 @@ export function useClientContext() {
 
   // Get selected client ID from URL param, fall back to session's client
   // Using "manage" param to avoid conflict with OAuth "client" param
-  const selectedClientId = useMemo(() => {
+  const rawSelectedClientId = useMemo(() => {
     const urlClientId = searchParams.get("manage");
     return urlClientId ?? session?.clientId ?? null;
   }, [searchParams, session?.clientId]);
 
   // Look up the selected client object
+  // Falls back to first available client if session's client is hidden/filtered
   const selectedClient = useMemo(() => {
-    if (!selectedClientId) return null;
-    return clients.find((c) => c.id === selectedClientId) ?? null;
-  }, [selectedClientId, clients]);
+    if (!rawSelectedClientId) return clients[0] ?? null;
+    const found = clients.find((c) => c.id === rawSelectedClientId);
+    return found ?? clients[0] ?? null;
+  }, [rawSelectedClientId, clients]);
+
+  // Actual selected client ID (may differ from raw if fallback was used)
+  const selectedClientId = selectedClient?.id ?? null;
 
   // Get current page display name
   const pageName = useMemo(() => {
@@ -126,12 +131,22 @@ function buildClientHref(path: string): string {
 /**
  * Link component that preserves the ?manage= client selection param
  * Uses window.location directly to avoid useSearchParams Suspense requirement
+ *
+ * Hydration-safe: renders base href on server and first client render,
+ * then updates to include manage param after mount.
  */
 export function ClientLink({
   href,
   ...props
 }: Omit<ComponentProps<typeof Link>, "href"> & { href: string }) {
-  // Read manage param on each render (client-side only)
-  const builtHref = buildClientHref(href);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // On server and first client render, use base href to avoid hydration mismatch
+  // After mount, read from window.location to get manage param
+  const builtHref = mounted ? buildClientHref(href) : href;
   return <Link href={builtHref} {...props} />;
 }

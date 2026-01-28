@@ -7,7 +7,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
 const db = drizzle(pool, { schema });
 
 const ADMIN_EMAIL = process.env.SITEHAUS_ADMIN_EMAIL ?? "you@sitehaus.dev";
-const CLIENT_KEY = process.env.SITEHAUS_ADMIN_CLIENT_KEY ?? "iam"; // or "dashboard"
+const CLIENT_KEY = process.env.SITEHAUS_ADMIN_CLIENT_KEY ?? "dashboard"; // or "dashboard"
 const ADMIN_ROLE_KEY = process.env.SITEHAUS_ADMIN_ROLE_KEY ?? "admin";
 
 async function main() {

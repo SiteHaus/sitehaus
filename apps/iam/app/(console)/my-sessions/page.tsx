@@ -1,6 +1,9 @@
 "use client";
 
-import { RequireAuth } from "@/lib/require-auth";
+import { ConsolePageWrapper } from "@/app/components/console-page-wrapper";
+import { EmptyState, LoadingState } from "@/app/components/states";
+import { PageHeader } from "@/app/components/page-header";
+import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { SessionItem } from "@site-haus/contracts";
 import { useAuthStore } from "@site-haus/stores/auth-store";
@@ -22,7 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@site-haus/ui/components/base/dialog";
-import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { formatDistanceToNow } from "date-fns";
 import {
   Chrome,
@@ -31,7 +33,7 @@ import {
   Monitor,
   Smartphone,
 } from "lucide-react";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 function getBrowserIcon(browser: string | null | undefined) {
@@ -56,15 +58,9 @@ function getDeviceLabel(session: SessionItem): string {
 
 export default function MySessionsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="container mx-auto px-4 py-8">
-          <Spinner className="size-6" />
-        </div>
-      }
-    >
+    <ConsolePageWrapper maxWidth="4xl" className="px-4 py-8 mt-0">
       <MySessionsContent />
-    </Suspense>
+    </ConsolePageWrapper>
   );
 }
 
@@ -124,16 +120,13 @@ function MySessionsContent() {
   const otherSessionsCount = sessions.filter((s) => !s.isCurrent).length;
 
   return (
-    <RequireAuth>
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">My Sessions</h1>
-            <p className="text-muted-foreground">
-              Manage your active sessions and devices.
-            </p>
-          </div>
-          {otherSessionsCount > 0 && (
+    <>
+      <PageHeader
+        title="My Sessions"
+        description="Manage your active sessions and devices."
+        className="mb-6"
+        action={
+          otherSessionsCount > 0 && (
             <Dialog open={revokeAllOpen} onOpenChange={setRevokeAllOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline">
@@ -157,94 +150,91 @@ function MySessionsContent() {
                   >
                     Cancel
                   </Button>
-                  <Button
+                  <SubmitButton
+                    isSubmitting={revokingAll}
+                    label="Sign out all"
+                    loadingLabel="Signing out..."
                     variant="destructive"
+                    type="button"
                     onClick={handleRevokeAll}
-                    disabled={revokingAll}
-                  >
-                    {revokingAll ? (
-                      <Spinner className="mr-2 h-4 w-4" />
-                    ) : (
-                      <LogOut className="mr-2 h-4 w-4" />
-                    )}
-                    Sign out all
-                  </Button>
+                    icon={<LogOut className="h-4 w-4" />}
+                  />
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-          )}
-        </div>
+          )
+        }
+      />
 
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Spinner className="h-8 w-8" />
-          </div>
-        ) : sessions.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            No active sessions found.
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {sessions.map((session) => {
-              const BrowserIcon = getBrowserIcon(session.device?.browser);
-              const isRevoking = revokingId === session.id;
+      {loading ? (
+        <LoadingState className="py-12" />
+      ) : sessions.length === 0 ? (
+        <EmptyState
+          icon={Monitor}
+          title="No active sessions found."
+          className="py-12"
+        />
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {sessions.map((session) => {
+            const BrowserIcon = getBrowserIcon(session.device?.browser);
+            const isRevoking = revokingId === session.id;
 
-              return (
-                <Card key={session.id} className="relative">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-muted p-2">
-                          <BrowserIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <CardTitle className="text-base">
-                            {getDeviceLabel(session)}
-                          </CardTitle>
-                          {session.device?.platform && (
-                            <p className="text-sm text-muted-foreground">
-                              {session.device.platform}
-                            </p>
-                          )}
-                        </div>
+            return (
+              <Card key={session.id} className="relative">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-lg bg-muted p-2">
+                        <BrowserIcon className="h-5 w-5" />
                       </div>
-                      {session.isCurrent && (
-                        <Badge variant="success">Current</Badge>
-                      )}
+                      <div>
+                        <CardTitle className="text-base">
+                          {getDeviceLabel(session)}
+                        </CardTitle>
+                        {session.device?.platform && (
+                          <p className="text-sm text-muted-foreground">
+                            {session.device.platform}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="pb-3">
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      <p>
-                        Last active{" "}
-                        {formatDistanceToNow(new Date(session.lastUsedAt), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                      <p>
-                        Created{" "}
-                        {formatDistanceToNow(new Date(session.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </p>
-                    </div>
-                  </CardContent>
-                  {!session.isCurrent && (
-                    <CardFooter className="pt-0">
-                      <RevokeSessionDialog
-                        sessionLabel={getDeviceLabel(session)}
-                        onConfirm={() => handleRevokeOne(session.id)}
-                        isRevoking={isRevoking}
-                      />
-                    </CardFooter>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </RequireAuth>
+                    {session.isCurrent && (
+                      <Badge variant="success">Current</Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="pb-3">
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p>
+                      Last active{" "}
+                      {formatDistanceToNow(new Date(session.lastUsedAt), {
+                        addSuffix: true,
+                      })}
+                    </p>
+                    <p>
+                      Created{" "}
+                      {formatDistanceToNow(new Date(session.createdAt), {
+                        addSuffix: true,
+                      })}
+                    </p>
+                  </div>
+                </CardContent>
+                {!session.isCurrent && (
+                  <CardFooter className="pt-0">
+                    <RevokeSessionDialog
+                      sessionLabel={getDeviceLabel(session)}
+                      onConfirm={() => handleRevokeOne(session.id)}
+                      isRevoking={isRevoking}
+                    />
+                  </CardFooter>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -285,18 +275,15 @@ function RevokeSessionDialog({
           <Button variant="outline" onClick={() => setOpen(false)}>
             Cancel
           </Button>
-          <Button
+          <SubmitButton
+            isSubmitting={isRevoking}
+            label="Revoke session"
+            loadingLabel="Revoking..."
             variant="destructive"
+            type="button"
             onClick={handleConfirm}
-            disabled={isRevoking}
-          >
-            {isRevoking ? (
-              <Spinner className="mr-2 h-4 w-4" />
-            ) : (
-              <LogOut className="mr-2 h-4 w-4" />
-            )}
-            Revoke session
-          </Button>
+            icon={<LogOut className="h-4 w-4" />}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>

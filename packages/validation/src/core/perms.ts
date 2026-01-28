@@ -20,7 +20,7 @@ export const MODULES = {
       devices: ["read", "revoke", "rename"] as const,
       invites: ["read", "manage"] as const,
       members: ["read", "manage"] as const,
-      clients: ["view_hidden"] as const,
+      clients: ["read", "manage", "view_hidden"] as const,
     },
   },
   commerce: {
@@ -128,6 +128,8 @@ export const ADMIN_PERMISSIONS: Permission[] = [
   "users:write",
   "users:invite",
   "users:suspend",
+  "clients:read",
+  "clients:manage",
 ];
 
 /** Get all modules as an array for seeding */

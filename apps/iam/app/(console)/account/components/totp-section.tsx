@@ -1,5 +1,7 @@
 "use client";
 
+import { PasswordField } from "@/app/components/password-field";
+import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge } from "@site-haus/ui/components/base/badge";
@@ -28,12 +30,6 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@site-haus/ui/components/base/input-group";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import {
@@ -42,7 +38,7 @@ import {
   type Disable2faInput,
   type Enable2faInput,
 } from "@site-haus/validation/forms/account";
-import { Eye, EyeClosed, Shield, ShieldOff } from "lucide-react";
+import { Shield, ShieldOff } from "lucide-react";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -184,7 +180,6 @@ export function TotpSection() {
         </CardContent>
       </Card>
 
-      {/* Enable 2FA Dialog */}
       <EnableTotpDialog
         open={enableDialogOpen && !backupCodes}
         onOpenChange={setEnableDialogOpen}
@@ -192,14 +187,12 @@ export function TotpSection() {
         onSuccess={handleEnableSuccess}
       />
 
-      {/* Backup Codes Dialog */}
       <BackupCodesDialog
         open={!!backupCodes}
         onClose={handleCloseBackupCodes}
         codes={backupCodes ?? []}
       />
 
-      {/* Disable 2FA Dialog */}
       <DisableTotpDialog
         open={disableDialogOpen}
         onOpenChange={setDisableDialogOpen}
@@ -226,7 +219,6 @@ function EnableTotpDialog({
     defaultValues: { code: "", secret: setupData?.secret ?? "" },
   });
 
-  // Update secret when setupData changes
   useEffect(() => {
     if (setupData?.secret) {
       form.setValue("secret", setupData.secret);
@@ -303,16 +295,11 @@ function EnableTotpDialog({
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={form.formState.isSubmitting}>
-                {form.formState.isSubmitting ? (
-                  <>
-                    <Spinner className="mr-2 h-4 w-4" />
-                    Verifying...
-                  </>
-                ) : (
-                  "Enable 2FA"
-                )}
-              </Button>
+              <SubmitButton
+                isSubmitting={form.formState.isSubmitting}
+                label="Enable 2FA"
+                loadingLabel="Verifying..."
+              />
             </DialogFooter>
           </form>
         </Form>
@@ -376,7 +363,6 @@ function DisableTotpDialog({
   onSuccess: () => void;
 }) {
   const api = useApi();
-  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<Disable2faInput>({
     resolver: zodResolver(disable2faSchema),
@@ -402,7 +388,6 @@ function DisableTotpDialog({
   const handleClose = () => {
     onOpenChange(false);
     form.reset();
-    setShowPassword(false);
   };
 
   return (
@@ -417,53 +402,22 @@ function DisableTotpDialog({
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
+            <PasswordField
               control={form.control}
               name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <InputGroup>
-                      <InputGroupInput
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        {...field}
-                      />
-                      <InputGroupAddon align="inline-end">
-                        <InputGroupButton
-                          type="button"
-                          title={showPassword ? "Hide" : "Show"}
-                          size="icon-xs"
-                          onClick={() => setShowPassword((p) => !p)}
-                        >
-                          {showPassword ? <Eye /> : <EyeClosed />}
-                        </InputGroupButton>
-                      </InputGroupAddon>
-                    </InputGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label="Password"
+              placeholder="Enter your password"
             />
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
+              <SubmitButton
+                isSubmitting={form.formState.isSubmitting}
+                label="Disable 2FA"
+                loadingLabel="Disabling..."
                 variant="destructive"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? (
-                  <>
-                    <Spinner className="mr-2 h-4 w-4" />
-                    Disabling...
-                  </>
-                ) : (
-                  "Disable 2FA"
-                )}
-              </Button>
+              />
             </DialogFooter>
           </form>
         </Form>

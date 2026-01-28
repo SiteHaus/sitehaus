@@ -1,6 +1,9 @@
 "use client";
 
-import { RequireAuth } from "@/lib/require-auth";
+import { ConsolePageWrapper } from "@/app/components/console-page-wrapper";
+import { PageHeader } from "@/app/components/page-header";
+import { PermissionDenied } from "@/app/components/permission-denied";
+import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { useClientContext } from "@/lib/use-client-context";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,8 +40,8 @@ import {
 import { DataTable } from "@site-haus/ui/components/shared/data-table/data-table";
 import { createInviteSchema } from "@site-haus/validation/forms/invite";
 import { formatDistanceToNow } from "date-fns";
-import { MailPlus, ShieldX } from "lucide-react";
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { MailPlus } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -102,9 +105,9 @@ function getInviteStatus(invite: Invite): string {
 
 export default function TeamPage() {
   return (
-    <Suspense fallback={<div className="container mx-auto mt-12">Loading...</div>}>
+    <ConsolePageWrapper maxWidth="4xl" className="max-w-none">
       <TeamContent />
-    </Suspense>
+    </ConsolePageWrapper>
   );
 }
 
@@ -237,7 +240,6 @@ function TeamContent() {
     }
   };
 
-  // Keep editingMember in sync when members refresh
   useEffect(() => {
     if (editingMember) {
       const updated = members.find((m) => m.id === editingMember.id);
@@ -263,37 +265,16 @@ function TeamContent() {
 
   if (permissionDenied) {
     return (
-      <RequireAuth>
-        <div className="container mx-auto mt-12">
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="rounded-full bg-muted p-4 mb-4">
-              <ShieldX className="h-8 w-8 text-muted-foreground" />
-            </div>
-            <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-            <p className="text-muted-foreground max-w-md">
-              You don&apos;t have permission to manage the team for{" "}
-              <span className="font-medium text-foreground">
-                {selectedClient?.name ?? "this client"}
-              </span>
-              . Contact an administrator to request access.
-            </p>
-          </div>
-        </div>
-      </RequireAuth>
+      <PermissionDenied resource="the team" clientName={selectedClient?.name} />
     );
   }
 
   return (
-    <RequireAuth>
-      <div className="container mx-auto mt-12">
-        <div className="mb-8 flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Your Team</h1>
-            <p className="text-lg text-muted-foreground tracking-wide">
-              Manage users, invites, roles, and permissions for this client.
-            </p>
-          </div>
-
+    <>
+      <PageHeader
+        title="Your Team"
+        description="Manage users, invites, roles, and permissions for this client."
+        action={
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -384,135 +365,132 @@ function TeamContent() {
                     >
                       Cancel
                     </Button>
-                    <Button
-                      type="submit"
-                      disabled={form.formState.isSubmitting}
-                    >
-                      {form.formState.isSubmitting
-                        ? "Sending..."
-                        : "Send Invite"}
-                    </Button>
+                    <SubmitButton
+                      isSubmitting={form.formState.isSubmitting}
+                      label="Send Invite"
+                      loadingLabel="Sending..."
+                    />
                   </DialogFooter>
                 </form>
               </Form>
             </DialogContent>
           </Dialog>
+        }
+      />
 
-          <Dialog
-            open={editMemberDialogOpen}
-            onOpenChange={setEditMemberDialogOpen}
-          >
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Edit Member Roles</DialogTitle>
-                <DialogDescription>
-                  {editingMember?.email} - Toggle roles for this member.
-                </DialogDescription>
-              </DialogHeader>
+      <Dialog
+        open={editMemberDialogOpen}
+        onOpenChange={setEditMemberDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Member Roles</DialogTitle>
+            <DialogDescription>
+              {editingMember?.email} - Toggle roles for this member.
+            </DialogDescription>
+          </DialogHeader>
 
-              <div className="space-y-2 rounded-md border p-3">
-                {roles.map((role) => {
-                  const hasRole =
-                    editingMember?.roles.some(
-                      (r: { id: string }) => r.id === role.id
-                    ) ?? false;
-                  return (
-                    <div key={role.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`edit-role-${role.id}`}
-                        checked={hasRole}
-                        onCheckedChange={() => {
-                          if (editingMember) {
-                            handleToggleRole(
-                              editingMember.id,
-                              role.id,
-                              hasRole
-                            );
-                          }
-                        }}
-                      />
-                      <Label
-                        htmlFor={`edit-role-${role.id}`}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {role.name}
-                      </Label>
-                    </div>
-                  );
-                })}
-              </div>
+          <div className="space-y-2 rounded-md border p-3">
+            {roles.map((role) => {
+              const hasRole =
+                editingMember?.roles.some(
+                  (r: { id: string }) => r.id === role.id
+                ) ?? false;
+              return (
+                <div key={role.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`edit-role-${role.id}`}
+                    checked={hasRole}
+                    onCheckedChange={() => {
+                      if (editingMember) {
+                        handleToggleRole(
+                          editingMember.id,
+                          role.id,
+                          hasRole
+                        );
+                      }
+                    }}
+                  />
+                  <Label
+                    htmlFor={`edit-role-${role.id}`}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {role.name}
+                  </Label>
+                </div>
+              );
+            })}
+          </div>
 
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  onClick={() => setEditMemberDialogOpen(false)}
-                >
-                  Done
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setEditMemberDialogOpen(false)}
+            >
+              Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        <Tabs defaultValue="members">
-          <TabsList>
-            <TabsTrigger value="members">
-              <span>Members</span>
-              {members.length > 0 && <Badge>{members.length}</Badge>}
-            </TabsTrigger>
-            <TabsTrigger value="invites">
-              <span>Invites</span>
-              {pendingInvites.length > 0 && (
-                <Badge>{pendingInvites.length}</Badge>
-              )}
-            </TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="members">
+        <TabsList>
+          <TabsTrigger value="members">
+            <span>Members</span>
+            {members.length > 0 && <Badge>{members.length}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="invites">
+            <span>Invites</span>
+            {pendingInvites.length > 0 && (
+              <Badge>{pendingInvites.length}</Badge>
+            )}
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="members" className="mt-4">
-            {loadingMembers && (
-              <p className="text-sm text-muted-foreground">
-                Loading team members...
+        <TabsContent value="members" className="mt-4">
+          {loadingMembers && (
+            <p className="text-sm text-muted-foreground">
+              Loading team members...
+            </p>
+          )}
+
+          {!loadingMembers && error && (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
+
+          {!loadingMembers && !error && (
+            <DataTable<ClientMember>
+              data={members}
+              defaultColumns={DEFAULT_MEMBER_COLUMNS}
+              actions={{ onEdit: handleEditMember }}
+            />
+          )}
+        </TabsContent>
+
+        <TabsContent value="invites" className="mt-4">
+          {loadingInvites && (
+            <p className="text-sm text-muted-foreground">
+              Loading invites...
+            </p>
+          )}
+
+          {!loadingInvites && invites.length === 0 && (
+            <div className="rounded-md border p-8 text-center bg-card">
+              <p className="text-muted-foreground">
+                No invites yet. Click &quot;Invite Member&quot; to send one.
               </p>
-            )}
+            </div>
+          )}
 
-            {!loadingMembers && error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            {!loadingMembers && !error && (
-              <DataTable<ClientMember>
-                data={members}
-                defaultColumns={DEFAULT_MEMBER_COLUMNS}
-                actions={{ onEdit: handleEditMember }}
-              />
-            )}
-          </TabsContent>
-
-          <TabsContent value="invites" className="mt-4">
-            {loadingInvites && (
-              <p className="text-sm text-muted-foreground">
-                Loading invites...
-              </p>
-            )}
-
-            {!loadingInvites && invites.length === 0 && (
-              <div className="rounded-md border p-8 text-center bg-card">
-                <p className="text-muted-foreground">
-                  No invites yet. Click &quot;Invite Member&quot; to send one.
-                </p>
-              </div>
-            )}
-
-            {!loadingInvites && invites.length > 0 && (
-              <DataTable<InviteDisplay>
-                data={invitesForDisplay}
-                defaultColumns={DEFAULT_INVITE_COLUMNS}
-                actions={{ onDelete: handleDeleteInvite }}
-              />
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </RequireAuth>
+          {!loadingInvites && invites.length > 0 && (
+            <DataTable<InviteDisplay>
+              data={invitesForDisplay}
+              defaultColumns={DEFAULT_INVITE_COLUMNS}
+              actions={{ onDelete: handleDeleteInvite }}
+            />
+          )}
+        </TabsContent>
+      </Tabs>
+    </>
   );
 }
