@@ -1,4 +1,11 @@
-import { pgTable, text, timestamp, uuid, jsonb } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  jsonb,
+  integer,
+} from "drizzle-orm/pg-core";
 import { usersTable } from "./users.js";
 
 /**
@@ -21,6 +28,11 @@ export const totpCredentialsTable = pgTable("totp_credentials", {
    * Each code can only be used once.
    */
   backupCodesHashed: jsonb("backup_codes_hashed").$type<string[]>().notNull(),
+  /**
+   * Last used TOTP counter for replay protection.
+   * Prevents the same code from being used twice.
+   */
+  lastUsedCounter: integer("last_used_counter"),
   enabledAt: timestamp("enabled_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });

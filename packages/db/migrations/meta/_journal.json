@@ -22,6 +22,27 @@
       "when": 1768961336966,
       "tag": "0002_spicy_deathbird",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769493025308,
+      "tag": "0003_burly_thaddeus_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1769494449365,
+      "tag": "0004_glamorous_mariko_yashida",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1769570338251,
+      "tag": "0005_sweet_khan",
+      "breakpoints": true
     }
   ]
 }

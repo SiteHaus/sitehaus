@@ -4,13 +4,12 @@ import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { RegisterInput } from "@site-haus/validation/forms/auth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { RegisterForm } from "./form/register-form";
 
 export default function RegisterContainer() {
   const { replace } = useAuthNav();
   const api = useApi();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const next = searchParams.get("next") || "/";
@@ -73,7 +72,7 @@ export default function RegisterContainer() {
       }
     }
 
-    router.replace(next || "/");
+    replace(next || "/");
   };
 
   return <RegisterForm onSubmit={onSubmit} authForLabel={clientName} />;

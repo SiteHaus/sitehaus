@@ -36,12 +36,12 @@ async function main() {
 
   if (!role) {
     throw new Error(
-      `Role with key=${ADMIN_ROLE_KEY} not found for client ${CLIENT_KEY}`
+      `Role with key=${ADMIN_ROLE_KEY} not found for client ${CLIENT_KEY}`,
     );
   }
 
   console.log(
-    `Assigning role '${role.key}' to user ${user.email} on client ${client.key}`
+    `Assigning role '${role.key}' to user ${user.email} on client ${client.key}`,
   );
 
   await db

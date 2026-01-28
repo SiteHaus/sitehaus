@@ -1,8 +1,9 @@
 "use client";
 
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { ComponentProps, useCallback, useEffect, useMemo, useRef } from "react";
 
 const PAGE_NAMES: Record<string, string> = {
   "/": "Home",
@@ -76,6 +77,17 @@ export function useClientContext() {
     prevClientIdRef.current = selectedClientId;
   }, [selectedClientId]);
 
+  // Build href that preserves the manage param
+  const buildHref = useCallback(
+    (path: string) => {
+      if (!selectedClientId) return path;
+      const url = new URL(path, "http://dummy");
+      url.searchParams.set("manage", selectedClientId);
+      return `${url.pathname}${url.search}`;
+    },
+    [selectedClientId]
+  );
+
   return {
     selectedClientId,
     selectedClient,
@@ -83,5 +95,43 @@ export function useClientContext() {
     clients,
     setSelectedClient,
     clearSelectedClient,
+    buildHref,
   };
+}
+
+/**
+ * Get the manage param from window.location (safe for SSR)
+ */
+function getManageParam(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return new URLSearchParams(window.location.search).get("manage");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build href that preserves the manage param
+ * Standalone function that doesn't use React hooks (avoids Suspense requirement)
+ */
+function buildClientHref(path: string): string {
+  const manage = getManageParam();
+  if (!manage) return path;
+  const url = new URL(path, "http://dummy");
+  url.searchParams.set("manage", manage);
+  return `${url.pathname}${url.search}`;
+}
+
+/**
+ * Link component that preserves the ?manage= client selection param
+ * Uses window.location directly to avoid useSearchParams Suspense requirement
+ */
+export function ClientLink({
+  href,
+  ...props
+}: Omit<ComponentProps<typeof Link>, "href"> & { href: string }) {
+  // Read manage param on each render (client-side only)
+  const builtHref = buildClientHref(href);
+  return <Link href={builtHref} {...props} />;
 }

@@ -8,8 +8,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
 const db = drizzle(pool, { schema });
 
 import {
-  ALL_PERMISSIONS,
+  ALL_PERMISSIONS_WITH_MODULES,
   DEFAULT_ROLE_PERMS,
+  getModulesForSeed,
 } from "@site-haus/validation/core/perms";
 
 const CLIENTS: NewClient[] = [
@@ -28,6 +29,7 @@ const CLIENTS: NewClient[] = [
     firstParty: true,
     audience: "sitehaus.iam",
     requiresConsent: false,
+    hidden: true,
   },
   {
     key: "api",
@@ -44,6 +46,14 @@ const CLIENTS: NewClient[] = [
     firstParty: true,
     audience: "sitehaus.web",
     requiresConsent: false,
+  },
+  {
+    key: "gracejeanne",
+    name: "Grace Jeanne",
+    type: "public",
+    firstParty: false,
+    audience: "gracejeanne.com",
+    requiresConsent: true,
   },
 ];
 
@@ -67,9 +77,14 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "https://sitehaus.dev/callback",
     "https://sitehaus.dev/auth/callback",
   ],
+  gracejeanne: [
+    "https://gracejeanne.com/callback",
+    "https://gracejeanne.com/auth/callback",
+  ],
 };
 async function seed() {
   await db.transaction(async (tx) => {
+    // 1. Insert clients
     await tx
       .insert(schema.clientsTable)
       .values(CLIENTS as any)
@@ -77,7 +92,7 @@ async function seed() {
 
     const clients = await tx.select().from(schema.clientsTable);
 
-    // Insert redirect URIs for OAuth clients
+    // 2. Insert redirect URIs for OAuth clients
     for (const client of clients) {
       const uris = CLIENT_REDIRECT_URIS[client.key];
       if (uris && uris.length > 0) {
@@ -88,18 +103,63 @@ async function seed() {
       }
     }
 
+    // 3. Insert permission modules
+    const modulesData = getModulesForSeed();
+    await tx
+      .insert(schema.permissionModulesTable)
+      .values(modulesData)
+      .onConflictDoNothing({ target: schema.permissionModulesTable.key });
+
+    // 4. Get all modules for module ID lookup
+    const modules = await tx.select().from(schema.permissionModulesTable);
+    const modulesByKey = new Map(modules.map((m) => [m.key, m]));
+
+    // 5. Insert permissions with module references
+    const permsToInsert = ALL_PERMISSIONS_WITH_MODULES.map((p) => ({
+      perm: p.perm,
+      moduleId: modulesByKey.get(p.module)!.id,
+    }));
+
     await tx
       .insert(schema.permissionsCatalogTable)
-      .values(ALL_PERMISSIONS.map((perm) => ({ perm })))
+      .values(permsToInsert)
       .onConflictDoNothing();
 
+    // 6. Enable core modules for all clients (IAM is always enabled)
+    const coreModules = modules.filter((m) => m.isCore);
+    for (const client of clients) {
+      for (const mod of coreModules) {
+        await tx
+          .insert(schema.clientModulesTable)
+          .values({
+            clientId: client.id,
+            moduleId: mod.id,
+            enabled: true,
+          })
+          .onConflictDoNothing();
+      }
+    }
+
+    // 7. Create default roles for each client
     for (const c of clients) {
+      const rolesToCreate = [
+        { clientId: c.id, key: "admin", name: "Admin", isDefault: false },
+        { clientId: c.id, key: "member", name: "Member", isDefault: true },
+      ];
+
+      // Add developer role only for IAM client
+      if (c.key === "iam") {
+        rolesToCreate.push({
+          clientId: c.id,
+          key: "developer",
+          name: "Developer",
+          isDefault: false,
+        });
+      }
+
       await tx
         .insert(schema.rolesTable)
-        .values([
-          { clientId: c.id, key: "admin", name: "Admin", isDefault: false },
-          { clientId: c.id, key: "member", name: "Member", isDefault: true },
-        ])
+        .values(rolesToCreate)
         .onConflictDoNothing({
           target: [schema.rolesTable.clientId, schema.rolesTable.key],
         });
@@ -110,6 +170,7 @@ async function seed() {
 
       const admin = roles.find((r) => r.key === "admin");
       const member = roles.find((r) => r.key === "member");
+      const developer = roles.find((r) => r.key === "developer");
       if (!admin || !member) continue;
 
       await tx
@@ -125,6 +186,19 @@ async function seed() {
           DEFAULT_ROLE_PERMS.member.map((perm) => ({ roleId: member.id, perm }))
         )
         .onConflictDoNothing();
+
+      // Add developer role permissions for IAM
+      if (developer) {
+        await tx
+          .insert(schema.rolePermissionsTable)
+          .values(
+            DEFAULT_ROLE_PERMS.developer.map((perm) => ({
+              roleId: developer.id,
+              perm,
+            }))
+          )
+          .onConflictDoNothing();
+      }
     }
   });
 

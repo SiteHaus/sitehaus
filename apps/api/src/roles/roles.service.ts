@@ -7,10 +7,14 @@ import {
 } from '@nestjs/common';
 import { and, eq, ne, schema, type Db } from '@site-haus/db';
 import { DRIZZLE } from 'src/db/tokens';
+import { ModulesService } from 'src/modules/modules.service';
 
 @Injectable()
 export class RolesService {
-  constructor(@Inject(DRIZZLE) private readonly db: Db) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Db,
+    private readonly modules: ModulesService,
+  ) {}
 
   async namesByIds(roleIds: string[], clientId?: string): Promise<string[]> {
     if (!roleIds.length) return [];
@@ -214,6 +218,7 @@ export class RolesService {
       if (!role) throw new NotFoundException('Role not found');
 
       if (perms.length) {
+        // Validate permissions exist in catalog
         const catalog = await tx.query.permissionsCatalogTable.findMany({
           where: (t, { inArray: _in }) => _in(t.perm, perms),
           columns: { perm: true },
@@ -226,6 +231,16 @@ export class RolesService {
           throw new BadRequestException(
             `Unknown permissions: ${missing.join(', ')}`,
           );
+
+        // Validate permissions are from enabled modules
+        const moduleValidation =
+          await this.modules.validatePermissionsForClient(clientId, perms);
+
+        if (!moduleValidation.valid) {
+          throw new BadRequestException(
+            `Permissions from disabled modules: ${moduleValidation.invalidPerms.join(', ')}. Enable the module first.`,
+          );
+        }
       }
 
       await tx

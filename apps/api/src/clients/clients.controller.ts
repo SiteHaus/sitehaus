@@ -75,6 +75,24 @@ export class ClientsController {
   async listMyClients(@Req() req: AuthedRequest) {
     const userId = req.user!.userId;
 
+    // Check if user has clients:view_hidden permission in any client
+    const canViewHidden = await this.db
+      .select({ perm: schema.rolePermissionsTable.perm })
+      .from(schema.userRolesTable)
+      .innerJoin(
+        schema.rolePermissionsTable,
+        eq(schema.userRolesTable.roleId, schema.rolePermissionsTable.roleId),
+      )
+      .where(
+        and(
+          eq(schema.userRolesTable.userId, userId),
+          eq(schema.rolePermissionsTable.perm, 'clients:view_hidden'),
+        ),
+      )
+      .limit(1);
+
+    const includeHidden = canViewHidden.length > 0;
+
     // Get all clients where user has any role (LEFT JOIN to include roles with no permissions)
     const rows = await this.db
       .select({
@@ -83,6 +101,7 @@ export class ClientsController {
         name: schema.clientsTable.name,
         type: schema.clientsTable.type,
         firstParty: schema.clientsTable.firstParty,
+        hidden: schema.clientsTable.hidden,
         perm: schema.rolePermissionsTable.perm,
       })
       .from(schema.userRolesTable)
@@ -94,11 +113,17 @@ export class ClientsController {
         schema.rolePermissionsTable,
         eq(schema.userRolesTable.roleId, schema.rolePermissionsTable.roleId),
       )
-      .where(eq(schema.userRolesTable.userId, userId));
+      .where(
+        and(
+          eq(schema.userRolesTable.userId, userId),
+          // Only filter hidden if user doesn't have view_hidden permission
+          includeHidden ? undefined : eq(schema.clientsTable.hidden, false),
+        ),
+      );
 
     // Dedupe by client and compute canManage
     const adminSet = new Set<string>(ADMIN_PERMISSIONS);
-    const byId = new Map<string, MeClient>();
+    const byId = new Map<string, MeClient & { hidden?: boolean }>();
 
     for (const r of rows) {
       const existing = byId.get(r.id);
@@ -108,6 +133,7 @@ export class ClientsController {
         name: r.name,
         type: r.type,
         firstParty: r.firstParty,
+        hidden: r.hidden,
         canManage: existing?.canManage || (r.perm ? adminSet.has(r.perm) : false),
       });
     }

@@ -13,8 +13,8 @@ import {
   Shield,
   Users,
 } from "lucide-react";
+import { ClientLink } from "@/lib/use-client-context";
 import Image from "next/image";
-import Link from "next/link";
 import { UserMenu } from "./user-menu";
 
 interface NavLink {
@@ -85,7 +85,7 @@ export function SiteNav() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
+            <ClientLink href="/" className="flex items-center gap-2">
               <Image
                 src="/sitehaus-icon.svg"
                 width={25}
@@ -94,7 +94,7 @@ export function SiteNav() {
                 className="filter dark:invert"
               />
               <span className="text-xl font-bold">SH-IAM</span>
-            </Link>
+            </ClientLink>
 
             {user && bootstrapped && (
               <div className="hidden md:flex items-center gap-1">
@@ -103,7 +103,7 @@ export function SiteNav() {
 
                   const Icon = link.icon;
                   return (
-                    <Link
+                    <ClientLink
                       key={link.href}
                       href={link.href}
                       className={cn(
@@ -113,7 +113,7 @@ export function SiteNav() {
                     >
                       <Icon className="h-4 w-4" />
                       {link.label}
-                    </Link>
+                    </ClientLink>
                   );
                 })}
               </div>
@@ -124,7 +124,7 @@ export function SiteNav() {
             {user && bootstrapped ? (
               <>
                 {canManageApps && (
-                  <Link
+                  <ClientLink
                     href="/apps"
                     className={cn(
                       "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium",
@@ -133,7 +133,7 @@ export function SiteNav() {
                   >
                     <AppWindow className="h-4 w-4" />
                     Apps
-                  </Link>
+                  </ClientLink>
                 )}
                 <ModeToggle />
                 <UserMenu />

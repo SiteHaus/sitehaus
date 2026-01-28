@@ -8,6 +8,7 @@ export type AuthParams = {
   next?: string;
   email?: string;
   mode?: VerificationMode;
+  oauth_params?: string;
 };
 
 const AUTH_KEYS: (keyof AuthParams)[] = [
@@ -15,6 +16,7 @@ const AUTH_KEYS: (keyof AuthParams)[] = [
   "email",
   "mode",
   "next",
+  "oauth_params",
 ] as const;
 
 const toRecord = (init?: URLSearchParams | null): Record<string, string> => {
@@ -57,6 +59,7 @@ export const useAuthParams = (): AuthParams => {
       next: sp.get("next") || undefined,
       email: sp.get("email") || undefined,
       mode: (sp.get("mode") as VerificationMode) || undefined,
+      oauth_params: sp.get("oauth_params") || undefined,
     }),
     [sp]
   );

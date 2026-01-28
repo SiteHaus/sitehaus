@@ -4,14 +4,13 @@ import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { LoginInput } from "@site-haus/validation/forms/auth";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { LoginForm } from "./form/login-form";
 
 export default function LoginContainer() {
   const { replace } = useAuthNav();
 
   const api = useApi();
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const next = searchParams.get("next") || "/";
@@ -39,6 +38,7 @@ export default function LoginContainer() {
 
     // If 2FA is required, store partial token and redirect to 2FA verification
     if (requires2FA) {
+      console.log('[DEBUG] 2FA required, oauth_params:', oauthParams);
       const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
       setAccess({ accessToken, accessExpiration: exp });
       replace("/2fa-verify");
@@ -83,7 +83,7 @@ export default function LoginContainer() {
       }
     }
 
-    router.replace(next || "/");
+    replace(next || "/");
   };
 
   return <LoginForm onSubmit={onSubmit} authForLabel={clientName} />;

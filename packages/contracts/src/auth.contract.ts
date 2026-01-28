@@ -58,6 +58,27 @@ export const otpLoginResponse = authTokens.extend({
   requiresEmailVerification: z.boolean().default(false),
 });
 
+// Token introspection response
+export const introspectResponse = z.object({
+  active: z.boolean(),
+  user: userBrief.optional(),
+  session: sessionBrief.optional(),
+  permissions: z.array(z.string()).optional(),
+  exp: z.number().optional(),
+});
+
+// Token introspection for client SDKs (validates tokens without database access)
+export const introspectRouter = c.router({
+  introspect: {
+    method: "POST",
+    path: "/auth/introspect",
+    body: c.noBody(),
+    responses: {
+      200: introspectResponse,
+    },
+  },
+});
+
 // No session required
 export const authPublicRouter = c.router({
   register: {
@@ -353,6 +374,7 @@ export const authContract = c.router({
   private: authPrivateRouter,
   oauth: oauthRouter,
   account: accountRouter,
+  introspect: introspectRouter,
 });
 
 export type MeUser = z.infer<typeof userBrief>;

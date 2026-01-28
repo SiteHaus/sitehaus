@@ -10,6 +10,7 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 import { clientsTable } from "./clients.js";
+import { permissionModulesTable } from "./permission-modules.js";
 import { usersTable } from "./users.js";
 
 export const rolesTable = pgTable(
@@ -66,9 +67,17 @@ export const userRolesTable = pgTable(
   ]
 );
 
-export const permissionsCatalogTable = pgTable("permissions_catalog", {
-  perm: varchar("perm", { length: 128 }).primaryKey(),
-});
+export const permissionsCatalogTable = pgTable(
+  "permissions_catalog",
+  {
+    perm: varchar("perm", { length: 128 }).primaryKey(),
+    moduleId: uuid("module_id")
+      .notNull()
+      .references(() => permissionModulesTable.id, { onDelete: "cascade" }),
+    description: varchar("description", { length: 255 }),
+  },
+  (t) => [index("permissions_catalog_module_idx").on(t.moduleId)]
+);
 
 export const rolePermissionsTable = pgTable(
   "role_permissions",

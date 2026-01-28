@@ -2,7 +2,7 @@ import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
 import type { Metadata } from "next";
 import { Baskervville, Figtree } from "next/font/google";
 
-import { SiteNav } from "./components/SiteNav";
+import { SiteNav } from "./components/site-nav";
 import "./globals.css";
 
 const displayFont = Baskervville({
