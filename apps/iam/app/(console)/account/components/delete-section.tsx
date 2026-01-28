@@ -1,5 +1,7 @@
 "use client";
 
+import { PasswordField } from "@/app/components/password-field";
+import { SubmitButton } from "@/app/components/submit-button";
 import { useApi } from "@/lib/typed-api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@site-haus/stores/auth-store";
@@ -30,19 +32,12 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupButton,
-  InputGroupInput,
-} from "@site-haus/ui/components/base/input-group";
-import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
 import {
   deleteAccountSchema,
   type DeleteAccountInput,
 } from "@site-haus/validation/forms/account";
-import { AlertTriangle, Eye, EyeClosed, Trash2 } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -53,7 +48,6 @@ export function DeleteSection() {
   const router = useRouter();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const [open, setOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<DeleteAccountInput>({
     resolver: zodResolver(deleteAccountSchema),
@@ -83,7 +77,6 @@ export function DeleteSection() {
   const handleClose = () => {
     setOpen(false);
     form.reset();
-    setShowPassword(false);
   };
 
   return (
@@ -125,34 +118,11 @@ export function DeleteSection() {
             </DialogHeader>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
+                <PasswordField
                   control={form.control}
                   name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <InputGroup>
-                          <InputGroupInput
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Enter your password"
-                            {...field}
-                          />
-                          <InputGroupAddon align="inline-end">
-                            <InputGroupButton
-                              type="button"
-                              title={showPassword ? "Hide" : "Show"}
-                              size="icon-xs"
-                              onClick={() => setShowPassword((p) => !p)}
-                            >
-                              {showPassword ? <Eye /> : <EyeClosed />}
-                            </InputGroupButton>
-                          </InputGroupAddon>
-                        </InputGroup>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  label="Password"
+                  placeholder="Enter your password"
                 />
                 <FormField
                   control={form.control}
@@ -174,23 +144,13 @@ export function DeleteSection() {
                   <Button type="button" variant="outline" onClick={handleClose}>
                     Cancel
                   </Button>
-                  <Button
-                    type="submit"
+                  <SubmitButton
+                    isSubmitting={form.formState.isSubmitting}
+                    label="Delete Account"
+                    loadingLabel="Deleting..."
                     variant="destructive"
-                    disabled={form.formState.isSubmitting}
-                  >
-                    {form.formState.isSubmitting ? (
-                      <>
-                        <Spinner className="mr-2 h-4 w-4" />
-                        Deleting...
-                      </>
-                    ) : (
-                      <>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete Account
-                      </>
-                    )}
-                  </Button>
+                    icon={<Trash2 className="h-4 w-4" />}
+                  />
                 </DialogFooter>
               </form>
             </Form>

@@ -1,15 +1,35 @@
-import { Controller, Get, Inject, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { type ClientMember, type MeClient } from '@site-haus/contracts';
 import { and, eq, schema, type Db } from '@site-haus/db';
 import { ADMIN_PERMISSIONS } from '@site-haus/validation/core/perms';
+import {
+  type AddRedirectUriInput,
+  type UpdateClientInput,
+} from '@site-haus/validation/forms/client';
 import { type AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { DRIZZLE } from 'src/db/tokens';
 import { type ClientInRequest } from './client.guard';
+import { ClientsService } from './clients.service';
 
 @Controller('clients')
 export class ClientsController {
-  constructor(@Inject(DRIZZLE) private readonly db: Db) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: Db,
+    private readonly clientsService: ClientsService,
+  ) {}
 
   @RequirePerms('members:read')
   @Get('me/members')
@@ -140,5 +160,103 @@ export class ClientsController {
 
     const clients = Array.from(byId.values());
     return { clients };
+  }
+
+  /**
+   * Get current client details (based on x-client-id header)
+   */
+  @RequirePerms('clients:read')
+  @Get('current')
+  async getCurrent(@Req() req: ClientInRequest) {
+    const client = await this.clientsService.getById(req.client.id);
+    return {
+      client: {
+        id: client.id,
+        key: client.key,
+        name: client.name,
+        type: client.type,
+        firstParty: client.firstParty,
+        audience: client.audience,
+        allowedScopes: client.allowedScopes,
+        requiresConsent: client.requiresConsent,
+        hidden: client.hidden,
+        createdAt: client.createdAt?.toISOString() ?? null,
+      },
+    };
+  }
+
+  /**
+   * Update current client settings
+   */
+  @RequirePerms('clients:manage')
+  @Patch('current')
+  async updateCurrent(
+    @Req() req: ClientInRequest,
+    @Body() body: UpdateClientInput,
+  ) {
+    const client = await this.clientsService.update(req.client.id, body);
+    return {
+      client: {
+        id: client.id,
+        key: client.key,
+        name: client.name,
+        type: client.type,
+        firstParty: client.firstParty,
+        audience: client.audience,
+        allowedScopes: client.allowedScopes,
+        requiresConsent: client.requiresConsent,
+        hidden: client.hidden,
+        createdAt: client.createdAt?.toISOString() ?? null,
+      },
+    };
+  }
+
+  /**
+   * List redirect URIs for current client
+   */
+  @RequirePerms('clients:read')
+  @Get('current/redirect-uris')
+  async listRedirectUris(@Req() req: ClientInRequest) {
+    const uris = await this.clientsService.listRedirectUris(req.client.id);
+    return {
+      redirectUris: uris.map((u) => ({
+        id: u.id,
+        uri: u.uri,
+      })),
+    };
+  }
+
+  /**
+   * Add a redirect URI to current client
+   */
+  @RequirePerms('clients:manage')
+  @Post('current/redirect-uris')
+  async addRedirectUri(
+    @Req() req: ClientInRequest,
+    @Body() body: AddRedirectUriInput,
+  ) {
+    const uri = await this.clientsService.addRedirectUri(
+      req.client.id,
+      body.uri,
+    );
+    return {
+      redirectUri: {
+        id: uri.id,
+        uri: uri.uri,
+      },
+    };
+  }
+
+  /**
+   * Remove a redirect URI from current client
+   */
+  @RequirePerms('clients:manage')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('current/redirect-uris/:uriId')
+  async removeRedirectUri(
+    @Req() req: ClientInRequest,
+    @Param('uriId') uriId: string,
+  ) {
+    await this.clientsService.removeRedirectUri(req.client.id, uriId);
   }
 }
