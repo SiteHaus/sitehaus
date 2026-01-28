@@ -100,12 +100,38 @@ export function useClientContext() {
 }
 
 /**
+ * Get the manage param from window.location (safe for SSR)
+ */
+function getManageParam(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return new URLSearchParams(window.location.search).get("manage");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Build href that preserves the manage param
+ * Standalone function that doesn't use React hooks (avoids Suspense requirement)
+ */
+function buildClientHref(path: string): string {
+  const manage = getManageParam();
+  if (!manage) return path;
+  const url = new URL(path, "http://dummy");
+  url.searchParams.set("manage", manage);
+  return `${url.pathname}${url.search}`;
+}
+
+/**
  * Link component that preserves the ?manage= client selection param
+ * Uses window.location directly to avoid useSearchParams Suspense requirement
  */
 export function ClientLink({
   href,
   ...props
 }: Omit<ComponentProps<typeof Link>, "href"> & { href: string }) {
-  const { buildHref } = useClientContext();
-  return <Link href={buildHref(href)} {...props} />;
+  // Read manage param on each render (client-side only)
+  const builtHref = buildClientHref(href);
+  return <Link href={builtHref} {...props} />;
 }
