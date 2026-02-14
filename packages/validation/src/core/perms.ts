@@ -55,6 +55,21 @@ export const MODULES = {
       dashboards: ["read", "write", "delete"] as const,
     },
   },
+  dashboard: {
+    key: "dashboard",
+    name: "Dashboard",
+    description:
+      "Project management, client collaboration, and agency operations",
+    isCore: true,
+    permissions: {
+      projects: ["read", "manage"] as const,
+      profiles: ["read", "manage"] as const,
+      documents: ["read", "manage", "approve"] as const,
+      tickets: ["read", "create", "manage"] as const,
+      assets: ["read", "upload", "manage"] as const,
+      comments: ["read", "create", "manage"] as const,
+    },
+  },
 } as const satisfies Record<string, ModuleDefinition>;
 
 export type ModuleKey = keyof typeof MODULES;
