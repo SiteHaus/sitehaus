@@ -9,10 +9,11 @@ import { AppSideBarHeader } from "./app-sidebar-header";
 export const fakeProjects: Project[] = [
   {
     id: "f5a1c0e1-5db2-4b4a-ae1e-1f6f11a28f01",
+    clientId: "client-0001",
     userId: "user-1234",
     name: "BearFoot Coffee",
     description: "Ecommerce site for a boutique coffee roaster.",
-    status: "active",
+    status: "launched",
     type: "ecommerce",
     siteDomain: "bearfootcoffee.com",
     stagingDomain: "staging.bearfootcoffee.com",
@@ -29,10 +30,11 @@ export const fakeProjects: Project[] = [
   },
   {
     id: "e8b90e3f-2cbb-4b1d-8b97-8d91c489f202",
+    clientId: "client-0002",
     userId: "user-5678",
     name: "SkyFlow SaaS Dashboard",
     description: "Admin dashboard UI for SkyFlow's SaaS platform.",
-    status: "reviewing",
+    status: "submitted",
     type: "saas",
     siteDomain: "dashboard.skyflow.io",
     stagingDomain: "staging.skyflow.io",
@@ -49,10 +51,11 @@ export const fakeProjects: Project[] = [
   },
   {
     id: "c2f1e9d6-1d3e-4b70-84d3-95f493db4b91",
+    clientId: "client-0001",
     userId: "user-1234",
     name: "Luna's Personal Portfolio",
     description: "Modern web portfolio for a UX designer.",
-    status: "paused",
+    status: "cancelled",
     type: "portfolio",
     siteDomain: "luna.design",
     stagingDomain: "staging.luna.design",
