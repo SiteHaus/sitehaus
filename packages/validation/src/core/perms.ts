@@ -76,10 +76,18 @@ export type ModuleKey = keyof typeof MODULES;
 
 /** For backwards compatibility - flat permission map for IAM module */
 export const PERM = MODULES.iam.permissions;
+export const DASHBOARD_PERM = MODULES.dashboard.permissions;
 
-type Resource = keyof typeof PERM;
-type Action<R extends Resource = Resource> = (typeof PERM)[R][number];
-export type Permission = `${Resource}:${Action}`;
+type IamResource = keyof typeof PERM;
+type IamAction<R extends IamResource = IamResource> = (typeof PERM)[R][number];
+
+type DashResource = keyof typeof DASHBOARD_PERM;
+type DashAction<R extends DashResource = DashResource> =
+  (typeof DASHBOARD_PERM)[R][number];
+
+export type Permission =
+  | `${IamResource}:${IamAction}`
+  | `${DashResource}:${DashAction}`;
 
 /** Generate all permissions for a module */
 function modulePermissions<M extends ModuleKey>(
@@ -101,10 +109,11 @@ export const ALL_PERMISSIONS_WITH_MODULES = (
   Object.keys(MODULES) as ModuleKey[]
 ).flatMap((key) => modulePermissions(key));
 
-/** Flat list of all permission strings (for backwards compat) */
-export const ALL_PERMISSIONS: Permission[] = modulePermissions("iam").map(
-  (p) => p.perm as Permission
-);
+/** Flat list of all core permission strings (IAM + Dashboard) */
+export const ALL_PERMISSIONS: Permission[] = [
+  ...modulePermissions("iam"),
+  ...modulePermissions("dashboard"),
+].map((p) => p.perm as Permission);
 
 /** All permissions organized by module key */
 export const PERMISSIONS_BY_MODULE = (

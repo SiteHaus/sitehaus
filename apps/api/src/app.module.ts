@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AssetsModule } from './assets/assets.module';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
 import authConfig from './conf/auth.config';
 import emailConfig from './conf/email.config';
+import storageConfig from './conf/storage.config';
 import { CryptoModule } from './crypto/crypto.module';
 import { DbModule } from './db/db.module';
 import { DevicesModule } from './devices/devices.module';
@@ -20,12 +22,17 @@ import { RolesModule } from './roles/roles.module';
 import { SessionController } from './session/session.controller';
 import { SessionModule } from './session/session.module';
 import { UsersModule } from './users/users.module';
+import { BusinessProfilesModule } from './business-profiles/business-profiles.module';
+import { CommentsModule } from './comments/comments.module';
+import { DesignDocumentsModule } from './design-documents/design-documents.module';
+import { ProjectsModule } from './projects/projects.module';
+import { TicketsModule } from './tickets/tickets.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, emailConfig],
+      load: [authConfig, emailConfig, storageConfig],
     }),
     ThrottlerModule.forRoot([
       { name: 'default', ttl: 60_000, limit: 45 },
@@ -44,6 +51,12 @@ import { UsersModule } from './users/users.module';
     DevicesModule,
     InvitesModule,
     UsersModule,
+    CommentsModule,
+    ProjectsModule,
+    BusinessProfilesModule,
+    DesignDocumentsModule,
+    TicketsModule,
+    AssetsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, InvitesService],
   controllers: [SessionController, InvitesController],
