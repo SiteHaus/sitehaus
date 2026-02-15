@@ -1,11 +1,12 @@
 import { clientTypeValues } from "@site-haus/validation/core/enums";
 import {
+  createClientSchema,
   updateClientSchema,
   addRedirectUriSchema,
 } from "@site-haus/validation/forms/client";
 import { initContract } from "@ts-rest/core";
 import z from "zod";
-import { userBrief } from "./primitives.js";
+import { apiErrorHttp, apiErrorValidation, userBrief } from "./primitives.js";
 
 const c = initContract();
 
@@ -57,6 +58,18 @@ export const redirectUri = z.object({
 export type RedirectUri = z.infer<typeof redirectUri>;
 
 export const clientsRouter = c.router({
+  create: {
+    method: "POST",
+    path: "/clients",
+    body: createClientSchema,
+    responses: {
+      201: c.type<{ client: MeClient }>(),
+      400: apiErrorValidation,
+      401: apiErrorHttp,
+      403: apiErrorHttp,
+      409: c.type<{ message: string }>(),
+    },
+  },
   meMembers: {
     method: "GET",
     path: "/clients/me/members",

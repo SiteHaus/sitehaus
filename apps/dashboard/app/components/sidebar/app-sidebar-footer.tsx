@@ -52,7 +52,7 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
               <SidebarMenuButton
                 size="lg"
                 variant="outline"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border shadow-accent"
+                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground shadow-accent"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarFallback className="rounded-lg">

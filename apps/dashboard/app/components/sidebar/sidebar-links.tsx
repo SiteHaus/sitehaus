@@ -21,7 +21,7 @@ type SidebarMenuItem = {
 export const sideBarMenuItems: SidebarMenuItem[] = [
   {
     title: "Home",
-    url: "#",
+    url: "/",
     icon: Home,
     disabled: false,
     isActive: false,
@@ -34,37 +34,27 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     isActive: false,
     subItems: [
       {
+        title: "All Projects",
+        url: "/projects",
+        disabled: false,
+      },
+      {
         title: "New Project",
         url: "/projects/new",
         disabled: false,
-      },
-      {
-        title: "All Projects",
-        url: "#",
-        disabled: false,
-      },
-      {
-        title: "Design Assets",
-        url: "#",
-        disabled: true,
-      },
-      {
-        title: "Project Templates",
-        url: "#",
-        disabled: true,
       },
     ],
   },
   {
     title: "Tickets",
-    url: "#",
+    url: "/tickets",
     icon: Ticket,
     disabled: false,
     isActive: false,
     subItems: [
       {
         title: "All Tickets",
-        url: "#",
+        url: "/tickets",
         disabled: true,
       },
       {
@@ -72,33 +62,18 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
         url: "#",
         disabled: true,
       },
-      {
-        title: "Ticket Categories",
-        url: "#",
-        disabled: true,
-      },
     ],
   },
   {
     title: "Clients",
-    url: "#",
+    url: "/clients",
     icon: Contact,
     disabled: false,
     isActive: false,
     subItems: [
       {
         title: "Client Directory",
-        url: "#",
-        disabled: false,
-      },
-      {
-        title: "New Client",
-        url: "#",
-        disabled: false,
-      },
-      {
-        title: "Billing Info",
-        url: "#",
+        url: "/clients/all",
         disabled: false,
       },
     ],
@@ -107,21 +82,16 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     title: "Utilities",
     url: "#",
     icon: Wrench,
-    disabled: false,
+    disabled: true,
     isActive: false,
     subItems: [
       {
         title: "Calendar",
         url: "#",
-        disabled: false,
+        disabled: true,
       },
       {
         title: "Automation Jobs",
-        url: "#",
-        disabled: false,
-      },
-      {
-        title: "Forms & Surveys",
         url: "#",
         disabled: true,
       },
@@ -137,17 +107,12 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
       {
         title: "User Management",
         url: "#",
-        disabled: false,
+        disabled: true,
       },
       {
         title: "Audit Logs",
         url: "#",
-        disabled: false,
-      },
-      {
-        title: "System Notifications",
-        url: "#",
-        disabled: false,
+        disabled: true,
       },
     ],
   },
@@ -161,17 +126,12 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
       {
         title: "Company Info",
         url: "#",
-        disabled: false,
+        disabled: true,
       },
       {
         title: "Billing & Plans",
         url: "#",
-        disabled: false,
-      },
-      {
-        title: "Integrations",
-        url: "#",
-        disabled: false,
+        disabled: true,
       },
     ],
   },

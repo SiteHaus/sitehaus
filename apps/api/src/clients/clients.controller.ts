@@ -16,6 +16,7 @@ import { and, eq, schema, type Db } from '@site-haus/db';
 import { ADMIN_PERMISSIONS } from '@site-haus/validation/core/perms';
 import {
   type AddRedirectUriInput,
+  createClientSchema,
   type UpdateClientInput,
 } from '@site-haus/validation/forms/client';
 import { type AuthedRequest } from 'src/auth/access/access.guard';
@@ -30,6 +31,28 @@ export class ClientsController {
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly clientsService: ClientsService,
   ) {}
+
+  @RequirePerms('clients:manage')
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Req() req: AuthedRequest, @Body() body: unknown) {
+    const parsed = createClientSchema.parse(body);
+    const client = await this.clientsService.create(parsed, {
+      userId: req.user!.userId,
+      ip: req.ip,
+      ua: req.headers['user-agent'] as string | undefined,
+    });
+    return {
+      client: {
+        id: client.id,
+        key: client.key,
+        name: client.name,
+        type: client.type,
+        firstParty: client.firstParty,
+        canManage: true,
+      },
+    };
+  }
 
   @RequirePerms('members:read')
   @Get('me/members')

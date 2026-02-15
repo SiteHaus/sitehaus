@@ -7,7 +7,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { eq, schema, type Db } from '@site-haus/db';
-import { type UpdateClientInput } from '@site-haus/validation/forms/client';
+import { DEFAULT_ROLE_PERMS } from '@site-haus/validation/core/perms';
+import {
+  type CreateClientInput,
+  type UpdateClientInput,
+} from '@site-haus/validation/forms/client';
 import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
 
@@ -17,6 +21,104 @@ export class ClientsService {
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly audit: AuditService,
   ) {}
+
+  /**
+   * Create a new client org with default roles and assign the creator as admin.
+   */
+  async create(
+    data: CreateClientInput,
+    ctx: { userId: string; ip?: string; ua?: string },
+  ) {
+    // Check for duplicate key
+    const existing = await this.db.query.clientsTable.findFirst({
+      where: (t, { eq }) => eq(t.key, data.key),
+    });
+    if (existing) throw new ConflictException('A client with that key already exists');
+
+    const client = await this.db.transaction(async (tx) => {
+      // 1. Create the client
+      const [created] = await tx
+        .insert(schema.clientsTable)
+        .values({
+          key: data.key,
+          name: data.name,
+          type: data.type ?? 'public',
+          firstParty: data.firstParty ?? false,
+          audience: data.audience,
+          allowedScopes: data.allowedScopes ?? 'openid profile email',
+          requiresConsent: data.requiresConsent ?? true,
+        })
+        .returning();
+
+      // 2. Enable core modules
+      const coreModules = await tx.query.permissionModulesTable.findMany({
+        where: (t, { eq }) => eq(t.isCore, true),
+      });
+      if (coreModules.length > 0) {
+        await tx.insert(schema.clientModulesTable).values(
+          coreModules.map((m) => ({
+            clientId: created.id,
+            moduleId: m.id,
+            enabled: true,
+          })),
+        );
+      }
+
+      // 3. Create admin + member roles
+      const [adminRole] = await tx
+        .insert(schema.rolesTable)
+        .values([
+          { clientId: created.id, key: 'admin', name: 'Admin', isDefault: false },
+          { clientId: created.id, key: 'member', name: 'Member', isDefault: true },
+        ])
+        .returning();
+
+      // 4. Assign admin permissions
+      await tx.insert(schema.rolePermissionsTable).values(
+        DEFAULT_ROLE_PERMS.admin.map((perm) => ({
+          roleId: adminRole.id,
+          perm,
+        })),
+      );
+
+      // Get the member role for its default perms
+      const memberRole = await tx.query.rolesTable.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.clientId, created.id), eq(t.key, 'member')),
+      });
+      if (memberRole) {
+        await tx.insert(schema.rolePermissionsTable).values(
+          DEFAULT_ROLE_PERMS.member.map((perm) => ({
+            roleId: memberRole.id,
+            perm,
+          })),
+        );
+      }
+
+      // 5. Assign the creator as admin in the new org
+      await tx.insert(schema.userRolesTable).values({
+        userId: ctx.userId,
+        clientId: created.id,
+        roleId: adminRole.id,
+      });
+
+      return created;
+    });
+
+    // Audit log must run after transaction commits so the client row is visible
+    await this.audit.log({
+      clientId: client.id,
+      userId: ctx.userId,
+      action: 'client.created',
+      targetType: 'client',
+      targetId: client.id,
+      ip: ctx.ip,
+      ua: ctx.ua,
+      meta: { name: data.name, key: data.key },
+    });
+
+    return client;
+  }
 
   async resolveByKey(key?: string) {
     if (!key) throw new BadRequestException('Missing x-client-key');
