@@ -20,17 +20,18 @@ import {
 } from '@site-haus/validation/forms/design-document';
 import { AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
+import { ClientInRequest } from 'src/clients/client.guard';
 import { DesignDocumentsService } from './design-documents.service';
 
-type Req_ = AuthedRequest & { client?: { id: string } };
+type Req_ = AuthedRequest & ClientInRequest;
 
 @Controller('projects/:projectId/design-document')
 export class DesignDocumentsController {
   constructor(private readonly docs: DesignDocumentsService) {}
 
   /** Shared helper: verify project access or throw */
-  private async verifyAccess(projectId: string, clientId: string) {
-    const ok = await this.docs.verifyProjectAccess(projectId, clientId);
+  private async verifyAccess(projectId: string, clientId: string, isFirstParty = false) {
+    const ok = await this.docs.verifyProjectAccess(projectId, clientId, isFirstParty);
     if (!ok) throw new ForbiddenException('Project not found or access denied');
   }
 
@@ -40,7 +41,7 @@ export class DesignDocumentsController {
     @Req() req: Req_,
     @Param('projectId') projectId: string,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const document = await this.docs.getByProjectId(projectId);
     if (!document) throw new NotFoundException('Design document not found');
     return { document };
@@ -54,7 +55,7 @@ export class DesignDocumentsController {
     @Param('projectId') projectId: string,
     @Body() body: unknown,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const { content } = createDesignDocumentSchema.parse(body);
     const document = await this.docs.create(projectId, content, {
       userId: req.user!.userId,
@@ -72,7 +73,7 @@ export class DesignDocumentsController {
     @Param('projectId') projectId: string,
     @Body() body: unknown,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const { content } = updateDesignDocumentSchema.parse(body);
     const result = await this.docs.updateContent(projectId, content);
     if (!result) throw new NotFoundException('Design document not found');
@@ -88,7 +89,7 @@ export class DesignDocumentsController {
     @Param('projectId') projectId: string,
     @Body() body: unknown,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const { changeNote } = publishDesignDocumentSchema.parse(body);
     const result = await this.docs.publish(projectId, changeNote, {
       userId: req.user!.userId,
@@ -107,7 +108,7 @@ export class DesignDocumentsController {
     @Param('projectId') projectId: string,
     @Body() body: unknown,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const { status } = designDocStatusTransitionSchema.parse(body);
     const result = await this.docs.transitionStatus(projectId, status, {
       userId: req.user!.userId,
@@ -126,7 +127,7 @@ export class DesignDocumentsController {
     @Req() req: Req_,
     @Param('projectId') projectId: string,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const doc = await this.docs.getByProjectId(projectId);
     if (!doc) throw new NotFoundException('Design document not found');
     const versions = await this.docs.listVersions(doc.id);
@@ -140,7 +141,7 @@ export class DesignDocumentsController {
     @Param('projectId') projectId: string,
     @Param('version') versionParam: string,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const doc = await this.docs.getByProjectId(projectId);
     if (!doc) throw new NotFoundException('Design document not found');
     const versionNum = parseInt(versionParam, 10);

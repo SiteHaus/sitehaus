@@ -55,6 +55,7 @@ export default function NewProjectPage() {
   const handleCreateClient = async (
     name: string,
     key: string,
+    audience: string,
   ): Promise<ClientOption | null> => {
     try {
       if (!key) {
@@ -63,11 +64,7 @@ export default function NewProjectPage() {
       }
 
       const res = await getApi().clients.create({
-        body: {
-          key,
-          name,
-          audience: `https://${key}.sitehaus.dev`,
-        },
+        body: { key, name, audience },
       });
 
       if (res.status === 201) {

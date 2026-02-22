@@ -22,9 +22,10 @@ import {
 } from '@site-haus/validation/forms/ticket';
 import { AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
+import { ClientInRequest } from 'src/clients/client.guard';
 import { TicketsService } from './tickets.service';
 
-type Req_ = AuthedRequest & { client?: { id: string } };
+type Req_ = AuthedRequest & ClientInRequest;
 
 @Controller('tickets')
 export class TicketsController {
@@ -34,13 +35,13 @@ export class TicketsController {
   @Get()
   async list(@Req() req: Req_, @Query() query: unknown) {
     const parsed = listTicketsQuerySchema.parse(query);
-    return this.tickets.list(parsed, req.client!.id);
+    return this.tickets.list(parsed, req.client!.id, req.client!.firstParty);
   }
 
   @RequirePerms('tickets:read')
   @Get(':ticketId')
   async get(@Req() req: Req_, @Param('ticketId') ticketId: string) {
-    const ticket = await this.tickets.getById(ticketId, req.client!.id);
+    const ticket = await this.tickets.getById(ticketId, req.client!.id, req.client!.firstParty);
     if (!ticket) throw new NotFoundException('Ticket not found');
     return { ticket };
   }
@@ -55,7 +56,7 @@ export class TicketsController {
       clientId: req.client!.id,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
-    });
+    }, req.client!.firstParty);
     if ('error' in result) throw new ForbiddenException(result.error);
     return { ticket: result };
   }
@@ -73,7 +74,7 @@ export class TicketsController {
       clientId: req.client!.id,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
-    });
+    }, req.client!.firstParty);
     if (!ticket) throw new NotFoundException('Ticket not found');
     return { ticket };
   }
@@ -96,6 +97,7 @@ export class TicketsController {
         ip: req.ip,
         ua: req.headers['user-agent'] as string | undefined,
       },
+      req.client!.firstParty,
     );
     if (!result) throw new NotFoundException('Ticket not found');
     if ('error' in result) throw new BadRequestException(result.error);
@@ -120,6 +122,7 @@ export class TicketsController {
         ip: req.ip,
         ua: req.headers['user-agent'] as string | undefined,
       },
+      req.client!.firstParty,
     );
     if (!result) throw new NotFoundException('Ticket not found');
     if ('error' in result) throw new BadRequestException(result.error);

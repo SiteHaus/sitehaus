@@ -54,7 +54,7 @@ export interface ClientOption {
 interface CreateProjectFormProps {
   clients: ClientOption[];
   onSubmit: (values: CreateProjectInput) => Promise<void>;
-  onCreateClient?: (name: string, key: string) => Promise<ClientOption | null>;
+  onCreateClient?: (name: string, key: string, audience: string) => Promise<ClientOption | null>;
   loading?: boolean;
 }
 
@@ -67,7 +67,9 @@ export const CreateProjectForm = ({
   const [showNewClient, setShowNewClient] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [newClientKey, setNewClientKey] = useState("");
+  const [newClientAudience, setNewClientAudience] = useState("");
   const [keyManuallyEdited, setKeyManuallyEdited] = useState(false);
+  const [audienceManuallyEdited, setAudienceManuallyEdited] = useState(false);
   const [creatingClient, setCreatingClient] = useState(false);
   const [clientList, setClientList] = useState<ClientOption[]>(clients);
 
@@ -94,26 +96,39 @@ export const CreateProjectForm = ({
 
   const handleNewClientNameChange = (name: string) => {
     setNewClientName(name);
-    if (!keyManuallyEdited) setNewClientKey(slugify(name));
+    if (!keyManuallyEdited) {
+      const key = slugify(name);
+      setNewClientKey(key);
+      if (!audienceManuallyEdited) setNewClientAudience(`https://${key}.sitehaus.dev`);
+    }
   };
 
   const handleNewClientKeyChange = (key: string) => {
-    setNewClientKey(slugify(key));
+    const slugged = slugify(key);
+    setNewClientKey(slugged);
     setKeyManuallyEdited(true);
+    if (!audienceManuallyEdited) setNewClientAudience(`https://${slugged}.sitehaus.dev`);
+  };
+
+  const handleNewClientAudienceChange = (audience: string) => {
+    setNewClientAudience(audience);
+    setAudienceManuallyEdited(true);
   };
 
   const handleCreateClient = async () => {
-    if (!newClientName.trim() || !newClientKey.trim() || !onCreateClient) return;
+    if (!newClientName.trim() || !newClientKey.trim() || !newClientAudience.trim() || !onCreateClient) return;
     setCreatingClient(true);
     try {
-      const created = await onCreateClient(newClientName.trim(), newClientKey.trim());
+      const created = await onCreateClient(newClientName.trim(), newClientKey.trim(), newClientAudience.trim());
       if (created) {
         setClientList((prev) => [...prev, created]);
         form.setValue("clientId", created.id);
         setShowNewClient(false);
         setNewClientName("");
         setNewClientKey("");
+        setNewClientAudience("");
         setKeyManuallyEdited(false);
+        setAudienceManuallyEdited(false);
       }
     } finally {
       setCreatingClient(false);
@@ -372,7 +387,9 @@ export const CreateProjectForm = ({
           if (!open) {
             setNewClientName("");
             setNewClientKey("");
+            setNewClientAudience("");
             setKeyManuallyEdited(false);
+            setAudienceManuallyEdited(false);
           }
         }}
       >
@@ -411,6 +428,24 @@ export const CreateProjectForm = ({
               />
               <p className="text-xs text-muted-foreground">
                 Unique identifier — auto-derived from the name, lowercase with hyphens.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Audience</label>
+              <Input
+                placeholder="https://bearfoot-coffee.sitehaus.dev"
+                value={newClientAudience}
+                onChange={(e) => handleNewClientAudienceChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCreateClient();
+                  }
+                }}
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                The JWT audience claim for this client's tokens. Auto-derived from the key.
               </p>
             </div>
           </div>

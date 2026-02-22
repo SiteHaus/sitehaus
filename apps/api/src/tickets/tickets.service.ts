@@ -63,7 +63,7 @@ export class TicketsService {
     return rows.map((r) => r.id);
   }
 
-  async list(filters: ListTicketsQuery, clientId: string) {
+  async list(filters: ListTicketsQuery, clientId: string, isFirstParty = false) {
     const {
       projectId,
       status,
@@ -80,7 +80,7 @@ export class TicketsService {
     // Scope to client's projects
     if (projectId) {
       conditions.push(eq(schema.ticketsTable.projectId, projectId));
-    } else {
+    } else if (!isFirstParty) {
       // Client-level scoping: restrict to projects owned by the client
       const projectIds = await this.projectIdsForClient(clientId);
       if (projectIds.length === 0) {
@@ -136,7 +136,7 @@ export class TicketsService {
     };
   }
 
-  async getById(ticketId: string, clientId: string) {
+  async getById(ticketId: string, clientId: string, isFirstParty = false) {
     const ticket = await this.db.query.ticketsTable.findFirst({
       where: eq(schema.ticketsTable.id, ticketId),
       with: {
@@ -163,7 +163,7 @@ export class TicketsService {
     if (!ticket) return null;
 
     // Access check: ticket's project must belong to caller's client
-    if (ticket.project.clientId !== clientId) return null;
+    if (!isFirstParty && ticket.project.clientId !== clientId) return null;
 
     const [commentCount] = await this.db
       .select({ count: sql<number>`count(*)::int` })
@@ -184,13 +184,15 @@ export class TicketsService {
     };
   }
 
-  async create(data: CreateTicketInput, ctx: AuditContext) {
+  async create(data: CreateTicketInput, ctx: AuditContext, isFirstParty = false) {
     // Verify project belongs to the caller's client
     const project = await this.db.query.projectsTable.findFirst({
-      where: and(
-        eq(schema.projectsTable.id, data.projectId),
-        eq(schema.projectsTable.clientId, ctx.clientId),
-      ),
+      where: isFirstParty
+        ? eq(schema.projectsTable.id, data.projectId)
+        : and(
+            eq(schema.projectsTable.id, data.projectId),
+            eq(schema.projectsTable.clientId, ctx.clientId),
+          ),
       columns: { id: true },
     });
 
@@ -227,6 +229,7 @@ export class TicketsService {
     clientId: string,
     data: UpdateTicketInput,
     ctx: AuditContext,
+    isFirstParty = false,
   ) {
     const updates: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
@@ -241,7 +244,7 @@ export class TicketsService {
       columns: { id: true, authorId: true },
     });
 
-    if (!existing || existing.project.clientId !== clientId) return null;
+    if (!existing || (!isFirstParty && existing.project.clientId !== clientId)) return null;
 
     const [ticket] = await this.db
       .update(schema.ticketsTable)
@@ -270,6 +273,7 @@ export class TicketsService {
     clientId: string,
     newStatus: TicketStatus,
     ctx: AuditContext,
+    isFirstParty = false,
   ) {
     const existing = await this.db.query.ticketsTable.findFirst({
       where: eq(schema.ticketsTable.id, ticketId),
@@ -277,7 +281,7 @@ export class TicketsService {
       columns: { id: true, status: true },
     });
 
-    if (!existing || existing.project.clientId !== clientId) return null;
+    if (!existing || (!isFirstParty && existing.project.clientId !== clientId)) return null;
 
     const allowed = STATUS_TRANSITIONS[existing.status] ?? [];
     if (!allowed.includes(newStatus)) {
@@ -323,6 +327,7 @@ export class TicketsService {
     clientId: string,
     assigneeId: string | null,
     ctx: AuditContext,
+    isFirstParty = false,
   ) {
     const existing = await this.db.query.ticketsTable.findFirst({
       where: eq(schema.ticketsTable.id, ticketId),
@@ -330,7 +335,7 @@ export class TicketsService {
       columns: { id: true },
     });
 
-    if (!existing || existing.project.clientId !== clientId) return null;
+    if (!existing || (!isFirstParty && existing.project.clientId !== clientId)) return null;
 
     // If assigning, verify the user exists
     if (assigneeId) {

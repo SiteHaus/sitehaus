@@ -56,12 +56,14 @@ export class DesignDocumentsService {
   ) {}
 
   /** Verify projectId belongs to clientId, return project or null. */
-  async verifyProjectAccess(projectId: string, clientId: string) {
+  async verifyProjectAccess(projectId: string, clientId: string, isFirstParty = false) {
     return this.db.query.projectsTable.findFirst({
-      where: and(
-        eq(schema.projectsTable.id, projectId),
-        eq(schema.projectsTable.clientId, clientId),
-      ),
+      where: isFirstParty
+        ? eq(schema.projectsTable.id, projectId)
+        : and(
+            eq(schema.projectsTable.id, projectId),
+            eq(schema.projectsTable.clientId, clientId),
+          ),
       columns: { id: true },
     });
   }
