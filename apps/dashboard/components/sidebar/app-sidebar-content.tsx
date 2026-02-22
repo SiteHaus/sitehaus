@@ -3,6 +3,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@site-haus/ui/components/base/collapsible";
+import { useAuthStore } from "@site-haus/stores/auth-store";
 import {
   SidebarContent,
   SidebarGroup,
@@ -20,13 +21,22 @@ import Link from "next/link";
 import { sideBarMenuItems } from "./sidebar-links";
 
 export const AppSideBarContent = () => {
+  const hasPerm = useAuthStore((s) => s.hasPerm);
+
+  const visibleItems = sideBarMenuItems.map((item) => ({
+    ...item,
+    subItems: item.subItems?.filter(
+      (sub) => !sub.requirePerm || hasPerm(sub.requirePerm),
+    ),
+  }));
+
   return (
     <SidebarContent>
       <SidebarGroup>
         <SidebarGroupLabel>Application</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            {sideBarMenuItems.map((item) =>
+            {visibleItems.map((item) =>
               item.subItems ? (
                 <Collapsible
                   key={item.title}

@@ -25,12 +25,6 @@ import {
   PopoverTrigger,
 } from "@site-haus/ui/components/base/popover";
 import { Separator } from "@site-haus/ui/components/base/separator";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@site-haus/ui/components/base/tabs";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { ComboBoxField } from "@site-haus/ui/components/shared/combobox-field";
 import { cn } from "@site-haus/ui/lib/utils";
@@ -41,17 +35,16 @@ import {
 } from "@site-haus/validation/forms/project";
 import { format } from "date-fns";
 import { CalendarIcon, Loader2, Plus } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+
+const slugify = (s: string) =>
+  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 const projectTypeOptions = projectTypeEnum.options.map((value) => ({
   label: value.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()),
   value,
 }));
-
-export const FormGroup = ({ children }: { children: ReactNode }) => {
-  return <div className="flex flex-col md:flex-row gap-2">{children}</div>;
-};
 
 export interface ClientOption {
   id: string;
@@ -61,7 +54,7 @@ export interface ClientOption {
 interface CreateProjectFormProps {
   clients: ClientOption[];
   onSubmit: (values: CreateProjectInput) => Promise<void>;
-  onCreateClient?: (name: string) => Promise<ClientOption | null>;
+  onCreateClient?: (name: string, key: string) => Promise<ClientOption | null>;
   loading?: boolean;
 }
 
@@ -73,6 +66,8 @@ export const CreateProjectForm = ({
 }: CreateProjectFormProps) => {
   const [showNewClient, setShowNewClient] = useState(false);
   const [newClientName, setNewClientName] = useState("");
+  const [newClientKey, setNewClientKey] = useState("");
+  const [keyManuallyEdited, setKeyManuallyEdited] = useState(false);
   const [creatingClient, setCreatingClient] = useState(false);
   const [clientList, setClientList] = useState<ClientOption[]>(clients);
 
@@ -97,16 +92,28 @@ export const CreateProjectForm = ({
     await onSubmit(values);
   };
 
+  const handleNewClientNameChange = (name: string) => {
+    setNewClientName(name);
+    if (!keyManuallyEdited) setNewClientKey(slugify(name));
+  };
+
+  const handleNewClientKeyChange = (key: string) => {
+    setNewClientKey(slugify(key));
+    setKeyManuallyEdited(true);
+  };
+
   const handleCreateClient = async () => {
-    if (!newClientName.trim() || !onCreateClient) return;
+    if (!newClientName.trim() || !newClientKey.trim() || !onCreateClient) return;
     setCreatingClient(true);
     try {
-      const created = await onCreateClient(newClientName.trim());
+      const created = await onCreateClient(newClientName.trim(), newClientKey.trim());
       if (created) {
         setClientList((prev) => [...prev, created]);
         form.setValue("clientId", created.id);
         setShowNewClient(false);
         setNewClientName("");
+        setNewClientKey("");
+        setKeyManuallyEdited(false);
       }
     } finally {
       setCreatingClient(false);
@@ -121,104 +128,95 @@ export const CreateProjectForm = ({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <Tabs defaultValue="general">
-            <TabsList>
-              <TabsTrigger value="general">General</TabsTrigger>
-              <TabsTrigger value="details">More Details</TabsTrigger>
-            </TabsList>
-            <TabsContent
-              value="general"
-              className="space-y-2 border p-4 rounded-xl shadow"
-            >
-              <h2 className="text-xl font-bold mb-6">
-                General Project Details
-              </h2>
-
-              <div className="flex flex-col md:flex-row gap-2 items-end">
-                <FormField
-                  control={form.control}
-                  name="clientId"
-                  render={({ field }) => (
-                    <ComboBoxField
-                      field={field}
-                      name="clientId"
-                      label="Client"
-                      options={clientOptions}
-                      form={form}
-                    />
-                  )}
-                />
-                {onCreateClient && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="mb-0.5 shrink-0"
-                    onClick={() => setShowNewClient(true)}
-                  >
-                    <Plus className="mr-1 h-3.5 w-3.5" />
-                    New Client
-                  </Button>
-                )}
-              </div>
-
-              <Separator className="my-2" />
-
-              <FormGroup>
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Lunas Portfolio" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="type"
-                  render={({ field }) => (
-                    <ComboBoxField
-                      field={field}
-                      name="type"
-                      label="Project Type"
-                      options={projectTypeOptions}
-                      form={form}
-                    />
-                  )}
-                />
-              </FormGroup>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <div className="border bg-card rounded-xl shadow p-6 space-y-5">
+            {/* Client */}
+            <div className="flex flex-col md:flex-row gap-2 items-end">
               <FormField
                 control={form.control}
-                name="description"
+                name="clientId"
+                render={({ field }) => (
+                  <ComboBoxField
+                    field={field}
+                    name="clientId"
+                    label="Client"
+                    options={clientOptions}
+                    form={form}
+                  />
+                )}
+              />
+              {onCreateClient && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mb-0.5 shrink-0"
+                  onClick={() => setShowNewClient(true)}
+                >
+                  <Plus className="mr-1 h-3.5 w-3.5" />
+                  New Client
+                </Button>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Name + Type */}
+            <div className="flex flex-col md:flex-row gap-4">
+              <FormField
+                control={form.control}
+                name="name"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Project Name</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Input placeholder="Luna's Portfolio" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <ComboBoxField
+                    field={field}
+                    name="type"
+                    label="Project Type"
+                    options={projectTypeOptions}
+                    form={form}
+                  />
+                )}
+              />
+            </div>
 
-              <Button type="submit" className="mt-4" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Project
-              </Button>
-            </TabsContent>
-            <TabsContent
-              value="details"
-              className="space-y-2 border p-4 rounded-xl shadow"
-            >
-              <h2 className="text-xl font-bold mb-6">More Project Details</h2>
+            {/* Description */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Brief description of the project..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormGroup>
+            <Separator />
+
+            {/* Technical */}
+            <div className="space-y-4">
+              <p className="text-sm font-medium text-muted-foreground">
+                Technical
+              </p>
+              <div className="flex flex-col md:flex-row gap-4">
                 <FormField
                   control={form.control}
                   name="repoUrl"
@@ -226,13 +224,15 @@ export const CreateProjectForm = ({
                     <FormItem className="flex-1">
                       <FormLabel>Repository URL</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input
+                          placeholder="https://github.com/org/repo"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="siteDomain"
@@ -240,13 +240,12 @@ export const CreateProjectForm = ({
                     <FormItem className="flex-1">
                       <FormLabel>Domain</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input placeholder="example.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="stagingDomain"
@@ -254,17 +253,23 @@ export const CreateProjectForm = ({
                     <FormItem className="flex-1">
                       <FormLabel>Staging Domain</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input placeholder="staging.example.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-              </FormGroup>
+              </div>
+            </div>
 
-              <Separator className="my-4" />
+            <Separator />
 
-              <FormGroup>
+            {/* Timeline */}
+            <div className="space-y-4">
+              <p className="text-sm font-medium text-muted-foreground">
+                Timeline
+              </p>
+              <div className="flex flex-col md:flex-row gap-4">
                 <FormField
                   control={form.control}
                   name="startDate"
@@ -275,10 +280,10 @@ export const CreateProjectForm = ({
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant={"outline"}
+                              variant="outline"
                               className={cn(
-                                "text-left font-normal",
-                                !field.value && "text-muted-foreground"
+                                "w-full text-left font-normal",
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value ? (
@@ -307,7 +312,6 @@ export const CreateProjectForm = ({
                     </FormItem>
                   )}
                 />
-
                 <FormField
                   control={form.control}
                   name="dueDate"
@@ -318,10 +322,10 @@ export const CreateProjectForm = ({
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
-                              variant={"outline"}
+                              variant="outline"
                               className={cn(
-                                "text-left font-normal",
-                                !field.value && "text-muted-foreground"
+                                "w-full text-left font-normal",
+                                !field.value && "text-muted-foreground",
                               )}
                             >
                               {field.value ? (
@@ -350,29 +354,39 @@ export const CreateProjectForm = ({
                     </FormItem>
                   )}
                 />
-              </FormGroup>
+              </div>
+            </div>
+          </div>
 
-              <Button type="submit" className="mt-4" disabled={loading}>
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Project
-              </Button>
-            </TabsContent>
-          </Tabs>
+          <Button type="submit" disabled={loading}>
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Create Project <Plus />
+          </Button>
         </form>
       </Form>
 
-      <Dialog open={showNewClient} onOpenChange={setShowNewClient}>
+      <Dialog
+        open={showNewClient}
+        onOpenChange={(open) => {
+          setShowNewClient(open);
+          if (!open) {
+            setNewClientName("");
+            setNewClientKey("");
+            setKeyManuallyEdited(false);
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create New Client</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Client Name</label>
+              <label className="text-sm font-medium">Display Name</label>
               <Input
                 placeholder="BearFoot Coffee"
                 value={newClientName}
-                onChange={(e) => setNewClientName(e.target.value)}
+                onChange={(e) => handleNewClientNameChange(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -380,8 +394,23 @@ export const CreateProjectForm = ({
                   }
                 }}
               />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Key</label>
+              <Input
+                placeholder="bearfoot-coffee"
+                value={newClientKey}
+                onChange={(e) => handleNewClientKeyChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCreateClient();
+                  }
+                }}
+                className="font-mono text-sm"
+              />
               <p className="text-xs text-muted-foreground">
-                This creates a new organization for your client.
+                Unique identifier — auto-derived from the name, lowercase with hyphens.
               </p>
             </div>
           </div>
@@ -395,7 +424,7 @@ export const CreateProjectForm = ({
             </Button>
             <Button
               onClick={handleCreateClient}
-              disabled={!newClientName.trim() || creatingClient}
+              disabled={!newClientName.trim() || !newClientKey.trim() || creatingClient}
             >
               {creatingClient && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

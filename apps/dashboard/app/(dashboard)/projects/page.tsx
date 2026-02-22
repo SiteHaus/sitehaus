@@ -2,6 +2,7 @@
 
 import { type ProjectItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
+import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -15,6 +16,8 @@ import { Spinner } from "@site-haus/ui/components/base/spinner";
 import {
   FolderKanban,
   Globe,
+  Mail,
+  Phone,
   Plus,
   Search,
 } from "lucide-react";
@@ -52,6 +55,9 @@ const label = (s: string) =>
   s.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase());
 
 export default function ProjectsPage() {
+  const hasPerm = useAuthStore((s) => s.hasPerm);
+  const canManage = hasPerm("projects:manage");
+
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -83,29 +89,31 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage all your web projects.
-          </p>
-        </div>
-        <Button asChild>
-          <Link href="/projects/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Link>
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold">Projects</h1>
+        <p className="text-muted-foreground mt-1">
+          Manage all your web projects.
+        </p>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search projects..."
-          className="pl-9"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search projects..."
+            className="pl-9"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        {canManage && (
+          <Button asChild>
+            <Link href="/projects/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Project
+            </Link>
+          </Button>
+        )}
       </div>
 
       {loading ? (
@@ -115,19 +123,48 @@ export default function ProjectsPage() {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <FolderKanban className="h-12 w-12 text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-medium">No projects found</h3>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {search
-              ? "Try adjusting your search."
-              : "Create your first project to get started."}
-          </p>
-          {!search && (
-            <Button asChild className="mt-4" variant="outline">
-              <Link href="/projects/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Project
-              </Link>
-            </Button>
+          {search ? (
+            <>
+              <h3 className="text-lg font-medium">No projects found</h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Try adjusting your search.
+              </p>
+            </>
+          ) : canManage ? (
+            <>
+              <h3 className="text-lg font-medium">No projects yet</h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Create your first project to get started.
+              </p>
+              <Button asChild className="mt-4" variant="outline">
+                <Link href="/projects/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Project
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <h3 className="text-lg font-medium">No projects here yet</h3>
+              <p className="text-muted-foreground mt-2 text-sm max-w-sm">
+                It looks like your account doesn&apos;t have any projects set up
+                yet. Reach out to us and we&apos;ll get things moving.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                <Button asChild variant="outline">
+                  <a href="mailto:hello@sitehaus.com">
+                    <Mail className="mr-2 h-4 w-4" />
+                    hello@sitehaus.com
+                  </a>
+                </Button>
+                <Button asChild variant="outline">
+                  <a href="tel:+15555555555">
+                    <Phone className="mr-2 h-4 w-4" />
+                    (555) 555-5555
+                  </a>
+                </Button>
+              </div>
+            </>
           )}
         </div>
       ) : (

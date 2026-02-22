@@ -22,6 +22,7 @@ import {
   Globe,
   Milestone,
   Pencil,
+  ScrollText,
   Ticket,
   User,
 } from "lucide-react";
@@ -238,6 +239,23 @@ export default function ProjectDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+        <Link href={`/projects/${projectId}/design-document`}>
+          <CardHeader className="pb-2">
+            <CardDescription className="flex items-center gap-1">
+              <ScrollText className="h-3.5 w-3.5" />
+              Design Document
+            </CardDescription>
+            <CardTitle className="text-lg">View Design Document</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-xs text-muted-foreground">
+              Review and manage the project design document
+            </p>
+          </CardContent>
+        </Link>
+      </Card>
 
       <Card>
         <CardHeader>

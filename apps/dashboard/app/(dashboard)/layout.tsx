@@ -8,7 +8,7 @@ import {
   SidebarTrigger,
 } from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import { AppSideBar } from "../components/sidebar/app-sidebar";
+import { AppSideBar } from "../../components/sidebar/app-sidebar";
 
 export default function DashboardLayout({
   children,

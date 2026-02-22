@@ -10,21 +10,18 @@ import { type CreateProjectInput } from "@site-haus/validation/forms/project";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { InviteClientDialog } from "../../../../components/invite-client-dialog";
+import type { ProjectItem } from "@site-haus/contracts";
 
-function slugify(name: string) {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
 
 export default function NewProjectPage() {
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
+  const hasPerm = useAuthStore((s) => s.hasPerm);
   const storeClients = useAuthStore((s) => s.clients);
   const loadMyClients = useAuthStore((s) => s.loadMyClients);
   const [loading, setLoading] = useState(false);
+  const [createdProject, setCreatedProject] = useState<ProjectItem | null>(null);
 
   const clientOptions: ClientOption[] = useMemo(
     () =>
@@ -40,7 +37,7 @@ export default function NewProjectPage() {
       const res = await getApi().projects.create({ body: values });
       if (res.status === 201) {
         toast.success("Project created successfully");
-        router.push(`/projects/${res.body.project.id}`);
+        setCreatedProject(res.body.project);
       } else {
         const msg =
           res.status === 400
@@ -57,11 +54,11 @@ export default function NewProjectPage() {
 
   const handleCreateClient = async (
     name: string,
+    key: string,
   ): Promise<ClientOption | null> => {
     try {
-      const key = slugify(name);
       if (!key) {
-        toast.error("Invalid client name.");
+        toast.error("Invalid client key.");
         return null;
       }
 
@@ -92,6 +89,11 @@ export default function NewProjectPage() {
   };
 
   if (!session) return null;
+  if (!hasPerm("projects:manage")) return null;
+
+  const inviteClientName = createdProject
+    ? (storeClients.find((c) => c.id === createdProject.clientId)?.name ?? "Client")
+    : "";
 
   return (
     <div className="space-y-6">
@@ -107,6 +109,17 @@ export default function NewProjectPage() {
         onCreateClient={handleCreateClient}
         loading={loading}
       />
+      {createdProject && (
+        <InviteClientDialog
+          open={!!createdProject}
+          onOpenChange={(open) => {
+            if (!open) router.push(`/projects/${createdProject.id}`);
+          }}
+          projectClientId={createdProject.clientId}
+          clientName={inviteClientName}
+          onDone={() => router.push(`/projects/${createdProject.id}`)}
+        />
+      )}
     </div>
   );
 }

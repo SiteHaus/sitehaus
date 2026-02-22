@@ -16,6 +16,9 @@ type AuthState = {
   setClients: (clients: MeClient[]) => void;
   loadMyClients: () => Promise<void>;
 
+  managedClientId: string | null;
+  setManagedClientId: (id: string | null) => void;
+
   hydrated: boolean;
   setHydrated: () => void;
 
@@ -75,6 +78,9 @@ export const useAuthStore = create<AuthState>()(
       clients: [],
       setClients: (clients) => set({ clients }),
 
+      managedClientId: null,
+      setManagedClientId: (id) => set({ managedClientId: id }),
+
       loadMyClients: async () => {
         const { clients } = getApi();
         const r = await clients.meClients();
@@ -125,6 +131,10 @@ export const useAuthStore = create<AuthState>()(
           if (currentState.clients.length === 0) {
             await get().loadMyClients();
           }
+          const visibleClients = get().clients.filter((c) => !c.hidden);
+          if (visibleClients.length === 1 && !get().managedClientId) {
+            set({ managedClientId: visibleClients[0].id });
+          }
           set({ bootstrapped: true });
           return;
         }
@@ -143,6 +153,10 @@ export const useAuthStore = create<AuthState>()(
         if (get().accessToken) {
           await get().me();
           await get().loadMyClients();
+          const visibleClients = get().clients.filter((c) => !c.hidden);
+          if (visibleClients.length === 1 && !get().managedClientId) {
+            set({ managedClientId: visibleClients[0].id });
+          }
         }
         set({ bootstrapped: true });
       },

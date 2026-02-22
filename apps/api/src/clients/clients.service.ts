@@ -6,7 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { eq, schema, type Db } from '@site-haus/db';
+import { eq, inArray, schema, type Db } from '@site-haus/db';
 import { DEFAULT_ROLE_PERMS } from '@site-haus/validation/core/perms';
 import {
   type CreateClientInput,
@@ -101,6 +101,53 @@ export class ClientsService {
         clientId: created.id,
         roleId: adminRole.id,
       });
+
+      // 6. Auto-grant admin to all existing SiteHaus staff (anyone with the
+      //    admin role on any first-party client), so staff don't need to run
+      //    grant-admin every time a new client org is created.
+      const firstPartyClients = await tx.query.clientsTable.findMany({
+        where: (t, { eq: _eq }) => _eq(t.firstParty, true),
+        columns: { id: true },
+      });
+      if (firstPartyClients.length > 0) {
+        const staffAdminRoles = await tx.query.rolesTable.findMany({
+          where: (t, { and: _and, eq: _eq, inArray: _in }) =>
+            _and(
+              _in(t.clientId, firstPartyClients.map((c) => c.id)),
+              _eq(t.key, 'admin'),
+            ),
+          columns: { id: true },
+        });
+        if (staffAdminRoles.length > 0) {
+          const staffAssignments = await tx.query.userRolesTable.findMany({
+            where: (t, { inArray: _in }) =>
+              _in(t.roleId, staffAdminRoles.map((r) => r.id)),
+            columns: { userId: true },
+          });
+          const staffUserIds = [
+            ...new Set(staffAssignments.map((a) => a.userId)),
+          ].filter((id) => id !== ctx.userId);
+
+          if (staffUserIds.length > 0) {
+            await tx
+              .insert(schema.userRolesTable)
+              .values(
+                staffUserIds.map((userId) => ({
+                  userId,
+                  clientId: created.id,
+                  roleId: adminRole.id,
+                })),
+              )
+              .onConflictDoNothing({
+                target: [
+                  schema.userRolesTable.userId,
+                  schema.userRolesTable.clientId,
+                  schema.userRolesTable.roleId,
+                ],
+              });
+          }
+        }
+      }
 
       return created;
     });

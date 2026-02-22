@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@platejs/basic-nodes": "^52.0.11",
     "@site-haus/contracts": "workspace:*",
     "@site-haus/db": "workspace:*",
     "@site-haus/sdk": "workspace:*",
@@ -21,6 +22,7 @@
     "date-fns": "^4.1.0",
     "lucide-react": "^0.534.0",
     "next": "^15.4.2",
+    "platejs": "^52.0.17",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.62.0",

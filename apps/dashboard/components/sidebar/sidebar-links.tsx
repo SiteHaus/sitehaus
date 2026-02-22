@@ -16,6 +16,7 @@ type SidebarMenuItem = {
   isActive?: boolean;
   subItems?: SidebarMenuItem[];
   disabled: boolean;
+  requirePerm?: string;
 };
 
 export const sideBarMenuItems: SidebarMenuItem[] = [
@@ -42,6 +43,7 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
         title: "New Project",
         url: "/projects/new",
         disabled: false,
+        requirePerm: "projects:manage",
       },
     ],
   },

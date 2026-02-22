@@ -82,6 +82,7 @@ export class DesignDocumentsController {
 
   @RequirePerms('documents:manage')
   @Post('publish')
+  @HttpCode(HttpStatus.OK)
   async publish(
     @Req() req: Req_,
     @Param('projectId') projectId: string,

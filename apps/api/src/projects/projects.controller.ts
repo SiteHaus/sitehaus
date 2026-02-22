@@ -21,9 +21,10 @@ import {
 } from '@site-haus/validation/forms/project';
 import { AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
+import { ClientInRequest } from 'src/clients/client.guard';
 import { ProjectsService } from './projects.service';
 
-type Req_ = AuthedRequest & { client?: { id: string } };
+type Req_ = AuthedRequest & ClientInRequest;
 
 @Controller('projects')
 export class ProjectsController {
@@ -33,13 +34,13 @@ export class ProjectsController {
   @Get()
   async list(@Req() req: Req_, @Query() query: unknown) {
     const parsed = listProjectsQuerySchema.parse(query);
-    return this.projects.list(parsed, req.client!.id);
+    return this.projects.list(parsed, req.client!.id, req.client!.firstParty);
   }
 
   @RequirePerms('projects:read')
   @Get(':projectId')
   async get(@Req() req: Req_, @Param('projectId') projectId: string) {
-    const project = await this.projects.getById(projectId, req.client!.id);
+    const project = await this.projects.getById(projectId, req.client!.id, req.client!.firstParty);
     if (!project) throw new NotFoundException('Project not found');
     return { project };
   }

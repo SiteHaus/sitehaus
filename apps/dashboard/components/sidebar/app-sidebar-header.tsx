@@ -36,7 +36,7 @@ export const AppSideBarHeader = ({
   currentProjectId,
 }: AppSideBarHeaderProps) => {
   const [selectedProjectId, setSelectedProjectId] = useState(
-    currentProjectId ?? projects?.[0]?.id
+    currentProjectId ?? projects?.[0]?.id,
   );
 
   const currentProject = projects?.find((p) => p.id === selectedProjectId);

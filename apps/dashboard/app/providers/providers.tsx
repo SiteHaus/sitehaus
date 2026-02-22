@@ -21,6 +21,7 @@ initStoresSdk({
   baseURL: API,
   clientKey: CLIENT,
   proactiveRefreshSkewSec: 60,
+  targetClientIdProvider: () => useAuthStore.getState().managedClientId ?? null,
 });
 
 const Providers = ({ children }: ProvidersProps) => {

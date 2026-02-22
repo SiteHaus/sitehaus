@@ -38,14 +38,18 @@ export class ProjectsService {
     private readonly audit: AuditService,
   ) {}
 
-  async list(filters: ListProjectsQuery, clientId: string) {
+  async list(filters: ListProjectsQuery, clientId: string, isFirstParty = false) {
     const { status, type, clientId: filterClientId, search, limit = 50, cursor } = filters;
 
-    const conditions = [eq(schema.projectsTable.clientId, clientId)];
+    // First-party (SiteHaus staff with no x-client-id) sees all projects.
+    // Third-party clients are scoped to their own clientId.
+    const conditions = isFirstParty
+      ? []
+      : [eq(schema.projectsTable.clientId, clientId)];
 
-    // If an employee is filtering by a specific client, override
+    // Explicit clientId filter (staff filtering by a specific client)
     if (filterClientId) {
-      conditions[0] = eq(schema.projectsTable.clientId, filterClientId);
+      conditions.push(eq(schema.projectsTable.clientId, filterClientId));
     }
 
     if (status) {
@@ -74,7 +78,7 @@ export class ProjectsService {
     }
 
     const rows = await this.db.query.projectsTable.findMany({
-      where: and(...conditions),
+      where: conditions.length ? and(...conditions) : undefined,
       orderBy: [desc(schema.projectsTable.updatedAt)],
       limit: limit + 1,
     });
@@ -96,12 +100,14 @@ export class ProjectsService {
     };
   }
 
-  async getById(projectId: string, clientId: string) {
+  async getById(projectId: string, clientId: string, isFirstParty = false) {
     const project = await this.db.query.projectsTable.findFirst({
-      where: and(
-        eq(schema.projectsTable.id, projectId),
-        eq(schema.projectsTable.clientId, clientId),
-      ),
+      where: isFirstParty
+        ? eq(schema.projectsTable.id, projectId)
+        : and(
+            eq(schema.projectsTable.id, projectId),
+            eq(schema.projectsTable.clientId, clientId),
+          ),
       with: {
         client: { columns: { id: true, name: true } },
         user: {
