@@ -1,5 +1,7 @@
 export * from "./assets.js";
 export * from "./assets.relations.js";
+export * from "./billing-records.js";
+export * from "./billing-records.relations.js";
 export * from "./audit-logs.js";
 export * from "./audit-logs.relations.js";
 export * from "./business-profiles.js";

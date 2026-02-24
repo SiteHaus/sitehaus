@@ -84,3 +84,13 @@ export const commentTargetTypeValues = [
   "design_document",
   "project",
 ] as const;
+
+export const billingRecordTypeValues = ["recurring", "one_time"] as const;
+
+export const billingRecordStatusValues = [
+  "active",
+  "past_due",
+  "cancelled",
+  "paid",
+  "refunded",
+] as const;

@@ -57,6 +57,13 @@
       "when": 1771046042459,
       "tag": "0007_third_blue_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771949216736,
+      "tag": "0008_useful_maverick",
+      "breakpoints": true
     }
   ]
 }
