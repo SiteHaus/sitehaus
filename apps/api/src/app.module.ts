@@ -29,6 +29,7 @@ import { UsersModule } from './users/users.module';
 import { BusinessProfilesModule } from './business-profiles/business-profiles.module';
 import { CommentsModule } from './comments/comments.module';
 import { DesignDocumentsModule } from './design-documents/design-documents.module';
+import { MilestonesModule } from './milestones/milestones.module';
 import { ProjectsModule } from './projects/projects.module';
 import { TicketsModule } from './tickets/tickets.module';
 
@@ -74,6 +75,7 @@ import { TicketsModule } from './tickets/tickets.module';
     BusinessProfilesModule,
     DesignDocumentsModule,
     TicketsModule,
+    MilestonesModule,
     AssetsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, InvitesService],
