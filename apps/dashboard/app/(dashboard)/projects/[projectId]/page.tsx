@@ -2,6 +2,7 @@
 
 import { type ProjectDetail } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
+import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -19,6 +20,7 @@ import {
   DollarSign,
   ExternalLink,
   FileText,
+  FolderOpen,
   Globe,
   Milestone,
   Pencil,
@@ -79,6 +81,7 @@ const formatCents = (cents: number | null) => {
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
+  const canManage = useAuthStore((s) => s.hasPerm("projects:manage"));
   const [project, setProject] = useState<ProjectDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -154,12 +157,14 @@ export default function ProjectDetailPage() {
               {label(project.status)}
             </Badge>
             <Badge variant="outline">{label(project.type)}</Badge>
-            <Button asChild size="sm" variant="outline">
-              <Link href={`/projects/${projectId}/edit`}>
-                <Pencil className="mr-2 h-3.5 w-3.5" />
-                Edit
-              </Link>
-            </Button>
+            {canManage && (
+              <Button asChild size="sm" variant="outline">
+                <Link href={`/projects/${projectId}/edit`}>
+                  <Pencil className="mr-2 h-3.5 w-3.5" />
+                  Edit
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -240,22 +245,41 @@ export default function ProjectDetailPage() {
         </Card>
       </div>
 
-      <Card className="cursor-pointer transition-colors hover:bg-muted/50">
-        <Link href={`/projects/${projectId}/design-document`}>
-          <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
-              <ScrollText className="h-3.5 w-3.5" />
-              Design Document
-            </CardDescription>
-            <CardTitle className="text-lg">View Design Document</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground">
-              Review and manage the project design document
-            </p>
-          </CardContent>
-        </Link>
-      </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+          <Link href={`/projects/${projectId}/design-document`}>
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center gap-1">
+                <ScrollText className="h-3.5 w-3.5" />
+                Design Document
+              </CardDescription>
+              <CardTitle className="text-lg">View Design Document</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">
+                Review and manage the project design document
+              </p>
+            </CardContent>
+          </Link>
+        </Card>
+
+        <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+          <Link href={`/projects/${projectId}/assets`}>
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center gap-1">
+                <FolderOpen className="h-3.5 w-3.5" />
+                Assets
+              </CardDescription>
+              <CardTitle className="text-lg">Project Assets</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">
+                Logos, images, fonts, and other project files
+              </p>
+            </CardContent>
+          </Link>
+        </Card>
+      </div>
 
       <Card>
         <CardHeader>

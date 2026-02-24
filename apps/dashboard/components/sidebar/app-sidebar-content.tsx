@@ -4,6 +4,7 @@ import {
   CollapsibleTrigger,
 } from "@site-haus/ui/components/base/collapsible";
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import { useClientContext } from "../../hooks/use-client-context";
 import {
   SidebarContent,
   SidebarGroup,
@@ -22,13 +23,17 @@ import { sideBarMenuItems } from "./sidebar-links";
 
 export const AppSideBarContent = () => {
   const hasPerm = useAuthStore((s) => s.hasPerm);
+  const clientContext = useClientContext();
 
-  const visibleItems = sideBarMenuItems.map((item) => ({
-    ...item,
-    subItems: item.subItems?.filter(
-      (sub) => !sub.requirePerm || hasPerm(sub.requirePerm),
-    ),
-  }));
+  const visibleItems = sideBarMenuItems
+    .filter((item) => !item.requirePerm || hasPerm(item.requirePerm))
+    .filter((item) => !item.requireClient || !!clientContext)
+    .map((item) => ({
+      ...item,
+      subItems: item.subItems?.filter(
+        (sub) => !sub.requirePerm || hasPerm(sub.requirePerm),
+      ),
+    }));
 
   return (
     <SidebarContent>

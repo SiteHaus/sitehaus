@@ -13,6 +13,7 @@ import {
 } from "react-hook-form";
 
 import { Label } from "@site-haus/ui/components/base/label";
+import { Separator } from "@site-haus/ui/components/base/separator";
 import { cn } from "@site-haus/ui/lib/utils";
 
 const Form = FormProvider;
@@ -79,7 +80,7 @@ function FormItem({ className, ...props }: React.ComponentProps<"div">) {
     <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
-        className={cn("grid gap-2", className)}
+        className={cn("flex flex-col gap-1.5", className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -155,6 +156,21 @@ function FormMessage({ className, ...props }: React.ComponentProps<"p">) {
   );
 }
 
+function FormSection({
+  children,
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div className={cn("space-y-1", className)} {...props}>
+      <Separator />
+      <h2 className="pt-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+        {children}
+      </h2>
+    </div>
+  );
+}
+
 export {
   Form,
   FormControl,
@@ -163,5 +179,6 @@ export {
   FormItem,
   FormLabel,
   FormMessage,
+  FormSection,
   useFormField,
 };

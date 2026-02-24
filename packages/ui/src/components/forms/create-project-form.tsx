@@ -17,6 +17,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormSection,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
 import {
@@ -24,7 +25,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@site-haus/ui/components/base/popover";
-import { Separator } from "@site-haus/ui/components/base/separator";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { ComboBoxField } from "@site-haus/ui/components/shared/combobox-field";
 import { cn } from "@site-haus/ui/lib/utils";
@@ -143,9 +143,9 @@ export const CreateProjectForm = ({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <div className="border bg-card rounded-xl shadow p-6 space-y-5">
-            {/* Client */}
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+          {/* Client */}
+          <div className="space-y-4">
             <div className="flex flex-col md:flex-row gap-2 items-end">
               <FormField
                 control={form.control}
@@ -173,10 +173,11 @@ export const CreateProjectForm = ({
                 </Button>
               )}
             </div>
+          </div>
 
-            <Separator />
-
-            {/* Name + Type */}
+          {/* General */}
+          <div className="space-y-4">
+            <FormSection>General</FormSection>
             <div className="flex flex-col md:flex-row gap-4">
               <FormField
                 control={form.control}
@@ -206,7 +207,6 @@ export const CreateProjectForm = ({
               />
             </div>
 
-            {/* Description */}
             <FormField
               control={form.control}
               name="description"
@@ -223,153 +223,145 @@ export const CreateProjectForm = ({
                 </FormItem>
               )}
             />
+          </div>
 
-            <Separator />
-
-            {/* Technical */}
-            <div className="space-y-4">
-              <p className="text-sm font-medium text-muted-foreground">
-                Technical
-              </p>
-              <div className="flex flex-col md:flex-row gap-4">
-                <FormField
-                  control={form.control}
-                  name="repoUrl"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Repository URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://github.com/org/repo"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="siteDomain"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Domain</FormLabel>
-                      <FormControl>
-                        <Input placeholder="example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="stagingDomain"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Staging Domain</FormLabel>
-                      <FormControl>
-                        <Input placeholder="staging.example.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          {/* Technical */}
+          <div className="space-y-4">
+            <FormSection>Technical</FormSection>
+            <div className="flex flex-col md:flex-row gap-4">
+              <FormField
+                control={form.control}
+                name="repoUrl"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Repository URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://github.com/org/repo"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="siteDomain"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Domain</FormLabel>
+                    <FormControl>
+                      <Input placeholder="example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="stagingDomain"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Staging Domain</FormLabel>
+                    <FormControl>
+                      <Input placeholder="staging.example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+          </div>
 
-            <Separator />
-
-            {/* Timeline */}
-            <div className="space-y-4">
-              <p className="text-sm font-medium text-muted-foreground">
-                Timeline
-              </p>
-              <div className="flex flex-col md:flex-row gap-4">
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Start Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={
-                              field.value ? new Date(field.value) : undefined
-                            }
-                            onSelect={(date) =>
-                              field.onChange(date?.toISOString())
-                            }
-                            captionLayout="dropdown"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dueDate"
-                  render={({ field }) => (
-                    <FormItem className="flex-1">
-                      <FormLabel>Due Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant="outline"
-                              className={cn(
-                                "w-full text-left font-normal",
-                                !field.value && "text-muted-foreground",
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={
-                              field.value ? new Date(field.value) : undefined
-                            }
-                            onSelect={(date) =>
-                              field.onChange(date?.toISOString())
-                            }
-                            captionLayout="dropdown"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+          {/* Timeline */}
+          <div className="space-y-4">
+            <FormSection>Timeline</FormSection>
+            <div className="flex flex-col md:flex-row gap-4">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Start Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          onSelect={(date) =>
+                            field.onChange(date?.toISOString())
+                          }
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Due Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={
+                            field.value ? new Date(field.value) : undefined
+                          }
+                          onSelect={(date) =>
+                            field.onChange(date?.toISOString())
+                          }
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
 

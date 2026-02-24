@@ -64,12 +64,13 @@ export class ClientsService {
         );
       }
 
-      // 3. Create admin + member roles
+      // 3. Create admin + member + client roles
       const [adminRole] = await tx
         .insert(schema.rolesTable)
         .values([
           { clientId: created.id, key: 'admin', name: 'Admin', isDefault: false },
           { clientId: created.id, key: 'member', name: 'Member', isDefault: true },
+          { clientId: created.id, key: 'client', name: 'Client', isDefault: false },
         ])
         .returning();
 
@@ -81,15 +82,29 @@ export class ClientsService {
         })),
       );
 
-      // Get the member role for its default perms
-      const memberRole = await tx.query.rolesTable.findFirst({
-        where: (t, { eq, and }) =>
-          and(eq(t.clientId, created.id), eq(t.key, 'member')),
-      });
+      // Get the member and client roles for their default perms
+      const [memberRole, clientRole] = await Promise.all([
+        tx.query.rolesTable.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.clientId, created.id), eq(t.key, 'member')),
+        }),
+        tx.query.rolesTable.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.clientId, created.id), eq(t.key, 'client')),
+        }),
+      ]);
       if (memberRole) {
         await tx.insert(schema.rolePermissionsTable).values(
           DEFAULT_ROLE_PERMS.member.map((perm) => ({
             roleId: memberRole.id,
+            perm,
+          })),
+        );
+      }
+      if (clientRole) {
+        await tx.insert(schema.rolePermissionsTable).values(
+          DEFAULT_ROLE_PERMS.client.map((perm) => ({
+            roleId: clientRole.id,
             perm,
           })),
         );

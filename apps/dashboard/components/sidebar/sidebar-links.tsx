@@ -1,4 +1,5 @@
 import {
+  Building2,
   Contact,
   FolderKanban,
   Home,
@@ -17,6 +18,8 @@ type SidebarMenuItem = {
   subItems?: SidebarMenuItem[];
   disabled: boolean;
   requirePerm?: string;
+  /** Only visible when the user is acting as a specific client (managedClientId is set) */
+  requireClient?: boolean;
 };
 
 export const sideBarMenuItems: SidebarMenuItem[] = [
@@ -67,11 +70,20 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     ],
   },
   {
+    title: "Business Profile",
+    url: "/profile",
+    icon: Building2,
+    disabled: false,
+    isActive: false,
+    requireClient: true,
+  },
+  {
     title: "Clients",
     url: "/clients",
     icon: Contact,
     disabled: false,
     isActive: false,
+    requirePerm: "members:read",
     subItems: [
       {
         title: "Client Directory",
@@ -86,6 +98,7 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     icon: Wrench,
     disabled: true,
     isActive: false,
+    requirePerm: "projects:manage",
     subItems: [
       {
         title: "Calendar",
@@ -105,6 +118,7 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     icon: Swords,
     disabled: false,
     isActive: false,
+    requirePerm: "roles:manage",
     subItems: [
       {
         title: "User Management",

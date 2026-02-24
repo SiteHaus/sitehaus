@@ -68,8 +68,12 @@ export class AccessGuard implements CanActivate {
     const payload = await this.jwt
       .verifyAsync<AccessPayload>(token)
       .catch(() => {
+        if (isPublic) return null;
         throw new UnauthorizedException('Invalid token');
       });
+
+    // Invalid token on a public route — proceed unauthenticated
+    if (!payload) return true;
 
     const session = await this.db.query.sessionsTable.findFirst({
       where: (t, { eq, isNull, gt, and }) =>
@@ -85,7 +89,10 @@ export class AccessGuard implements CanActivate {
         },
       },
     });
-    if (!session) throw new UnauthorizedException('Session Expired');
+    if (!session) {
+      if (isPublic) return true;
+      throw new UnauthorizedException('Session Expired');
+    }
 
     const clientInReq = req.client?.id;
     if (clientInReq && clientInReq !== payload.aud) {

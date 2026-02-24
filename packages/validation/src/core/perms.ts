@@ -126,7 +126,7 @@ export const PERMISSIONS_BY_MODULE = (
   {} as Record<ModuleKey, string[]>
 );
 
-export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer", Permission[]> = {
+export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "client", Permission[]> = {
   admin: [...ALL_PERMISSIONS],
   member: [
     "sessions:read",
@@ -137,6 +137,22 @@ export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer", Permis
   developer: [
     ...ALL_PERMISSIONS,
     "clients:view_hidden",
+  ],
+  client: [
+    "projects:read",
+    "profiles:read",
+    "profiles:manage",
+    "tickets:read",
+    "tickets:create",
+    "documents:read",
+    "assets:read",
+    "assets:upload",
+    "comments:read",
+    "comments:create",
+    "sessions:read",
+    "sessions:revoke",
+    "devices:read",
+    "devices:revoke",
   ],
 };
 

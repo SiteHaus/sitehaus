@@ -131,7 +131,7 @@ export const useAuthStore = create<AuthState>()(
           if (currentState.clients.length === 0) {
             await get().loadMyClients();
           }
-          const visibleClients = get().clients.filter((c) => !c.hidden);
+          const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
           if (visibleClients.length === 1 && !get().managedClientId) {
             set({ managedClientId: visibleClients[0].id });
           }
@@ -153,7 +153,7 @@ export const useAuthStore = create<AuthState>()(
         if (get().accessToken) {
           await get().me();
           await get().loadMyClients();
-          const visibleClients = get().clients.filter((c) => !c.hidden);
+          const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
           if (visibleClients.length === 1 && !get().managedClientId) {
             set({ managedClientId: visibleClients[0].id });
           }
