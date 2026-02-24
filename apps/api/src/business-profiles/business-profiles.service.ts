@@ -1,5 +1,5 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import { and, eq, schema, type Db } from '@site-haus/db';
+import { eq, schema, type Db } from '@site-haus/db';
 import type {
   CreateBusinessProfileInput,
   UpdateBusinessProfileInput,

@@ -5,7 +5,6 @@ import {
   eq,
   lt,
   schema,
-  sql,
   type Db,
 } from '@site-haus/db';
 import type { CommentTargetType } from '@site-haus/db';

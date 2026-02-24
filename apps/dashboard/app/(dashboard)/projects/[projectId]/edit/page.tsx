@@ -28,7 +28,7 @@ import { ComboBoxField } from "@site-haus/ui/components/shared/combobox-field";
 import { cn } from "@site-haus/ui/lib/utils";
 import {
   projectBillingStatusEnum,
-  projectStatusEnum,
+
   projectTypeEnum,
   type UpdateProjectInput,
   updateProjectSchema,
@@ -41,10 +41,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-const statusOptions = projectStatusEnum.options.map((v) => ({
-  label: v.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()),
-  value: v,
-}));
+
 const typeOptions = projectTypeEnum.options.map((v) => ({
   label: v.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()),
   value: v,

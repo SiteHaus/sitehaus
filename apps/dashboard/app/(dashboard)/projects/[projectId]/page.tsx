@@ -235,11 +235,18 @@ export default function ProjectDetailPage() {
               {project.client?.name ?? "Unknown"}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-2">
             {project.creator && (
               <p className="text-xs text-muted-foreground">
                 Created by {project.creator.firstName} {project.creator.lastName}
               </p>
+            )}
+            {canManage && project.client && (
+              <Button asChild variant="outline" size="sm" className="h-7 text-xs">
+                <Link href={`/clients/${project.client.id}/business-profile`}>
+                  View Business Profile
+                </Link>
+              </Button>
             )}
           </CardContent>
         </Card>

@@ -155,7 +155,7 @@ export class DesignDocumentsService {
     const nextVersion = doc.currentVersion + 1;
 
     // Create immutable version snapshot
-    const [version] = await this.db
+    await this.db
       .insert(schema.designDocumentVersionsTable)
       .values({
         designDocumentId: doc.id,

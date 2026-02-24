@@ -45,7 +45,7 @@ export class CommentsController {
 
     // TODO: determine isEmployee from req context (e.g. checking role/permissions)
     // For now, check if user has 'comments:manage' as a proxy for employee status
-    const isEmployee = (req.user as any)?.permissions?.includes('comments:manage') ?? false;
+    const isEmployee = (req.user as { permissions?: string[] } | undefined)?.permissions?.includes('comments:manage') ?? false;
 
     return this.comments.list(parsed, req.client!.id, isEmployee);
   }

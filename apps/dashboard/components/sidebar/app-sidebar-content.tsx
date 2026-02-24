@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -19,9 +21,22 @@ import {
 } from "@site-haus/ui/components/base/sidebar";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { sideBarMenuItems } from "./sidebar-links";
+import { usePathname } from "next/navigation";
+import { sideBarMenuItems, type SidebarMenuItem as SidebarMenuItemType } from "./sidebar-links";
+
+function isActive(pathname: string, url: string): boolean {
+  if (url === "/" ) return pathname === "/";
+  if (url === "#") return false;
+  return pathname === url || pathname.startsWith(url + "/");
+}
+
+function isParentActive(pathname: string, item: SidebarMenuItemType): boolean {
+  if (item.subItems?.some((sub) => isActive(pathname, sub.url))) return true;
+  return isActive(pathname, item.url);
+}
 
 export const AppSideBarContent = () => {
+  const pathname = usePathname();
   const hasPerm = useAuthStore((s) => s.hasPerm);
   const clientContext = useClientContext();
 
@@ -42,16 +57,19 @@ export const AppSideBarContent = () => {
         <SidebarGroupContent>
           <SidebarMenu>
             {visibleItems.map((item) =>
-              item.subItems ? (
+              item.subItems && item.subItems.length > 0 ? (
                 <Collapsible
                   key={item.title}
                   asChild
-                  defaultOpen={item.isActive}
+                  defaultOpen={isParentActive(pathname, item)}
                   className="group/collapsible"
                 >
-                  <SidebarMenuItem key={item.title}>
+                  <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
-                      <SidebarMenuButton tooltip={item.title}>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        isActive={isParentActive(pathname, item)}
+                      >
                         {item.icon && <item.icon />}
                         <span>{item.title}</span>
                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -59,9 +77,12 @@ export const AppSideBarContent = () => {
                     </CollapsibleTrigger>
                     <CollapsibleContent>
                       <SidebarMenuSub>
-                        {item.subItems?.map((subItem) => (
+                        {item.subItems.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={isActive(pathname, subItem.url)}
+                            >
                               <Link href={subItem.url}>
                                 <span>{subItem.title}</span>
                               </Link>
@@ -76,7 +97,7 @@ export const AppSideBarContent = () => {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     tooltip={item.title}
-                    disabled={item.disabled}
+                    isActive={isActive(pathname, item.url)}
                     asChild
                   >
                     <Link href={item.url}>

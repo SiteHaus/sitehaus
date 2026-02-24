@@ -388,7 +388,7 @@ function GoalsTab({
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="painPoints">What's not working right now?</Label>
+        <Label htmlFor="painPoints">What&apos;s not working right now?</Label>
         <Textarea
           id="painPoints"
           value={painPoints}

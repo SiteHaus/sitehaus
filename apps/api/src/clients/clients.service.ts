@@ -6,7 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { eq, inArray, schema, type Db } from '@site-haus/db';
+import { eq, schema, type Db } from '@site-haus/db';
 import { DEFAULT_ROLE_PERMS } from '@site-haus/validation/core/perms';
 import {
   type CreateClientInput,

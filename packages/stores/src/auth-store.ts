@@ -132,8 +132,9 @@ export const useAuthStore = create<AuthState>()(
             await get().loadMyClients();
           }
           const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
-          if (visibleClients.length === 1 && !get().managedClientId) {
-            set({ managedClientId: visibleClients[0].id });
+          const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
+          if (onlyClient && !get().managedClientId) {
+            set({ managedClientId: onlyClient.id });
           }
           set({ bootstrapped: true });
           return;
@@ -154,8 +155,9 @@ export const useAuthStore = create<AuthState>()(
           await get().me();
           await get().loadMyClients();
           const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
-          if (visibleClients.length === 1 && !get().managedClientId) {
-            set({ managedClientId: visibleClients[0].id });
+          const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
+          if (onlyClient && !get().managedClientId) {
+            set({ managedClientId: onlyClient.id });
           }
         }
         set({ bootstrapped: true });

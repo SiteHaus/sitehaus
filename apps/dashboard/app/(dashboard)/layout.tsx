@@ -32,7 +32,7 @@ export default function DashboardLayout({
         <SidebarInset>
           <main>
             <ClientContextBar />
-            <div className="px-6 lg:px-0">{children}</div>
+            <div className="px-4 md:px-6">{children}</div>
           </main>
         </SidebarInset>
       </SidebarProvider>

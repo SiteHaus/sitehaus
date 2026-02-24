@@ -18,8 +18,17 @@ export default function AssetsPage() {
   const canUpload = useAuthStore((s) => s.hasPerm("assets:upload"));
   const canManage = useAuthStore((s) => s.hasPerm("assets:manage"));
 
-  const { assets, loading, hasMore, uploadingFiles, upload, update, remove, getAsset, loadMore } =
-    useAssets(projectId);
+  const {
+    assets,
+    loading,
+    hasMore,
+    uploadingFiles,
+    upload,
+    update,
+    remove,
+    getAsset,
+    loadMore,
+  } = useAssets(projectId);
 
   const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
 

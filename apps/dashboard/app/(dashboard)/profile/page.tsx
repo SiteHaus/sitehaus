@@ -5,10 +5,14 @@ import { Spinner } from "@site-haus/ui/components/base/spinner";
 import type { BusinessProfileItem } from "@site-haus/contracts";
 import { useCallback, useEffect, useState } from "react";
 import { useClientContext } from "../../../hooks/use-client-context";
+import { useIsEmployee } from "../../../hooks/use-is-employee";
+import { useRouter } from "next/navigation";
 import { ProfileForm } from "./_components/profile-form";
 
 export default function ProfilePage() {
   const clientContext = useClientContext();
+  const isEmployee = useIsEmployee();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<BusinessProfileItem | null>(null);
   const [mode, setMode] = useState<"create" | "edit">("create");
@@ -29,8 +33,12 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
+    if (isEmployee && clientContext) {
+      router.replace(`/clients/${clientContext.id}/business-profile`);
+      return;
+    }
     fetchProfile();
-  }, [fetchProfile]);
+  }, [isEmployee, clientContext, router, fetchProfile]);
 
   const handleSaved = (saved: BusinessProfileItem) => {
     setProfile(saved);
