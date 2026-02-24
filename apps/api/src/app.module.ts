@@ -1,13 +1,17 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import KeyvRedis from '@keyv/redis';
 import { AssetsModule } from './assets/assets.module';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
 import authConfig from './conf/auth.config';
 import emailConfig from './conf/email.config';
+import redisConfig from './conf/redis.config';
 import storageConfig from './conf/storage.config';
 import { CryptoModule } from './crypto/crypto.module';
 import { DbModule } from './db/db.module';
@@ -32,7 +36,21 @@ import { TicketsModule } from './tickets/tickets.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, emailConfig, storageConfig],
+      load: [authConfig, emailConfig, storageConfig, redisConfig],
+    }),
+    BullModule.forRootAsync({
+      inject: [redisConfig.KEY],
+      useFactory: (cfg: ConfigType<typeof redisConfig>) => ({
+        connection: { url: cfg.url },
+      }),
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [redisConfig.KEY],
+      useFactory: (cfg: ConfigType<typeof redisConfig>) => ({
+        store: new KeyvRedis(cfg.url),
+        ttl: 60_000,
+      }),
     }),
     ThrottlerModule.forRoot([
       { name: 'default', ttl: 60_000, limit: 45 },
