@@ -29,6 +29,16 @@ services:
       timeout: 5s
       retries: 5
 
+  redisinsight:
+    image: "redis/redisinsight:latest"
+    container_name: sitehaus-redisinsight
+    ports:
+      - "5540:5540"
+    networks:
+      - sitehaus-network
+    depends_on:
+      - redis
+
 volumes:
   postgres_data:
     driver: local

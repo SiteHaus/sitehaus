@@ -25,6 +25,7 @@ export const clientsTable = pgTable(
     allowedScopes: text("allowed_scopes").default("openid profile email"),
     requiresConsent: boolean("requires_consent").default(false).notNull(),
     hidden: boolean("hidden").default(false).notNull(),
+    stripeCustomerId: text("stripe_customer_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
   (t) => [

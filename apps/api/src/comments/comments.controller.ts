@@ -21,9 +21,10 @@ import {
 } from '@site-haus/validation/forms/comment';
 import { AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
+import { ClientInRequest } from 'src/clients/client.guard';
 import { CommentsService } from './comments.service';
 
-type Req_ = AuthedRequest & { client?: { id: string } };
+type Req_ = AuthedRequest & ClientInRequest;
 
 @Controller('comments')
 export class CommentsController {
@@ -68,6 +69,7 @@ export class CommentsController {
     const result = await this.comments.create(parsed, {
       userId: req.user!.userId,
       clientId: req.client!.id,
+      isFirstParty: req.client!.firstParty,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
     });
@@ -87,6 +89,7 @@ export class CommentsController {
     const result = await this.comments.update(commentId, newBody, {
       userId: req.user!.userId,
       clientId: req.client!.id,
+      isFirstParty: req.client!.firstParty,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
     });
@@ -106,6 +109,7 @@ export class CommentsController {
     const result = await this.comments.remove(commentId, {
       userId: req.user!.userId,
       clientId: req.client!.id,
+      isFirstParty: req.client!.firstParty,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
     });

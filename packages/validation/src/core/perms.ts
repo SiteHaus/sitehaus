@@ -68,6 +68,7 @@ export const MODULES = {
       tickets: ["read", "create", "manage"] as const,
       assets: ["read", "upload", "manage"] as const,
       comments: ["read", "create", "manage"] as const,
+      billing: ["read", "manage"] as const,
     },
   },
 } as const satisfies Record<string, ModuleDefinition>;
@@ -149,6 +150,7 @@ export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "clie
     "assets:upload",
     "comments:read",
     "comments:create",
+    "billing:read",
     "sessions:read",
     "sessions:revoke",
     "devices:read",

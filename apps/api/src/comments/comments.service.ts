@@ -14,10 +14,12 @@ import type {
 } from '@site-haus/validation/forms/comment';
 import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 interface AuditContext {
   userId: string;
   clientId: string;
+  isFirstParty: boolean;
   ip?: string;
   ua?: string;
 }
@@ -42,6 +44,7 @@ export class CommentsService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly audit: AuditService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /**
@@ -172,6 +175,30 @@ export class CommentsService {
         isReply: !!data.parentId,
       },
     });
+
+    // Notify the other party — skip internal comments (client can't see them)
+    if (!comment.isInternal) {
+      const author = await this.db.query.usersTable.findFirst({
+        where: eq(schema.usersTable.id, ctx.userId),
+        columns: { firstName: true, lastName: true },
+      });
+      const authorName = [author?.firstName, author?.lastName].filter(Boolean).join(' ') || 'Someone';
+      const targetLabel = `${data.targetType.replace('_', ' ')}: ${data.targetId}`;
+      const bodyPreview = data.body.slice(0, 200) + (data.body.length > 200 ? '…' : '');
+
+      await this.notifications.enqueue({
+        type: 'comment.created',
+        commentId: comment.id,
+        authorId: ctx.userId,
+        authorName,
+        bodyPreview,
+        targetType: data.targetType,
+        targetId: data.targetId,
+        targetLabel,
+        targetClientId: ctx.clientId,
+        isEmployeeAuthor: ctx.isFirstParty,
+      });
+    }
 
     // Re-fetch with author relation
     const full = await this.db.query.commentsTable.findFirst({

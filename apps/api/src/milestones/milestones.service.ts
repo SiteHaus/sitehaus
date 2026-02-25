@@ -6,6 +6,7 @@ import type {
 } from '@site-haus/validation/forms/milestone';
 import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 interface AuditContext {
   userId: string;
@@ -30,6 +31,7 @@ export class MilestonesService {
   constructor(
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly audit: AuditService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   private async resolveProject(projectId: string, clientId: string, isFirstParty: boolean) {
@@ -96,6 +98,15 @@ export class MilestonesService {
       meta: { name: data.name, milestoneId: milestone.id },
     });
 
+    // Notify the client that a new milestone was added
+    await this.notifications.enqueue({
+      type: 'milestone.created',
+      milestoneId: milestone.id,
+      milestoneName: milestone.name,
+      projectId,
+      clientId: project.clientId,
+    });
+
     return serialise(milestone);
   }
 
@@ -144,6 +155,23 @@ export class MilestonesService {
       meta: { milestoneId, fields: Object.keys(data) },
     });
 
+    // Notify client when milestone is marked complete
+    if (data.status === 'completed' && existing.status !== 'completed') {
+      const project = await this.db.query.projectsTable.findFirst({
+        where: eq(schema.projectsTable.id, existing.projectId),
+        columns: { clientId: true },
+      });
+      if (project) {
+        await this.notifications.enqueue({
+          type: 'milestone.completed',
+          milestoneId: milestone.id,
+          milestoneName: milestone.name,
+          projectId: existing.projectId,
+          clientId: project.clientId,
+        });
+      }
+    }
+
     return serialise(milestone);
   }
 
@@ -176,8 +204,10 @@ export class MilestonesService {
   async signOff(milestoneId: string, clientId: string, userId: string) {
     const milestone = await this.db.query.milestonesTable.findFirst({
       where: eq(schema.milestonesTable.id, milestoneId),
-      with: { project: { columns: { clientId: true } } },
-      columns: { id: true, status: true, signedOffAt: true },
+      with: {
+        project: { columns: { id: true, name: true, clientId: true } },
+      },
+      columns: { id: true, name: true, status: true, signedOffAt: true },
     });
 
     if (!milestone) return null;
@@ -190,6 +220,24 @@ export class MilestonesService {
       .set({ signedOffAt: new Date(), signedOffBy: userId, updatedAt: new Date() })
       .where(eq(schema.milestonesTable.id, milestoneId))
       .returning();
+
+    // Notify the assigned employee
+    const signingUser = await this.db.query.usersTable.findFirst({
+      where: eq(schema.usersTable.id, userId),
+      columns: { firstName: true, lastName: true },
+    });
+    const signedOffByName = [signingUser?.firstName, signingUser?.lastName]
+      .filter(Boolean)
+      .join(' ') || 'A client';
+
+    await this.notifications.enqueue({
+      type: 'milestone.signed_off',
+      milestoneId: milestone.id,
+      milestoneName: milestone.name,
+      projectId: milestone.project.id,
+      projectName: milestone.project.name,
+      signedOffByName,
+    });
 
     return serialise(updated);
   }

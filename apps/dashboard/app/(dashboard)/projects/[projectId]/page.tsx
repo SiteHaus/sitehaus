@@ -252,7 +252,7 @@ export default function ProjectDetailPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Card className="cursor-pointer transition-colors hover:bg-muted/50">
           <Link href={`/projects/${projectId}/design-document`}>
             <CardHeader className="pb-2">
@@ -265,6 +265,23 @@ export default function ProjectDetailPage() {
             <CardContent>
               <p className="text-xs text-muted-foreground">
                 Review and manage the project design document
+              </p>
+            </CardContent>
+          </Link>
+        </Card>
+
+        <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+          <Link href={`/projects/${projectId}/milestones`}>
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center gap-1">
+                <Milestone className="h-3.5 w-3.5" />
+                Milestones
+              </CardDescription>
+              <CardTitle className="text-lg">Project Milestones</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">
+                Track progress and sign off on completed milestones
               </p>
             </CardContent>
           </Link>

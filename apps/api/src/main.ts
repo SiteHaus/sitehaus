@@ -6,7 +6,7 @@ import { ClientsOriginService } from './clients/clients-origin/clients-origin.se
 import { ApiExceptionFilter } from './http/api-exception.filter';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   const http = app.getHttpAdapter();
   if (http.getType() === 'express') {
