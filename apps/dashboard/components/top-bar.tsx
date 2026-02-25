@@ -1,9 +1,21 @@
 "use client";
 
+import { useBreadcrumbs } from "@/hooks/use-breadcrumbs";
 import { useIsEmployee } from "@/hooks/use-is-employee";
 import { useAuthStore } from "@site-haus/stores/auth-store";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@site-haus/ui/components/base/breadcrumb";
 import { Button } from "@site-haus/ui/components/base/button";
+import { Separator } from "@site-haus/ui/components/base/separator";
 import { SidebarTrigger } from "@site-haus/ui/components/base/sidebar";
+import Link from "next/link";
+import React from "react";
 
 export const ClientContextBar = () => {
   const managedClientId = useAuthStore((s) => s.managedClientId);
@@ -12,13 +24,11 @@ export const ClientContextBar = () => {
   const me = useAuthStore((s) => s.me);
   const hasPerm = useAuthStore((s) => s.hasPerm);
   const isEmployee = useIsEmployee();
+  const crumbs = useBreadcrumbs();
 
   const activeClient = clients.find((c) => c.id === managedClientId);
-
-  // Employee in a third-party client view (not their own org)
   const isInClientView =
     isEmployee && !!activeClient && !activeClient.firstParty;
-  // Client contact viewing their org (must be a real business org, not an OAuth app)
   const isClientContact =
     !isEmployee && !!activeClient && !activeClient.firstParty;
 
@@ -32,8 +42,36 @@ export const ClientContextBar = () => {
   return (
     <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
       <SidebarTrigger className="-ml-1" />
-      {(isInClientView || isClientContact) && (
+
+      {crumbs.length > 0 && (
         <>
+          <Separator orientation="vertical" className="h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              {crumbs.map((crumb, i) => {
+                const isLast = i === crumbs.length - 1;
+                return (
+                  <React.Fragment key={crumb.href}>
+                    {i > 0 && <BreadcrumbSeparator />}
+                    <BreadcrumbItem>
+                      {isLast ? (
+                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      ) : (
+                        <BreadcrumbLink asChild>
+                          <Link href={crumb.href}>{crumb.label}</Link>
+                        </BreadcrumbLink>
+                      )}
+                    </BreadcrumbItem>
+                  </React.Fragment>
+                );
+              })}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </>
+      )}
+
+      {(isInClientView || isClientContact) && (
+        <div className="ml-auto flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
             {isInClientView ? (
               <>
@@ -55,13 +93,13 @@ export const ClientContextBar = () => {
             <Button
               variant="ghost"
               size="sm"
-              className="ml-auto h-7 text-xs"
+              className="h-7 text-xs"
               onClick={handleExitClientView}
             >
               Exit client view
             </Button>
           )}
-        </>
+        </div>
       )}
     </header>
   );
