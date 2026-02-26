@@ -1,49 +1,38 @@
 "use client";
 
-import type { DesignDocumentVersionItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useDesignDocVersions(projectId: string) {
-  const [versions, setVersions] = useState<DesignDocumentVersionItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const key = queryKeys.designDoc.versions(projectId);
 
-  const fetch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await getApi().designDocuments.listVersions({
-        params: { projectId },
-      });
-      if (res.status === 200) {
-        setVersions(res.body.versions);
-      }
-    } catch {
-      // silently fail — versions are supplemental
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
-
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
-
-  const getVersion = useCallback(
-    async (version: string) => {
-      try {
-        const res = await getApi().designDocuments.getVersion({
-          params: { projectId, version },
-        });
-        if (res.status === 200) {
-          return res.body.version;
-        }
-      } catch {
-        // handled by caller
-      }
-      return null;
+  const { data: versions = [], isLoading: loading } = useQuery({
+    queryKey: key,
+    queryFn: async () => {
+      const res = await getApi().designDocuments.listVersions({ params: { projectId } });
+      if (res.status !== 200) return [];
+      return res.body.versions;
     },
-    [projectId]
-  );
+  });
 
-  return { versions, loading, refetch: fetch, getVersion };
+  const getVersion = async (version: string) => {
+    try {
+      const res = await getApi().designDocuments.getVersion({
+        params: { projectId, version },
+      });
+      if (res.status === 200) return res.body.version;
+    } catch {
+      // handled by caller
+    }
+    return null;
+  };
+
+  return {
+    versions,
+    loading,
+    refetch: () => queryClient.invalidateQueries({ queryKey: key }),
+    getVersion,
+  };
 }

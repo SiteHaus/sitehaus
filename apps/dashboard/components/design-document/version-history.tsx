@@ -10,19 +10,12 @@ import {
 } from "@site-haus/ui/components/base/card";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { ChevronDown, ChevronUp, History } from "lucide-react";
+import { formatDate } from "@site-haus/utils/core/format";
 import Link from "next/link";
 import { useState } from "react";
 
-const formatDate = (d: string | null) => {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-};
+const formatDateTime = (d: string | null) =>
+  formatDate(d, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) ?? "";
 
 export function VersionHistory({
   projectId,
@@ -84,7 +77,7 @@ export function VersionHistory({
                       {v.createdBy
                         ? `${v.createdBy.firstName} ${v.createdBy.lastName}`
                         : "Unknown"}{" "}
-                      &middot; {formatDate(v.createdAt)}
+                      &middot; {formatDateTime(v.createdAt)}
                     </p>
                   </div>
                   <Button asChild size="xs" variant="ghost">

@@ -1,5 +1,6 @@
 "use client";
 
+import { billingVariant, statusVariant } from "@/lib/variants";
 import { type ProjectDetail } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
@@ -12,10 +13,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@site-haus/ui/components/base/card";
-import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
+import { formatCents, formatDate, label } from "@site-haus/utils/core/format";
 import {
   ArrowLeft,
+  ArrowRight,
   Calendar,
   DollarSign,
   ExternalLink,
@@ -31,53 +33,7 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-
-const statusVariant = (s: string) => {
-  switch (s) {
-    case "launched":
-    case "completed":
-      return "success" as const;
-    case "in_progress":
-      return "warning" as const;
-    case "cancelled":
-      return "destructive" as const;
-    default:
-      return "secondary" as const;
-  }
-};
-
-const billingVariant = (s: string | null) => {
-  switch (s) {
-    case "paid":
-      return "success" as const;
-    case "late":
-      return "destructive" as const;
-    case "outstanding":
-      return "warning" as const;
-    default:
-      return "secondary" as const;
-  }
-};
-
-const label = (s: string) =>
-  s.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase());
-
-const formatDate = (d: string | null) => {
-  if (!d) return null;
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-const formatCents = (cents: number | null) => {
-  if (cents == null) return null;
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(cents / 100);
-};
+import { ProjectBillingSection } from "./_components/project-billing-section";
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -172,11 +128,15 @@ export default function ProjectDetailPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
-              <Ticket className="h-3.5 w-3.5" />
-              Tickets
-            </CardDescription>
-            <CardTitle className="text-2xl">{project.ticketCount}</CardTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <Ticket className="h-4 w-4" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl mt-2">
+              {project.ticketCount}
+            </CardTitle>
+            <CardDescription>Tickets</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
@@ -187,13 +147,15 @@ export default function ProjectDetailPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
-              <Milestone className="h-3.5 w-3.5" />
-              Milestones
-            </CardDescription>
-            <CardTitle className="text-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                <Milestone className="h-4 w-4" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl mt-2">
               {project.milestoneCount}
             </CardTitle>
+            <CardDescription>Milestones</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">Total milestones</p>
@@ -202,11 +164,12 @@ export default function ProjectDetailPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
-              <DollarSign className="h-3.5 w-3.5" />
-              Billing
-            </CardDescription>
-            <CardTitle className="text-2xl">
+            <div className="flex items-center justify-between">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/10 text-green-600 dark:text-green-500">
+                <DollarSign className="h-4 w-4" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl mt-2">
               {project.billingStatus ? (
                 <Badge variant={billingVariant(project.billingStatus)}>
                   {label(project.billingStatus)}
@@ -215,6 +178,7 @@ export default function ProjectDetailPage() {
                 <span className="text-muted-foreground text-sm">N/A</span>
               )}
             </CardTitle>
+            <CardDescription>Billing</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
@@ -227,22 +191,30 @@ export default function ProjectDetailPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription className="flex items-center gap-1">
-              <User className="h-3.5 w-3.5" />
-              Client
-            </CardDescription>
-            <CardTitle className="text-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+                <User className="h-4 w-4" />
+              </div>
+            </div>
+            <CardTitle className="text-lg mt-2">
               {project.client?.name ?? "Unknown"}
             </CardTitle>
+            <CardDescription>Client</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {project.creator && (
               <p className="text-xs text-muted-foreground">
-                Created by {project.creator.firstName} {project.creator.lastName}
+                Created by {project.creator.firstName}{" "}
+                {project.creator.lastName}
               </p>
             )}
             {canManage && project.client && (
-              <Button asChild variant="outline" size="sm" className="h-7 text-xs">
+              <Button
+                asChild
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+              >
                 <Link href={`/clients/${project.client.id}/business-profile`}>
                   View Business Profile
                 </Link>
@@ -253,147 +225,165 @@ export default function ProjectDetailPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+        <Card className="cursor-pointer transition-colors hover:bg-muted/50 group">
           <Link href={`/projects/${projectId}/design-document`}>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-1">
-                <ScrollText className="h-3.5 w-3.5" />
-                Design Document
-              </CardDescription>
-              <CardTitle className="text-lg">View Design Document</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                  <ScrollText className="h-5 w-5" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </div>
+              <CardTitle className="mt-3">View Design Document</CardTitle>
+              <CardDescription>
                 Review and manage the project design document
-              </p>
-            </CardContent>
+              </CardDescription>
+            </CardHeader>
           </Link>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+        <Card className="cursor-pointer transition-colors hover:bg-muted/50 group">
           <Link href={`/projects/${projectId}/milestones`}>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-1">
-                <Milestone className="h-3.5 w-3.5" />
-                Milestones
-              </CardDescription>
-              <CardTitle className="text-lg">Project Milestones</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                  <Milestone className="h-5 w-5" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </div>
+              <CardTitle className="mt-3">Project Milestones</CardTitle>
+              <CardDescription>
                 Track progress and sign off on completed milestones
-              </p>
-            </CardContent>
+              </CardDescription>
+            </CardHeader>
           </Link>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-muted/50">
+        <Card className="cursor-pointer transition-colors hover:bg-muted/50 group">
           <Link href={`/projects/${projectId}/assets`}>
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center gap-1">
-                <FolderOpen className="h-3.5 w-3.5" />
-                Assets
-              </CardDescription>
-              <CardTitle className="text-lg">Project Assets</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+                  <FolderOpen className="h-5 w-5" />
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+              </div>
+              <CardTitle className="mt-3">Project Assets</CardTitle>
+              <CardDescription>
                 Logos, images, fonts, and other project files
-              </p>
-            </CardContent>
+              </CardDescription>
+            </CardHeader>
           </Link>
         </Card>
       </div>
+
+      {project.client && (
+        <ProjectBillingSection
+          projectId={project.id}
+          clientId={project.client.id}
+          monthlyRateCents={project.monthlyRateCents}
+          depositAmountCents={project.depositAmountCents}
+          canManage={canManage}
+        />
+      )}
 
       <Card>
         <CardHeader>
           <CardTitle>Details</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {project.siteDomain && (
-              <div className="flex items-center gap-2 text-sm">
-                <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Domain:</span>
-                <a
-                  href={`https://${project.siteDomain}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-primary hover:underline"
-                >
-                  {project.siteDomain}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            )}
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Links
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {project.siteDomain && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Domain:</span>
+                  <a
+                    href={`https://${project.siteDomain}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                  >
+                    {project.siteDomain}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
 
-            {project.stagingDomain && (
-              <div className="flex items-center gap-2 text-sm">
-                <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Staging:</span>
-                <a
-                  href={`https://${project.stagingDomain}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-primary hover:underline"
-                >
-                  {project.stagingDomain}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </div>
-            )}
+              {project.stagingDomain && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Globe className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Staging:</span>
+                  <a
+                    href={`https://${project.stagingDomain}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline"
+                  >
+                    {project.stagingDomain}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
 
-            {project.repoUrl && (
-              <div className="flex items-center gap-2 text-sm">
-                <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Repo:</span>
-                <a
-                  href={project.repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-primary hover:underline truncate"
-                >
-                  {project.repoUrl.replace("https://github.com/", "")}
-                  <ExternalLink className="h-3 w-3 shrink-0" />
-                </a>
-              </div>
-            )}
-
-            {project.depositAmountCents != null && (
-              <div className="flex items-center gap-2 text-sm">
-                <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Deposit:</span>
-                <span>{formatCents(project.depositAmountCents)}</span>
-              </div>
-            )}
+              {project.repoUrl && (
+                <div className="flex items-center gap-2 text-sm">
+                  <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Repo:</span>
+                  <a
+                    href={project.repoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-primary hover:underline truncate"
+                  >
+                    {project.repoUrl.replace("https://github.com/", "")}
+                    <ExternalLink className="h-3 w-3 shrink-0" />
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
 
-          <Separator />
+          <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              Timeline
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {project.depositAmountCents != null && (
+                <div className="flex items-center gap-2 text-sm">
+                  <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Deposit:</span>
+                  <span>{formatCents(project.depositAmountCents)}</span>
+                </div>
+              )}
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            {project.startDate && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Started:</span>
-                <span>{formatDate(project.startDate)}</span>
-              </div>
-            )}
+              {project.startDate && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Started:</span>
+                  <span>{formatDate(project.startDate)}</span>
+                </div>
+              )}
 
-            {project.dueDate && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Due:</span>
-                <span>{formatDate(project.dueDate)}</span>
-              </div>
-            )}
+              {project.dueDate && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Due:</span>
+                  <span>{formatDate(project.dueDate)}</span>
+                </div>
+              )}
 
-            {project.launchedAt && (
-              <div className="flex items-center gap-2 text-sm">
-                <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-muted-foreground">Launched:</span>
-                <span>{formatDate(project.launchedAt)}</span>
-              </div>
-            )}
+              {project.launchedAt && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Launched:</span>
+                  <span>{formatDate(project.launchedAt)}</span>
+                </div>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -14,17 +14,10 @@ import { useCallback, useEffect, useState } from "react";
 
 import { PlateEditor } from "@/components/plate-ui/plate-editor";
 import { useDesignDocVersions } from "@/hooks/use-design-doc-versions";
+import { formatDate } from "@site-haus/utils/core/format";
 
-const formatDate = (d: string | null) => {
-  if (!d) return "";
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-};
+const formatDateTime = (d: string | null) =>
+  formatDate(d, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) ?? "";
 
 export default function VersionDetailPage() {
   const { projectId, version } = useParams<{
@@ -96,7 +89,7 @@ export default function VersionDetailPage() {
             </span>
           )}
           {versionData.createdAt && (
-            <span> &middot; {formatDate(versionData.createdAt)}</span>
+            <span> &middot; {formatDateTime(versionData.createdAt)}</span>
           )}
         </div>
         {versionData.changeNote && (

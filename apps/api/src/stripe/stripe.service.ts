@@ -24,7 +24,7 @@ export class StripeService {
     return this.client.webhooks.constructEvent(payload, signature, this.webhookSecret);
   }
 
-  async getOrCreateCustomer(clientId: string, name: string): Promise<Stripe.Customer> {
+  async getOrCreateCustomer(clientId: string, name: string, email?: string): Promise<Stripe.Customer> {
     const existing = await this.client.customers.search({
       query: `metadata['clientId']:'${clientId}'`,
     });
@@ -32,6 +32,7 @@ export class StripeService {
 
     return this.client.customers.create({
       name,
+      ...(email ? { email } : {}),
       metadata: { clientId },
     });
   }
@@ -66,6 +67,7 @@ export class StripeService {
       ],
       collection_method: 'send_invoice',
       days_until_due: 30,
+      expand: ['latest_invoice'],
     });
   }
 

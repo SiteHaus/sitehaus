@@ -1,6 +1,7 @@
 import {
   Building2,
   Contact,
+  CreditCard,
   FolderKanban,
   Home,
   LucideIcon,
@@ -16,6 +17,8 @@ export type SidebarMenuItem = {
   requirePerm?: string;
   /** Only visible when the user is acting as a specific client (managedClientId is set) */
   requireClient?: boolean;
+  /** Also visible for non-employee client contacts even without requirePerm */
+  showForClients?: boolean;
 };
 
 export const sideBarMenuItems: SidebarMenuItem[] = [
@@ -56,6 +59,13 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
         disabled: true,
       },
     ],
+  },
+  {
+    title: "Billing",
+    url: "/billing",
+    icon: CreditCard,
+    requirePerm: "billing:read",
+    showForClients: true,
   },
   {
     title: "Business Profile",

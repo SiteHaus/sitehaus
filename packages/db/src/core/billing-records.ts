@@ -41,6 +41,7 @@ export const billingRecordsTable = pgTable(
     amountCents: integer("amount_cents").notNull(),
     currency: text("currency").default("usd").notNull(),
     status: billingRecordStatusEnum("status").notNull(),
+    hostedInvoiceUrl: text("hosted_invoice_url"),
     intervalMonths: integer("interval_months"),
     currentPeriodStart: timestamp("current_period_start", {
       withTimezone: true,

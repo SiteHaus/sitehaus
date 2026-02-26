@@ -44,13 +44,23 @@ export class BillingService {
     });
     if (!client) return null;
 
-    if (client.stripeCustomerId) return client.stripeCustomerId;
+    // Get the first member's email to attach to the Stripe customer if needed
+    const member = await this.db.query.userRolesTable.findFirst({
+      where: eq(schema.userRolesTable.clientId, clientId),
+      with: { user: { columns: { email: true } } },
+      columns: { userId: true },
+    });
+    const email = member?.user?.email;
 
-    const customer = await this.stripe.getOrCreateCustomer(client.id, client.name);
-    await this.db
-      .update(schema.clientsTable)
-      .set({ stripeCustomerId: customer.id })
-      .where(eq(schema.clientsTable.id, clientId));
+    // Always search/create via Stripe (validates cached ID is still live)
+    const customer = await this.stripe.getOrCreateCustomer(client.id, client.name, email);
+
+    if (customer.id !== client.stripeCustomerId) {
+      await this.db
+        .update(schema.clientsTable)
+        .set({ stripeCustomerId: customer.id })
+        .where(eq(schema.clientsTable.id, clientId));
+    }
 
     return customer.id;
   }
@@ -185,6 +195,12 @@ export class BillingService {
       project.name,
     );
 
+    // Grab the hosted invoice URL from the first invoice (if available)
+    const latestInvoice = subscription.latest_invoice as Record<string, any> | string | null; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const hostedInvoiceUrl = typeof latestInvoice === 'object' && latestInvoice !== null
+      ? (latestInvoice['hosted_invoice_url'] ?? null)
+      : null;
+
     const [record] = await this.db
       .insert(schema.billingRecordsTable)
       .values({
@@ -197,6 +213,7 @@ export class BillingService {
         currency: 'usd',
         status: 'active',
         intervalMonths: data.intervalMonths,
+        hostedInvoiceUrl,
         currentPeriodStart: subscription.items.data[0]?.current_period_start
           ? new Date(subscription.items.data[0].current_period_start * 1000)
           : null,
@@ -239,17 +256,19 @@ export class BillingService {
       data.description ?? project.name,
     );
 
+    const invoiceData = invoice as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
     const [record] = await this.db
       .insert(schema.billingRecordsTable)
       .values({
         projectId: data.projectId,
         clientId: data.clientId,
         stripeCustomerId,
-        stripePaymentIntentId: (invoice as Record<string, any>)['payment_intent']?.id ?? null, // eslint-disable-line @typescript-eslint/no-explicit-any
+        stripePaymentIntentId: invoiceData['payment_intent']?.id ?? null,
         type: 'one_time',
         amountCents: data.amountCents,
         currency: 'usd',
         status: 'active',
+        hostedInvoiceUrl: invoiceData['hosted_invoice_url'] ?? null,
       })
       .returning();
 
@@ -301,12 +320,13 @@ export class BillingService {
       case 'invoice.paid': {
         // Use loose typing for invoice fields that vary between API versions
         const invoice = event.data.object as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+        const hostedUrl = invoice['hosted_invoice_url'] ?? null;
         const rawSub = invoice['parent']?.['subscription_details']?.['subscription'];
         const subscriptionId = typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
         if (subscriptionId) {
           await this.db
             .update(schema.billingRecordsTable)
-            .set({ status: 'active', updatedAt: new Date() })
+            .set({ status: 'active', hostedInvoiceUrl: hostedUrl, updatedAt: new Date() })
             .where(eq(schema.billingRecordsTable.stripeSubscriptionId, subscriptionId));
         } else {
           const rawPi = invoice['payment_intent'];
@@ -314,7 +334,7 @@ export class BillingService {
           if (paymentIntentId) {
             await this.db
               .update(schema.billingRecordsTable)
-              .set({ status: 'paid', updatedAt: new Date() })
+              .set({ status: 'paid', hostedInvoiceUrl: hostedUrl, updatedAt: new Date() })
               .where(eq(schema.billingRecordsTable.stripePaymentIntentId, paymentIntentId));
           }
         }
@@ -323,12 +343,13 @@ export class BillingService {
 
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+        const hostedUrl = invoice['hosted_invoice_url'] ?? null;
         const rawSub = invoice['parent']?.['subscription_details']?.['subscription'];
         const subscriptionId = typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
         if (subscriptionId) {
           const [affected] = await this.db
             .update(schema.billingRecordsTable)
-            .set({ status: 'past_due', updatedAt: new Date() })
+            .set({ status: 'past_due', hostedInvoiceUrl: hostedUrl, updatedAt: new Date() })
             .where(eq(schema.billingRecordsTable.stripeSubscriptionId, subscriptionId))
             .returning({
               id: schema.billingRecordsTable.id,

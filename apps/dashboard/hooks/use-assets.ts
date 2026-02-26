@@ -2,156 +2,141 @@
 
 import type { AssetDetail, AssetItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useAssets(projectId: string) {
-  const [assets, setAssets] = useState<AssetItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
-  const [uploadingFiles, setUploadingFiles] = useState<string[]>([]);
-  const nextCursorRef = useRef<string | undefined>(undefined);
+  const queryClient = useQueryClient();
+  const key = queryKeys.assets.list(projectId);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    nextCursorRef.current = undefined;
+  const { data, isLoading: loading } = useQuery({
+    queryKey: key,
+    queryFn: async () => {
+      const res = await getApi().assets.list({ params: { projectId }, query: {} });
+      if (res.status !== 200) throw new Error("Failed to load assets");
+      return { assets: res.body.assets, nextCursor: res.body.nextCursor };
+    },
+  });
+
+  const assets = data?.assets ?? [];
+  const nextCursor = data?.nextCursor;
+  const hasMore = !!nextCursor;
+
+  const loadMore = async () => {
+    if (!nextCursor) return;
     try {
       const res = await getApi().assets.list({
         params: { projectId },
-        query: {},
+        query: { cursor: nextCursor },
       });
       if (res.status === 200) {
-        setAssets(res.body.assets);
-        nextCursorRef.current = res.body.nextCursor;
-        setHasMore(!!res.body.nextCursor);
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
-
-  const loadMore = useCallback(async () => {
-    if (!nextCursorRef.current) return;
-    try {
-      const res = await getApi().assets.list({
-        params: { projectId },
-        query: { cursor: nextCursorRef.current },
-      });
-      if (res.status === 200) {
-        setAssets((prev) => [...prev, ...res.body.assets]);
-        nextCursorRef.current = res.body.nextCursor;
-        setHasMore(!!res.body.nextCursor);
+        queryClient.setQueryData<typeof data>(key, (prev) => ({
+          assets: [...(prev?.assets ?? []), ...res.body.assets],
+          nextCursor: res.body.nextCursor,
+        }));
       }
     } catch {
       // silently fail
     }
-  }, [projectId]);
+  };
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const upload = useCallback(
-    async (files: File[]) => {
-      setUploadingFiles(files.map((f) => f.name));
+  const uploadMutation = useMutation({
+    mutationFn: async (files: File[]) => {
+      const uploaded: AssetItem[] = [];
       for (const file of files) {
-        try {
-          const res = await getApi().assets.upload({
-            params: { projectId },
-            body: { file },
-          });
-          if (res.status === 201) {
-            setAssets((prev) => [res.body.asset, ...prev]);
-            toast.success(`${file.name} uploaded`);
-          } else {
-            toast.error(`Failed to upload ${file.name}`);
-          }
-        } catch {
+        const res = await getApi().assets.upload({
+          params: { projectId },
+          body: { file },
+        });
+        if (res.status === 201) {
+          uploaded.push(res.body.asset);
+          toast.success(`${file.name} uploaded`);
+        } else {
           toast.error(`Failed to upload ${file.name}`);
-        } finally {
-          setUploadingFiles((prev) => prev.filter((n) => n !== file.name));
         }
       }
+      return uploaded;
     },
-    [projectId]
-  );
+    onSuccess: (uploaded) => {
+      if (uploaded.length > 0) {
+        queryClient.setQueryData<typeof data>(key, (prev) => ({
+          assets: [...uploaded, ...(prev?.assets ?? [])],
+          nextCursor: prev?.nextCursor,
+        }));
+      }
+    },
+    onError: () => toast.error("Upload failed"),
+  });
 
-  const update = useCallback(
-    async (
-      assetId: string,
-      data: { notes?: string | null; reviewStatus?: AssetItem["reviewStatus"] }
-    ) => {
-      try {
-        const res = await getApi().assets.update({
-          params: { projectId, assetId },
-          body: data,
-        });
-        if (res.status === 200) {
-          setAssets((prev) =>
-            prev.map((a) => (a.id === assetId ? res.body.asset : a))
-          );
-          return true;
-        } else {
-          toast.error("Failed to update");
-        }
-      } catch {
-        toast.error("Something went wrong");
+  const updateMutation = useMutation({
+    mutationFn: ({
+      assetId,
+      data: updateData,
+    }: {
+      assetId: string;
+      data: { notes?: string | null; reviewStatus?: AssetItem["reviewStatus"] };
+    }) =>
+      getApi().assets.update({
+        params: { projectId, assetId },
+        body: updateData,
+      }),
+    onSuccess: (res) => {
+      if (res.status === 200) {
+        queryClient.setQueryData<typeof data>(key, (prev) => ({
+          assets: (prev?.assets ?? []).map((a) =>
+            a.id === res.body.asset.id ? res.body.asset : a
+          ),
+          nextCursor: prev?.nextCursor,
+        }));
+      } else {
+        toast.error("Failed to update");
       }
-      return false;
     },
-    [projectId]
-  );
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const remove = useCallback(
-    async (assetId: string) => {
-      try {
-        const res = await getApi().assets.remove({
-          params: { projectId, assetId },
-        });
-        if (res.status === 204) {
-          setAssets((prev) => prev.filter((a) => a.id !== assetId));
-          toast.success("File deleted");
-          return true;
-        } else {
-          toast.error("Failed to delete");
-        }
-      } catch {
-        toast.error("Something went wrong");
+  const removeMutation = useMutation({
+    mutationFn: (assetId: string) =>
+      getApi().assets.remove({ params: { projectId, assetId } }),
+    onSuccess: (res, assetId) => {
+      if (res.status === 204) {
+        queryClient.setQueryData<typeof data>(key, (prev) => ({
+          assets: (prev?.assets ?? []).filter((a) => a.id !== assetId),
+          nextCursor: prev?.nextCursor,
+        }));
+        toast.success("File deleted");
+      } else {
+        toast.error("Failed to delete");
       }
-      return false;
     },
-    [projectId]
-  );
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const getAsset = useCallback(
-    async (assetId: string): Promise<AssetDetail | null> => {
-      try {
-        const res = await getApi().assets.get({
-          params: { projectId, assetId },
-        });
-        if (res.status === 200) {
-          return res.body.asset;
-        }
-      } catch {
-        // silently fail
-      }
-      return null;
-    },
-    [projectId]
-  );
+  const getAsset = async (assetId: string): Promise<AssetDetail | null> => {
+    try {
+      const res = await getApi().assets.get({ params: { projectId, assetId } });
+      if (res.status === 200) return res.body.asset;
+    } catch {
+      // silently fail
+    }
+    return null;
+  };
 
   return {
     assets,
     loading,
     hasMore,
-    uploadingFiles,
-    load,
+    uploadingFiles: uploadMutation.isPending
+      ? (uploadMutation.variables as File[]).map((f) => f.name)
+      : [],
+    load: () => queryClient.invalidateQueries({ queryKey: key }),
     loadMore,
-    upload,
-    update,
-    remove,
+    upload: (files: File[]) => uploadMutation.mutateAsync(files),
+    update: (assetId: string, updateData: Parameters<typeof updateMutation.mutateAsync>[0]["data"]) =>
+      updateMutation.mutateAsync({ assetId, data: updateData }).then((r) => r.status === 200),
+    remove: (assetId: string) =>
+      removeMutation.mutateAsync(assetId).then((r) => r.status === 204),
     getAsset,
   };
 }

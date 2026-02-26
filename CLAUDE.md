@@ -197,3 +197,19 @@ The repository uses GitHub Actions:
 - 3002: IAM portal
 - 6969: Email preview server (transactional)
 - 5432: PostgreSQL (Docker)
+
+## React/Next Standards (Dashboard)
+
+Full spec: [`docs/standards/react.md`](docs/standards/react.md)
+
+**Key rules:**
+- One component per file — no exceptions
+- `page.tsx` files are thin shells (role dispatch only, ≤15 lines); all view components in `_components/`
+- All dashboard pages are `"use client"` (auth dependency)
+- Data fetching: React Query (`@tanstack/react-query`) — all queries via hooks, all keys via `@/lib/query-keys`
+- Format helpers: `formatDate`, `formatCents`, `label` from `@site-haus/utils/core/format`
+- Badge variants: `statusVariant`, `billingVariant`, etc. from `@/lib/variants`
+- No inline format or variant functions — extract on third use, never before
+- Mutations: `toast.success/error` in `onSuccess/onError`; initial loads throw
+- Forms: react-hook-form + zod resolver; schemas always from `@site-haus/validation`
+- Types: from `@site-haus/contracts`; no `any`

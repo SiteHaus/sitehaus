@@ -25,6 +25,7 @@ export const billingRecordItem = z.object({
   stripeCustomerId: z.string(),
   stripeSubscriptionId: z.string().nullable(),
   stripePaymentIntentId: z.string().nullable(),
+  hostedInvoiceUrl: z.string().nullable(),
   type: z.enum(billingRecordTypeValues),
   amountCents: z.number(),
   currency: z.string(),

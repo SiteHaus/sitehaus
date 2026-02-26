@@ -32,6 +32,7 @@ import {
 } from "@site-haus/ui/components/base/sheet";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
+import { formatDate } from "@site-haus/utils/core/format";
 import { Download, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -40,15 +41,6 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function formatDate(d: string | null): string {
-  if (!d) return "Unknown date";
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }
 
 interface AssetSheetProps {
@@ -177,7 +169,7 @@ export function AssetSheet({
                 {asset.uploader
                   ? `${asset.uploader.firstName} ${asset.uploader.lastName}`
                   : "Unknown"}{" "}
-                on {formatDate(asset.createdAt)}
+                on {formatDate(asset.createdAt) ?? "Unknown date"}
               </p>
 
               <FormSection>Notes</FormSection>

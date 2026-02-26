@@ -2,137 +2,119 @@
 
 import type { MilestoneItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
-import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { queryKeys } from "@/lib/query-keys";
 
 export function useMilestones(projectId: string) {
-  const [milestones, setMilestones] = useState<MilestoneItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const key = queryKeys.milestones.list(projectId);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data: milestones = [], isLoading: loading } = useQuery({
+    queryKey: key,
+    queryFn: async () => {
       const res = await getApi().milestones.list({ params: { projectId } });
-      if (res.status === 200) {
-        setMilestones(res.body.milestones);
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
+      if (res.status !== 200) throw new Error("Failed to load milestones");
+      return res.body.milestones;
+    },
+  });
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: key });
 
-  const create = useCallback(
-    async (data: {
+  const createMutation = useMutation({
+    mutationFn: (data: {
       name: string;
       description?: string | null;
       dueDate?: string | null;
-    }) => {
-      try {
-        const res = await getApi().milestones.create({
-          params: { projectId },
-          body: {
-            name: data.name,
-            ...(data.description ? { description: data.description } : {}),
-            ...(data.dueDate ? { dueDate: data.dueDate } : {}),
-          },
-        });
-        if (res.status === 201) {
-          setMilestones((prev) => [...prev, res.body.milestone]);
-          toast.success("Milestone created");
-          return true;
-        } else {
-          toast.error("Failed to create milestone");
-        }
-      } catch {
-        toast.error("Something went wrong");
+    }) =>
+      getApi().milestones.create({
+        params: { projectId },
+        body: {
+          name: data.name,
+          ...(data.description ? { description: data.description } : {}),
+          ...(data.dueDate ? { dueDate: data.dueDate } : {}),
+        },
+      }),
+    onSuccess: (res) => {
+      if (res.status === 201) {
+        queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) => [
+          ...prev,
+          res.body.milestone,
+        ]);
+        toast.success("Milestone created");
+      } else {
+        toast.error("Failed to create milestone");
       }
-      return false;
     },
-    [projectId]
-  );
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const update = useCallback(
-    async (
-      milestoneId: string,
+  const updateMutation = useMutation({
+    mutationFn: ({
+      milestoneId,
+      data,
+    }: {
+      milestoneId: string;
       data: {
         name?: string;
         description?: string | null;
         status?: MilestoneItem["status"];
         dueDate?: string | null;
+      };
+    }) =>
+      getApi().milestones.update({ params: { milestoneId }, body: data }),
+    onSuccess: (res) => {
+      if (res.status === 200) {
+        queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) =>
+          prev.map((m) => (m.id === res.body.milestone.id ? res.body.milestone : m))
+        );
+        toast.success("Milestone updated");
+      } else {
+        toast.error("Failed to update milestone");
       }
-    ) => {
-      try {
-        const res = await getApi().milestones.update({
-          params: { milestoneId },
-          body: data,
-        });
-        if (res.status === 200) {
-          setMilestones((prev) =>
-            prev.map((m) => (m.id === milestoneId ? res.body.milestone : m))
-          );
-          toast.success("Milestone updated");
-          return true;
-        } else {
-          toast.error("Failed to update milestone");
-        }
-      } catch {
-        toast.error("Something went wrong");
-      }
-      return false;
     },
-    []
-  );
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const remove = useCallback(async (milestoneId: string) => {
-    try {
-      const res = await getApi().milestones.delete({
-        params: { milestoneId },
-        body: undefined,
-      });
+  const removeMutation = useMutation({
+    mutationFn: (milestoneId: string) =>
+      getApi().milestones.delete({ params: { milestoneId }, body: undefined }),
+    onSuccess: (res, milestoneId) => {
       if (res.status === 204) {
-        setMilestones((prev) => prev.filter((m) => m.id !== milestoneId));
+        queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) =>
+          prev.filter((m) => m.id !== milestoneId)
+        );
         toast.success("Milestone deleted");
-        return true;
       } else {
         toast.error("Failed to delete milestone");
       }
-    } catch {
-      toast.error("Something went wrong");
-    }
-    return false;
-  }, []);
+    },
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const signOff = useCallback(async (milestoneId: string) => {
-    try {
-      const res = await getApi().milestones.signOff({
-        params: { milestoneId },
-        body: undefined,
-      });
+  const signOffMutation = useMutation({
+    mutationFn: (milestoneId: string) =>
+      getApi().milestones.signOff({ params: { milestoneId }, body: undefined }),
+    onSuccess: (res) => {
       if (res.status === 200) {
-        setMilestones((prev) =>
-          prev.map((m) => (m.id === milestoneId ? res.body.milestone : m))
+        queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) =>
+          prev.map((m) => (m.id === res.body.milestone.id ? res.body.milestone : m))
         );
         toast.success("Milestone signed off");
-        return true;
       } else {
         toast.error("Failed to sign off milestone");
       }
-    } catch {
-      toast.error("Something went wrong");
-    }
-    return false;
-  }, []);
+    },
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const reorder = useCallback(
-    async (orderedIds: string[]) => {
-      // Optimistic update
-      setMilestones((prev) => {
+  const reorderMutation = useMutation({
+    mutationFn: (orderedIds: string[]) =>
+      getApi().milestones.reorder({ body: { orderedIds } }),
+    onMutate: async (orderedIds) => {
+      await queryClient.cancelQueries({ queryKey: key });
+      const previous = queryClient.getQueryData<MilestoneItem[]>(key);
+      queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) => {
         const map = new Map(prev.map((m) => [m.id, m]));
         return orderedIds
           .map((id, i) => {
@@ -141,15 +123,28 @@ export function useMilestones(projectId: string) {
           })
           .filter(Boolean) as MilestoneItem[];
       });
-      try {
-        await getApi().milestones.reorder({ body: { orderedIds } });
-      } catch {
-        load();
-        toast.error("Failed to reorder milestones");
-      }
+      return { previous };
     },
-    [load]
-  );
+    onError: (_err, _ids, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(key, ctx.previous);
+      }
+      toast.error("Failed to reorder milestones");
+    },
+  });
 
-  return { milestones, loading, load, create, update, remove, signOff, reorder };
+  return {
+    milestones,
+    loading,
+    load: invalidate,
+    create: (data: Parameters<typeof createMutation.mutateAsync>[0]) =>
+      createMutation.mutateAsync(data).then((r) => r.status === 201),
+    update: (milestoneId: string, data: Parameters<typeof updateMutation.mutateAsync>[0]["data"]) =>
+      updateMutation.mutateAsync({ milestoneId, data }).then((r) => r.status === 200),
+    remove: (milestoneId: string) =>
+      removeMutation.mutateAsync(milestoneId).then((r) => r.status === 204),
+    signOff: (milestoneId: string) =>
+      signOffMutation.mutateAsync(milestoneId).then((r) => r.status === 200),
+    reorder: (orderedIds: string[]) => reorderMutation.mutateAsync(orderedIds),
+  };
 }

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, asc, eq, schema, type Db } from '@site-haus/db';
+import { and, asc, eq, ne, isNotNull, schema, type Db } from '@site-haus/db';
 import type {
   CreateMilestoneInput,
   UpdateMilestoneInput,
@@ -44,6 +44,50 @@ export class MilestonesService {
           ),
       columns: { id: true, clientId: true },
     });
+  }
+
+  async listUpcoming(clientId: string, isFirstParty: boolean, limit = 5) {
+    const rows = await this.db
+      .select({
+        id: schema.milestonesTable.id,
+        projectId: schema.milestonesTable.projectId,
+        projectName: schema.projectsTable.name,
+        name: schema.milestonesTable.name,
+        description: schema.milestonesTable.description,
+        status: schema.milestonesTable.status,
+        sortOrder: schema.milestonesTable.sortOrder,
+        dueDate: schema.milestonesTable.dueDate,
+        assigneeId: schema.milestonesTable.assigneeId,
+        completedAt: schema.milestonesTable.completedAt,
+        signedOffAt: schema.milestonesTable.signedOffAt,
+        signedOffBy: schema.milestonesTable.signedOffBy,
+        createdAt: schema.milestonesTable.createdAt,
+        updatedAt: schema.milestonesTable.updatedAt,
+        projectClientId: schema.projectsTable.clientId,
+      })
+      .from(schema.milestonesTable)
+      .innerJoin(
+        schema.projectsTable,
+        eq(schema.milestonesTable.projectId, schema.projectsTable.id),
+      )
+      .where(
+        and(
+          isFirstParty ? undefined : eq(schema.projectsTable.clientId, clientId),
+          ne(schema.milestonesTable.status, 'completed'),
+          isNotNull(schema.milestonesTable.dueDate),
+        ),
+      )
+      .orderBy(asc(schema.milestonesTable.dueDate))
+      .limit(limit);
+
+    return rows.map(({ projectClientId: _, ...row }) => ({
+      ...row,
+      dueDate: row.dueDate?.toISOString() ?? null,
+      completedAt: row.completedAt?.toISOString() ?? null,
+      signedOffAt: row.signedOffAt?.toISOString() ?? null,
+      createdAt: row.createdAt?.toISOString() ?? null,
+      updatedAt: row.updatedAt?.toISOString() ?? null,
+    }));
   }
 
   async list(projectId: string, clientId: string, isFirstParty = false) {

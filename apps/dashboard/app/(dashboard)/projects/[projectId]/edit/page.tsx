@@ -84,7 +84,11 @@ export default function EditProjectPage() {
           startDate: p.startDate ?? undefined,
           dueDate: p.dueDate ?? undefined,
         });
+      } else {
+        setProject(null);
       }
+    } catch {
+      setProject(null);
     } finally {
       setLoading(false);
     }

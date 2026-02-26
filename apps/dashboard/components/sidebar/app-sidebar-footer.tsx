@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@site-haus/ui/components/base/dropdown-menu";
+import { ModeToggle } from "@site-haus/ui/components/base/mode-toggle";
 import {
   SidebarFooter,
   SidebarMenu,
@@ -46,7 +47,8 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
   return (
     <SidebarFooter>
       <SidebarMenu>
-        <SidebarMenuItem>
+        <SidebarMenuItem className="flex items-center gap-2">
+          <ModeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <SidebarMenuButton

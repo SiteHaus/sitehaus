@@ -7,6 +7,7 @@ import {
 } from "@site-haus/ui/components/base/collapsible";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { useClientContext } from "../../hooks/use-client-context";
+import { useIsEmployee } from "../../hooks/use-is-employee";
 import {
   SidebarContent,
   SidebarGroup,
@@ -39,9 +40,14 @@ export const AppSideBarContent = () => {
   const pathname = usePathname();
   const hasPerm = useAuthStore((s) => s.hasPerm);
   const clientContext = useClientContext();
+  const isEmployee = useIsEmployee();
 
   const visibleItems = sideBarMenuItems
-    .filter((item) => !item.requirePerm || hasPerm(item.requirePerm))
+    .filter((item) => {
+      const permOk = !item.requirePerm || hasPerm(item.requirePerm);
+      const clientFallback = !!item.showForClients && !isEmployee && !!clientContext;
+      return permOk || clientFallback;
+    })
     .filter((item) => !item.requireClient || !!clientContext)
     .map((item) => ({
       ...item,

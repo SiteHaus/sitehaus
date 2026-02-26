@@ -23,36 +23,8 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-
-const statusVariant = (s: string) => {
-  switch (s) {
-    case "launched":
-    case "completed":
-      return "success";
-    case "in_progress":
-      return "warning";
-    case "cancelled":
-      return "destructive";
-    default:
-      return "secondary";
-  }
-};
-
-const billingVariant = (s: string | null) => {
-  switch (s) {
-    case "paid":
-      return "success";
-    case "late":
-      return "destructive";
-    case "outstanding":
-      return "warning";
-    default:
-      return "secondary";
-  }
-};
-
-const label = (s: string) =>
-  s.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase());
+import { label } from "@site-haus/utils/core/format";
+import { statusVariant, billingVariant } from "@/lib/variants";
 
 export default function ProjectsPage() {
   const hasPerm = useAuthStore((s) => s.hasPerm);

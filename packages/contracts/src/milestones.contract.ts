@@ -36,7 +36,23 @@ export const milestoneDetail = milestoneItem.extend({
   assignee: userBrief.nullable(),
 });
 
+export const upcomingMilestoneItem = milestoneItem.extend({
+  projectName: z.string(),
+});
+
 export const milestonesRouter = c.router({
+  listUpcoming: {
+    method: "GET",
+    path: "/milestones/upcoming",
+    query: z.object({
+      limit: z.coerce.number().min(1).max(20).default(5).optional(),
+    }),
+    responses: {
+      200: z.object({ milestones: z.array(upcomingMilestoneItem) }),
+      401: apiErrorHttp,
+      403: apiErrorHttp,
+    },
+  },
   list: {
     method: "GET",
     path: "/projects/:projectId/milestones",
@@ -114,3 +130,4 @@ export const milestonesRouter = c.router({
 
 export type MilestoneItem = z.infer<typeof milestoneItem>;
 export type MilestoneDetail = z.infer<typeof milestoneDetail>;
+export type UpcomingMilestoneItem = z.infer<typeof upcomingMilestoneItem>;

@@ -208,6 +208,7 @@ export class ProjectsService {
     clientId: string,
     data: Record<string, unknown>,
     ctx: AuditContext,
+    isFirstParty = false,
   ) {
     // Build the update payload, converting date strings to Date objects
     const updates: Record<string, unknown> = {};
@@ -224,17 +225,19 @@ export class ProjectsService {
       .update(schema.projectsTable)
       .set(updates)
       .where(
-        and(
-          eq(schema.projectsTable.id, projectId),
-          eq(schema.projectsTable.clientId, clientId),
-        ),
+        isFirstParty
+          ? eq(schema.projectsTable.id, projectId)
+          : and(
+              eq(schema.projectsTable.id, projectId),
+              eq(schema.projectsTable.clientId, clientId),
+            ),
       )
       .returning();
 
     if (!project) return null;
 
     await this.audit.log({
-      clientId,
+      clientId: project.clientId,
       userId: ctx.userId,
       action: 'project.updated',
       targetType: 'project',
@@ -259,13 +262,16 @@ export class ProjectsService {
     clientId: string,
     newStatus: ProjectStatus,
     ctx: AuditContext,
+    isFirstParty = false,
   ) {
     const existing = await this.db.query.projectsTable.findFirst({
-      where: and(
-        eq(schema.projectsTable.id, projectId),
-        eq(schema.projectsTable.clientId, clientId),
-      ),
-      columns: { id: true, status: true },
+      where: isFirstParty
+        ? eq(schema.projectsTable.id, projectId)
+        : and(
+            eq(schema.projectsTable.id, projectId),
+            eq(schema.projectsTable.clientId, clientId),
+          ),
+      columns: { id: true, status: true, clientId: true },
     });
 
     if (!existing) return null;
@@ -296,7 +302,7 @@ export class ProjectsService {
       .returning();
 
     await this.audit.log({
-      clientId,
+      clientId: existing.clientId,
       userId: ctx.userId,
       action: 'project.status_changed',
       targetType: 'project',
@@ -320,6 +326,7 @@ export class ProjectsService {
     projectId: string,
     clientId: string,
     ctx: AuditContext,
+    isFirstParty = false,
   ): Promise<boolean> {
     const [project] = await this.db
       .update(schema.projectsTable)
@@ -329,17 +336,19 @@ export class ProjectsService {
         updatedAt: new Date(),
       })
       .where(
-        and(
-          eq(schema.projectsTable.id, projectId),
-          eq(schema.projectsTable.clientId, clientId),
-        ),
+        isFirstParty
+          ? eq(schema.projectsTable.id, projectId)
+          : and(
+              eq(schema.projectsTable.id, projectId),
+              eq(schema.projectsTable.clientId, clientId),
+            ),
       )
-      .returning({ id: schema.projectsTable.id });
+      .returning({ id: schema.projectsTable.id, clientId: schema.projectsTable.clientId });
 
     if (!project) return false;
 
     await this.audit.log({
-      clientId,
+      clientId: project.clientId,
       userId: ctx.userId,
       action: 'project.cancelled',
       targetType: 'project',

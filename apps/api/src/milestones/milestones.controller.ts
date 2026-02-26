@@ -11,6 +11,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
 } from '@nestjs/common';
 import {
@@ -18,6 +19,7 @@ import {
   reorderMilestonesSchema,
   updateMilestoneSchema,
 } from '@site-haus/validation/forms/milestone';
+import { z } from 'zod';
 import { AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { ClientInRequest } from 'src/clients/client.guard';
@@ -28,6 +30,20 @@ type Req_ = AuthedRequest & ClientInRequest;
 @Controller()
 export class MilestonesController {
   constructor(private readonly milestones: MilestonesService) {}
+
+  @RequirePerms('projects:read')
+  @Get('milestones/upcoming')
+  async listUpcoming(@Req() req: Req_, @Query() query: unknown) {
+    const { limit } = z
+      .object({ limit: z.coerce.number().min(1).max(20).default(5) })
+      .parse(query ?? {});
+    const milestones = await this.milestones.listUpcoming(
+      req.client!.id,
+      req.client!.firstParty,
+      limit,
+    );
+    return { milestones };
+  }
 
   @RequirePerms('projects:read')
   @Get('projects/:projectId/milestones')

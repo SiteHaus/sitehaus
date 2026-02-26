@@ -2,8 +2,9 @@
 
 import type { CommentDetail } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
-import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { queryKeys } from "@/lib/query-keys";
 
 type TargetType = "ticket" | "design_document" | "project";
 
@@ -33,111 +34,81 @@ function buildThreads(comments: CommentDetail[]): CommentThread[] {
 }
 
 export function useComments(targetType: TargetType, targetId: string) {
-  const [comments, setComments] = useState<CommentDetail[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const key = queryKeys.comments.list(targetType, targetId);
 
-  const fetch = useCallback(async () => {
-    if (!targetId) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await getApi().comments.list({
-        query: { targetType, targetId },
-      });
-      if (res.status === 200) {
-        setComments(res.body.comments);
-      }
-    } catch {
-      // silently fail
-    } finally {
-      setLoading(false);
-    }
-  }, [targetType, targetId]);
-
-  useEffect(() => {
-    fetch();
-  }, [fetch]);
+  const { data: comments = [], isLoading: loading } = useQuery({
+    queryKey: key,
+    queryFn: async () => {
+      if (!targetId) return [];
+      const res = await getApi().comments.list({ query: { targetType, targetId } });
+      if (res.status !== 200) throw new Error("Failed to load comments");
+      return res.body.comments;
+    },
+    enabled: !!targetId,
+  });
 
   const threads = buildThreads(comments);
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: key });
 
-  const addComment = useCallback(
-    async (body: string, opts?: { isInternal?: boolean; parentId?: string }) => {
-      if (!targetId) return false;
-      try {
-        const res = await getApi().comments.create({
-          body: {
-            targetType,
-            targetId,
-            body,
-            isInternal: opts?.isInternal,
-            parentId: opts?.parentId,
-          },
-        });
-        if (res.status === 201) {
-          await fetch();
-          return true;
-        } else {
-          toast.error("Failed to add comment");
-        }
-      } catch {
-        toast.error("Something went wrong");
+  const addMutation = useMutation({
+    mutationFn: (opts: { body: string; isInternal?: boolean; parentId?: string }) =>
+      getApi().comments.create({
+        body: {
+          targetType,
+          targetId,
+          body: opts.body,
+          isInternal: opts.isInternal,
+          parentId: opts.parentId,
+        },
+      }),
+    onSuccess: (res) => {
+      if (res.status === 201) {
+        void invalidate();
+      } else {
+        toast.error("Failed to add comment");
       }
-      return false;
     },
-    [targetType, targetId, fetch]
-  );
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const updateComment = useCallback(
-    async (commentId: string, body: string) => {
-      try {
-        const res = await getApi().comments.update({
-          params: { commentId },
-          body: { body },
-        });
-        if (res.status === 200) {
-          await fetch();
-          return true;
-        } else {
-          toast.error("Failed to update comment");
-        }
-      } catch {
-        toast.error("Something went wrong");
+  const updateMutation = useMutation({
+    mutationFn: ({ commentId, body }: { commentId: string; body: string }) =>
+      getApi().comments.update({ params: { commentId }, body: { body } }),
+    onSuccess: (res) => {
+      if (res.status === 200) {
+        void invalidate();
+      } else {
+        toast.error("Failed to update comment");
       }
-      return false;
     },
-    [fetch]
-  );
+    onError: () => toast.error("Something went wrong"),
+  });
 
-  const removeComment = useCallback(
-    async (commentId: string) => {
-      try {
-        const res = await getApi().comments.remove({
-          params: { commentId },
-        });
-        if (res.status === 204) {
-          await fetch();
-          toast.success("Comment deleted");
-          return true;
-        } else {
-          toast.error("Failed to delete comment");
-        }
-      } catch {
-        toast.error("Something went wrong");
+  const removeMutation = useMutation({
+    mutationFn: (commentId: string) =>
+      getApi().comments.remove({ params: { commentId } }),
+    onSuccess: (res) => {
+      if (res.status === 204) {
+        void invalidate();
+        toast.success("Comment deleted");
+      } else {
+        toast.error("Failed to delete comment");
       }
-      return false;
     },
-    [fetch]
-  );
+    onError: () => toast.error("Something went wrong"),
+  });
 
   return {
     comments,
     threads,
     loading,
-    refetch: fetch,
-    addComment,
-    updateComment,
-    removeComment,
+    refetch: invalidate,
+    addComment: (body: string, opts?: { isInternal?: boolean; parentId?: string }) =>
+      addMutation.mutateAsync({ body, ...opts }).then((r) => r.status === 201),
+    updateComment: (commentId: string, body: string) =>
+      updateMutation.mutateAsync({ commentId, body }).then((r) => r.status === 200),
+    removeComment: (commentId: string) =>
+      removeMutation.mutateAsync(commentId).then((r) => r.status === 204),
   };
 }

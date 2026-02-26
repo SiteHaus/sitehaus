@@ -16,17 +16,7 @@ import { ExternalLink, ArrowLeft } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useIsEmployee } from "@/hooks/use-is-employee";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatDate(d: string | null) {
-  if (!d) return null;
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { formatDate } from "@site-haus/utils/core/format";
 
 function computeCompleteness(profile: BusinessProfileItem) {
   const cp = (profile.currentPresence as Record<string, unknown> | null) ?? {};
@@ -245,7 +235,7 @@ export default function BusinessProfileReviewPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Business Profile
               {profile.updatedAt && (
-                <> · Last updated {formatDate(profile.updatedAt)}</>
+                <> · Last updated {formatDate(profile.updatedAt, { month: "long", day: "numeric", year: "numeric" })}</>
               )}
             </p>
           </div>

@@ -12,16 +12,8 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import { formatDate } from "@site-haus/utils/core/format";
 import { MilestoneStatusBadge } from "./milestone-status-badge";
-
-function formatDate(d: string | null) {
-  if (!d) return null;
-  return new Date(d).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
 
 interface MilestoneCardProps {
   milestone: MilestoneItem;

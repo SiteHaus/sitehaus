@@ -71,7 +71,7 @@ export class ProjectsController {
       userId: req.user!.userId,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
-    });
+    }, req.client!.firstParty);
     if (!project) throw new NotFoundException('Project not found');
     return { project };
   }
@@ -87,7 +87,7 @@ export class ProjectsController {
       userId: req.user!.userId,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
-    });
+    }, req.client!.firstParty);
     if (!cancelled) throw new NotFoundException('Project not found');
   }
 
@@ -108,6 +108,7 @@ export class ProjectsController {
         ip: req.ip,
         ua: req.headers['user-agent'] as string | undefined,
       },
+      req.client!.firstParty,
     );
     if (!result) throw new NotFoundException('Project not found');
     if ('error' in result) throw new BadRequestException(result.error);
