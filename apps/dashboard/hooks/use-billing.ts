@@ -2,6 +2,7 @@
 
 import type { AdminBillingOverview, BillingRecordItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
+import { useAuthStore } from "@site-haus/stores/auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { queryKeys } from "@/lib/query-keys";
@@ -123,13 +124,16 @@ export function useBillingProject(projectId: string, clientId: string) {
 }
 
 export function useBillingClient() {
+  const managedClientId = useAuthStore((s) => s.managedClientId);
+
   const { data: records = [], isLoading: loading } = useQuery<BillingRecordItem[]>({
-    queryKey: queryKeys.billing.client(),
+    queryKey: queryKeys.billing.client(managedClientId),
     queryFn: async () => {
       const res = await getApi().billing.list({ query: {} });
       if (res.status !== 200) throw new Error("Failed to load billing records");
       return res.body.records;
     },
+    enabled: !!managedClientId,
   });
 
   const openPortal = async () => {

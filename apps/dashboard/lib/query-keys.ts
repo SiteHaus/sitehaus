@@ -22,7 +22,8 @@ export const queryKeys = {
     project: (projectId: string) =>
       ["billing", "project", projectId] as const,
     admin: () => ["billing", "admin"] as const,
-    client: () => ["billing", "client"] as const,
+    client: (managedClientId: string | null) =>
+      ["billing", "client", managedClientId] as const,
   },
   comments: {
     list: (targetType: string, targetId: string) =>

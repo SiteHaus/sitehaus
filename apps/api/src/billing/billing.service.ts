@@ -44,16 +44,10 @@ export class BillingService {
     });
     if (!client) return null;
 
-    // Get the first member's email to attach to the Stripe customer if needed
-    const member = await this.db.query.userRolesTable.findFirst({
-      where: eq(schema.userRolesTable.clientId, clientId),
-      with: { user: { columns: { email: true } } },
-      columns: { userId: true },
-    });
-    const email = member?.user?.email;
-
     // Always search/create via Stripe (validates cached ID is still live)
-    const customer = await this.stripe.getOrCreateCustomer(client.id, client.name, email);
+    // No email — using a member's email risks picking a SiteHaus employee.
+    // The client can add their own email via the Stripe billing portal.
+    const customer = await this.stripe.getOrCreateCustomer(client.id, client.name);
 
     if (customer.id !== client.stripeCustomerId) {
       await this.db

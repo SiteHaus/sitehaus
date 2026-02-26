@@ -2,7 +2,7 @@ import type { BillingRecordItem } from "@site-haus/contracts";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import { formatCents, formatDate } from "@site-haus/utils/core/format";
-import { Calendar, ExternalLink, RefreshCw, Receipt } from "lucide-react";
+import { Calendar, Download, ExternalLink, RefreshCw, Receipt } from "lucide-react";
 import { BillingStatusBadge } from "./billing-status-badge";
 
 interface BillingRecordCardProps {
@@ -84,6 +84,19 @@ export function BillingRecordCard({ record, clientName, onOpenPortal }: BillingR
           <Badge variant="warning">Outstanding</Badge>
         ) : (
           <BillingStatusBadge status={record.status} />
+        )}
+
+        {record.status === "paid" && record.hostedInvoiceUrl && (
+          <Button
+            size="sm"
+            variant="ghost"
+            asChild
+          >
+            <a href={record.hostedInvoiceUrl} target="_blank" rel="noreferrer">
+              <Download className="mr-1.5 h-3.5 w-3.5" />
+              Receipt
+            </a>
+          </Button>
         )}
 
         {actionable && onOpenPortal && (
