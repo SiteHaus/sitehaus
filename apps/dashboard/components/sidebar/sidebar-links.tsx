@@ -75,14 +75,8 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
   },
   {
     title: "Clients",
-    url: "/clients",
+    url: "/clients/all",
     icon: Contact,
     requirePerm: "members:read",
-    subItems: [
-      {
-        title: "Client Directory",
-        url: "/clients/all",
-      },
-    ],
   },
 ];

@@ -37,5 +37,9 @@ export const queryKeys = {
   },
   businessProfile: {
     me: () => ["business-profile", "me"] as const,
+    byClient: (clientId: string) => ["business-profile", clientId] as const,
+  },
+  clients: {
+    list: () => ["clients", "list"] as const,
   },
 };
