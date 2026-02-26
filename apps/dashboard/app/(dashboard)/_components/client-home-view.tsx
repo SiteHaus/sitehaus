@@ -352,25 +352,27 @@ export function ClientHomeView() {
                   ) : (
                     <div className="space-y-2">
                       {milestones.map((milestone) => (
-                        <div
+                        <Link
                           key={milestone.id}
-                          className="flex items-start justify-between gap-3 rounded-lg border p-3"
+                          href={`/projects/${milestone.projectId}/milestones`}
                         >
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {milestone.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {milestone.projectName}
-                            </p>
-                          </div>
-                          {milestone.dueDate && (
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                              <Calendar className="h-3 w-3" />
-                              {formatDate(milestone.dueDate)}
+                          <div className="flex items-start justify-between gap-3 rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {milestone.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {milestone.projectName}
+                              </p>
                             </div>
-                          )}
-                        </div>
+                            {milestone.dueDate && (
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                                <Calendar className="h-3 w-3" />
+                                {formatDate(milestone.dueDate)}
+                              </div>
+                            )}
+                          </div>
+                        </Link>
                       ))}
                     </div>
                   )}

@@ -1,10 +1,10 @@
 "use client";
 
 import type { MilestoneItem } from "@site-haus/contracts";
-import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import {
+  BadgeCheck,
   Calendar,
   CheckCircle2,
   ChevronDown,
@@ -17,8 +17,8 @@ import { MilestoneStatusBadge } from "./milestone-status-badge";
 
 interface MilestoneCardProps {
   milestone: MilestoneItem;
-  isFirst: boolean;
-  isLast: boolean;
+  isFirst?: boolean;
+  isLast?: boolean;
   canManage: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -73,11 +73,6 @@ export function MilestoneCard({
           <p className="font-medium text-sm leading-tight">{milestone.name}</p>
           <div className="flex items-center gap-2 flex-wrap shrink-0">
             <MilestoneStatusBadge status={milestone.status} />
-            {isSignedOff && (
-              <Badge variant="outline" className="text-xs">
-                Signed Off
-              </Badge>
-            )}
           </div>
         </div>
 
@@ -98,6 +93,12 @@ export function MilestoneCard({
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <CheckCircle2 className="h-3 w-3" />
               Completed {formatDate(milestone.completedAt)}
+            </span>
+          )}
+          {isSignedOff && milestone.signedOffAt && (
+            <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+              <BadgeCheck className="h-3 w-3" />
+              Signed off {formatDate(milestone.signedOffAt)}
             </span>
           )}
         </div>

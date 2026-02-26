@@ -69,7 +69,7 @@ export function EmployeeHomeView() {
   }, [load]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pt-6">
       <div>
         <h1 className="text-3xl font-bold">
           Hey{user?.firstName ? `, ${user.firstName}` : ""}!
@@ -113,9 +113,9 @@ export function EmployeeHomeView() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-l-2 border-l-primary">
               <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-1">
+                <CardDescription className="flex items-center gap-1 text-primary">
                   <TrendingUp className="h-3.5 w-3.5" />
                   MRR
                 </CardDescription>
@@ -128,9 +128,9 @@ export function EmployeeHomeView() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={billing && billing.overdueCount > 0 ? "border-l-2 border-l-destructive" : ""}>
               <CardHeader className="pb-2">
-                <CardDescription className="flex items-center gap-1">
+                <CardDescription className={`flex items-center gap-1 ${billing && billing.overdueCount > 0 ? "text-destructive" : ""}`}>
                   <AlertTriangle className="h-3.5 w-3.5" />
                   Overdue
                 </CardDescription>
@@ -195,8 +195,11 @@ export function EmployeeHomeView() {
             </div>
 
             <div>
-              <div className="flex items-center mb-3">
+              <div className="flex items-center justify-between mb-3">
                 <h2 className="text-base font-semibold">Upcoming Milestones</h2>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/projects">View all</Link>
+                </Button>
               </div>
               {milestones.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 text-center rounded-xl border">
@@ -208,23 +211,25 @@ export function EmployeeHomeView() {
               ) : (
                 <div className="space-y-2">
                   {milestones.map((milestone) => (
-                    <div
+                    <Link
                       key={milestone.id}
-                      className="flex items-start justify-between gap-3 rounded-lg border p-3"
+                      href={`/projects/${milestone.projectId}/milestones`}
                     >
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{milestone.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {milestone.projectName}
-                        </p>
-                      </div>
-                      {milestone.dueDate && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(milestone.dueDate)}
+                      <div className="flex items-start justify-between gap-3 rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{milestone.name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {milestone.projectName}
+                          </p>
                         </div>
-                      )}
-                    </div>
+                        {milestone.dueDate && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(milestone.dueDate)}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
                   ))}
                 </div>
               )}

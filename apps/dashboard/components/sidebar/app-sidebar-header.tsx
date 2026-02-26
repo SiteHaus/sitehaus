@@ -4,7 +4,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@site-haus/ui/components/base/sidebar";
-import { LayoutDashboard } from "lucide-react";
 
 export const AppSideBarHeader = () => {
   return (
@@ -12,11 +11,12 @@ export const AppSideBarHeader = () => {
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton size="lg" className="cursor-default">
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-              <LayoutDashboard className="size-4" />
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg text-xs font-bold tracking-tight">
+              SH
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-bold">SiteHaus</span>
+              <span className="truncate text-xs text-sidebar-foreground/50 font-normal">Client Portal</span>
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>

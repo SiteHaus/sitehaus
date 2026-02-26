@@ -5,7 +5,82 @@
  * Tailwind CSS official document:
  * https://tailwindcss.com/docs/detecting-classes-in-source-files
  *
- * if you ever need to explicitly add a source that's excluded by default, 
+ * if you ever need to explicitly add a source that's excluded by default,
  * you can always add it with the @source directive.
  */
 @source '../node_modules/@site-haus/ui';
+
+/**
+ * Dashboard-specific design token overrides.
+ * Shifts neutrals from warm/beige → cool blue-gray for a techy, modern feel.
+ * Cards are lifted off the background, borders are crisp and visible,
+ * radius is tighter (6px) for a precise/sharp aesthetic.
+ */
+:root {
+  /* Cool blue-gray background — subtle but distinct from pure white */
+  --background: oklch(0.972 0.006 264);
+
+  /* Card stays white so it pops off the background */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.147 0.004 264);
+
+  /* Popover matches card */
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.147 0.004 264);
+
+  /* Crisp, visible borders — cool blue-gray instead of warm beige */
+  --border: oklch(0.872 0.012 264);
+  --input: oklch(0.872 0.012 264);
+
+  /* Muted surfaces with cool hue */
+  --muted: oklch(0.942 0.008 264);
+  --muted-foreground: oklch(0.51 0.016 264);
+
+  /* Secondary/accent with cool hue */
+  --secondary: oklch(0.935 0.009 264);
+  --secondary-foreground: oklch(0.22 0.012 264);
+  --accent: oklch(0.935 0.009 264);
+  --accent-foreground: oklch(0.147 0.004 264);
+
+  /* Foreground stays near-black with cool tint */
+  --foreground: oklch(0.147 0.004 264);
+
+  /* Tighter radius for sharp, precise UI */
+  --radius: 0.375rem;
+
+  /* Sidebar with slight cool tint */
+  --sidebar: oklch(0.964 0.007 264);
+  --sidebar-foreground: oklch(0.147 0.004 264);
+  --sidebar-border: oklch(0.872 0.012 264);
+  --sidebar-accent: oklch(0.935 0.009 264);
+  --sidebar-accent-foreground: oklch(0.147 0.004 264);
+}
+
+.dark {
+  /**
+   * Because :root in this file loads after default.css's .dark block,
+   * the light overrides would win. We must fully re-declare dark mode here
+   * so dark values are the last ones in the cascade.
+   * Hues shifted to cool 264° to match the light-mode theme.
+   */
+  --background: oklch(0.147 0.004 264);
+  --foreground: oklch(0.985 0.001 264);
+  --card: oklch(0.216 0.006 264);
+  --card-foreground: oklch(0.985 0.001 264);
+  --popover: oklch(0.216 0.006 264);
+  --popover-foreground: oklch(0.985 0.001 264);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 18%);
+  --muted: oklch(0.268 0.007 264);
+  --muted-foreground: oklch(0.62 0.012 264);
+  --secondary: oklch(0.274 0.008 264);
+  --secondary-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.268 0.007 264);
+  --accent-foreground: oklch(0.985 0.001 264);
+  --sidebar: oklch(0.216 0.006 264);
+  --sidebar-foreground: oklch(0.985 0.001 264);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-accent: oklch(0.3 0.005 264);
+  --sidebar-accent-foreground: oklch(0.985 0.001 264);
+  --radius: 0.375rem;
+}
