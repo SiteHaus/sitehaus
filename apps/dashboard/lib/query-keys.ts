@@ -41,5 +41,10 @@ export const queryKeys = {
   },
   clients: {
     list: () => ["clients", "list"] as const,
+    current: () => ["clients", "current"] as const,
+    members: () => ["clients", "members"] as const,
+  },
+  auditLogs: {
+    list: (filters: Record<string, unknown>) => ["audit-logs", filters] as const,
   },
 };

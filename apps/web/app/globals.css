@@ -1,6 +1,17 @@
 @import "tailwindcss";
 @import "@site-haus/ui/styles/default.css";
 
+/* Web app overrides — warm paper tone for light mode */
+:root {
+  --background: oklch(0.975 0.012 78);
+  --card: oklch(0.983 0.008 82);
+}
+
+.dark {
+  --background: oklch(0.147 0.004 49.25);
+  --card: oklch(0.216 0.006 56.043);
+}
+
 /**
  * Tailwind CSS official document:
  * https://tailwindcss.com/docs/detecting-classes-in-source-files
@@ -38,6 +49,10 @@ p {
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
+.font-display {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
 button {
   font-weight: 700;
 }
@@ -46,24 +61,14 @@ button {
   .bg-hazy-dots {
     background-image:
       radial-gradient(
-        circle at 20% 20%,
-        rgba(129, 194, 237, 0.17) 0,
-        transparent 40%
-      ),
-      radial-gradient(
-        circle at 80% 30%,
-        rgba(240, 179, 179, 0.25) 0,
+        circle at 15% 15%,
+        rgba(147, 197, 253, 0.18) 0,
         transparent 45%
       ),
       radial-gradient(
-        circle at 30% 70%,
-        rgba(241, 136, 136, 0.082) 0,
+        circle at 75% 85%,
+        rgba(251, 207, 144, 0.14) 0,
         transparent 50%
-      ),
-      radial-gradient(
-        circle at 75% 80%,
-        rgba(221, 237, 170, 0.23) 0,
-        transparent 55%
       );
     background-repeat: no-repeat;
     background-size: cover;

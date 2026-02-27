@@ -1,10 +1,12 @@
 import {
   Building2,
+  ClipboardList,
   Contact,
   CreditCard,
   FolderKanban,
   Home,
   LucideIcon,
+  Settings,
   Ticket,
 } from "lucide-react";
 
@@ -78,5 +80,17 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     url: "/clients/all",
     icon: Contact,
     requirePerm: "members:read",
+  },
+  {
+    title: "Audit Log",
+    url: "/audit-logs",
+    icon: ClipboardList,
+    requirePerm: "audit:read",
+  },
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
+    requirePerm: "clients:read",
   },
 ];

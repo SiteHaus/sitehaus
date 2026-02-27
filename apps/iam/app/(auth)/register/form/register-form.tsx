@@ -155,7 +155,29 @@ export const RegisterForm = ({
             Sign Up
           </Button>
 
-          <p className="text-sm text-center text-foreground mt-4">
+          <p className="text-xs text-center text-muted-foreground">
+            By creating an account, you agree to our{" "}
+            <a
+              href={`${process.env.NEXT_PUBLIC_WEB_URL ?? "https://sitehaus.dev"}/terms`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline hover:text-foreground transition-colors"
+            >
+              Terms of Service
+            </a>{" "}
+            and{" "}
+            <a
+              href={`${process.env.NEXT_PUBLIC_WEB_URL ?? "https://sitehaus.dev"}/privacy`}
+              target="_blank"
+              rel="noreferrer"
+              className="underline hover:text-foreground transition-colors"
+            >
+              Privacy Policy
+            </a>
+            .
+          </p>
+
+          <p className="text-sm text-center text-foreground">
             Already have an account?{" "}
             <AuthLink href="/login" className="text-blue-500 hover:underline">
               Log in
