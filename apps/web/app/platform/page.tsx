@@ -10,7 +10,6 @@ import {
   ScrollText,
   Settings,
   ShieldCheck,
-  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { Screenshot } from "./screenshot";

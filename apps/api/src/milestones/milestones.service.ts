@@ -80,7 +80,7 @@ export class MilestonesService {
       .orderBy(asc(schema.milestonesTable.dueDate))
       .limit(limit);
 
-    return rows.map(({ projectClientId: _, ...row }) => ({
+    return rows.map(({ projectClientId: _projectClientId, ...row }) => ({
       ...row,
       dueDate: row.dueDate?.toISOString() ?? null,
       completedAt: row.completedAt?.toISOString() ?? null,

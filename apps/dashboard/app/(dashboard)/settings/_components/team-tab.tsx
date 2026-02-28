@@ -89,7 +89,7 @@ export function TeamTab() {
                       <p className="text-xs text-muted-foreground truncate">{member.email}</p>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
-                      {member.roles.map((role) => (
+                      {member.roles.map((role: { id: string; name: string }) => (
                         <Badge key={role.id} variant="secondary" className="text-xs">
                           {role.name}
                         </Badge>
