@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | SiteHaus",
+  title: "Privacy Policy",
   description: "Privacy Policy for SiteHaus and its services.",
+  alternates: { canonical: "/privacy" },
+  robots: { index: false, follow: false },
 };
 
 // Static Termly-generated privacy policy content — trusted, no user input

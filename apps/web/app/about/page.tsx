@@ -2,11 +2,24 @@ import { Button } from "@site-haus/ui/components/base/button";
 import type { Metadata } from "next";
 import { MapPin, MoveRight } from "lucide-react";
 import Link from "next/link";
+import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
   title: "About",
   description:
     "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About | SiteHaus",
+    description:
+      "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+    url: "/about",
+  },
+  twitter: {
+    title: "About | SiteHaus",
+    description:
+      "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+  },
 };
 
 const founders = [
@@ -29,6 +42,26 @@ const founders = [
 export default function AboutPage() {
   return (
     <main className="min-h-screen pt-16">
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "AboutPage",
+            name: "About SiteHaus",
+            url: "https://sitehaus.dev/about",
+            description:
+              "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://sitehaus.dev" },
+              { "@type": "ListItem", position: 2, name: "About", item: "https://sitehaus.dev/about" },
+            ],
+          },
+        ]}
+      />
       {/* Hero */}
       <section className="py-14 sm:py-20 md:py-28 lg:py-36 border-b border-border/50">
         <div className="container mx-auto px-6 max-w-4xl">

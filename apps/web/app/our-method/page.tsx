@@ -7,6 +7,18 @@ export const metadata: Metadata = {
   title: "Our Method",
   description:
     "Document-driven development. Fully transparent. You will never have to ask what we're working on — every decision, milestone, and update is visible from day one.",
+  alternates: { canonical: "/our-method" },
+  openGraph: {
+    title: "Our Method | SiteHaus",
+    description:
+      "Document-driven development. Fully transparent. You will never have to ask what we're working on — every decision, milestone, and update is visible from day one.",
+    url: "/our-method",
+  },
+  twitter: {
+    title: "Our Method | SiteHaus",
+    description:
+      "Document-driven development. Fully transparent. You will never have to ask what we're working on — every decision, milestone, and update is visible from day one.",
+  },
 };
 
 const steps = [

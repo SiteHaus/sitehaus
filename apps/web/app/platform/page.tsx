@@ -18,6 +18,18 @@ export const metadata: Metadata = {
   title: "Platform",
   description:
     "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
+  alternates: { canonical: "/platform" },
+  openGraph: {
+    title: "Platform | SiteHaus",
+    description:
+      "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
+    url: "/platform",
+  },
+  twitter: {
+    title: "Platform | SiteHaus",
+    description:
+      "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
+  },
 };
 
 const dashboardFeatures = [
