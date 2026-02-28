@@ -2,6 +2,7 @@ import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
 import type { Metadata } from "next";
 import { Baskervville, Figtree } from "next/font/google";
 
+import { JsonLd } from "./components/json-ld";
 import { SiteNav } from "./components/site-nav";
 import "./globals.css";
 
@@ -25,10 +26,32 @@ export const metadata: Metadata = {
   },
   description:
     "Your long-term partner in software. We design and build web, mobile, and desktop software with clear plans, shared milestones, and no surprises.",
+  metadataBase: new URL("https://sitehaus.dev"),
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     siteName: "SiteHaus",
     type: "website",
+    url: "https://sitehaus.dev",
+    title: "SiteHaus",
+    description:
+      "Your long-term partner in software. We design and build web, mobile, and desktop software with clear plans, shared milestones, and no surprises.",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "SiteHaus" }],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "SiteHaus",
+    description:
+      "Your long-term partner in software. We design and build web, mobile, and desktop software with clear plans, shared milestones, and no surprises.",
+    images: ["/og.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
@@ -53,6 +76,30 @@ export default function RootLayout({
           >
             Skip to main content
           </a>
+          <JsonLd
+            data={[
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "SiteHaus",
+                url: "https://sitehaus.dev",
+                logo: "https://sitehaus.dev/sitehaus-icon.svg",
+                description:
+                  "Your long-term partner in software. We design and build web, mobile, and desktop software with clear plans, shared milestones, and no surprises.",
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  contactType: "customer service",
+                  url: "https://sitehaus.dev/contact",
+                },
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "SiteHaus",
+                url: "https://sitehaus.dev",
+              },
+            ]}
+          />
           <SiteNav />
           <div id="main-content">{children}</div>
           <footer className="border-t border-border/50 pt-14 pb-10">

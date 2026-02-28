@@ -2,11 +2,24 @@ import { Button } from "@site-haus/ui/components/base/button";
 import type { Metadata } from "next";
 import { Globe, Monitor, MoveRight, Smartphone } from "lucide-react";
 import Link from "next/link";
+import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
   title: "Services",
   description:
     "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+  alternates: { canonical: "/services" },
+  openGraph: {
+    title: "Services | SiteHaus",
+    description:
+      "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+    url: "/services",
+  },
+  twitter: {
+    title: "Services | SiteHaus",
+    description:
+      "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+  },
 };
 
 const services = [
@@ -57,6 +70,28 @@ const services = [
 export default function ServicesPage() {
   return (
     <main className="min-h-screen pt-16">
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            name: "Custom Software Development",
+            provider: { "@type": "Organization", name: "SiteHaus", url: "https://sitehaus.dev" },
+            description:
+              "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+            serviceType: ["Web Development", "Mobile App Development", "Desktop Software"],
+            url: "https://sitehaus.dev/services",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://sitehaus.dev" },
+              { "@type": "ListItem", position: 2, name: "Services", item: "https://sitehaus.dev/services" },
+            ],
+          },
+        ]}
+      />
       {/* Hero */}
       <section className="py-14 sm:py-20 md:py-28 lg:py-36 border-b border-border/50">
         <div className="container mx-auto px-6">
