@@ -1,6 +1,9 @@
 import { relations } from "drizzle-orm";
 import { auditLogTable } from "../core/audit-logs.js";
+import { commentsTable } from "../core/comments.js";
+import { milestonesTable } from "../core/milestones.js";
 import { projectsTable } from "../core/projects.js";
+import { ticketsTable } from "../core/tickets.js";
 import { devicesTable } from "./devices.js";
 import { otpsTable } from "./otps.js";
 import { passwordCredentialsTable } from "./password-credentials.js";
@@ -24,4 +27,10 @@ export const usersRelations = relations(usersTable, ({ one, many }) => ({
   userRoles: many(userRolesTable),
   auditLogs: many(auditLogTable),
   projects: many(projectsTable),
+  authoredTickets: many(ticketsTable, { relationName: "ticketAuthor" }),
+  assignedTickets: many(ticketsTable, { relationName: "ticketAssignee" }),
+  assignedMilestones: many(milestonesTable, {
+    relationName: "milestoneAssignee",
+  }),
+  comments: many(commentsTable),
 }));

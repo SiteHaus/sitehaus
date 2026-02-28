@@ -3,6 +3,7 @@
 import { initStoresSdk } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 
@@ -21,6 +22,17 @@ initStoresSdk({
   baseURL: API,
   clientKey: CLIENT,
   proactiveRefreshSkewSec: 60,
+  targetClientIdProvider: () => useAuthStore.getState().managedClientId ?? null,
+});
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
 const Providers = ({ children }: ProvidersProps) => {
@@ -36,14 +48,16 @@ const Providers = ({ children }: ProvidersProps) => {
   }, [hydrated, pathname]);
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      {children}
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 

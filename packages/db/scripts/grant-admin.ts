@@ -7,26 +7,21 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
 const db = drizzle(pool, { schema });
 
 const ADMIN_EMAIL = process.env.SITEHAUS_ADMIN_EMAIL ?? "you@sitehaus.dev";
-const CLIENT_KEY = process.env.SITEHAUS_ADMIN_CLIENT_KEY ?? "dashboard"; // or "dashboard"
+const CLIENT_KEY = process.env.SITEHAUS_ADMIN_CLIENT_KEY ?? "all";
 const ADMIN_ROLE_KEY = process.env.SITEHAUS_ADMIN_ROLE_KEY ?? "admin";
 
-async function main() {
-  console.log("Granting admin:", { ADMIN_EMAIL, CLIENT_KEY, ADMIN_ROLE_KEY });
-
+async function grantOnClient(
+  userId: string,
+  email: string,
+  clientKey: string,
+) {
   const client = await db.query.clientsTable.findFirst({
-    where: (t, { eq }) => eq(t.key, CLIENT_KEY),
+    where: (t, { eq }) => eq(t.key, clientKey),
   });
 
   if (!client) {
-    throw new Error(`Client with key=${CLIENT_KEY} not found`);
-  }
-
-  const user = await db.query.usersTable.findFirst({
-    where: (t, { eq }) => eq(t.email, ADMIN_EMAIL),
-  });
-
-  if (!user) {
-    throw new Error(`User with email=${ADMIN_EMAIL} not found`);
+    console.warn(`  ⚠ Client key="${clientKey}" not found, skipping.`);
+    return;
   }
 
   const role = await db.query.rolesTable.findFirst({
@@ -35,22 +30,15 @@ async function main() {
   });
 
   if (!role) {
-    throw new Error(
-      `Role with key=${ADMIN_ROLE_KEY} not found for client ${CLIENT_KEY}`,
+    console.warn(
+      `  ⚠ Role key="${ADMIN_ROLE_KEY}" not found on client "${clientKey}", skipping.`,
     );
+    return;
   }
-
-  console.log(
-    `Assigning role '${role.key}' to user ${user.email} on client ${client.key}`,
-  );
 
   await db
     .insert(schema.userRolesTable)
-    .values({
-      userId: user.id,
-      clientId: client.id,
-      roleId: role.id,
-    })
+    .values({ userId, clientId: client.id, roleId: role.id })
     .onConflictDoNothing({
       target: [
         schema.userRolesTable.userId,
@@ -58,6 +46,31 @@ async function main() {
         schema.userRolesTable.roleId,
       ],
     });
+
+  console.log(`  ✓ Granted "${ADMIN_ROLE_KEY}" on "${clientKey}"`);
+}
+
+async function main() {
+  const user = await db.query.usersTable.findFirst({
+    where: (t, { eq }) => eq(t.email, ADMIN_EMAIL),
+  });
+
+  if (!user) throw new Error(`User not found: ${ADMIN_EMAIL}`);
+
+  console.log(`Granting admin to ${user.email} (${user.id})`);
+
+  if (CLIENT_KEY === "all") {
+    // Grant admin on every first-party client
+    const clients = await db.query.clientsTable.findMany({
+      where: (t, { eq }) => eq(t.firstParty, true),
+    });
+    console.log(`Targeting all ${clients.length} first-party clients...`);
+    for (const c of clients) {
+      await grantOnClient(user.id, user.email, c.key);
+    }
+  } else {
+    await grantOnClient(user.id, user.email, CLIENT_KEY);
+  }
 
   console.log("Done.");
 }

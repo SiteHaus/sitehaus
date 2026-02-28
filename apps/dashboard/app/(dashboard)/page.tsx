@@ -1,18 +1,10 @@
 "use client";
 
-import { useAuthStore } from "@site-haus/stores/auth-store";
+import { useIsEmployee } from "@/hooks/use-is-employee";
+import { ClientHomeView } from "./_components/client-home-view";
+import { EmployeeHomeView } from "./_components/employee-home-view";
 
 export default function Home() {
-  const user = useAuthStore((s) => s.user);
-
-  return (
-    <div className="p-4">
-      <h1 className="text-3xl font-bold">
-        Welcome back{user?.firstName ? `, ${user.firstName}` : ""}!
-      </h1>
-      <p className="text-muted-foreground mt-2">
-        This is your SiteHaus Dashboard.
-      </p>
-    </div>
-  );
+  const isEmployee = useIsEmployee();
+  return isEmployee ? <EmployeeHomeView /> : <ClientHomeView />;
 }

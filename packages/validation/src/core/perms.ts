@@ -55,16 +55,40 @@ export const MODULES = {
       dashboards: ["read", "write", "delete"] as const,
     },
   },
+  dashboard: {
+    key: "dashboard",
+    name: "Dashboard",
+    description:
+      "Project management, client collaboration, and agency operations",
+    isCore: true,
+    permissions: {
+      projects: ["read", "manage"] as const,
+      profiles: ["read", "manage"] as const,
+      documents: ["read", "manage", "approve"] as const,
+      tickets: ["read", "create", "manage"] as const,
+      assets: ["read", "upload", "manage"] as const,
+      comments: ["read", "create", "manage"] as const,
+      billing: ["read", "manage"] as const,
+    },
+  },
 } as const satisfies Record<string, ModuleDefinition>;
 
 export type ModuleKey = keyof typeof MODULES;
 
 /** For backwards compatibility - flat permission map for IAM module */
 export const PERM = MODULES.iam.permissions;
+export const DASHBOARD_PERM = MODULES.dashboard.permissions;
 
-type Resource = keyof typeof PERM;
-type Action<R extends Resource = Resource> = (typeof PERM)[R][number];
-export type Permission = `${Resource}:${Action}`;
+type IamResource = keyof typeof PERM;
+type IamAction<R extends IamResource = IamResource> = (typeof PERM)[R][number];
+
+type DashResource = keyof typeof DASHBOARD_PERM;
+type DashAction<R extends DashResource = DashResource> =
+  (typeof DASHBOARD_PERM)[R][number];
+
+export type Permission =
+  | `${IamResource}:${IamAction}`
+  | `${DashResource}:${DashAction}`;
 
 /** Generate all permissions for a module */
 function modulePermissions<M extends ModuleKey>(
@@ -86,10 +110,11 @@ export const ALL_PERMISSIONS_WITH_MODULES = (
   Object.keys(MODULES) as ModuleKey[]
 ).flatMap((key) => modulePermissions(key));
 
-/** Flat list of all permission strings (for backwards compat) */
-export const ALL_PERMISSIONS: Permission[] = modulePermissions("iam").map(
-  (p) => p.perm as Permission
-);
+/** Flat list of all core permission strings (IAM + Dashboard) */
+export const ALL_PERMISSIONS: Permission[] = [
+  ...modulePermissions("iam"),
+  ...modulePermissions("dashboard"),
+].map((p) => p.perm as Permission);
 
 /** All permissions organized by module key */
 export const PERMISSIONS_BY_MODULE = (
@@ -102,7 +127,7 @@ export const PERMISSIONS_BY_MODULE = (
   {} as Record<ModuleKey, string[]>
 );
 
-export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer", Permission[]> = {
+export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "client", Permission[]> = {
   admin: [...ALL_PERMISSIONS],
   member: [
     "sessions:read",
@@ -113,6 +138,23 @@ export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer", Permis
   developer: [
     ...ALL_PERMISSIONS,
     "clients:view_hidden",
+  ],
+  client: [
+    "projects:read",
+    "profiles:read",
+    "profiles:manage",
+    "tickets:read",
+    "tickets:create",
+    "documents:read",
+    "assets:read",
+    "assets:upload",
+    "comments:read",
+    "comments:create",
+    "billing:read",
+    "sessions:read",
+    "sessions:revoke",
+    "devices:read",
+    "devices:revoke",
   ],
 };
 

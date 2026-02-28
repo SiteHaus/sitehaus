@@ -36,9 +36,13 @@ export class EmailService {
 
     const replyTo = toArray(opts.replyTo);
 
+    const sanitizeTag = (s: string) => s.replace(/[^A-Za-z0-9_-]/g, '_');
     const tags =
       opts.tags &&
-      Object.entries(opts.tags).map(([name, value]) => ({ name, value }));
+      Object.entries(opts.tags).map(([name, value]) => ({
+        name: sanitizeTag(name),
+        value: sanitizeTag(value),
+      }));
 
     const from = opts.from ?? this.cfg.from;
 

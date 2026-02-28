@@ -3,126 +3,296 @@
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@site-haus/ui/components/base/input-group";
-import { ArrowDown, Mail, MoveRight } from "lucide-react";
+  ArrowDown,
+  FileText,
+  KeyRound,
+  LayoutDashboard,
+  MoveRight,
+  ScrollText,
+  ShieldCheck,
+  ShipWheel,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+const platform = [
+  {
+    icon: LayoutDashboard,
+    title: "Client Dashboard",
+    description:
+      "A dedicated workspace for every project — milestones, tickets, assets, and updates in one place. Clients always know exactly where things stand.",
+  },
+  {
+    icon: FileText,
+    title: "Design Documents",
+    description:
+      "Every project starts with a comprehensive spec. Scope, features, timeline, and cost — all agreed on before any code is written.",
+  },
+  {
+    icon: KeyRound,
+    title: "OAuth2 & IAM",
+    description:
+      "A full Identity and Access Management system with OAuth2 PKCE. Secure, standards-compliant authentication across every app.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Two-Factor Auth",
+    description:
+      "TOTP-based 2FA baked into every account. Security isn't an add-on — it's part of the foundation.",
+  },
+  {
+    icon: Users,
+    title: "Team Management",
+    description:
+      "Roles, permissions, and invites. Granular control over who has access to what, without the complexity.",
+  },
+  {
+    icon: ScrollText,
+    title: "Audit Logs",
+    description:
+      "A full activity trail across your organization. Know what happened, when, and who did it.",
+  },
+];
+
+const values = [
+  {
+    title: "Responsible Delivery",
+    description:
+      "We will always treat Performance, Security, Reliability, and Maintainability as first-class concerns.",
+    image: "/Responsible_Delivery_500p_Textured_V1.png",
+    alt: "Sailor giving a thumbs up from a sailboat",
+    rotate: "-rotate-[3deg]",
+  },
+  {
+    title: "Modern Stack",
+    description:
+      "We don't just ship features, we build maintainable systems. Modern tech stacks, security best practices, and infrastructure that scales with your needs.",
+    image: "/Modern_Stack_500p_Textured_V1.png",
+    alt: "Sailor at the helm of a modern yacht",
+    rotate: "rotate-[2deg]",
+  },
+  {
+    title: "Clear Scope & Communication",
+    description:
+      "We start every project with a comprehensive design document and milestone plan. You'll know exactly what you're getting, what it costs, and when to expect it before any code is written.",
+    image: "/Clear_Scope_500p_Textured_V1.png",
+    alt: "Sailor tying a letter to a seagull's foot",
+    rotate: "-rotate-[2deg]",
+  },
+  {
+    title: "Long-Term Partners",
+    description:
+      "You own everything we build. Full source code, documentation, and deployment knowledge transfer. Whether you want to maintain it in-house or partner with us long-term, the choice is always yours.",
+    image: "/Long-Term_Partners_Textured_500p_V1.png",
+    alt: "Sailor embracing a lighthouse",
+    rotate: "rotate-[3deg]",
+  },
+];
+
+const ROMAN = ["I", "II", "III", "IV"];
 
 export default function App() {
   return (
     <main className="min-h-screen">
+      {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative h-screen w-full overflow-hidden">
         <Image
           src="/sitehaus-hero.png"
-          alt="Site Haus Illustration with Lighthouse and Cliffside"
+          alt="SiteHaus — coastal lighthouse illustration"
           fill
           priority
-          className="object-cover -z-5"
+          className="object-cover -z-10 hidden sm:block brightness-[0.88] saturate-[0.85]"
+        />
+        <Image
+          src="/sitehaus-hero-sm.png"
+          alt="SiteHaus — coastal lighthouse illustration"
+          fill
+          priority
+          className="object-cover -z-10 sm:hidden brightness-[0.88] saturate-[0.85]"
         />
 
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[rgba(255,255,255,0.25)] via-[rgba(255,255,255,0.10)] to-transparent dark:from-[rgba(0,0,0,0.6)] dark:via-[rgba(0,0,0,0.3)]" />
+        {/* Left-side vignette to anchor the text */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/55 via-background/15 to-transparent dark:from-background/80 dark:via-background/30 dark:to-transparent" />
 
-        <div className="container mx-auto h-full flex items-center">
-          <div className="flex flex-col z-10">
-            <Link href="/contact">
-              <Badge
-                variant="default"
-                className="font-display group inline-flex items-center gap-2 text-lg mb-6 border shadow-md p-4"
-              >
-                We're available for new projects
-                <MoveRight className="ml-2 group transition-all duration-200 ease-out group-hover:ml-6" />
-              </Badge>
-            </Link>
-            <h1 className="text-8xl tracking-wide pb-6 font-semibold">
-              Your{" "}
-              <span className="italic font-bold tracking-wide">long-term </span>{" "}
-              <br />{" "}
-              <span className="italic font-bold tracking-wide">partner</span> in
-              software
-            </h1>
-            <p className="text-2xl pt-6">
-              We design and build web, mobile, and desktop software — with clear{" "}
+        <div className="container mx-auto h-full flex items-center px-4 sm:px-6">
+          <div className="flex flex-col z-10 max-w-4xl">
+            <Badge
+              variant="default"
+              className="font-display inline-flex items-center gap-2 text-sm md:text-base mb-5 border shadow-md px-3 py-2 md:px-4 md:py-2.5 w-fit"
+            >
+              We&apos;re available for new projects
+            </Badge>
+
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-wide pb-4 md:pb-5 font-semibold leading-[1.05]">
+              Your <span className="italic font-bold">long-term</span>
               <br />
+              <span className="italic font-bold">partner</span> in software
+            </h1>
+
+            <p className="text-base sm:text-lg md:text-xl pt-2 text-foreground/75 leading-relaxed max-w-md">
+              We design and build web, mobile, and desktop software — with clear
               plans, shared milestones, and software built to be owned.
             </p>
 
-            <div className="flex items-center justify-center gap-2 mt-12">
-              <InputGroup className="h-12 bg-muted border shadow-lg">
-                <InputGroupAddon align="inline-start">
-                  <Mail />
-                </InputGroupAddon>
-                <InputGroupInput placeholder="Email" className="!text-lg" />
-              </InputGroup>
-              <Button size="lg" className="h-12 shadow-sm">
-                Start a conversation <MoveRight />
+            <div className="flex flex-col sm:flex-row gap-3 mt-8 md:mt-10">
+              <Button
+                size="lg"
+                className="h-11 md:h-12 text-sm md:text-base shadow-sm"
+                asChild
+              >
+                <Link href="/contact">
+                  Start a project <MoveRight className="ml-1" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="h-11 md:h-12 text-sm md:text-base"
+                asChild
+              >
+                <Link href="/our-method">How we work</Link>
               </Button>
             </div>
           </div>
         </div>
+
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
+          <div className="animate-bounce rounded-full border border-foreground/20 bg-background/30 backdrop-blur-sm px-3 py-2">
+            <ArrowDown className="h-4 w-4 text-foreground/50" />
+          </div>
+        </div>
       </section>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
-        <div className="animate-bounce rounded-full border border-white/25 bg-black/20 px-3 py-2 text-white/80">
-          <ArrowDown />
+      {/* ── Values ───────────────────────────────────────────────────── */}
+      <section className="py-14 sm:py-20 md:py-28 lg:py-36 overflow-hidden">
+        <div className="container mx-auto px-6">
+          {/* Section header */}
+          <div className="mb-12 sm:mb-16 md:mb-24 lg:mb-28">
+            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-3">
+              Our commitments
+            </p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight max-w-lg leading-tight">
+              What we stand for
+            </h2>
+          </div>
+
+          {/* Entries */}
+          <div className="flex flex-col">
+            {values.map((value, i) => {
+              const isEven = i % 2 === 0;
+              return (
+                <div key={value.title}>
+                  <div
+                    className={`flex flex-col-reverse gap-8 py-10 md:py-16 lg:py-20 ${
+                      isEven ? "md:flex-row" : "md:flex-row-reverse"
+                    } items-center md:gap-16 lg:gap-24`}
+                  >
+                    {/* Text side */}
+                    <div className="flex-1 min-w-0">
+                      {/* Ghost numeral */}
+                      <span
+                        className="font-display block leading-none text-[clamp(5rem,12vw,9rem)] font-bold text-foreground/[0.05] select-none -mb-4 md:-mb-6"
+                        aria-hidden
+                      >
+                        {ROMAN[i]}
+                      </span>
+
+                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-5 leading-tight">
+                        {value.title}
+                      </h3>
+                      <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-md">
+                        {value.description}
+                      </p>
+                    </div>
+
+                    {/* Image side — floats freely, no card */}
+                    <div className="flex-shrink-0 flex items-center justify-center w-full md:w-auto">
+                      <Image
+                        src={value.image}
+                        alt={value.alt}
+                        width={280}
+                        height={280}
+                        className={`
+                          w-[220px] md:w-[260px] lg:w-[300px] h-auto
+                          ${value.rotate}
+                          hover:rotate-0
+                          transition-transform duration-500 ease-out
+                          drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]
+                        `}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Separator */}
+                  {i < values.length - 1 && (
+                    <div className="flex items-center gap-4">
+                      <div className="flex-1 h-px bg-border/60" />
+                      <ShipWheel aria-hidden="true" className="text-primary/30" />
+                      <div className="flex-1 h-px bg-border/60" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="h-[50vh] container mx-auto py-12">
-        <h2 className="text-4xl font-bold tracking-wide">Section Heading</h2>
-        <p className="text-lg">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat odit
-          iste molestiae sequi natus, incidunt consequuntur eveniet quia velit
-          laborum vel commodi rerum consectetur rem! Dolor non odit eos culpa?
-        </p>
-      </div>
+      {/* ── Platform ──────────────────────────────────────────────────── */}
+      <section className="py-14 sm:py-20 md:py-28 lg:py-36 border-t border-border/50 bg-muted/30">
+        <div className="container mx-auto px-6">
+          {/* Header */}
+          <div className="max-w-2xl mb-14 sm:mb-16 md:mb-20">
+            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-4">
+              The SiteHaus platform
+            </p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-5">
+              We built the tools{" "}
+              <span className="italic text-foreground/50">we use.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Every client gets access to a platform we designed and built
+              ourselves — not a collection of third-party tools, but a unified
+              system built to the same standard we hold our client work to.
+            </p>
+          </div>
 
-      <div className="h-[50vh] container mx-auto py-12">
-        <h2 className="text-4xl font-bold tracking-wide">Section Heading</h2>
-        <p className="text-lg">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat odit
-          iste molestiae sequi natus, incidunt consequuntur eveniet quia velit
-          laborum vel commodi rerum consectetur rem! Dolor non odit eos culpa?
-        </p>
-      </div>
+          {/* Feature grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-14 md:mb-16">
+            {platform.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={feature.title}
+                  className="flex flex-col gap-4 p-6 rounded-2xl border border-border/60 bg-background/60"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Icon aria-hidden="true" className="h-5 w-5 text-primary/70" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base mb-1.5">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-      <div className="h-[50vh] container mx-auto py-12">
-        <h2 className="text-4xl font-bold tracking-wide">Section Heading</h2>
-        <p className="text-lg">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat odit
-          iste molestiae sequi natus, incidunt consequuntur eveniet quia velit
-          laborum vel commodi rerum consectetur rem! Dolor non odit eos culpa?
-        </p>
-      </div>
-
-      <div className="h-[50vh] container mx-auto py-12">
-        <h2 className="text-4xl font-bold tracking-wide">Section Heading</h2>
-        <p className="text-lg">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat odit
-          iste molestiae sequi natus, incidunt consequuntur eveniet quia velit
-          laborum vel commodi rerum consectetur rem! Dolor non odit eos culpa?
-        </p>
-      </div>
-
-      <div className="h-[50vh] container mx-auto py-12">
-        <h2 className="text-4xl font-bold tracking-wide">Section Heading</h2>
-        <p className="text-lg">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat odit
-          iste molestiae sequi natus, incidunt consequuntur eveniet quia velit
-          laborum vel commodi rerum consectetur rem! Dolor non odit eos culpa?
-        </p>
-      </div>
-
-      <div className="h-[50vh] container mx-auto py-12">
-        <h2 className="text-4xl font-bold tracking-wide">Section Heading</h2>
-        <p className="text-lg">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat odit
-          iste molestiae sequi natus, incidunt consequuntur eveniet quia velit
-          laborum vel commodi rerum consectetur rem! Dolor non odit eos culpa?
-        </p>
-      </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button size="lg" className="h-12 text-base" asChild>
+              <Link href="/contact">
+                Start a project <MoveRight aria-hidden="true" className="ml-2" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="secondary" className="h-12 text-base" asChild>
+              <Link href="/platform">Explore the platform</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

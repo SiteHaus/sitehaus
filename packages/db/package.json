@@ -32,23 +32,27 @@
     "db:migrate": "drizzle-kit migrate --config ./drizzle.config.ts",
     "db:push": "drizzle-kit push --config ./drizzle.config.ts",
     "db:seed": "node --import=tsx ./scripts/seed.ts",
-    "grant-admin": "node --import=tsx ./scripts/grant-admin.ts"
+    "db:seed-demo": "node --import=tsx ./scripts/seed-demo.ts",
+    "grant-admin": "node --import=tsx ./scripts/grant-admin.ts",
+    "backfill-client-perms": "node --import=tsx ./scripts/backfill-client-perms.ts"
   },
   "peerDependencies": {
     "drizzle-orm": "^0.44.4"
   },
   "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
     "@site-haus/validation": "workspace:*",
     "dotenv": "^17.2.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "stripe": "^20.3.1"
   },
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",
-    "drizzle-orm": "^0.44.4",
-    "drizzle-kit": "^0.31.4",
     "@types/node": "^22.15.3",
     "@types/pg": "^8.15.5",
+    "drizzle-kit": "^0.31.4",
+    "drizzle-orm": "^0.44.4",
     "eslint": "^9.31.0",
     "tsx": "^4.20.3",
     "typescript": "5.8.2"

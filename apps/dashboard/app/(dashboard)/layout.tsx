@@ -1,14 +1,14 @@
 "use client";
 
 import { RequireAuth } from "@/lib/require-auth";
+import { ClientContextBar } from "../../components/top-bar";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import { AppSideBar } from "../components/sidebar/app-sidebar";
+import { AppSideBar } from "../../components/sidebar/app-sidebar";
 
 export default function DashboardLayout({
   children,
@@ -31,8 +31,8 @@ export default function DashboardLayout({
         <AppSideBar />
         <SidebarInset>
           <main>
-            <SidebarTrigger className="ml-6 lg:ml-2 mt-2" />
-            <div className="px-6 lg:px-0">{children}</div>
+            <ClientContextBar />
+            <div className="px-4 md:px-6">{children}</div>
           </main>
         </SidebarInset>
       </SidebarProvider>

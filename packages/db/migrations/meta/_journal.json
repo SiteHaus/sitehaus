@@ -50,6 +50,27 @@
       "when": 1769627153341,
       "tag": "0006_wild_black_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1771046042459,
+      "tag": "0007_third_blue_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1771949216736,
+      "tag": "0008_useful_maverick",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1772075338399,
+      "tag": "0009_nifty_felicia_hardy",
+      "breakpoints": true
     }
   ]
 }

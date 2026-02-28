@@ -87,7 +87,7 @@ export const ResetPasswordForm = () => {
           />
 
           <Button type="submit" className="w-full mt-2">
-            Sign Up
+            Reset Password
           </Button>
         </form>
       </Form>

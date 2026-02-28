@@ -83,23 +83,12 @@ const InviteEmail = ({
                 : `You've been invited to join${clientName ? ` ${clientName}` : ""} as ${roleLabel}.`}
             </Text>
 
-            <Section className="mt-6 rounded-xl border border-[#eee] bg-[#fafafa] p-6 text-center">
-              <div className="mx-auto inline-block rounded-lg bg-brand px-6 py-4">
-                <code className="text-[26px] font-semibold tracking-[6px] text-white">
-                  {code ?? "000000"}
-                </code>
-              </div>
-              <Text className="mt-3 text-[12px] text-[#777]">
-                {expiryText} Don't share it with anyone.
-              </Text>
-            </Section>
-
             <Section className="mt-6 text-center">
               <Button
                 href={acceptUrl}
                 className="rounded-xl bg-brand px-4 py-3 text-[14px] font-medium text-white no-underline"
               >
-                Open {appName}
+                Accept Invitation
               </Button>
               <Text className="mt-3 text-[12px] text-[#777]">
                 If the button doesn't work, copy and paste this link:
@@ -109,6 +98,10 @@ const InviteEmail = ({
                 </Link>
               </Text>
             </Section>
+
+            <Text className="mt-4 text-[12px] text-[#777]">
+              {expiryText}
+            </Text>
 
             <Hr className="my-8 border-[#eee]" />
 

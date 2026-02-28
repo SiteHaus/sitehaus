@@ -1,12 +1,21 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { BullModule } from '@nestjs/bullmq';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import KeyvRedis from '@keyv/redis';
+import { AssetsModule } from './assets/assets.module';
+import { BillingModule } from './billing/billing.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
 import authConfig from './conf/auth.config';
 import emailConfig from './conf/email.config';
+import redisConfig from './conf/redis.config';
+import storageConfig from './conf/storage.config';
+import stripeConfig from './conf/stripe.config';
 import { CryptoModule } from './crypto/crypto.module';
 import { DbModule } from './db/db.module';
 import { DevicesModule } from './devices/devices.module';
@@ -20,12 +29,32 @@ import { RolesModule } from './roles/roles.module';
 import { SessionController } from './session/session.controller';
 import { SessionModule } from './session/session.module';
 import { UsersModule } from './users/users.module';
+import { BusinessProfilesModule } from './business-profiles/business-profiles.module';
+import { CommentsModule } from './comments/comments.module';
+import { DesignDocumentsModule } from './design-documents/design-documents.module';
+import { MilestonesModule } from './milestones/milestones.module';
+import { ProjectsModule } from './projects/projects.module';
+import { TicketsModule } from './tickets/tickets.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, emailConfig],
+      load: [authConfig, emailConfig, storageConfig, redisConfig, stripeConfig],
+    }),
+    BullModule.forRootAsync({
+      inject: [redisConfig.KEY],
+      useFactory: (cfg: ConfigType<typeof redisConfig>) => ({
+        connection: { url: cfg.url },
+      }),
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      inject: [redisConfig.KEY],
+      useFactory: (cfg: ConfigType<typeof redisConfig>) => ({
+        store: new KeyvRedis(cfg.url),
+        ttl: 60_000,
+      }),
     }),
     ThrottlerModule.forRoot([
       { name: 'default', ttl: 60_000, limit: 45 },
@@ -44,6 +73,15 @@ import { UsersModule } from './users/users.module';
     DevicesModule,
     InvitesModule,
     UsersModule,
+    CommentsModule,
+    ProjectsModule,
+    BusinessProfilesModule,
+    DesignDocumentsModule,
+    TicketsModule,
+    MilestonesModule,
+    AssetsModule,
+    BillingModule,
+    NotificationsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }, InvitesService],
   controllers: [SessionController, InvitesController],

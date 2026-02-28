@@ -224,7 +224,7 @@ export class InvitesService {
 
     if (!ok) throw new UnauthorizedException('Invalid or expired invite');
 
-    return this.db.transaction(async (tx) => {
+    const result = await this.db.transaction(async (tx) => {
       const [updated] = await tx
         .update(schema.invitesTable)
         .set({ acceptedAt: now })
@@ -308,17 +308,20 @@ export class InvitesService {
         }
       }
 
-      await this.audit.log({
-        clientId: params.clientId,
-        userId: user.id,
-        action: 'invite.accepted',
-        targetType: 'invite',
-        targetId: invite.id,
-        ip: params.ip,
-        ua: params.ua,
-      });
-
       return { userId: user.id, acceptedAt: now, rolesAssigned: roleIds };
     });
+
+    // Audit log runs after the transaction commits so the user FK is satisfied
+    await this.audit.log({
+      clientId: params.clientId,
+      userId: result.userId,
+      action: 'invite.accepted',
+      targetType: 'invite',
+      targetId: invite.id,
+      ip: params.ip,
+      ua: params.ua,
+    });
+
+    return result;
   }
 }

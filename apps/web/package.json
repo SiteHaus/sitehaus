@@ -15,7 +15,8 @@
     "next": "^15.4.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "lucide-react": "^0.534.0"
+    "lucide-react": "^0.534.0",
+    "resend": "^6.5.2"
   },
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",
