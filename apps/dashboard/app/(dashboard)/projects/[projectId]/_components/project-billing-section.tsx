@@ -24,6 +24,8 @@ import {
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
+import { queryKeys } from "@/lib/query-keys";
+import { useQuery } from "@tanstack/react-query";
 import { CreditCard, ExternalLink, Plus, Receipt } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -49,6 +51,16 @@ export function ProjectBillingSection({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const { data: members = [] } = useQuery({
+    queryKey: queryKeys.clients.members(),
+    queryFn: async () => {
+      const res = await getApi().clients.meMembers();
+      if (res.status !== 200) throw new Error("Failed to load members");
+      return res.body.members;
+    },
+    enabled: sheetOpen,
+  });
+
   const openPortal = async () => {
     const res = await getApi().billing.getPortalUrl();
     if (res.status === 200) window.open(res.body.url, "_blank");
@@ -57,18 +69,22 @@ export function ProjectBillingSection({
   // Subscription fields
   const [subAmount, setSubAmount] = useState("");
   const [subInterval, setSubInterval] = useState("1");
+  const [subEmail, setSubEmail] = useState("");
 
   // One-time fields
   const [otAmount, setOtAmount] = useState("");
   const [otDescription, setOtDescription] = useState("");
+  const [otEmail, setOtEmail] = useState("");
 
   // Pre-fill amounts from project rates when sheet opens
   useEffect(() => {
     if (!sheetOpen) {
       setSubAmount(monthlyRateCents ? (monthlyRateCents / 100).toFixed(2) : "");
       setSubInterval("1");
+      setSubEmail("");
       setOtAmount(depositAmountCents ? (depositAmountCents / 100).toFixed(2) : "");
       setOtDescription("");
+      setOtEmail("");
     }
   }, [sheetOpen, monthlyRateCents, depositAmountCents]);
 
@@ -79,6 +95,7 @@ export function ProjectBillingSection({
     const ok = await createSubscription({
       amountCents: cents,
       intervalMonths: parseInt(subInterval) || 1,
+      ...(subEmail.trim() ? { billingEmail: subEmail.trim() } : {}),
     });
     setSaving(false);
     if (ok) setSheetOpen(false);
@@ -91,6 +108,7 @@ export function ProjectBillingSection({
     const ok = await createOneTime({
       amountCents: cents,
       ...(otDescription.trim() ? { description: otDescription.trim() } : {}),
+      ...(otEmail.trim() ? { billingEmail: otEmail.trim() } : {}),
     });
     setSaving(false);
     if (ok) setSheetOpen(false);
@@ -190,6 +208,24 @@ export function ProjectBillingSection({
                   </Select>
                 </div>
 
+                {members.length > 0 && (
+                  <div className="space-y-1.5">
+                    <Label>Send Invoice To</Label>
+                    <Select value={subEmail} onValueChange={setSubEmail}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a contact..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {members.map((m) => (
+                          <SelectItem key={m.id} value={m.email}>
+                            {m.firstName} {m.lastName} — {m.email}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 <SheetFooter className="px-0 pt-2">
                   <Button variant="outline" onClick={() => setSheetOpen(false)} disabled={saving}>
                     Cancel
@@ -233,6 +269,24 @@ export function ProjectBillingSection({
                     onChange={(e) => setOtDescription(e.target.value)}
                   />
                 </div>
+
+                {members.length > 0 && (
+                  <div className="space-y-1.5">
+                    <Label>Send Invoice To</Label>
+                    <Select value={otEmail} onValueChange={setOtEmail}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a contact..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {members.map((m) => (
+                          <SelectItem key={m.id} value={m.email}>
+                            {m.firstName} {m.lastName} — {m.email}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <SheetFooter className="px-0 pt-2">
                   <Button variant="outline" onClick={() => setSheetOpen(false)} disabled={saving}>

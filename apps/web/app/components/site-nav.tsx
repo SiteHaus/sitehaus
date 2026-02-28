@@ -8,10 +8,10 @@ import Link from "next/link";
 import { useState } from "react";
 
 const navLinks = [
-  { text: "Work", href: "/work" },
   { text: "Services", href: "/services" },
-  { text: "About", href: "/about" },
   { text: "Our Method", href: "/our-method" },
+  { text: "Platform", href: "/platform" },
+  { text: "About", href: "/about" },
   { text: "Contact", href: "/contact" },
 ];
 
@@ -31,14 +31,14 @@ export const SiteNav = () => {
             src="/sitehaus-icon.svg"
             width={20}
             height={20}
-            alt="SiteHaus"
+            alt=""
             className="filter dark:invert"
           />
           <span className="text-xl tracking-wider font-display">SiteHaus</span>
         </Link>
 
         {/* Desktop links */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium">
+        <nav aria-label="Main navigation" className="hidden md:flex items-center gap-7 text-sm font-medium">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -56,7 +56,7 @@ export const SiteNav = () => {
           <Button size="sm" className="tracking-wide" asChild>
             <Link href="/contact">
               Start a project
-              <Rocket className="ml-1.5 h-3.5 w-3.5" />
+              <Rocket aria-hidden="true" className="ml-1.5 h-3.5 w-3.5" />
             </Link>
           </Button>
         </div>
@@ -68,16 +68,21 @@ export const SiteNav = () => {
             variant="ghost"
             size="icon"
             aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
             onClick={() => setOpen((v) => !v)}
           >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {open
+              ? <X aria-hidden="true" className="h-5 w-5" />
+              : <Menu aria-hidden="true" className="h-5 w-5" />
+            }
           </Button>
         </div>
       </div>
 
-      {/* Mobile menu — flat, no card */}
+      {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-background border-t border-border/50">
+        <nav id="mobile-menu" aria-label="Mobile navigation" className="md:hidden bg-background border-t border-border/50">
           <div className="container mx-auto px-6 py-4 flex flex-col gap-1">
             {navLinks.map((link) => (
               <Link
@@ -90,15 +95,15 @@ export const SiteNav = () => {
               </Link>
             ))}
 
-            <div className="h-px bg-border/60 my-3" />
+            <div aria-hidden="true" className="h-px bg-border/60 my-3" />
 
             <Button className="w-full justify-center" asChild>
               <Link href="/contact" onClick={() => setOpen(false)}>
-                Start a project <MoveRight className="ml-2 h-4 w-4" />
+                Start a project <MoveRight aria-hidden="true" className="ml-2 h-4 w-4" />
               </Link>
             </Button>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

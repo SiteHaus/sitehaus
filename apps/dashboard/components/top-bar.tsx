@@ -12,7 +12,6 @@ import {
   BreadcrumbSeparator,
 } from "@site-haus/ui/components/base/breadcrumb";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Separator } from "@site-haus/ui/components/base/separator";
 import { SidebarTrigger } from "@site-haus/ui/components/base/sidebar";
 import Link from "next/link";
 import React from "react";
@@ -45,7 +44,6 @@ export const ClientContextBar = () => {
 
       {crumbs.length > 0 && (
         <>
-          <Separator orientation="vertical" className="h-4" />
           <Breadcrumb>
             <BreadcrumbList>
               {crumbs.map((crumb, i) => {

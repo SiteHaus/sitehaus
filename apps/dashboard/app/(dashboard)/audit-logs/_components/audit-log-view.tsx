@@ -22,7 +22,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { ClipboardList, Search, SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-// ─── Action catalogue ────────────────────────────────────────────────────────
+// ─── Action catalog ────────────────────────────────────────────────────────
 
 type ActionEntry = { value: string; label: string };
 type ActionCategory = { label: string; actions: ActionEntry[] };
@@ -72,7 +72,10 @@ const ACTION_CATEGORIES: ActionCategory[] = [
     actions: [
       { value: "design-document.created", label: "Design doc created" },
       { value: "design-document.published", label: "Design doc published" },
-      { value: "design-document.status_changed", label: "Design doc status changed" },
+      {
+        value: "design-document.status_changed",
+        label: "Design doc status changed",
+      },
     ],
   },
   {
@@ -116,7 +119,7 @@ const ACTION_CATEGORIES: ActionCategory[] = [
 ];
 
 const ACTION_MAP = new Map(
-  ACTION_CATEGORIES.flatMap((c) => c.actions.map((a) => [a.value, a.label]))
+  ACTION_CATEGORIES.flatMap((c) => c.actions.map((a) => [a.value, a.label])),
 );
 
 function formatAction(action: string): string {
@@ -226,7 +229,7 @@ export function AuditLogView() {
 
   const allLogs = useMemo(
     () => data?.pages.flatMap((p) => p.logs) ?? [],
-    [data]
+    [data],
   );
 
   const filtered = useMemo(() => {
@@ -267,8 +270,11 @@ export function AuditLogView() {
           <span className="text-sm font-medium">Filters</span>
         </div>
 
-        <Select value={actionFilter || "all"} onValueChange={handleActionChange}>
-          <SelectTrigger className="w-52 h-8 text-sm">
+        <Select
+          value={actionFilter || "all"}
+          onValueChange={handleActionChange}
+        >
+          <SelectTrigger className="w-52 text-sm">
             <SelectValue placeholder="All events" />
           </SelectTrigger>
           <SelectContent>
@@ -312,9 +318,9 @@ export function AuditLogView() {
       </div>
 
       {/* Table */}
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden py-0">
         {/* Column headers */}
-        <CardHeader className="py-2.5 px-4 border-b bg-muted/30">
+        <CardHeader className="py-6 px-4 border-b bg-muted/30">
           <div className="flex items-center gap-4">
             <div className="w-32 shrink-0 text-right">
               <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">

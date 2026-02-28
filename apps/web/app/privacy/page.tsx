@@ -10,50 +10,80 @@ const policyHtml: string = "<div data-custom-class=\"body\">\n      <div><strong
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen py-16">
-      <div className="container mx-auto max-w-4xl px-4">
-        <style>{`
-          [data-custom-class='title'], [data-custom-class='title'] * {
-            font-size: 26px !important;
-            color: inherit !important;
-            font-family: inherit !important;
-          }
-          [data-custom-class='subtitle'], [data-custom-class='subtitle'] * {
-            font-size: 14px !important;
-            color: color-mix(in srgb, currentColor 60%, transparent) !important;
-            font-family: inherit !important;
-          }
-          [data-custom-class='heading_1'], [data-custom-class='heading_1'] * {
-            font-size: 19px !important;
-            color: inherit !important;
-            font-family: inherit !important;
-          }
-          [data-custom-class='heading_2'], [data-custom-class='heading_2'] * {
-            font-size: 17px !important;
-            color: inherit !important;
-            font-family: inherit !important;
-          }
-          [data-custom-class='body_text'], [data-custom-class='body_text'] * {
-            font-size: 14px !important;
-            color: color-mix(in srgb, currentColor 70%, transparent) !important;
-            font-family: inherit !important;
-          }
-          [data-custom-class='link'], [data-custom-class='link'] * {
-            font-size: 14px !important;
-            font-family: inherit !important;
-            word-break: break-word !important;
-          }
-          [data-custom-class='body'] a {
-            color: #3b82f6;
-            text-decoration: underline;
-          }
-          [data-custom-class='body'] a:hover {
-            opacity: 0.8;
-          }
-        `}</style>
-        {/* Static Termly content — safe for dangerouslySetInnerHTML */}
-        <div dangerouslySetInnerHTML={{ __html: policyHtml }} />
-      </div>
+    <main className="min-h-screen pt-16">
+      {/* Themed header */}
+      <section className="py-14 sm:py-20 border-b border-border/50">
+        <div className="container mx-auto px-6">
+          <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-4">
+            Legal
+          </p>
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.05]">
+            Privacy Policy
+          </h1>
+          <p className="text-sm text-muted-foreground mt-3">
+            Last updated February 26, 2026
+          </p>
+        </div>
+      </section>
+
+      {/* Policy content */}
+      <section className="py-14 sm:py-20">
+        <div className="container mx-auto px-6 max-w-4xl">
+          <style>{`
+            /* Hide Termly title/subtitle — we render our own above */
+            [data-custom-class='title'],
+            [data-custom-class='subtitle'] {
+              display: none !important;
+            }
+            /* Force all content to respect the theme */
+            [data-custom-class='body'] span,
+            [data-custom-class='body'] p,
+            [data-custom-class='body'] li,
+            [data-custom-class='body'] div,
+            [data-custom-class='body'] td {
+              color: var(--foreground) !important;
+              font-family: var(--font-body), system-ui, sans-serif !important;
+              background: transparent !important;
+            }
+            [data-custom-class='heading_1'],
+            [data-custom-class='heading_1'] * {
+              font-size: 1.2rem !important;
+              font-weight: 700 !important;
+              color: var(--foreground) !important;
+              font-family: var(--font-display), system-ui, sans-serif !important;
+            }
+            [data-custom-class='heading_2'],
+            [data-custom-class='heading_2'] * {
+              font-size: 1rem !important;
+              font-weight: 600 !important;
+              color: var(--foreground) !important;
+              font-family: var(--font-display), system-ui, sans-serif !important;
+            }
+            [data-custom-class='body_text'],
+            [data-custom-class='body_text'] * {
+              font-size: 0.9rem !important;
+              line-height: 1.7 !important;
+              color: var(--muted-foreground) !important;
+              font-family: var(--font-body), system-ui, sans-serif !important;
+            }
+            [data-custom-class='link'],
+            [data-custom-class='link'] * {
+              color: var(--primary) !important;
+              word-break: break-word !important;
+              text-decoration: underline !important;
+            }
+            [data-custom-class='body'] a {
+              color: var(--primary) !important;
+              text-decoration: underline;
+            }
+            [data-custom-class='body'] a:hover {
+              opacity: 0.75;
+            }
+          `}</style>
+          {/* Static Termly content — safe for dangerouslySetInnerHTML */}
+          <div dangerouslySetInnerHTML={{ __html: policyHtml }} />
+        </div>
+      </section>
     </main>
   );
 }

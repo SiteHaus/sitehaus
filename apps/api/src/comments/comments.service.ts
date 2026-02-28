@@ -84,6 +84,23 @@ export class CommentsService {
     }
   }
 
+  /**
+   * Resolve a comment's target type, targetId, and owning clientId.
+   * Used to build correct audit context for update/delete.
+   */
+  async resolveCommentTarget(
+    commentId: string,
+  ): Promise<{ targetType: CommentTargetType; targetId: string; targetClientId: string | null } | null> {
+    const comment = await this.db.query.commentsTable.findFirst({
+      where: eq(schema.commentsTable.id, commentId),
+      columns: { id: true, targetType: true, targetId: true },
+    });
+    if (!comment) return null;
+
+    const targetClientId = await this.resolveTargetClientId(comment.targetType, comment.targetId);
+    return { targetType: comment.targetType, targetId: comment.targetId, targetClientId };
+  }
+
   async list(
     filters: ListCommentsQuery,
     clientId: string,

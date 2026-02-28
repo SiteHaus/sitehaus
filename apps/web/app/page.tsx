@@ -2,9 +2,58 @@
 
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
-import { ArrowDown, MoveRight, ShipWheel } from "lucide-react";
+import {
+  ArrowDown,
+  FileText,
+  KeyRound,
+  LayoutDashboard,
+  MoveRight,
+  ScrollText,
+  ShieldCheck,
+  ShipWheel,
+  Users,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+const platform = [
+  {
+    icon: LayoutDashboard,
+    title: "Client Dashboard",
+    description:
+      "A dedicated workspace for every project — milestones, tickets, assets, and updates in one place. Clients always know exactly where things stand.",
+  },
+  {
+    icon: FileText,
+    title: "Design Documents",
+    description:
+      "Every project starts with a comprehensive spec. Scope, features, timeline, and cost — all agreed on before any code is written.",
+  },
+  {
+    icon: KeyRound,
+    title: "OAuth2 & IAM",
+    description:
+      "A full Identity and Access Management system with OAuth2 PKCE. Secure, standards-compliant authentication across every app.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Two-Factor Auth",
+    description:
+      "TOTP-based 2FA baked into every account. Security isn't an add-on — it's part of the foundation.",
+  },
+  {
+    icon: Users,
+    title: "Team Management",
+    description:
+      "Roles, permissions, and invites. Granular control over who has access to what, without the complexity.",
+  },
+  {
+    icon: ScrollText,
+    title: "Audit Logs",
+    description:
+      "A full activity trail across your organization. Know what happened, when, and who did it.",
+  },
+];
 
 const values = [
   {
@@ -68,15 +117,12 @@ export default function App() {
 
         <div className="container mx-auto h-full flex items-center px-4 sm:px-6">
           <div className="flex flex-col z-10 max-w-4xl">
-            <Link href="/contact">
-              <Badge
-                variant="default"
-                className="font-display group inline-flex items-center gap-2 text-sm md:text-base mb-5 border shadow-md px-3 py-2 md:px-4 md:py-2.5 w-fit"
-              >
-                We&apos;re available for new projects
-                <MoveRight className="transition-all duration-200 ease-out group-hover:translate-x-1" />
-              </Badge>
-            </Link>
+            <Badge
+              variant="default"
+              className="font-display inline-flex items-center gap-2 text-sm md:text-base mb-5 border shadow-md px-3 py-2 md:px-4 md:py-2.5 w-fit"
+            >
+              We&apos;re available for new projects
+            </Badge>
 
             <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-wide pb-4 md:pb-5 font-semibold leading-[1.05]">
               Your <span className="italic font-bold">long-term</span>
@@ -105,13 +151,13 @@ export default function App() {
                 className="h-11 md:h-12 text-sm md:text-base"
                 asChild
               >
-                <Link href="/work">See our work</Link>
+                <Link href="/our-method">How we work</Link>
               </Button>
             </div>
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
           <div className="animate-bounce rounded-full border border-foreground/20 bg-background/30 backdrop-blur-sm px-3 py-2">
             <ArrowDown className="h-4 w-4 text-foreground/50" />
           </div>
@@ -119,10 +165,10 @@ export default function App() {
       </section>
 
       {/* ── Values ───────────────────────────────────────────────────── */}
-      <section className="py-24 md:py-36 overflow-hidden">
+      <section className="py-14 sm:py-20 md:py-28 lg:py-36 overflow-hidden">
         <div className="container mx-auto px-6">
           {/* Section header */}
-          <div className="mb-20 md:mb-28">
+          <div className="mb-12 sm:mb-16 md:mb-24 lg:mb-28">
             <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-3">
               Our commitments
             </p>
@@ -138,7 +184,7 @@ export default function App() {
               return (
                 <div key={value.title}>
                   <div
-                    className={`flex flex-col-reverse gap-10 py-16 md:py-20 ${
+                    className={`flex flex-col-reverse gap-8 py-10 md:py-16 lg:py-20 ${
                       isEven ? "md:flex-row" : "md:flex-row-reverse"
                     } items-center md:gap-16 lg:gap-24`}
                   >
@@ -182,13 +228,68 @@ export default function App() {
                   {i < values.length - 1 && (
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-px bg-border/60" />
-                      <ShipWheel className="text-primary/30" />
+                      <ShipWheel aria-hidden="true" className="text-primary/30" />
                       <div className="flex-1 h-px bg-border/60" />
                     </div>
                   )}
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Platform ──────────────────────────────────────────────────── */}
+      <section className="py-14 sm:py-20 md:py-28 lg:py-36 border-t border-border/50 bg-muted/30">
+        <div className="container mx-auto px-6">
+          {/* Header */}
+          <div className="max-w-2xl mb-14 sm:mb-16 md:mb-20">
+            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-4">
+              The SiteHaus platform
+            </p>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-5">
+              We built the tools{" "}
+              <span className="italic text-foreground/50">we use.</span>
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Every client gets access to a platform we designed and built
+              ourselves — not a collection of third-party tools, but a unified
+              system built to the same standard we hold our client work to.
+            </p>
+          </div>
+
+          {/* Feature grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-14 md:mb-16">
+            {platform.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div
+                  key={feature.title}
+                  className="flex flex-col gap-4 p-6 rounded-2xl border border-border/60 bg-background/60"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Icon aria-hidden="true" className="h-5 w-5 text-primary/70" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-base mb-1.5">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button size="lg" className="h-12 text-base" asChild>
+              <Link href="/contact">
+                Start a project <MoveRight aria-hidden="true" className="ml-2" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="secondary" className="h-12 text-base" asChild>
+              <Link href="/platform">Explore the platform</Link>
+            </Button>
           </div>
         </div>
       </section>

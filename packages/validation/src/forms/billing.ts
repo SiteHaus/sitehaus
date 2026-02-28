@@ -9,6 +9,7 @@ export const createSubscriptionSchema = z.object({
   projectId: z.uuid(),
   amountCents: z.number().int().positive(),
   intervalMonths: z.number().int().min(1).default(1),
+  billingEmail: z.email().optional(),
 });
 
 export const createOneTimeSchema = z.object({
@@ -16,6 +17,7 @@ export const createOneTimeSchema = z.object({
   projectId: z.uuid(),
   amountCents: z.number().int().positive(),
   description: z.string().optional(),
+  billingEmail: z.email().optional(),
 });
 
 export const listBillingQuerySchema = z.object({

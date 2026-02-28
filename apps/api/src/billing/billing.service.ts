@@ -37,23 +37,25 @@ export class BillingService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  private async ensureStripeCustomer(clientId: string): Promise<string | null> {
+  private async ensureStripeCustomer(clientId: string, email?: string): Promise<string | null> {
     const client = await this.db.query.clientsTable.findFirst({
       where: eq(schema.clientsTable.id, clientId),
       columns: { id: true, name: true, stripeCustomerId: true },
     });
     if (!client) return null;
 
-    // Always search/create via Stripe (validates cached ID is still live)
-    // No email — using a member's email risks picking a SiteHaus employee.
-    // The client can add their own email via the Stripe billing portal.
-    const customer = await this.stripe.getOrCreateCustomer(client.id, client.name);
+    const customer = await this.stripe.getOrCreateCustomer(client.id, client.name, email);
 
     if (customer.id !== client.stripeCustomerId) {
       await this.db
         .update(schema.clientsTable)
         .set({ stripeCustomerId: customer.id })
         .where(eq(schema.clientsTable.id, clientId));
+    }
+
+    // If an email was provided and the customer doesn't have one yet, update it
+    if (email && !customer.email) {
+      await this.stripe.client.customers.update(customer.id, { email });
     }
 
     return customer.id;
@@ -179,7 +181,7 @@ export class BillingService {
     });
     if (!project) return { error: 'Project not found or access denied' };
 
-    const stripeCustomerId = await this.ensureStripeCustomer(data.clientId);
+    const stripeCustomerId = await this.ensureStripeCustomer(data.clientId, data.billingEmail);
     if (!stripeCustomerId) return { error: 'Client not found' };
 
     const subscription = await this.stripe.createSubscription(
@@ -241,7 +243,7 @@ export class BillingService {
     });
     if (!project) return { error: 'Project not found or access denied' };
 
-    const stripeCustomerId = await this.ensureStripeCustomer(data.clientId);
+    const stripeCustomerId = await this.ensureStripeCustomer(data.clientId, data.billingEmail);
     if (!stripeCustomerId) return { error: 'Client not found' };
 
     const invoice = await this.stripe.createOneTimeInvoice(

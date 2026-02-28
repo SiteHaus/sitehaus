@@ -4,7 +4,6 @@ import { initStoresSdk } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 
@@ -58,7 +57,6 @@ const Providers = ({ children }: ProvidersProps) => {
       >
         {children}
       </ThemeProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };

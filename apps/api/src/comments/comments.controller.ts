@@ -40,15 +40,14 @@ export class CommentsController {
       parsed.targetType,
       parsed.targetId,
     );
-    if (!targetClientId || targetClientId !== req.client!.id) {
+    // First-party (SiteHaus employees) can read comments on any client's resources
+    if (!targetClientId || (!req.client!.firstParty && targetClientId !== req.client!.id)) {
       throw new ForbiddenException('Target not found or access denied');
     }
 
-    // TODO: determine isEmployee from req context (e.g. checking role/permissions)
-    // For now, check if user has 'comments:manage' as a proxy for employee status
-    const isEmployee = (req.user as { permissions?: string[] } | undefined)?.permissions?.includes('comments:manage') ?? false;
+    const isEmployee = req.client!.firstParty;
 
-    return this.comments.list(parsed, req.client!.id, isEmployee);
+    return this.comments.list(parsed, targetClientId, isEmployee);
   }
 
   @RequirePerms('comments:create')
@@ -62,13 +61,14 @@ export class CommentsController {
       parsed.targetType,
       parsed.targetId,
     );
-    if (!targetClientId || targetClientId !== req.client!.id) {
+    // First-party (SiteHaus employees) can comment on any client's resources
+    if (!targetClientId || (!req.client!.firstParty && targetClientId !== req.client!.id)) {
       throw new ForbiddenException('Target not found or access denied');
     }
 
     const result = await this.comments.create(parsed, {
       userId: req.user!.userId,
-      clientId: req.client!.id,
+      clientId: targetClientId,
       isFirstParty: req.client!.firstParty,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
@@ -86,9 +86,15 @@ export class CommentsController {
     @Body() body: unknown,
   ) {
     const { body: newBody } = updateCommentSchema.parse(body);
+
+    // Resolve the owning client for correct audit context
+    const existing = await this.comments.resolveCommentTarget(commentId);
+    if (!existing) throw new NotFoundException('Comment not found');
+    const auditClientId = existing.targetClientId ?? req.client!.id;
+
     const result = await this.comments.update(commentId, newBody, {
       userId: req.user!.userId,
-      clientId: req.client!.id,
+      clientId: auditClientId,
       isFirstParty: req.client!.firstParty,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
@@ -106,9 +112,14 @@ export class CommentsController {
     @Req() req: Req_,
     @Param('commentId') commentId: string,
   ) {
+    // Resolve the owning client for correct audit context
+    const existing = await this.comments.resolveCommentTarget(commentId);
+    if (!existing) throw new NotFoundException('Comment not found');
+    const auditClientId = existing.targetClientId ?? req.client!.id;
+
     const result = await this.comments.remove(commentId, {
       userId: req.user!.userId,
-      clientId: req.client!.id,
+      clientId: auditClientId,
       isFirstParty: req.client!.firstParty,
       ip: req.ip,
       ua: req.headers['user-agent'] as string | undefined,
