@@ -5,6 +5,11 @@
 :root {
   --background: oklch(0.975 0.012 78);
   --card: oklch(0.983 0.008 82);
+  /* Original primary kept — dark foreground meets WCAG AA (~6:1 contrast) */
+  --primary-foreground: oklch(0.18 0.05 58);
+  /* Darker border/input so outline buttons and cards are visible on warm background */
+  --border: oklch(0.86 0.008 58);
+  --input: oklch(0.86 0.008 58);
 }
 
 .dark {

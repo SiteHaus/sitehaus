@@ -18,6 +18,12 @@
     "lucide-react": "^0.534.0",
     "resend": "^6.5.2"
   },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions",
+    "last 2 Edge versions"
+  ],
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",

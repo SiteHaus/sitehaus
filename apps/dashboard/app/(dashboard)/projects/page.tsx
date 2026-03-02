@@ -1,5 +1,6 @@
 "use client";
 
+import { billingVariant, statusVariant } from "@/lib/variants";
 import { type ProjectItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
@@ -13,18 +14,10 @@ import {
 } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import {
-  FolderKanban,
-  Globe,
-  Mail,
-  Phone,
-  Plus,
-  Search,
-} from "lucide-react";
+import { label } from "@site-haus/utils/core/format";
+import { FolderKanban, Globe, Mail, Phone, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { label } from "@site-haus/utils/core/format";
-import { statusVariant, billingVariant } from "@/lib/variants";
 
 export default function ProjectsPage() {
   const hasPerm = useAuthStore((s) => s.hasPerm);
@@ -55,7 +48,7 @@ export default function ProjectsPage() {
         (p) =>
           p.name.toLowerCase().includes(search.toLowerCase()) ||
           p.type.toLowerCase().includes(search.toLowerCase()) ||
-          p.status.toLowerCase().includes(search.toLowerCase())
+          p.status.toLowerCase().includes(search.toLowerCase()),
       )
     : projects;
 

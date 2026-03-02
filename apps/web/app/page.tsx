@@ -101,7 +101,7 @@ export default function App() {
           src="/sitehaus-hero.png"
           alt="SiteHaus — coastal lighthouse illustration"
           fill
-          priority
+          loading="lazy"
           className="object-cover -z-10 hidden sm:block brightness-[0.88] saturate-[0.85]"
         />
         <Image
@@ -157,7 +157,10 @@ export default function App() {
           </div>
         </div>
 
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center"
+        >
           <div className="animate-bounce rounded-full border border-foreground/20 bg-background/30 backdrop-blur-sm px-3 py-2">
             <ArrowDown className="h-4 w-4 text-foreground/50" />
           </div>
@@ -228,7 +231,10 @@ export default function App() {
                   {i < values.length - 1 && (
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-px bg-border/60" />
-                      <ShipWheel aria-hidden="true" className="text-primary/30" />
+                      <ShipWheel
+                        aria-hidden="true"
+                        className="text-primary/30"
+                      />
                       <div className="flex-1 h-px bg-border/60" />
                     </div>
                   )}
@@ -268,10 +274,15 @@ export default function App() {
                   className="flex flex-col gap-4 p-6 rounded-2xl border border-border/60 bg-background/60"
                 >
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Icon aria-hidden="true" className="h-5 w-5 text-primary/70" />
+                    <Icon
+                      aria-hidden="true"
+                      className="h-5 w-5 text-primary/70"
+                    />
                   </div>
                   <div>
-                    <h3 className="font-bold text-base mb-1.5">{feature.title}</h3>
+                    <h3 className="font-bold text-base mb-1.5">
+                      {feature.title}
+                    </h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {feature.description}
                     </p>
@@ -284,10 +295,16 @@ export default function App() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button size="lg" className="h-12 text-base" asChild>
               <Link href="/contact">
-                Start a project <MoveRight aria-hidden="true" className="ml-2" />
+                Start a project{" "}
+                <MoveRight aria-hidden="true" className="ml-2" />
               </Link>
             </Button>
-            <Button size="lg" variant="secondary" className="h-12 text-base" asChild>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-12 text-base"
+              asChild
+            >
               <Link href="/platform">Explore the platform</Link>
             </Button>
           </div>
