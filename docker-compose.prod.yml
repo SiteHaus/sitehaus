@@ -24,6 +24,21 @@ services:
       - ./apps/api/.env
     networks:
       - sitehaus-network
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - sitehaus-network
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   caddy:
     image: caddy:2.10.0-alpine
@@ -53,4 +68,6 @@ volumes:
   caddy_data:
     driver: local
   caddy_config:
+    driver: local
+  redis_data:
     driver: local
