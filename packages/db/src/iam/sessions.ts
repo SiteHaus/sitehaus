@@ -34,6 +34,7 @@ export const sessionsTable = pgTable(
       .defaultNow(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
+    mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
     ipHash: varchar("ip_hash", { length: 64 }),
     uaHash: varchar("ua_hash", { length: 64 }),
     meta: jsonb("meta"),

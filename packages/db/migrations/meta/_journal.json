@@ -71,6 +71,13 @@
       "when": 1772075338399,
       "tag": "0009_nifty_felicia_hardy",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1772512029890,
+      "tag": "0010_bored_lionheart",
+      "breakpoints": true
     }
   ]
 }

@@ -181,6 +181,19 @@ export class OAuthController {
           error_description: 'Failed to validate session',
         });
       }
+
+      // Refresh cookie path bypasses the IAM login flow, so we must check
+      // TOTP here. Only redirect to login if MFA has never been verified on
+      // this session — once verified, it carries forward for the session lifetime.
+      const has2fa = await this.totpService.isEnabled(userId);
+      if (has2fa && !session.mfaVerifiedAt) {
+        const oauthParams = Buffer.from(JSON.stringify(query)).toString('base64url');
+        const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+        const loginUrl = new URL(`${iamUrl}/login`);
+        loginUrl.searchParams.set('oauth_params', oauthParams);
+        if (clientName) loginUrl.searchParams.set('client', clientName);
+        return res.redirect(loginUrl.toString());
+      }
     }
 
     // User is authenticated - check if consent is required

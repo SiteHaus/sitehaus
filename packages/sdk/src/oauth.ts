@@ -80,6 +80,7 @@ export interface TokenResponse {
   token_type: "Bearer";
   expires_in: number;
   scope: string;
+  requires_2fa?: boolean;
   refresh_token?: string;
   id_token?: string;
 }

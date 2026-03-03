@@ -192,6 +192,10 @@ export const useAuthStore = create<AuthState>()(
             session: session ?? null,
             permissions,
           });
+        } else if (r.status === 403) {
+          // MFA pending — token is real but incomplete. Treat as unauthenticated.
+          get().clearAuth();
+          throw new Error('mfa_pending');
         }
       },
 
