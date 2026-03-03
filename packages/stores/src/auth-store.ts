@@ -131,8 +131,10 @@ export const useAuthStore = create<AuthState>()(
           if (currentState.clients.length === 0) {
             await get().loadMyClients();
           }
-          const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
-          const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
+          const allClients = get().clients;
+          const isEmployee = allClients.some((c) => c.firstParty && c.canManage);
+          const visibleClients = allClients.filter((c) => !c.hidden && !c.firstParty);
+          const onlyClient = !isEmployee && visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
           }
@@ -154,8 +156,10 @@ export const useAuthStore = create<AuthState>()(
         if (get().accessToken) {
           await get().me();
           await get().loadMyClients();
-          const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
-          const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
+          const allClients = get().clients;
+          const isEmployee = allClients.some((c) => c.firstParty && c.canManage);
+          const visibleClients = allClients.filter((c) => !c.hidden && !c.firstParty);
+          const onlyClient = !isEmployee && visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
           }
