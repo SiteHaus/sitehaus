@@ -1,0 +1,1 @@
+ALTER TABLE "sessions" ADD COLUMN IF NOT EXISTS "mfa_verified_at" timestamp with time zone;

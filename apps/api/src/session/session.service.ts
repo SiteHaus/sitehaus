@@ -24,6 +24,7 @@ export class SessionService {
       clientId: string;
       ip?: string;
       ua?: string;
+      mfaVerifiedAt?: Date | null;
     },
   ) {
     const ttl = this.cfg.refreshTtlSec;
@@ -62,6 +63,7 @@ export class SessionService {
         uaHash: input.ua ? this.crypto.sha256b64url(input.ua) : null,
         expiresAt: expires,
         revokedAt: null,
+        mfaVerifiedAt: input.mfaVerifiedAt ?? null,
         meta: {},
       })
       .returning({ id: schema.sessionsTable.id });
@@ -136,6 +138,7 @@ export class SessionService {
           clientId: existing.clientId,
           ip: input.ip,
           ua: input.ua,
+          mfaVerifiedAt: existing.mfaVerifiedAt,
         });
 
       return {
@@ -300,7 +303,7 @@ export class SessionService {
   async validateRefreshToken(
     refreshToken: string,
     clientId?: string,
-  ): Promise<{ userId: string; sessionId: string; clientId: string } | null> {
+  ): Promise<{ userId: string; sessionId: string; clientId: string; mfaVerifiedAt: Date | null } | null> {
     const hash = this.crypto.sha256b64url(refreshToken);
 
     const sessions = await this.db
@@ -332,7 +335,15 @@ export class SessionService {
       userId: session.userId,
       sessionId: session.id,
       clientId: session.clientId,
+      mfaVerifiedAt: session.mfaVerifiedAt,
     };
+  }
+
+  async markMfaVerified(sessionId: string): Promise<void> {
+    await this.db
+      .update(schema.sessionsTable)
+      .set({ mfaVerifiedAt: new Date() })
+      .where(eq(schema.sessionsTable.id, sessionId));
   }
 
   async touch(sessionId: string, ip?: string, ua?: string) {

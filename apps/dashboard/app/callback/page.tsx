@@ -44,6 +44,10 @@ function CallbackContent() {
           redirectUri: `${window.location.origin}/callback`,
         });
 
+        if (tokens.requires_2fa) {
+          throw new Error("MFA verification required — please log in again");
+        }
+
         const exp = Math.floor(Date.now() / 1000) + tokens.expires_in;
 
         setAccess({

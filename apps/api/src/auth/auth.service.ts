@@ -232,6 +232,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid 2FA code');
     }
 
+    // Stamp the session so future re-authorizations skip the TOTP challenge
+    await this.sessions.markMfaVerified(ctx.sessionId);
+
     // Issue full access token (no mfa claim means complete)
     const accessTtlSec = this.cfg.accessTtlSec;
     const accessToken = await this.tokens.signAccessToken(

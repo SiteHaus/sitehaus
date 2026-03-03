@@ -20,12 +20,12 @@ import { Public } from 'src/public.decorator';
 import { SessionService } from 'src/session/session.service';
 import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from '../access/access.guard';
-import { AuthService } from '../auth.service';
-import { VerifiedOptional } from '../verified/verified.guard';
 import { AuthCodeService } from '../auth-code/auth-code.service';
-import { OAuthService } from './oauth.service';
+import { AuthService } from '../auth.service';
 import { setRefreshCookie } from '../cookie/cookies';
 import { TotpService } from '../totp/totp.service';
+import { VerifiedOptional } from '../verified/verified.guard';
+import { OAuthService } from './oauth.service';
 
 interface AuthorizeQuery {
   client_id?: string;
@@ -92,12 +92,15 @@ export class OAuthController {
         clientId = query.client_id;
         // If only client_id is provided, we'll need to fetch the name later if needed
       } else {
-        throw new BadRequestException('Either client_id or client_key is required');
+        throw new BadRequestException(
+          'Either client_id or client_key is required',
+        );
       }
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         error: 'invalid_client',
-        error_description: error instanceof Error ? error.message : 'Invalid client',
+        error_description:
+          error instanceof Error ? error.message : 'Invalid client',
       });
     }
 
@@ -116,11 +119,14 @@ export class OAuthController {
       // If validation failed, try to redirect with error if redirect_uri is valid
       // Otherwise return 400
       try {
-        const errorUrl = this.oauthService.buildRedirectUrl(query.redirect_uri, {
-          error: validation.error!,
-          error_description: validation.errorDescription || '',
-          state: query.state || '',
-        });
+        const errorUrl = this.oauthService.buildRedirectUrl(
+          query.redirect_uri,
+          {
+            error: validation.error!,
+            error_description: validation.errorDescription || '',
+            state: query.state || '',
+          },
+        );
         return res.redirect(errorUrl);
       } catch {
         return res.status(HttpStatus.BAD_REQUEST).json({
@@ -150,6 +156,7 @@ export class OAuthController {
 
     // If we have refresh cookie but no req.user, verify the refresh token
     let userId: string;
+    let refreshSession: Awaited<ReturnType<typeof this.sessionService.validateRefreshToken>> = null;
     if (req.user) {
       userId = req.user.userId;
     } else {
@@ -157,9 +164,10 @@ export class OAuthController {
       const refreshToken = req.cookies['sh_refresh'];
 
       try {
-        const session = await this.sessionService.validateRefreshToken(refreshToken);
+        refreshSession =
+          await this.sessionService.validateRefreshToken(refreshToken);
 
-        if (!session) {
+        if (!refreshSession) {
           // Invalid or expired refresh token, redirect to login
           const oauthParams = Buffer.from(JSON.stringify(query)).toString(
             'base64url',
@@ -173,13 +181,28 @@ export class OAuthController {
           return res.redirect(loginUrl.toString());
         }
 
-        userId = session.userId;
+        userId = refreshSession.userId;
       } catch (err) {
         console.error('[OAuth] Error validating refresh token:', err);
         return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
           error: 'server_error',
           error_description: 'Failed to validate session',
         });
+      }
+
+      // Refresh cookie path bypasses the IAM login flow, so we must check
+      // TOTP here. Only redirect to login if MFA has never been verified on
+      // this session — once verified, it carries forward for the session lifetime.
+      const has2fa = await this.totpService.isEnabled(userId);
+      if (has2fa && !refreshSession.mfaVerifiedAt) {
+        const oauthParams = Buffer.from(JSON.stringify(query)).toString(
+          'base64url',
+        );
+        const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+        const loginUrl = new URL(`${iamUrl}/login`);
+        loginUrl.searchParams.set('oauth_params', oauthParams);
+        if (clientName) loginUrl.searchParams.set('client', clientName);
+        return res.redirect(loginUrl.toString());
       }
     }
 
@@ -256,24 +279,28 @@ export class OAuthController {
       } else if (body.client_id) {
         clientId = body.client_id;
       } else {
-        throw new BadRequestException('Either client_id or client_key is required');
+        throw new BadRequestException(
+          'Either client_id or client_key is required',
+        );
       }
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).json({
         error: 'invalid_client',
-        error_description: error instanceof Error ? error.message : 'Invalid client',
+        error_description:
+          error instanceof Error ? error.message : 'Invalid client',
       });
     }
 
     try {
       // Consume the authorization code (validates PKCE and creates session)
-      const { sessionId, userId, scope, refreshToken, refreshExpiresAt } = await this.authCodeService.consume({
-        code: body.code,
-        codeVerifier: body.code_verifier,
-        clientId,
-        ip: req.ip,
-        ua: req.headers['user-agent'],
-      });
+      const { sessionId, userId, scope, refreshToken, refreshExpiresAt } =
+        await this.authCodeService.consume({
+          code: body.code,
+          codeVerifier: body.code_verifier,
+          clientId,
+          ip: req.ip,
+          ua: req.headers['user-agent'],
+        });
 
       // Set refresh token cookie for cross-origin session persistence
       setRefreshCookie(res, refreshToken, refreshExpiresAt);
@@ -347,19 +374,25 @@ export class OAuthController {
       });
 
       // Build redirect URL with code
-      const redirectUrl = this.oauthService.buildRedirectUrl(body.redirect_uri, {
-        code,
-        state: body.state || '',
-      });
+      const redirectUrl = this.oauthService.buildRedirectUrl(
+        body.redirect_uri,
+        {
+          code,
+          state: body.state || '',
+        },
+      );
 
       return { redirect_url: redirectUrl };
     } else {
       // User denied - redirect with error
-      const redirectUrl = this.oauthService.buildRedirectUrl(body.redirect_uri, {
-        error: 'access_denied',
-        error_description: 'User denied consent',
-        state: body.state || '',
-      });
+      const redirectUrl = this.oauthService.buildRedirectUrl(
+        body.redirect_uri,
+        {
+          error: 'access_denied',
+          error_description: 'User denied consent',
+          state: body.state || '',
+        },
+      );
 
       return { redirect_url: redirectUrl };
     }
