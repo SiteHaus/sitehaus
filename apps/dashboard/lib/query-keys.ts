@@ -17,6 +17,8 @@ export const queryKeys = {
     detail: (projectId: string) => ["design-doc", projectId] as const,
     versions: (projectId: string) =>
       ["design-doc", projectId, "versions"] as const,
+    version: (projectId: string, version: string) =>
+      ["design-doc", projectId, "versions", version] as const,
   },
   billing: {
     project: (projectId: string) =>

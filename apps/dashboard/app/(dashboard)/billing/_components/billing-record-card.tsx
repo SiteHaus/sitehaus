@@ -62,10 +62,12 @@ export function BillingRecordCard({ record, clientName, onOpenPortal }: BillingR
           )}
 
           <div className="flex items-center gap-3 flex-wrap">
-            {isRecurring && record.currentPeriodStart && record.currentPeriodEnd && (
+            {isRecurring && record.currentPeriodEnd && (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3" />
-                {formatDate(record.currentPeriodStart)} – {formatDate(record.currentPeriodEnd)}
+                {record.status === "cancelled"
+                  ? `Ends ${formatDate(record.currentPeriodEnd)}`
+                  : `Renews ${formatDate(record.currentPeriodEnd)}`}
               </span>
             )}
             {!isRecurring && record.createdAt && (

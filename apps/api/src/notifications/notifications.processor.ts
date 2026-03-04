@@ -4,7 +4,6 @@ import { eq, schema, type Db } from '@site-haus/db';
 import {
   renderCommentCreatedEmail,
   renderMilestoneCompletedEmail,
-  renderMilestoneCreatedEmail,
   renderMilestoneSignedOffEmail,
   renderPaymentFailedEmail,
 } from '@site-haus/transactional/render/notifications';
@@ -31,9 +30,6 @@ export class NotificationsProcessor extends WorkerHost {
     this.logger.log(`Processing notification: ${job.data.type} [${job.id}]`);
 
     switch (job.data.type) {
-      case 'milestone.created':
-        await this.handleMilestoneCreated(job.data);
-        break;
       case 'milestone.completed':
         await this.handleMilestoneCompleted(job.data);
         break;
@@ -49,26 +45,6 @@ export class NotificationsProcessor extends WorkerHost {
       default:
         this.logger.warn(`Unknown notification type: ${(job.data as { type: string }).type}`);
     }
-  }
-
-  private async handleMilestoneCreated(
-    data: Extract<NotificationJobData, { type: 'milestone.created' }>,
-  ) {
-    const [emails, project] = await Promise.all([
-      this.getClientUserEmails(data.clientId),
-      this.db.query.projectsTable.findFirst({
-        where: eq(schema.projectsTable.id, data.projectId),
-        columns: { name: true },
-      }),
-    ]);
-    if (emails.length === 0) return;
-
-    const { subject, html, text } = await renderMilestoneCreatedEmail({
-      milestoneName: data.milestoneName,
-      projectName: project?.name ?? 'your project',
-      ctaUrl: `${DASHBOARD_URL}/projects/${data.projectId}/milestones`,
-    });
-    await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
   }
 
   private async handleMilestoneCompleted(
@@ -122,20 +98,21 @@ export class NotificationsProcessor extends WorkerHost {
     let emails: string[];
 
     if (data.isEmployeeAuthor) {
-      // Employee posted → notify the client's users
-      emails = await this.getClientUserEmails(data.targetClientId);
+      // Employee posted → notify the client's users (excluding the author)
+      emails = await this.getClientUserEmails(data.targetClientId, data.authorId);
     } else {
       // Client posted → notify the project's assigned employee
-      // Resolve the project from the target
       const projectId = await this.resolveProjectId(data.targetType, data.targetId);
       if (!projectId) return;
 
       const project = await this.db.query.projectsTable.findFirst({
         where: eq(schema.projectsTable.id, projectId),
-        with: { user: { columns: { email: true } } },
+        with: { user: { columns: { email: true, id: true } } },
         columns: { id: true },
       });
-      emails = project?.user?.email ? [project.user.email] : [];
+      // Don't notify if the assigned employee is somehow the same user who commented
+      const assignedEmail = project?.user?.email;
+      emails = assignedEmail && project?.user?.id !== data.authorId ? [assignedEmail] : [];
     }
 
     if (emails.length === 0) return;
@@ -163,13 +140,19 @@ export class NotificationsProcessor extends WorkerHost {
     await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
   }
 
-  private async getClientUserEmails(clientId: string): Promise<string[]> {
+  private async getClientUserEmails(clientId: string, excludeUserId?: string): Promise<string[]> {
     const rows = await this.db.query.userRolesTable.findMany({
       where: eq(schema.userRolesTable.clientId, clientId),
-      with: { user: { columns: { email: true } } },
+      with: { user: { columns: { email: true, id: true } } },
       columns: { userId: true },
     });
-    return [...new Set(rows.map((r) => r.user?.email).filter(Boolean) as string[])];
+    return [
+      ...new Set(
+        rows
+          .filter((r) => r.user?.email && r.userId !== excludeUserId)
+          .map((r) => r.user!.email),
+      ),
+    ];
   }
 
   private async resolveProjectId(targetType: string, targetId: string): Promise<string | null> {

@@ -104,6 +104,10 @@ function AboutTab({
 
   return (
     <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Fields marked with <span className="text-destructive font-medium">*</span> are required.
+        All other fields are optional but help us do better work for you.
+      </p>
       <div className="space-y-1.5">
         <Label htmlFor="businessName">
           Business Name <span className="text-destructive">*</span>
@@ -185,6 +189,11 @@ function BrandTab({
 
   return (
     <div className="space-y-6">
+      {!profile && (
+        <p className="text-sm text-muted-foreground rounded-md border border-dashed px-3 py-2">
+          Complete the <strong>About</strong> tab first before filling in your brand details.
+        </p>
+      )}
       <div className="space-y-2">
         <Label>Do you have an existing logo?</Label>
         <div className="flex gap-2">
@@ -279,6 +288,11 @@ function OnlineTab({
 
   return (
     <div className="space-y-4">
+      {!profile && (
+        <p className="text-sm text-muted-foreground rounded-md border border-dashed px-3 py-2">
+          Complete the <strong>About</strong> tab first before filling in your online presence.
+        </p>
+      )}
       <div className="space-y-1.5">
         <Label>Website</Label>
         <Input
@@ -376,6 +390,11 @@ function GoalsTab({
 
   return (
     <div className="space-y-4">
+      {!profile && (
+        <p className="text-sm text-muted-foreground rounded-md border border-dashed px-3 py-2">
+          Complete the <strong>About</strong> tab first before filling in your goals.
+        </p>
+      )}
       <div className="space-y-1.5">
         <Label htmlFor="goals">What do you want to achieve?</Label>
         <Textarea
@@ -464,16 +483,16 @@ export function ProfileForm({
         <TabsTrigger value="goals">Goals</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="about">
+      <TabsContent value="about" forceMount className="data-[state=inactive]:hidden">
         <AboutTab profile={profile} onSaved={handleSaved} />
       </TabsContent>
-      <TabsContent value="brand">
+      <TabsContent value="brand" forceMount className="data-[state=inactive]:hidden">
         <BrandTab profile={profile} onSaved={handleSaved} />
       </TabsContent>
-      <TabsContent value="online">
+      <TabsContent value="online" forceMount className="data-[state=inactive]:hidden">
         <OnlineTab profile={profile} onSaved={handleSaved} />
       </TabsContent>
-      <TabsContent value="goals">
+      <TabsContent value="goals" forceMount className="data-[state=inactive]:hidden">
         <GoalsTab profile={profile} onSaved={handleSaved} />
       </TabsContent>
     </Tabs>

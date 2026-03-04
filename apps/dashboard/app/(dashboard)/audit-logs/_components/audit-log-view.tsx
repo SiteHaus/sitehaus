@@ -55,6 +55,7 @@ const ACTION_CATEGORIES: ActionCategory[] = [
       { value: "milestone.updated", label: "Milestone updated" },
       { value: "milestone.deleted", label: "Milestone deleted" },
       { value: "milestone.reordered", label: "Milestones reordered" },
+      { value: "milestone.signed_off", label: "Milestone signed off" },
     ],
   },
   {
@@ -98,6 +99,7 @@ const ACTION_CATEGORIES: ActionCategory[] = [
     actions: [
       { value: "billing.subscription.created", label: "Subscription created" },
       { value: "billing.one_time.created", label: "One-time invoice created" },
+      { value: "billing.invoice.paid", label: "Invoice paid" },
     ],
   },
   {

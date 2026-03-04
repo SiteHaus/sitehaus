@@ -1,12 +1,5 @@
 export type NotificationJobData =
   | {
-      type: 'milestone.created';
-      milestoneId: string;
-      milestoneName: string;
-      projectId: string;
-      clientId: string;
-    }
-  | {
       type: 'milestone.completed';
       milestoneId: string;
       milestoneName: string;

@@ -146,6 +146,7 @@ export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "clie
     "tickets:read",
     "tickets:create",
     "documents:read",
+    "documents:approve",
     "assets:read",
     "assets:upload",
     "comments:read",
