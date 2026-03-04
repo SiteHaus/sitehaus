@@ -154,7 +154,7 @@ export function ProjectBillingSection({
       ) : (
         <div className="space-y-3">
           {records.map((record) => (
-            <BillingRecordCard key={record.id} record={record} />
+            <BillingRecordCard key={record.id} record={record} onOpenPortal={openPortal} />
           ))}
         </div>
       )}

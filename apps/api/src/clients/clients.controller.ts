@@ -12,7 +12,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { type ClientMember, type MeClient } from '@site-haus/contracts';
-import { and, eq, schema, type Db } from '@site-haus/db';
+import { and, eq, inArray, schema, type Db } from '@site-haus/db';
 import { ADMIN_PERMISSIONS } from '@site-haus/validation/core/perms';
 import {
   type AddRedirectUriInput,
@@ -59,6 +59,24 @@ export class ClientsController {
   async listMembers(@Req() req: ClientInRequest) {
     const clientId = req.client.id;
 
+    // Only show users with admin-level roles (roles that grant at least one ADMIN_PERMISSION)
+    const adminRoleRows = await this.db
+      .selectDistinct({ roleId: schema.rolePermissionsTable.roleId })
+      .from(schema.rolePermissionsTable)
+      .innerJoin(
+        schema.rolesTable,
+        and(
+          eq(schema.rolesTable.id, schema.rolePermissionsTable.roleId),
+          eq(schema.rolesTable.clientId, clientId),
+        ),
+      )
+      .where(inArray(schema.rolePermissionsTable.perm, ADMIN_PERMISSIONS));
+
+    const adminRoleIds = adminRoleRows.map((r) => r.roleId);
+    if (adminRoleIds.length === 0) {
+      return { members: [] };
+    }
+
     const rows = await this.db
       .select({
         userId: schema.usersTable.id,
@@ -82,7 +100,12 @@ export class ClientsController {
           eq(schema.rolesTable.clientId, clientId),
         ),
       )
-      .where(eq(schema.userRolesTable.clientId, clientId));
+      .where(
+        and(
+          eq(schema.userRolesTable.clientId, clientId),
+          inArray(schema.userRolesTable.roleId, adminRoleIds),
+        ),
+      );
 
     const byUser = new Map<string, ClientMember>();
 

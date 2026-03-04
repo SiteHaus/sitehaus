@@ -82,7 +82,9 @@ export class PasswordController {
     const u = await this.users.findByEmail(parsed.email);
     if (!u) return;
     const { code } = await this.otps.create(u.id, 'password_reset');
-    await this.email.sendOtpCodeEmail(u.email, { code, appName: 'Site Haus' });
+    const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+    const supportUrl = `${iamUrl}/reset-password?email=${encodeURIComponent(parsed.email)}`;
+    await this.email.sendOtpCodeEmail(u.email, { code, appName: 'Site Haus', supportUrl });
   }
 
   @Public()

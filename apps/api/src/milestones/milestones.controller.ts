@@ -119,6 +119,7 @@ export class MilestonesController {
 
   @RequirePerms('projects:read')
   @Post('milestones/:milestoneId/sign-off')
+  @HttpCode(HttpStatus.OK)
   async signOff(@Req() req: Req_, @Param('milestoneId') milestoneId: string) {
     const result = await this.milestones.signOff(
       milestoneId,

@@ -178,8 +178,11 @@ export class CommentsService {
       })
       .returning();
 
+    // Resolve the owning client so the audit log appears in the correct client's history
+    const resolvedClientId = await this.resolveTargetClientId(data.targetType, data.targetId);
+
     await this.audit.log({
-      clientId: ctx.clientId,
+      clientId: resolvedClientId ?? ctx.clientId,
       userId: ctx.userId,
       action: 'comment.created',
       targetType: data.targetType,
@@ -195,10 +198,13 @@ export class CommentsService {
 
     // Notify the other party — skip internal comments (client can't see them)
     if (!comment.isInternal) {
-      const author = await this.db.query.usersTable.findFirst({
-        where: eq(schema.usersTable.id, ctx.userId),
-        columns: { firstName: true, lastName: true },
-      });
+      const [author, targetClientId] = await Promise.all([
+        this.db.query.usersTable.findFirst({
+          where: eq(schema.usersTable.id, ctx.userId),
+          columns: { firstName: true, lastName: true },
+        }),
+        this.resolveTargetClientId(data.targetType, data.targetId),
+      ]);
       const authorName = [author?.firstName, author?.lastName].filter(Boolean).join(' ') || 'Someone';
       const targetLabel = `${data.targetType.replace('_', ' ')}: ${data.targetId}`;
       const bodyPreview = data.body.slice(0, 200) + (data.body.length > 200 ? '…' : '');
@@ -212,7 +218,7 @@ export class CommentsService {
         targetType: data.targetType,
         targetId: data.targetId,
         targetLabel,
-        targetClientId: ctx.clientId,
+        targetClientId: targetClientId ?? ctx.clientId,
         isEmployeeAuthor: ctx.isFirstParty,
       });
     }

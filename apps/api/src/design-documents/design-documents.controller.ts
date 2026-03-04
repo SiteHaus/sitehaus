@@ -19,7 +19,7 @@ import {
   updateDesignDocumentSchema,
 } from '@site-haus/validation/forms/design-document';
 import { AuthedRequest } from 'src/auth/access/access.guard';
-import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
+import { RequireAnyPerm, RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { ClientInRequest } from 'src/clients/client.guard';
 import { DesignDocumentsService } from './design-documents.service';
 
@@ -101,7 +101,7 @@ export class DesignDocumentsController {
     return { document: result };
   }
 
-  @RequirePerms('documents:manage')
+  @RequireAnyPerm('documents:manage', 'documents:approve')
   @Patch('status')
   async transitionStatus(
     @Req() req: Req_,
@@ -110,6 +110,12 @@ export class DesignDocumentsController {
   ) {
     await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const { status } = designDocStatusTransitionSchema.parse(body);
+
+    // Clients (non-first-party) may only approve or request amendments
+    if (!req.client!.firstParty && status !== 'approved' && status !== 'amended') {
+      throw new ForbiddenException('Insufficient permissions');
+    }
+
     const result = await this.docs.transitionStatus(projectId, status, {
       userId: req.user!.userId,
       clientId: req.client!.id,

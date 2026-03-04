@@ -142,15 +142,6 @@ export class MilestonesService {
       meta: { name: data.name, milestoneId: milestone.id },
     });
 
-    // Notify the client that a new milestone was added
-    await this.notifications.enqueue({
-      type: 'milestone.created',
-      milestoneId: milestone.id,
-      milestoneName: milestone.name,
-      projectId,
-      clientId: project.clientId,
-    });
-
     return serialise(milestone);
   }
 

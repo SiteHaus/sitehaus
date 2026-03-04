@@ -286,7 +286,9 @@ export class BillingService {
     switch (event.type) {
       case 'customer.subscription.updated': {
         const sub = event.data.object as Stripe.Subscription;
-        const status = this.mapSubStatus(sub.status);
+        // If cancel_at_period_end is set the client has cancelled — mark it
+        // cancelled immediately rather than waiting for the deletion event
+        const status = sub.cancel_at_period_end ? 'cancelled' : this.mapSubStatus(sub.status);
         const item = sub.items.data[0];
         await this.db
           .update(schema.billingRecordsTable)
@@ -320,18 +322,66 @@ export class BillingService {
         const rawSub = invoice['parent']?.['subscription_details']?.['subscription'];
         const subscriptionId = typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
         if (subscriptionId) {
-          await this.db
+          const [affected] = await this.db
             .update(schema.billingRecordsTable)
             .set({ status: 'active', hostedInvoiceUrl: hostedUrl, updatedAt: new Date() })
-            .where(eq(schema.billingRecordsTable.stripeSubscriptionId, subscriptionId));
+            .where(eq(schema.billingRecordsTable.stripeSubscriptionId, subscriptionId))
+            .returning({
+              id: schema.billingRecordsTable.id,
+              clientId: schema.billingRecordsTable.clientId,
+              projectId: schema.billingRecordsTable.projectId,
+              amountCents: schema.billingRecordsTable.amountCents,
+            });
+          if (affected) {
+            await this.audit.log({
+              clientId: affected.clientId,
+              userId: null,
+              action: 'billing.invoice.paid',
+              targetType: 'project',
+              targetId: affected.projectId ?? null,
+              meta: { billingRecordId: affected.id, amountCents: affected.amountCents },
+            });
+          }
         } else {
+          // For send_invoice one-time payments, the PaymentIntent is only created
+          // when the customer actually pays — so stripePaymentIntentId may be null
+          // at record creation time. Match by paymentIntentId first, then fall back
+          // to hostedInvoiceUrl (stable, unique per invoice).
           const rawPi = invoice['payment_intent'];
           const paymentIntentId = typeof rawPi === 'string' ? rawPi : (rawPi?.id ?? null);
-          if (paymentIntentId) {
-            await this.db
+
+          const condition = paymentIntentId
+            ? eq(schema.billingRecordsTable.stripePaymentIntentId, paymentIntentId)
+            : hostedUrl
+              ? eq(schema.billingRecordsTable.hostedInvoiceUrl, hostedUrl)
+              : null;
+
+          if (condition) {
+            const [affected] = await this.db
               .update(schema.billingRecordsTable)
-              .set({ status: 'paid', hostedInvoiceUrl: hostedUrl, updatedAt: new Date() })
-              .where(eq(schema.billingRecordsTable.stripePaymentIntentId, paymentIntentId));
+              .set({
+                status: 'paid',
+                hostedInvoiceUrl: hostedUrl,
+                stripePaymentIntentId: paymentIntentId ?? undefined,
+                updatedAt: new Date(),
+              })
+              .where(condition)
+              .returning({
+                id: schema.billingRecordsTable.id,
+                clientId: schema.billingRecordsTable.clientId,
+                projectId: schema.billingRecordsTable.projectId,
+                amountCents: schema.billingRecordsTable.amountCents,
+              });
+            if (affected) {
+              await this.audit.log({
+                clientId: affected.clientId,
+                userId: null,
+                action: 'billing.invoice.paid',
+                targetType: 'project',
+                targetId: affected.projectId ?? null,
+                meta: { billingRecordId: affected.id, amountCents: affected.amountCents },
+              });
+            }
           }
         }
         break;

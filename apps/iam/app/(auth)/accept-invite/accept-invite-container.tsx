@@ -1,6 +1,5 @@
 "use client";
 
-import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import {
@@ -19,7 +18,6 @@ interface InviteCheckResult {
 }
 
 export default function AcceptInviteContainer() {
-  const { replace } = useAuthNav();
   const api = useApi();
   const searchParams = useSearchParams();
 
@@ -69,10 +67,8 @@ export default function AcceptInviteContainer() {
 
     if (res.status === 200) {
       toast.success("Invitation accepted! Please log in to continue.");
-      replace("/login", {
-        add: { email: values.email },
-        preserve: ["client"],
-      });
+      const dashboardUrl = process.env.NEXT_PUBLIC_DASHBOARD_URL ?? "http://localhost:3001";
+      window.location.href = dashboardUrl;
       return;
     }
 

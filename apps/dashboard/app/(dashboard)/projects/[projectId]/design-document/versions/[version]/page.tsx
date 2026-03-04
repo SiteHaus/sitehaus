@@ -1,19 +1,19 @@
 "use client";
 
-import { type DesignDocumentVersionItem } from "@site-haus/contracts";
+import { getApi } from "@site-haus/stores/api";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Card,
   CardContent,
 } from "@site-haus/ui/components/base/card";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
 
 import { PlateEditor } from "@/components/plate-ui/plate-editor";
-import { useDesignDocVersions } from "@/hooks/use-design-doc-versions";
+import { queryKeys } from "@/lib/query-keys";
 import { formatDate } from "@site-haus/utils/core/format";
 
 const formatDateTime = (d: string | null) =>
@@ -25,28 +25,18 @@ export default function VersionDetailPage() {
     version: string;
   }>();
 
-  const { getVersion } = useDesignDocVersions(projectId);
-  const [versionData, setVersionData] =
-    useState<DesignDocumentVersionItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const { data: versionData, isLoading, isError } = useQuery({
+    queryKey: queryKeys.designDoc.version(projectId, version),
+    queryFn: async () => {
+      const res = await getApi().designDocuments.getVersion({
+        params: { projectId, version },
+      });
+      if (res.status === 200) return res.body.version;
+      return null;
+    },
+  });
 
-  const fetchVersion = useCallback(async () => {
-    setLoading(true);
-    const v = await getVersion(version);
-    if (v) {
-      setVersionData(v);
-    } else {
-      setNotFound(true);
-    }
-    setLoading(false);
-  }, [getVersion, version]);
-
-  useEffect(() => {
-    fetchVersion();
-  }, [fetchVersion]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Spinner className="size-6 text-primary" />
@@ -54,7 +44,7 @@ export default function VersionDetailPage() {
     );
   }
 
-  if (notFound || !versionData) {
+  if (isError || !versionData) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <h3 className="text-lg font-medium">Version not found</h3>
