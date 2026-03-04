@@ -10,6 +10,7 @@ import { getApi } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Input } from "@site-haus/ui/components/base/input";
+import { useSearchParams } from "next/navigation";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import {
   Ticket,
@@ -43,6 +44,10 @@ export default function TicketsPage() {
 
   const hasPerm = useAuthStore((s) => s.hasPerm);
   const canManage = hasPerm("tickets:manage");
+
+  const searchParams = useSearchParams();
+  const assignedToMe = searchParams.get("assignedToMe") === "true";
+  const me = useAuthStore((s) => s.user);
 
   const fetchTickets = useCallback(async () => {
     setLoading(true);
@@ -130,23 +135,28 @@ export default function TicketsPage() {
     );
   };
 
-  const filtered = search
-    ? tickets.filter(
-        (t) =>
-          t.title.toLowerCase().includes(search.toLowerCase()) ||
-          t.type.toLowerCase().includes(search.toLowerCase()) ||
-          t.status.toLowerCase().includes(search.toLowerCase()) ||
-          t.priority.toLowerCase().includes(search.toLowerCase()),
-      )
-    : tickets;
+  const filtered = tickets.filter((t) => {
+    if (assignedToMe && t.assigneeId !== me?.id) return false;
+    if (!search) return true;
+    return (
+      t.title.toLowerCase().includes(search.toLowerCase()) ||
+      t.type.toLowerCase().includes(search.toLowerCase()) ||
+      t.status.toLowerCase().includes(search.toLowerCase()) ||
+      t.priority.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   return (
     <>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">My Tickets</h1>
+          <h1 className="text-3xl font-bold">
+            {assignedToMe ? "Assigned to Me" : "My Tickets"}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            View, create, and track all your support tickets.
+            {assignedToMe
+              ? "Tickets currently assigned to you."
+              : "View, create, and track all your support tickets."}
           </p>
         </div>
         <div className="flex items-center gap-3 mb-5">
