@@ -21,6 +21,7 @@ export class AuditController {
       endDate: parsed.endDate ? new Date(parsed.endDate) : undefined,
       action: parsed.action,
       targetType: parsed.targetType,
+      targetId: parsed.targetId,
       userId: parsed.userId,
       limit: parsed.limit,
       cursor: parsed.cursor,

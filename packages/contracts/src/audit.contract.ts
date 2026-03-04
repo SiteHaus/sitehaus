@@ -29,6 +29,7 @@ export const auditListQuery = z.object({
   endDate: z.iso.datetime().optional(),
   action: z.string().optional(),
   targetType: z.string().optional(),
+  targetId: z.uuid().optional(),
   userId: z.uuid().optional(),
   limit: z.coerce.number().min(1).max(100).default(50).optional(),
   cursor: z.uuid().optional(),
