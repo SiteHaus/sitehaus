@@ -18,47 +18,29 @@ export interface RowActions<T> {
   onEdit?: (row: T) => void;
 }
 
-type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "success" | "warning";
+export type ColumnRenderers<T extends Record<string, unknown>> = {
+  [K in keyof T]?: (value: unknown, row: T) => React.ReactNode;
+};
 
-function getStatusBadgeVariant(status: string): BadgeVariant {
-  const normalized = status.toLowerCase();
-  switch (normalized) {
-    case "accepted":
-    case "active":
-    case "verified":
-      return "success";
-    case "cancelled":
-    case "revoked":
-      return "warning";
-    case "expired":
-    case "rejected":
-    case "failed":
-      return "destructive";
-    case "pending":
-    case "invited":
-      return "secondary";
-    default:
-      return "outline";
-  }
-}
-
-function renderCellValue(value: unknown, columnKey?: string): React.ReactNode {
-  if (value === null || value === undefined) {
-    return "";
+function renderCellValue(
+  value: unknown,
+  columnKey?: string,
+  columnRenderers?: Record<
+    string,
+    (value: unknown, row: unknown) => React.ReactNode
+  >,
+  row?: unknown,
+): React.ReactNode {
+  if (columnKey && columnRenderers?.[columnKey]) {
+    return columnRenderers[columnKey]!(value, row);
   }
 
-  // Handle status column specially
-  if (columnKey === "status" && typeof value === "string") {
-    return (
-      <Badge variant={getStatusBadgeVariant(value)}>
-        {value}
-      </Badge>
-    );
-  }
-
-  // Handle arrays of objects with name property (like roles)
   if (Array.isArray(value)) {
-    const hasNameProperty = value.length > 0 && typeof value[0] === "object" && value[0] !== null && "name" in value[0];
+    const hasNameProperty =
+      value.length > 0 &&
+      typeof value[0] === "object" &&
+      value[0] !== null &&
+      "name" in value[0];
 
     if (hasNameProperty) {
       return (
@@ -72,11 +54,9 @@ function renderCellValue(value: unknown, columnKey?: string): React.ReactNode {
       );
     }
 
-    // Regular array - join values
     return value.map(String).join(", ");
   }
 
-  // Handle booleans
   if (typeof value === "boolean") {
     return (
       <Badge variant={value ? "default" : "outline"}>
@@ -90,7 +70,9 @@ function renderCellValue(value: unknown, columnKey?: string): React.ReactNode {
 
 export function createColumnsFromData<T extends Record<string, unknown>>(
   data: T[],
-  actions?: RowActions<T>
+  actions?: RowActions<T>,
+  columnRenderers?: ColumnRenderers<T>,
+  columnLabels?: Partial<Record<string, string>>,
 ): ColumnDef<T, unknown>[] {
   if (!data.length) return [];
 
@@ -132,7 +114,6 @@ export function createColumnsFromData<T extends Record<string, unknown>>(
               <MoreHorizontal className="h-4 w-4 text-gray-600" />
             </Button>
           </DropdownMenuTrigger>
-
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             {actions?.onEdit && (
@@ -164,14 +145,25 @@ export function createColumnsFromData<T extends Record<string, unknown>>(
     (key) => ({
       id: key,
       accessorKey: key as keyof T & string,
+      filterFn: "equals",
       header: ({ column }: { column: Column<T, unknown> }) => (
         <DataTableColumnHeader
           column={column}
-          title={key.charAt(0).toUpperCase() + key.slice(1)}
+          title={
+            columnLabels?.[key] ?? key.charAt(0).toUpperCase() + key.slice(1)
+          }
         />
       ),
-      cell: (info) => renderCellValue(info.getValue(), key),
-    })
+      cell: (info) =>
+        renderCellValue(
+          info.getValue(),
+          key,
+          columnRenderers as
+            | Record<string, (value: unknown, row: unknown) => React.ReactNode>
+            | undefined,
+          info.row.original, // 👈 add this
+        ),
+    }),
   );
 
   return [selectColumn, ...dataColumns, actionColumn];

@@ -53,11 +53,11 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
       {
         title: "All Tickets",
         url: "/tickets",
-        disabled: true,
+        requirePerm: "tickets:manage",
       },
       {
         title: "Assigned To Me",
-        url: "#",
+        url: "/tickets/assigned",
         disabled: true,
       },
     ],

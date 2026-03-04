@@ -12,7 +12,7 @@ import {
   Req,
 } from '@nestjs/common';
 import { type ClientMember, type MeClient } from '@site-haus/contracts';
-import { and, eq, inArray, schema, type Db } from '@site-haus/db';
+import { and, eq, schema, inArray, type Db } from '@site-haus/db';
 import { ADMIN_PERMISSIONS } from '@site-haus/validation/core/perms';
 import {
   type AddRedirectUriInput,
@@ -137,6 +137,62 @@ export class ClientsController {
     return { members };
   }
 
+  @Get('first-party')
+  async listFirstParty() {
+    const firstPartyClients = await this.clientsService.getFirstPartyClients();
+    const clientIds = firstPartyClients.map((c) => c.id);
+
+    if (!clientIds.length) return { staff: [] };
+
+    const rows = await this.db
+      .select({
+        userId: schema.usersTable.id,
+        email: schema.usersTable.email,
+        firstName: schema.usersTable.firstName,
+        lastName: schema.usersTable.lastName,
+        isVerified: schema.usersTable.isVerified,
+        status: schema.usersTable.status,
+        roleId: schema.rolesTable.id,
+        roleName: schema.rolesTable.name,
+      })
+      .from(schema.userRolesTable)
+      .innerJoin(
+        schema.usersTable,
+        eq(schema.usersTable.id, schema.userRolesTable.userId),
+      )
+      .innerJoin(
+        schema.rolesTable,
+        and(
+          eq(schema.rolesTable.id, schema.userRolesTable.roleId),
+          inArray(schema.rolesTable.clientId, clientIds),
+        ),
+      )
+      .where(inArray(schema.userRolesTable.clientId, clientIds));
+
+    const byUser = new Map<string, ClientMember>();
+
+    for (const row of rows) {
+      let entry = byUser.get(row.userId);
+      if (!entry) {
+        entry = {
+          id: row.userId,
+          email: row.email,
+          firstName: row.firstName,
+          lastName: row.lastName,
+          isVerified: row.isVerified,
+          status: row.status,
+          roles: [],
+        };
+        byUser.set(row.userId, entry);
+      }
+      if (row.roleId) {
+        entry.roles.push({ id: row.roleId, name: row.roleName });
+      }
+    }
+
+    return { staff: Array.from(byUser.values()) };
+  }
+
   @Get('me/clients')
   async listMyClients(@Req() req: AuthedRequest) {
     const userId = req.user!.userId;
@@ -200,7 +256,8 @@ export class ClientsController {
         type: r.type,
         firstParty: r.firstParty,
         hidden: r.hidden,
-        canManage: existing?.canManage || (r.perm ? adminSet.has(r.perm) : false),
+        canManage:
+          existing?.canManage || (r.perm ? adminSet.has(r.perm) : false),
       });
     }
 
