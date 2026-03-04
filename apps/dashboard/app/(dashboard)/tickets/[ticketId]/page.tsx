@@ -175,11 +175,6 @@ export default function TicketDetailPage() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">{ticket.title}</h1>
-            {ticket.description && (
-              <p className="text-muted-foreground mt-1 max-w-2xl">
-                {ticket.description}
-              </p>
-            )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <TicketAudienceBadge audience={isEmployee} />
@@ -266,6 +261,19 @@ export default function TicketDetailPage() {
           </CardHeader>
         </Card>
       </div>
+
+      {ticket.description && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Description</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              {ticket.description}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Details card */}
       <Card>
