@@ -34,6 +34,7 @@ export default function NewTicketsPage() {
       const res = await getApi().tickets.create({ body: values });
       if (res.status === 201) {
         toast.success("Ticket created successfully");
+        router.back();
       } else {
         const msg =
           res.status === 400
@@ -41,7 +42,6 @@ export default function NewTicketsPage() {
             : "Failed to create ticket.";
         toast.error(msg);
       }
-      router.back();
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {

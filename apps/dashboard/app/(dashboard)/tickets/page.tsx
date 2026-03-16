@@ -49,6 +49,10 @@ export default function TicketsPage() {
   const assignedToMe = searchParams.get("assignedToMe") === "true";
   const me = useAuthStore((s) => s.user);
 
+  const memberMap: Record<string, string> = Object.fromEntries(
+    members.map((m) => [m.id, `${m.firstName} ${m.lastName}`]),
+  );
+
   const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
@@ -227,7 +231,7 @@ export default function TicketsPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  {Object.entries(members).map(([id, name]) => (
+                  {Object.entries(memberMap).map(([id, name]) => (
                     <DropdownMenuItem
                       key={id}
                       onSelect={() => handleBulkAssign(id)}

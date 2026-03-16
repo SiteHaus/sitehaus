@@ -41,7 +41,11 @@ export class TicketsController {
   @RequirePerms('tickets:read')
   @Get(':ticketId')
   async get(@Req() req: Req_, @Param('ticketId') ticketId: string) {
-    const ticket = await this.tickets.getById(ticketId, req.client!.id, req.client!.firstParty);
+    const ticket = await this.tickets.getById(
+      ticketId,
+      req.client!.id,
+      req.client!.firstParty,
+    );
     if (!ticket) throw new NotFoundException('Ticket not found');
     return { ticket };
   }
@@ -51,17 +55,21 @@ export class TicketsController {
   @HttpCode(HttpStatus.CREATED)
   async create(@Req() req: Req_, @Body() body: unknown) {
     const parsed = createTicketSchema.parse(body);
-    const result = await this.tickets.create(parsed, {
-      userId: req.user!.userId,
-      clientId: req.client!.id,
-      ip: req.ip,
-      ua: req.headers['user-agent'] as string | undefined,
-    }, req.client!.firstParty);
+    const result = await this.tickets.create(
+      parsed,
+      {
+        userId: req.user!.userId,
+        clientId: req.client!.id,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
+      req.client!.firstParty,
+    );
     if ('error' in result) throw new ForbiddenException(result.error);
     return { ticket: result };
   }
 
-  @RequirePerms('tickets:read')
+  @RequirePerms('tickets:manage')
   @Patch(':ticketId')
   async update(
     @Req() req: Req_,
@@ -69,12 +77,18 @@ export class TicketsController {
     @Body() body: unknown,
   ) {
     const parsed = updateTicketSchema.parse(body);
-    const ticket = await this.tickets.update(ticketId, req.client!.id, parsed, {
-      userId: req.user!.userId,
-      clientId: req.client!.id,
-      ip: req.ip,
-      ua: req.headers['user-agent'] as string | undefined,
-    }, req.client!.firstParty);
+    const ticket = await this.tickets.update(
+      ticketId,
+      req.client!.id,
+      parsed,
+      {
+        userId: req.user!.userId,
+        clientId: req.client!.id,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
+      req.client!.firstParty,
+    );
     if (!ticket) throw new NotFoundException('Ticket not found');
     return { ticket };
   }

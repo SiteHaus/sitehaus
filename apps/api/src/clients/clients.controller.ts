@@ -137,6 +137,7 @@ export class ClientsController {
     return { members };
   }
 
+  @RequirePerms('members:read')
   @Get('first-party')
   async listFirstParty() {
     const firstPartyClients = await this.clientsService.getFirstPartyClients();
