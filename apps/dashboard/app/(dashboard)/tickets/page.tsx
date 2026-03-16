@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  MeClient,
-  ProjectItem,
-  TicketItem,
-  type TicketDetail,
-} from "@site-haus/contracts"; // ← TicketDetail
+import { MeClient, ProjectItem, TicketItem } from "@site-haus/contracts"; // ← TicketDetail
 import { getApi } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";

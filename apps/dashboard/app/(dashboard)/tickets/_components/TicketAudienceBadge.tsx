@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@site-haus/ui/components/base/badge";
-import { label } from "@site-haus/utils/core/format";
 
 type BadgeVariant =
   | "default"

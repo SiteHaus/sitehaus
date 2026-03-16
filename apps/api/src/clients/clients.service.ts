@@ -136,7 +136,7 @@ export class ClientsService {
       // 6. Auto-grant admin to all existing SiteHaus staff (anyone with the
       //    admin role on any first-party client), so staff don't need to run
       //    grant-admin every time a new client org is created.
-      const firstPartyClients = await this.getFirstPartyClients(tx);
+      const firstPartyClients = await this.getFirstPartyClients();
       if (firstPartyClients.length > 0) {
         const staffAdminRoles = await tx.query.rolesTable.findMany({
           where: (t, { and: _and, eq: _eq, inArray: _in }) =>
@@ -235,7 +235,7 @@ export class ClientsService {
     return client;
   }
 
-  async getFirstPartyClients(db?: Db) {
+  async getFirstPartyClients() {
     return this.db.query.clientsTable.findMany({
       where: (t, { eq }) => eq(t.firstParty, true),
     });
