@@ -50,7 +50,6 @@ export default function NewTicketsPage() {
   };
 
   if (!session) return null;
-  if (!hasPerm("tickets:manage")) return null;
 
   return (
     <div className="space-y-6">

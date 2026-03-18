@@ -143,6 +143,7 @@ export class ClientsController {
         and(
           eq(schema.rolesTable.id, schema.userRolesTable.roleId),
           inArray(schema.rolesTable.clientId, clientIds),
+          eq(schema.rolesTable.key, 'admin'),
         ),
       )
       .where(inArray(schema.userRolesTable.clientId, clientIds));
