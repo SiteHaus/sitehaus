@@ -22,6 +22,9 @@ const STATIC_LABELS: Record<string, string> = {
   tickets: "Tickets",
 };
 
+// Segments that have no real page and should be omitted from breadcrumbs
+const SKIP_SEGMENTS = new Set(["versions"]);
+
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -29,7 +32,10 @@ export function useBreadcrumbs(): Crumb[] {
   const pathname = usePathname();
   const clients = useAuthStore((s) => s.clients);
 
-  const segments = pathname.split("/").filter(Boolean);
+  const segments = pathname
+    .split("/")
+    .filter(Boolean)
+    .filter((s) => !SKIP_SEGMENTS.has(s));
 
   // Identify UUID segments that need async resolution
   const uuidSegments = segments
