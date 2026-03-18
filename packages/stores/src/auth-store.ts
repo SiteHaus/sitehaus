@@ -1,4 +1,10 @@
-import { MeClient, MeSession, MeUser } from "@site-haus/contracts";
+import {
+  clientDetail,
+  MeClient,
+  MeSession,
+  MeUser,
+  ProjectItem,
+} from "@site-haus/contracts";
 import { refreshOnce } from "@site-haus/sdk";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistOptions } from "zustand/middleware";
@@ -15,6 +21,10 @@ type AuthState = {
   clients: MeClient[];
   setClients: (clients: MeClient[]) => void;
   loadMyClients: () => Promise<void>;
+
+  projects: ProjectItem[];
+  setProjects: (projects: ProjectItem[]) => void;
+  loadMyProjects: () => Promise<void>;
 
   managedClientId: string | null;
   setManagedClientId: (id: string | null) => void;
@@ -59,6 +69,7 @@ const persistOptions: PersistOptions<AuthState, Persisted> = {
     accessToken: s.accessToken,
     accessExpiration: s.accessExpiration,
     clients: s.clients,
+    projects: s.projects,
   }),
   onRehydrateStorage: () => (state) => {
     state?.setHydrated();
@@ -78,6 +89,9 @@ export const useAuthStore = create<AuthState>()(
       clients: [],
       setClients: (clients) => set({ clients }),
 
+      projects: [],
+      setProjects: (projects) => set({ projects }),
+
       managedClientId: null,
       setManagedClientId: (id) => set({ managedClientId: id }),
 
@@ -85,6 +99,15 @@ export const useAuthStore = create<AuthState>()(
         const { clients } = getApi();
         const r = await clients.meClients();
         if (r.status === 200) set({ clients: r.body.clients });
+      },
+
+      loadMyProjects: async () => {
+        const { projects } = getApi();
+        const clientId = get().managedClientId ?? undefined;
+        const r = await projects.list({
+          query: { clientId },
+        });
+        if (r.status === 200) set({ projects: r.body.projects });
       },
 
       hydrated: false,
@@ -131,10 +154,11 @@ export const useAuthStore = create<AuthState>()(
           if (currentState.clients.length === 0) {
             await get().loadMyClients();
           }
-          const allClients = get().clients;
-          const isEmployee = allClients.some((c) => c.firstParty && c.canManage);
-          const visibleClients = allClients.filter((c) => !c.hidden && !c.firstParty);
-          const onlyClient = !isEmployee && visibleClients.length === 1 ? visibleClients[0] : undefined;
+          const visibleClients = get().clients.filter(
+            (c) => !c.hidden && !c.firstParty,
+          );
+          const onlyClient =
+            visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
           }
@@ -156,10 +180,11 @@ export const useAuthStore = create<AuthState>()(
         if (get().accessToken) {
           await get().me();
           await get().loadMyClients();
-          const allClients = get().clients;
-          const isEmployee = allClients.some((c) => c.firstParty && c.canManage);
-          const visibleClients = allClients.filter((c) => !c.hidden && !c.firstParty);
-          const onlyClient = !isEmployee && visibleClients.length === 1 ? visibleClients[0] : undefined;
+          const visibleClients = get().clients.filter(
+            (c) => !c.hidden && !c.firstParty,
+          );
+          const onlyClient =
+            visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
           }
@@ -195,7 +220,7 @@ export const useAuthStore = create<AuthState>()(
         } else if (r.status === 403) {
           // MFA pending — token is real but incomplete. Treat as unauthenticated.
           get().clearAuth();
-          throw new Error('mfa_pending');
+          throw new Error("mfa_pending");
         }
       },
 
@@ -208,6 +233,6 @@ export const useAuthStore = create<AuthState>()(
         }
       },
     }),
-    persistOptions
-  )
+    persistOptions,
+  ),
 );

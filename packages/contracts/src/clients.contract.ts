@@ -15,7 +15,7 @@ export const clientMember = userBrief.extend({
     z.object({
       id: z.uuid(),
       name: z.string(),
-    })
+    }),
   ),
 });
 
@@ -75,6 +75,13 @@ export const clientsRouter = c.router({
     path: "/clients/me/members",
     responses: {
       200: c.type<{ members: ClientMember[] }>(),
+    },
+  },
+  firstParty: {
+    method: "GET",
+    path: "/clients/first-party",
+    responses: {
+      200: c.type<{ staff: ClientMember[] }>(),
     },
   },
   meClients: {
