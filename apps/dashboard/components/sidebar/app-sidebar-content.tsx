@@ -22,10 +22,13 @@ import {
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { sideBarMenuItems, type SidebarMenuItem as SidebarMenuItemType } from "./sidebar-links";
+import {
+  sideBarMenuItems,
+  type SidebarMenuItem as SidebarMenuItemType,
+} from "./sidebar-links";
 
 function isActive(pathname: string, url: string): boolean {
-  if (url === "/" ) return pathname === "/";
+  if (url === "/") return pathname === "/";
   if (url === "#") return false;
   return pathname === url || pathname.startsWith(url + "/");
 }
@@ -44,7 +47,8 @@ export const AppSideBarContent = () => {
   const visibleItems = sideBarMenuItems
     .filter((item) => {
       const permOk = !item.requirePerm || hasPerm(item.requirePerm);
-      const clientFallback = !!item.showForClients && !isEmployee && !!clientContext;
+      const clientFallback =
+        !!item.showForClients && !isEmployee && !!clientContext;
       return permOk || clientFallback;
     })
     .filter((item) => !item.requireClient || !!clientContext)

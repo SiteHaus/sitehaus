@@ -19,6 +19,7 @@ export interface AuditListFilters {
   endDate?: Date;
   action?: string;
   targetType?: string;
+  targetId?: string;
   userId?: string;
   limit?: number;
   cursor?: string;
@@ -48,7 +49,16 @@ export class AuditService {
   }
 
   async listForClient(clientId: string, filters: AuditListFilters = {}) {
-    const { startDate, endDate, action, targetType, userId, limit = 50, cursor } = filters;
+    const {
+      startDate,
+      endDate,
+      action,
+      targetType,
+      targetId,
+      userId,
+      limit = 50,
+      cursor,
+    } = filters;
 
     const conditions = [eq(schema.auditLogTable.clientId, clientId)];
 
@@ -64,6 +74,9 @@ export class AuditService {
     if (targetType) {
       conditions.push(eq(schema.auditLogTable.targetType, targetType));
     }
+    if (targetId) {
+      conditions.push(eq(schema.auditLogTable.targetId, targetId));
+    }
     if (userId) {
       conditions.push(eq(schema.auditLogTable.userId, userId));
     }
@@ -73,7 +86,9 @@ export class AuditService {
         columns: { createdAt: true },
       });
       if (cursorLog) {
-        conditions.push(lt(schema.auditLogTable.createdAt, cursorLog.createdAt));
+        conditions.push(
+          lt(schema.auditLogTable.createdAt, cursorLog.createdAt),
+        );
       }
     }
 

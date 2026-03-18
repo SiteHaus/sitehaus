@@ -33,7 +33,8 @@ export class ClientsService {
     const existing = await this.db.query.clientsTable.findFirst({
       where: (t, { eq }) => eq(t.key, data.key),
     });
-    if (existing) throw new ConflictException('A client with that key already exists');
+    if (existing)
+      throw new ConflictException('A client with that key already exists');
 
     const client = await this.db.transaction(async (tx) => {
       // 1. Create the client
@@ -68,9 +69,24 @@ export class ClientsService {
       const [adminRole] = await tx
         .insert(schema.rolesTable)
         .values([
-          { clientId: created.id, key: 'admin', name: 'Admin', isDefault: false },
-          { clientId: created.id, key: 'member', name: 'Member', isDefault: true },
-          { clientId: created.id, key: 'client', name: 'Client', isDefault: false },
+          {
+            clientId: created.id,
+            key: 'admin',
+            name: 'Admin',
+            isDefault: false,
+          },
+          {
+            clientId: created.id,
+            key: 'member',
+            name: 'Member',
+            isDefault: true,
+          },
+          {
+            clientId: created.id,
+            key: 'client',
+            name: 'Client',
+            isDefault: false,
+          },
         ])
         .returning();
 
@@ -120,15 +136,15 @@ export class ClientsService {
       // 6. Auto-grant admin to all existing SiteHaus staff (anyone with the
       //    admin role on any first-party client), so staff don't need to run
       //    grant-admin every time a new client org is created.
-      const firstPartyClients = await tx.query.clientsTable.findMany({
-        where: (t, { eq: _eq }) => _eq(t.firstParty, true),
-        columns: { id: true },
-      });
+      const firstPartyClients = await this.getFirstPartyClients();
       if (firstPartyClients.length > 0) {
         const staffAdminRoles = await tx.query.rolesTable.findMany({
           where: (t, { and: _and, eq: _eq, inArray: _in }) =>
             _and(
-              _in(t.clientId, firstPartyClients.map((c) => c.id)),
+              _in(
+                t.clientId,
+                firstPartyClients.map((c) => c.id),
+              ),
               _eq(t.key, 'admin'),
             ),
           columns: { id: true },
@@ -136,7 +152,10 @@ export class ClientsService {
         if (staffAdminRoles.length > 0) {
           const staffAssignments = await tx.query.userRolesTable.findMany({
             where: (t, { inArray: _in }) =>
-              _in(t.roleId, staffAdminRoles.map((r) => r.id)),
+              _in(
+                t.roleId,
+                staffAdminRoles.map((r) => r.id),
+              ),
             columns: { userId: true },
           });
           const staffUserIds = [
@@ -216,6 +235,11 @@ export class ClientsService {
     return client;
   }
 
+  async getFirstPartyClients() {
+    return this.db.query.clientsTable.findMany({
+      where: (t, { eq }) => eq(t.firstParty, true),
+    });
+  }
   /**
    * Update client settings
    */
@@ -265,8 +289,7 @@ export class ClientsService {
   ) {
     // Check for duplicates
     const existing = await this.db.query.clientRedirectUrisTable.findFirst({
-      where: (t, { eq, and }) =>
-        and(eq(t.clientId, clientId), eq(t.uri, uri)),
+      where: (t, { eq, and }) => and(eq(t.clientId, clientId), eq(t.uri, uri)),
     });
 
     if (existing) {
@@ -302,9 +325,7 @@ export class ClientsService {
   ) {
     const [deleted] = await this.db
       .delete(schema.clientRedirectUrisTable)
-      .where(
-        eq(schema.clientRedirectUrisTable.id, uriId),
-      )
+      .where(eq(schema.clientRedirectUrisTable.id, uriId))
       .returning();
 
     if (!deleted) throw new NotFoundException('Redirect URI not found');
