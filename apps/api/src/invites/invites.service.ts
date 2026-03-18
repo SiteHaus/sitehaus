@@ -279,14 +279,28 @@ export class InvitesService {
       }
       // Existing verified user - just add roles (handled below)
 
-      if (roleIds.length) {
+      let effectiveRoleIds = roleIds;
+      if (!effectiveRoleIds.length) {
+        // No roles on the invite — fall back to the client's default role
+        const defaultRole = await tx.query.rolesTable.findFirst({
+          where: (t, { and: _and, eq: _eq }) =>
+            _and(
+              _eq(t.clientId, params.clientId),
+              _eq(t.isDefault, true),
+            ),
+          columns: { id: true },
+        });
+        if (defaultRole) effectiveRoleIds = [defaultRole.id];
+      }
+
+      if (effectiveRoleIds.length) {
         const existing = await tx.query.userRolesTable.findMany({
           where: (t, { and: _and, eq: _eq, inArray: _in }) =>
-            _and(_eq(t.userId, user.id), _in(t.roleId, roleIds)),
+            _and(_eq(t.userId, user.id), _in(t.roleId, effectiveRoleIds)),
         });
 
         const have = new Set(existing.map((e) => e.roleId));
-        const toAdd = roleIds.filter((r) => !have.has(r));
+        const toAdd = effectiveRoleIds.filter((r) => !have.has(r));
 
         if (toAdd.length) {
           await tx
@@ -308,7 +322,7 @@ export class InvitesService {
         }
       }
 
-      return { userId: user.id, acceptedAt: now, rolesAssigned: roleIds };
+      return { userId: user.id, acceptedAt: now, rolesAssigned: effectiveRoleIds };
     });
 
     // Audit log runs after the transaction commits so the user FK is satisfied

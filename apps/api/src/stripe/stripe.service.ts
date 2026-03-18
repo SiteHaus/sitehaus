@@ -86,6 +86,7 @@ export class StripeService {
     const invoice = await this.client.invoices.create({
       customer: stripeCustomerId,
       auto_advance: true,
+      pending_invoice_items_behavior: 'include',
     });
     return this.client.invoices.finalizeInvoice(invoice.id);
   }

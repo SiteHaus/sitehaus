@@ -59,24 +59,6 @@ export class ClientsController {
   async listMembers(@Req() req: ClientInRequest) {
     const clientId = req.client.id;
 
-    // Only show users with admin-level roles (roles that grant at least one ADMIN_PERMISSION)
-    const adminRoleRows = await this.db
-      .selectDistinct({ roleId: schema.rolePermissionsTable.roleId })
-      .from(schema.rolePermissionsTable)
-      .innerJoin(
-        schema.rolesTable,
-        and(
-          eq(schema.rolesTable.id, schema.rolePermissionsTable.roleId),
-          eq(schema.rolesTable.clientId, clientId),
-        ),
-      )
-      .where(inArray(schema.rolePermissionsTable.perm, ADMIN_PERMISSIONS));
-
-    const adminRoleIds = adminRoleRows.map((r) => r.roleId);
-    if (adminRoleIds.length === 0) {
-      return { members: [] };
-    }
-
     const rows = await this.db
       .select({
         userId: schema.usersTable.id,
@@ -100,12 +82,7 @@ export class ClientsController {
           eq(schema.rolesTable.clientId, clientId),
         ),
       )
-      .where(
-        and(
-          eq(schema.userRolesTable.clientId, clientId),
-          inArray(schema.userRolesTable.roleId, adminRoleIds),
-        ),
-      );
+      .where(eq(schema.userRolesTable.clientId, clientId));
 
     const byUser = new Map<string, ClientMember>();
 
@@ -166,6 +143,7 @@ export class ClientsController {
         and(
           eq(schema.rolesTable.id, schema.userRolesTable.roleId),
           inArray(schema.rolesTable.clientId, clientIds),
+          eq(schema.rolesTable.key, 'admin'),
         ),
       )
       .where(inArray(schema.userRolesTable.clientId, clientIds));
