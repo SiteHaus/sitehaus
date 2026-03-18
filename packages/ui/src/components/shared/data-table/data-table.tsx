@@ -264,7 +264,13 @@ export function DataTable<TData extends Record<string, unknown>>({
               <TableRow
                 key={row.id}
                 className="cursor-pointer transition-colors duration-100"
-                onClick={() => onRowClick?.(row.original)}
+                onClick={(e) => {
+                  if (
+                    (e.target as HTMLElement).closest("[data-stop-propagation]")
+                  )
+                    return;
+                  onRowClick?.(row.original);
+                }}
                 style={{
                   background:
                     i % 2 === 0 ? "var(--table-bg)" : "var(--table-bg-alt)",
