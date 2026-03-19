@@ -54,9 +54,12 @@ export const AppSideBarContent = () => {
     .filter((item) => !item.requireClient || !!clientContext)
     .map((item) => ({
       ...item,
-      subItems: item.subItems?.filter(
-        (sub) => !sub.requirePerm || hasPerm(sub.requirePerm),
-      ),
+      subItems: item.subItems?.filter((sub) => {
+        const permOk = !sub.requirePerm || hasPerm(sub.requirePerm);
+        const clientFallback =
+          !!sub.showForClients && !isEmployee && !!clientContext;
+        return permOk || clientFallback;
+      }),
     }));
 
   return (

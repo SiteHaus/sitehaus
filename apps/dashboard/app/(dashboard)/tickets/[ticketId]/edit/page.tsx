@@ -59,7 +59,7 @@ const statusOptions = ticketStatusEnum.options.map((v) => ({
 export default function EditProjectPage() {
   const { ticketId } = useParams<{ ticketId: string }>();
   const router = useRouter();
-  const canManage = useAuthStore((s) => s.hasPerm("projects:manage"));
+  const canManage = useAuthStore((s) => s.hasPerm("tickets:manage"));
   const [ticket, setTicket] = useState<TicketItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

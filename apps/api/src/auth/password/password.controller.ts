@@ -9,6 +9,7 @@ import {
   Req,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import {
   changePasswordSchema,
@@ -37,6 +38,7 @@ export class PasswordController {
     private readonly sessions: SessionService,
     private readonly email: EmailService,
     private readonly audit: AuditService,
+    private readonly config: ConfigService,
   ) {}
 
   @Post('change')
@@ -82,7 +84,7 @@ export class PasswordController {
     const u = await this.users.findByEmail(parsed.email);
     if (!u) return;
     const { code } = await this.otps.create(u.id, 'password_reset');
-    const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+    const iamUrl = this.config.get<string>('email.appBaseUrl');
     const supportUrl = `${iamUrl}/reset-password?email=${encodeURIComponent(parsed.email)}`;
     await this.email.sendOtpCodeEmail(u.email, { code, appName: 'Site Haus', supportUrl });
   }
