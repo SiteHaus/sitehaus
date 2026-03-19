@@ -1,4 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { eq, schema, type Db } from '@site-haus/db';
 import {
@@ -13,17 +14,18 @@ import { EmailService } from 'src/email/email.service';
 import { NOTIFICATIONS_QUEUE } from './notifications.service';
 import type { NotificationJobData } from './notifications.types';
 
-const DASHBOARD_URL = process.env.DASHBOARD_URL ?? 'http://localhost:3001';
-
 @Processor(NOTIFICATIONS_QUEUE)
 export class NotificationsProcessor extends WorkerHost {
   private readonly logger = new Logger(NotificationsProcessor.name);
+  private readonly dashboardUrl: string;
 
   constructor(
     @Inject(DRIZZLE) private readonly db: Db,
     private readonly email: EmailService,
+    config: ConfigService,
   ) {
     super();
+    this.dashboardUrl = config.get<string>('stripe.dashboardUrl')!;
   }
 
   async process(job: Job<NotificationJobData>): Promise<void> {
@@ -62,7 +64,7 @@ export class NotificationsProcessor extends WorkerHost {
     const { subject, html, text } = await renderMilestoneCompletedEmail({
       milestoneName: data.milestoneName,
       projectName: project?.name ?? 'your project',
-      ctaUrl: `${DASHBOARD_URL}/projects/${data.projectId}/milestones`,
+      ctaUrl: `${this.dashboardUrl}/projects/${data.projectId}/milestones`,
     });
     await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
   }
@@ -81,7 +83,7 @@ export class NotificationsProcessor extends WorkerHost {
       milestoneName: data.milestoneName,
       projectName: data.projectName,
       signedOffByName: data.signedOffByName,
-      ctaUrl: `${DASHBOARD_URL}/projects/${data.projectId}/milestones`,
+      ctaUrl: `${this.dashboardUrl}/projects/${data.projectId}/milestones`,
     });
     await this.email.send({
       to: project.user.email,
@@ -121,7 +123,7 @@ export class NotificationsProcessor extends WorkerHost {
       authorName: data.authorName,
       targetLabel: data.targetLabel,
       bodyPreview: data.bodyPreview,
-      ctaUrl: `${DASHBOARD_URL}/projects/${data.targetId}`,
+      ctaUrl: `${this.dashboardUrl}/projects/${data.targetId}`,
     });
     await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
   }
@@ -135,7 +137,7 @@ export class NotificationsProcessor extends WorkerHost {
     const amountFormatted = `$${(data.amountCents / 100).toFixed(2)}`;
     const { subject, html, text } = await renderPaymentFailedEmail({
       amountFormatted,
-      ctaUrl: `${DASHBOARD_URL}/billing`,
+      ctaUrl: `${this.dashboardUrl}/billing`,
     });
     await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
   }

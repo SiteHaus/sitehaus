@@ -58,7 +58,12 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
       {
         title: "Assigned To Me",
         url: "/tickets?assignedToMe=true",
-        disabled: true,
+        requirePerm: "tickets:manage",
+      },
+      {
+        title: "My Tickets",
+        url: "/tickets",
+        showForClients: true,
       },
     ],
   },

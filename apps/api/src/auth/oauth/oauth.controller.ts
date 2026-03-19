@@ -15,6 +15,7 @@ import {
   type Request as ExpressRequest,
   type Response as ExpressResponse,
 } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { ClientsService } from 'src/clients/clients.service';
 import { Public } from 'src/public.decorator';
 import { SessionService } from 'src/session/session.service';
@@ -67,6 +68,7 @@ export class OAuthController {
     private readonly usersService: UsersService,
     private readonly sessionService: SessionService,
     private readonly totpService: TotpService,
+    private readonly config: ConfigService,
   ) {}
 
   /**
@@ -145,7 +147,7 @@ export class OAuthController {
       const oauthParams = Buffer.from(JSON.stringify(query)).toString(
         'base64url',
       );
-      const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+      const iamUrl = this.config.get<string>('email.appBaseUrl');
       const loginUrl = new URL(`${iamUrl}/login`);
       loginUrl.searchParams.set('oauth_params', oauthParams);
       if (clientName) {
@@ -172,7 +174,7 @@ export class OAuthController {
           const oauthParams = Buffer.from(JSON.stringify(query)).toString(
             'base64url',
           );
-          const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+          const iamUrl = this.config.get<string>('email.appBaseUrl');
           const loginUrl = new URL(`${iamUrl}/login`);
           loginUrl.searchParams.set('oauth_params', oauthParams);
           if (clientName) {
@@ -198,7 +200,7 @@ export class OAuthController {
         const oauthParams = Buffer.from(JSON.stringify(query)).toString(
           'base64url',
         );
-        const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+        const iamUrl = this.config.get<string>('email.appBaseUrl');
         const loginUrl = new URL(`${iamUrl}/login`);
         loginUrl.searchParams.set('oauth_params', oauthParams);
         if (clientName) loginUrl.searchParams.set('client', clientName);
@@ -226,7 +228,7 @@ export class OAuthController {
           client: client.name, // Include client name for display
         } as Record<string, string>);
         consentParams.delete('client_key'); // Remove client_key if present
-        const iamUrl = process.env.IAM_APP_URL || 'http://localhost:3002';
+        const iamUrl = this.config.get<string>('email.appBaseUrl');
         const consentUrl = `${iamUrl}/consent?${consentParams.toString()}`;
         return res.redirect(consentUrl);
       }

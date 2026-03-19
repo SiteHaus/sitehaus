@@ -150,26 +150,30 @@ export default function TicketsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">
-            {assignedToMe ? "Assigned to Me" : "My Tickets"}
+            {assignedToMe
+              ? "Assigned to Me"
+              : canManage
+                ? "All Tickets"
+                : "My Tickets"}
           </h1>
           <p className="text-muted-foreground mt-1">
             {assignedToMe
               ? "Tickets currently assigned to you."
-              : "View, create, and track all your support tickets."}
+              : canManage
+                ? "View and manage all support tickets."
+                : "View and track your support tickets."}
           </p>
         </div>
         <div className="flex items-center gap-3 mb-5">
-          {canManage && (
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search tickets..."
-                className="pl-9"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-          )}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search tickets..."
+              className="pl-9"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <Button asChild>
             <Link href="/tickets/new">
               <Plus className="mr-2 h-4 w-4" />
