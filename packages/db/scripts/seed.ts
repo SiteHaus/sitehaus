@@ -48,6 +48,14 @@ const CLIENTS: NewClient[] = [
     requiresConsent: false,
   },
   {
+    key: "commerce",
+    name: "Commerce",
+    type: "public",
+    firstParty: true,
+    audience: "sitehaus.commerce",
+    requiresConsent: false,
+  },
+  {
     key: "gracejeanne",
     name: "Grace Jeanne",
     type: "public",
@@ -76,6 +84,10 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "http://localhost:3000/auth/callback",
     "https://sitehaus.dev/callback",
     "https://sitehaus.dev/auth/callback",
+  ],
+  commerce: [
+    "http://localhost:3004/callback",
+    "https://commerce.sitehaus.dev/callback",
   ],
   gracejeanne: [
     "https://gracejeanne.com/callback",

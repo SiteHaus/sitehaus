@@ -17,6 +17,12 @@ services:
     networks:
       - sitehaus-network
 
+  commerce:
+    image: ghcr.io/sitehaus/sitehaus-commerce-app:latest
+    restart: always
+    networks:
+      - sitehaus-network
+
   api:
     image: ghcr.io/sitehaus/sitehaus-api:latest
     restart: always
@@ -58,6 +64,7 @@ services:
       - web
       - dashboard
       - iam
+      - commerce
       - api
 
 networks:

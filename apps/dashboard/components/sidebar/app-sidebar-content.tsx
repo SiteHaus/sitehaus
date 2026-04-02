@@ -55,6 +55,10 @@ export const AppSideBarContent = () => {
     .map((item) => ({
       ...item,
       subItems: item.subItems?.filter((sub) => {
+        // Client-exclusive: showForClients with no requirePerm means clients only
+        if (sub.showForClients && !sub.requirePerm) {
+          return !isEmployee && !!clientContext;
+        }
         const permOk = !sub.requirePerm || hasPerm(sub.requirePerm);
         const clientFallback =
           !!sub.showForClients && !isEmployee && !!clientContext;

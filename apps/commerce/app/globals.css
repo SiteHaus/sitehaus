@@ -1,0 +1,50 @@
+@import "tailwindcss";
+@import "@site-haus/ui/styles/default.css";
+
+@source '../node_modules/@site-haus/ui';
+
+:root {
+  --background: oklch(0.972 0.006 264);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.147 0.004 264);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.147 0.004 264);
+  --border: oklch(0.872 0.012 264);
+  --input: oklch(0.872 0.012 264);
+  --muted: oklch(0.942 0.008 264);
+  --muted-foreground: oklch(0.51 0.016 264);
+  --secondary: oklch(0.935 0.009 264);
+  --secondary-foreground: oklch(0.22 0.012 264);
+  --accent: oklch(0.935 0.009 264);
+  --accent-foreground: oklch(0.147 0.004 264);
+  --foreground: oklch(0.147 0.004 264);
+  --radius: 0.375rem;
+  --sidebar: oklch(0.964 0.007 264);
+  --sidebar-foreground: oklch(0.147 0.004 264);
+  --sidebar-border: oklch(0.872 0.012 264);
+  --sidebar-accent: oklch(0.935 0.009 264);
+  --sidebar-accent-foreground: oklch(0.147 0.004 264);
+}
+
+.dark {
+  --background: oklch(0.147 0.004 264);
+  --foreground: oklch(0.985 0.001 264);
+  --card: oklch(0.216 0.006 264);
+  --card-foreground: oklch(0.985 0.001 264);
+  --popover: oklch(0.216 0.006 264);
+  --popover-foreground: oklch(0.985 0.001 264);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 18%);
+  --muted: oklch(0.268 0.007 264);
+  --muted-foreground: oklch(0.62 0.012 264);
+  --secondary: oklch(0.274 0.008 264);
+  --secondary-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.268 0.007 264);
+  --accent-foreground: oklch(0.985 0.001 264);
+  --sidebar: oklch(0.216 0.006 264);
+  --sidebar-foreground: oklch(0.985 0.001 264);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-accent: oklch(0.3 0.005 264);
+  --sidebar-accent-foreground: oklch(0.985 0.001 264);
+  --radius: 0.375rem;
+}
