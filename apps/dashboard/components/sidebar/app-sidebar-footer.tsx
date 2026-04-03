@@ -18,7 +18,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@site-haus/ui/components/base/sidebar";
-import { ChevronsUpDown, CreditCard, LogOut } from "lucide-react";
+import { ChevronsUpDown, CreditCard, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 
 interface AppSideBarFooterProps {
@@ -83,6 +83,16 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
                     <CreditCard />
                     Billing
                   </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a
+                    href={`${process.env.NEXT_PUBLIC_IAM_URL ?? "http://localhost:3002"}/account`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Settings />
+                    Account Settings
+                  </a>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
