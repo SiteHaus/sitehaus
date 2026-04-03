@@ -28,6 +28,7 @@ import {
   type ChangePasswordInput,
 } from "@site-haus/validation/forms/password";
 import { Key } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -102,7 +103,13 @@ export function PasswordSection() {
                     label="New Password"
                     placeholder="Enter new password"
                   />
-                  <DialogFooter>
+                  <DialogFooter className="flex-col gap-2 sm:flex-row sm:items-center">
+                    <Link
+                      href="/request-password"
+                      className="text-sm text-muted-foreground underline-offset-4 hover:underline sm:mr-auto"
+                    >
+                      Forgot password?
+                    </Link>
                     <Button type="button" variant="outline" onClick={handleClose}>
                       Cancel
                     </Button>

@@ -145,6 +145,8 @@ export const useAuthStore = create<AuthState>()(
           const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
+            // Re-fetch permissions now that we have a client context
+            await get().me();
           }
           set({ bootstrapped: true });
           return;
@@ -168,6 +170,8 @@ export const useAuthStore = create<AuthState>()(
           const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
+            // Re-fetch permissions now that we have a client context
+            await get().me();
           }
         }
         set({ bootstrapped: true });

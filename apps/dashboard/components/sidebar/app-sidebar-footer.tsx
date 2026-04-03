@@ -18,7 +18,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@site-haus/ui/components/base/sidebar";
-import { ChevronsUpDown, CreditCard, LogOut, Settings } from "lucide-react";
+import {
+  ChevronsUpDown,
+  CreditCard,
+  LogOut,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 
 interface AppSideBarFooterProps {
