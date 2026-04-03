@@ -1,0 +1,336 @@
+"use client";
+
+import {
+  connectStripe,
+  getMyStore,
+  getStripeStatus,
+  updateStore,
+  type StoreDetail,
+  type StripeStatus,
+} from "@/lib/commerce";
+import { Button } from "@site-haus/ui/components/base/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@site-haus/ui/components/base/card";
+import { Input } from "@site-haus/ui/components/base/input";
+import { Label } from "@site-haus/ui/components/base/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@site-haus/ui/components/base/select";
+import { Separator } from "@site-haus/ui/components/base/separator";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AlertCircle, CheckCircle, ExternalLink, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+const CURRENCIES = [
+  { value: "usd", label: "USD — US Dollar" },
+  { value: "cad", label: "CAD — Canadian Dollar" },
+  { value: "eur", label: "EUR — Euro" },
+  { value: "gbp", label: "GBP — British Pound" },
+  { value: "aud", label: "AUD — Australian Dollar" },
+];
+
+export default function SettingsPage() {
+  const queryClient = useQueryClient();
+
+  const { data: store, isLoading } = useQuery<StoreDetail>({
+    queryKey: ["store"],
+    queryFn: getMyStore,
+  });
+
+  const { data: stripeStatus } = useQuery<StripeStatus>({
+    queryKey: ["stripe-status"],
+    queryFn: getStripeStatus,
+    enabled: !!store,
+  });
+
+  // Form state
+  const [slug, setSlug] = useState("");
+  const [domain, setDomain] = useState("");
+  const [currency, setCurrency] = useState("usd");
+  const [reservationTtl, setReservationTtl] = useState(15);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (!store) return;
+    setSlug(store.slug);
+    setDomain(store.domain ?? "");
+    setCurrency(store.currency);
+    setReservationTtl(store.reservationTtlMinutes);
+  }, [store]);
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      updateStore({
+        slug: slug || undefined,
+        domain: domain || null,
+        currency,
+        reservationTtlMinutes: reservationTtl,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["store"] });
+      setDirty(false);
+      toast.success("Settings saved");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const connectMutation = useMutation({
+    mutationFn: () => connectStripe(`${window.location.origin}/settings`),
+    onSuccess: ({ url }) => {
+      window.location.href = url;
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  function markDirty() {
+    setDirty(true);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage your store configuration and integrations.
+        </p>
+      </div>
+
+      {/* Store Details */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Store Details</CardTitle>
+          <CardDescription>
+            Your store's public-facing slug, custom domain, and checkout
+            settings.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="slug">Slug</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground select-none">
+                {process.env.NEXT_PUBLIC_STOREFRONT_BASE_URL ??
+                  "https://store.sitehaus.dev"}
+                /
+              </span>
+              <Input
+                id="slug"
+                value={slug}
+                onChange={(e) => {
+                  setSlug(e.target.value);
+                  markDirty();
+                }}
+                placeholder="my-store"
+                className="flex-1"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Lowercase letters, numbers, and hyphens only.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="domain">Custom Domain</Label>
+            <Input
+              id="domain"
+              value={domain}
+              onChange={(e) => {
+                setDomain(e.target.value);
+                markDirty();
+              }}
+              placeholder="shop.yourdomain.com"
+            />
+            <p className="text-xs text-muted-foreground">
+              Point a CNAME to{" "}
+              <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">
+                stores.sitehaus.dev
+              </code>{" "}
+              then enter the domain here.
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="currency">Currency</Label>
+            <Select
+              value={currency}
+              onValueChange={(v) => {
+                setCurrency(v);
+                markDirty();
+              }}
+            >
+              <SelectTrigger id="currency">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {CURRENCIES.map((c) => (
+                  <SelectItem key={c.value} value={c.value}>
+                    {c.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="ttl">Cart Reservation</Label>
+            <div className="flex items-center gap-3">
+              <Input
+                id="ttl"
+                type="number"
+                min={5}
+                max={60}
+                value={reservationTtl}
+                onChange={(e) => {
+                  setReservationTtl(Number(e.target.value));
+                  markDirty();
+                }}
+                className="w-24"
+              />
+              <span className="text-sm text-muted-foreground">minutes</span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              How long inventory is held in an open cart (5–60 min).
+            </p>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <Button
+              onClick={() => saveMutation.mutate()}
+              disabled={!dirty || saveMutation.isPending}
+            >
+              {saveMutation.isPending && (
+                <Loader2 className="size-4 mr-2 animate-spin" />
+              )}
+              Save Changes
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
+      {/* Stripe */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Stripe</CardTitle>
+          <CardDescription>
+            Connect Stripe to accept payments on your store.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {stripeStatus?.connected ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm">
+                <CheckCircle className="size-4 text-green-500" />
+                <span className="font-medium">Stripe connected</span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 text-sm">
+                <StatusRow
+                  label="Charges"
+                  enabled={stripeStatus.chargesEnabled}
+                />
+                <StatusRow
+                  label="Payouts"
+                  enabled={stripeStatus.payoutsEnabled}
+                />
+                <StatusRow
+                  label="Details submitted"
+                  enabled={stripeStatus.detailsSubmitted}
+                />
+              </div>
+              {!stripeStatus.detailsSubmitted && (
+                <div className="flex items-start gap-2 rounded-md bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 p-3 text-sm text-yellow-800 dark:text-yellow-300">
+                  <AlertCircle className="size-4 mt-0.5 shrink-0" />
+                  <span>
+                    Your Stripe account setup is incomplete. Finish onboarding
+                    to enable payments.
+                  </span>
+                </div>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => connectMutation.mutate()}
+                disabled={connectMutation.isPending}
+              >
+                {connectMutation.isPending ? (
+                  <Loader2 className="size-4 mr-2 animate-spin" />
+                ) : (
+                  <ExternalLink className="size-4 mr-2" />
+                )}
+                Open Stripe Dashboard
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                You haven't connected a Stripe account yet. Connect one to start
+                accepting payments.
+              </p>
+              <Button
+                onClick={() => connectMutation.mutate()}
+                disabled={connectMutation.isPending}
+              >
+                {connectMutation.isPending && (
+                  <Loader2 className="size-4 mr-2 animate-spin" />
+                )}
+                Connect Stripe
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone */}
+      <Card className="border-destructive/40">
+        <CardHeader>
+          <CardTitle className="text-destructive">Danger Zone</CardTitle>
+          <CardDescription>
+            Irreversible actions — proceed with care.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium">Store ID</p>
+              <p className="text-xs text-muted-foreground font-mono mt-0.5">
+                {store?.id}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function StatusRow({ label, enabled }: { label: string; enabled: boolean }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      {enabled ? (
+        <CheckCircle className="size-3.5 text-green-500 shrink-0" />
+      ) : (
+        <AlertCircle className="size-3.5 text-muted-foreground shrink-0" />
+      )}
+      <span className={enabled ? "" : "text-muted-foreground"}>{label}</span>
+    </div>
+  );
+}

@@ -16,7 +16,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error((body as { message?: string }).message ?? `HTTP ${res.status}`);
+    throw new Error(
+      (body as { message?: string }).message ?? `HTTP ${res.status}`,
+    );
   }
 
   return res.json() as Promise<T>;
@@ -26,14 +28,47 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export type StoreDetail = {
   id: string;
-  name: string;
+  clientId: string;
   slug: string;
+  domain: string | null;
   currency: string;
-  timezone: string;
-  isActive: boolean;
+  stripeAccountId: string | null;
+  stripeChargesEnabled: boolean;
+  stripePayoutsEnabled: boolean;
+  stripeDetailsSubmitted: boolean;
+  reservationTtlMinutes: number;
 };
 
-export const getMyStore = () => request<StoreDetail>("/v1/store/me");
+export type StripeStatus = {
+  connected: boolean;
+  chargesEnabled: boolean;
+  payoutsEnabled: boolean;
+  detailsSubmitted: boolean;
+};
+
+export const getMyStore = () => request<StoreDetail>("/v1/admin/stores/me");
+
+export const updateStore = (body: {
+  name?: string;
+  slug?: string;
+  domain?: string | null;
+  currency?: string;
+  timezone?: string;
+  reservationTtlMinutes?: number;
+}) =>
+  request<StoreDetail>("/v1/admin/stores", {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const connectStripe = (returnUrl: string) =>
+  request<{ url: string }>("/v1/admin/stores/connect-stripe", {
+    method: "POST",
+    body: JSON.stringify({ returnUrl }),
+  });
+
+export const getStripeStatus = () =>
+  request<StripeStatus>("/v1/admin/stores/stripe-status");
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -68,7 +103,11 @@ export type ProductDetail = ProductItem & { variants: VariantAdmin[] };
 
 export type ProductListResponse = { items: ProductItem[]; total: number };
 
-export const listProducts = (params?: { status?: ProductStatus; limit?: number; offset?: number }) => {
+export const listProducts = (params?: {
+  status?: ProductStatus;
+  limit?: number;
+  offset?: number;
+}) => {
   const qs = new URLSearchParams();
   if (params?.status) qs.set("status", params.status);
   if (params?.limit) qs.set("limit", String(params.limit));
@@ -84,15 +123,30 @@ export const createProduct = (body: {
   description?: string;
   status?: ProductStatus;
   goesLiveAt?: string | null;
-}) => request<ProductItem>("/v1/admin/products", { method: "POST", body: JSON.stringify(body) });
+}) =>
+  request<ProductItem>("/v1/admin/products", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
 
 export const updateProduct = (
   id: string,
-  body: { name?: string; description?: string; status?: ProductStatus; goesLiveAt?: string | null },
-) => request<ProductItem>(`/v1/admin/products/${id}`, { method: "PATCH", body: JSON.stringify(body) });
+  body: {
+    name?: string;
+    description?: string;
+    status?: ProductStatus;
+    goesLiveAt?: string | null;
+  },
+) =>
+  request<ProductItem>(`/v1/admin/products/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
 
 export const archiveProduct = (id: string) =>
-  request<{ message: string }>(`/v1/admin/products/${id}`, { method: "DELETE" });
+  request<{ message: string }>(`/v1/admin/products/${id}`, {
+    method: "DELETE",
+  });
 
 // ─── Variants ────────────────────────────────────────────────────────────────
 
@@ -109,7 +163,14 @@ export type VariantItem = {
 
 export const createVariant = (
   productId: string,
-  body: { name: string; priceCents: number; sku?: string; compareAtCents?: number; isActive?: boolean; sortOrder?: number },
+  body: {
+    name: string;
+    priceCents: number;
+    sku?: string;
+    compareAtCents?: number;
+    isActive?: boolean;
+    sortOrder?: number;
+  },
 ) =>
   request<VariantItem>(`/v1/admin/products/${productId}/variants`, {
     method: "POST",
@@ -118,7 +179,13 @@ export const createVariant = (
 
 export const updateVariant = (
   variantId: string,
-  body: { name?: string; priceCents?: number; sku?: string; compareAtCents?: number; isActive?: boolean },
+  body: {
+    name?: string;
+    priceCents?: number;
+    sku?: string;
+    compareAtCents?: number;
+    isActive?: boolean;
+  },
 ) =>
   request<VariantItem>(`/v1/admin/variants/${variantId}`, {
     method: "PATCH",
@@ -126,12 +193,20 @@ export const updateVariant = (
   });
 
 export const deleteVariant = (variantId: string) =>
-  request<{ message: string }>(`/v1/admin/variants/${variantId}`, { method: "DELETE" });
+  request<{ message: string }>(`/v1/admin/variants/${variantId}`, {
+    method: "DELETE",
+  });
 
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
 export type OrderStatus =
-  | "pending" | "confirmed" | "shipped" | "delivered" | "failed" | "refunded" | "cancelled";
+  | "pending"
+  | "confirmed"
+  | "shipped"
+  | "delivered"
+  | "failed"
+  | "refunded"
+  | "cancelled";
 
 export type OrderLineItem = {
   productName: string;
@@ -206,7 +281,12 @@ export const refundOrder = (orderId: string) =>
 
 // ─── Collections ─────────────────────────────────────────────────────────────
 
-export type CollectionItem = { id: string; name: string; slug: string; isActive: boolean };
+export type CollectionItem = {
+  id: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+};
 
 export const listCollections = () =>
   request<{ items: CollectionItem[] }>("/v1/admin/collections");
