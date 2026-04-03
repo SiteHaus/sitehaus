@@ -108,7 +108,7 @@ export default function VerifyCodeContainer() {
       return;
     }
 
-    replace(next || "/");
+    replace(mode === "reset" ? "/account" : next || "/");
   };
 
   const requestCode = async () => {

@@ -47,6 +47,16 @@ const Providers = ({ children }: ProvidersProps) => {
     }
   }, [hydrated, pathname]);
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && pathname !== "/callback") {
+        void useAuthStore.getState().bootstrap();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [pathname]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
