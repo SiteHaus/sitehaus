@@ -1,9 +1,4 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator.js";
 import { IntrospectionService } from "../services/introspection.service.js";
@@ -19,7 +14,7 @@ import type { AuthedRequest, UserContext } from "../types.js";
 export class AccessGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    private readonly introspection: IntrospectionService
+    private readonly introspection: IntrospectionService,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {

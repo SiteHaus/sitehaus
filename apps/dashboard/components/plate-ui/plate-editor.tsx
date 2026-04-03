@@ -9,15 +9,7 @@ import {
   ItalicPlugin,
   UnderlinePlugin,
 } from "@platejs/basic-nodes/react";
-import {
-  Bold,
-  Heading1,
-  Heading2,
-  Heading3,
-  Italic,
-  Quote,
-  Underline,
-} from "lucide-react";
+import { Bold, Heading1, Heading2, Heading3, Italic, Quote, Underline } from "lucide-react";
 import type { Value } from "platejs";
 import { Plate, usePlateEditor } from "platejs/react";
 import { useMemo } from "react";
@@ -28,9 +20,7 @@ import { H1Element, H2Element, H3Element } from "./heading-node";
 import { MarkToolbarButton } from "./mark-toolbar-button";
 import { FixedToolbar, ToolbarButton, ToolbarSeparator } from "./toolbar";
 
-const EMPTY_VALUE: Value = [
-  { type: "p", children: [{ text: "" }] },
-];
+const EMPTY_VALUE: Value = [{ type: "p", children: [{ text: "" }] }];
 
 function parseContent(content: string | null): Value {
   if (!content) return EMPTY_VALUE;
@@ -112,10 +102,7 @@ export function PlateEditor({
       )}
 
       <EditorContainer>
-        <Editor
-          placeholder="Start writing your design document..."
-          readOnly={readOnly}
-        />
+        <Editor placeholder="Start writing your design document..." readOnly={readOnly} />
       </EditorContainer>
     </Plate>
   );

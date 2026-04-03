@@ -21,10 +21,7 @@ import {
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
-import {
-  RegisterInput,
-  registerSchema,
-} from "@site-haus/validation/forms/auth";
+import { RegisterInput, registerSchema } from "@site-haus/validation/forms/auth";
 import { Eye, EyeClosed } from "lucide-react";
 import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -40,11 +37,7 @@ export const FormGroup = ({ children }: { children: ReactNode }) => {
   return <div className="flex flex-col md:flex-row gap-2">{children}</div>;
 };
 
-export const RegisterForm = ({
-  onSubmit,
-  authForLabel,
-  defaultValues,
-}: RegisterFormProps) => {
+export const RegisterForm = ({ onSubmit, authForLabel, defaultValues }: RegisterFormProps) => {
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -69,9 +62,7 @@ export const RegisterForm = ({
 
   return (
     <div className="w-full max-w-md mx-auto  p-8">
-      <h2 className="text-2xl font-semibold text-center mb-6">
-        Create an Account
-      </h2>
+      <h2 className="text-2xl font-semibold text-center mb-6">Create an Account</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(submit)} className="space-y-5">
           <ClientReadOnlyField authForLabel={authForLabel || "SiteHaus"} />
@@ -129,10 +120,7 @@ export const RegisterForm = ({
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <InputGroup>
-                    <InputGroupInput
-                      type={showPassword ? "text" : "password"}
-                      {...field}
-                    />
+                    <InputGroupInput type={showPassword ? "text" : "password"} {...field} />
 
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton

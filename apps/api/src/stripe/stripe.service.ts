@@ -21,10 +21,18 @@ export class StripeService {
   }
 
   constructEvent(payload: Buffer, signature: string): Stripe.Event {
-    return this.client.webhooks.constructEvent(payload, signature, this.webhookSecret);
+    return this.client.webhooks.constructEvent(
+      payload,
+      signature,
+      this.webhookSecret,
+    );
   }
 
-  async getOrCreateCustomer(clientId: string, name: string, email?: string): Promise<Stripe.Customer> {
+  async getOrCreateCustomer(
+    clientId: string,
+    name: string,
+    email?: string,
+  ): Promise<Stripe.Customer> {
     const existing = await this.client.customers.search({
       query: `metadata['clientId']:'${clientId}'`,
     });
@@ -37,7 +45,10 @@ export class StripeService {
     });
   }
 
-  async createPortalSession(stripeCustomerId: string, returnUrl: string): Promise<string> {
+  async createPortalSession(
+    stripeCustomerId: string,
+    returnUrl: string,
+  ): Promise<string> {
     const session = await this.client.billingPortal.sessions.create({
       customer: stripeCustomerId,
       return_url: returnUrl,

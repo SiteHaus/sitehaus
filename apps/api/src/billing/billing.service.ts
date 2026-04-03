@@ -1,5 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, schema, type Db, type BillingRecordStatus } from '@site-haus/db';
+import {
+  and,
+  desc,
+  eq,
+  schema,
+  type Db,
+  type BillingRecordStatus,
+} from '@site-haus/db';
 import type {
   CreateOneTimeInput,
   CreateSubscriptionInput,
@@ -37,14 +44,21 @@ export class BillingService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  private async ensureStripeCustomer(clientId: string, email?: string): Promise<string | null> {
+  private async ensureStripeCustomer(
+    clientId: string,
+    email?: string,
+  ): Promise<string | null> {
     const client = await this.db.query.clientsTable.findFirst({
       where: eq(schema.clientsTable.id, clientId),
       columns: { id: true, name: true, stripeCustomerId: true },
     });
     if (!client) return null;
 
-    const customer = await this.stripe.getOrCreateCustomer(client.id, client.name, email);
+    const customer = await this.stripe.getOrCreateCustomer(
+      client.id,
+      client.name,
+      email,
+    );
 
     if (customer.id !== client.stripeCustomerId) {
       await this.db
@@ -61,17 +75,25 @@ export class BillingService {
     return customer.id;
   }
 
-  async list(query: ListBillingQuery, requestingClientId: string, isFirstParty: boolean) {
+  async list(
+    query: ListBillingQuery,
+    requestingClientId: string,
+    isFirstParty: boolean,
+  ) {
     const conditions: ReturnType<typeof eq>[] = [];
 
     if (!isFirstParty) {
-      conditions.push(eq(schema.billingRecordsTable.clientId, requestingClientId));
+      conditions.push(
+        eq(schema.billingRecordsTable.clientId, requestingClientId),
+      );
     } else if (query.clientId) {
       conditions.push(eq(schema.billingRecordsTable.clientId, query.clientId));
     }
 
     if (query.projectId) {
-      conditions.push(eq(schema.billingRecordsTable.projectId, query.projectId));
+      conditions.push(
+        eq(schema.billingRecordsTable.projectId, query.projectId),
+      );
     }
     if (query.status) {
       conditions.push(eq(schema.billingRecordsTable.status, query.status));
@@ -85,8 +107,11 @@ export class BillingService {
     return rows.map(serialise);
   }
 
-  async getPortalUrl(requestingClientId: string): Promise<string | null | { error: string }> {
-    const stripeCustomerId = await this.ensureStripeCustomer(requestingClientId);
+  async getPortalUrl(
+    requestingClientId: string,
+  ): Promise<string | null | { error: string }> {
+    const stripeCustomerId =
+      await this.ensureStripeCustomer(requestingClientId);
     if (!stripeCustomerId) return null;
 
     const returnUrl = `${this.stripe.dashboardUrl}/billing`;
@@ -108,7 +133,10 @@ export class BillingService {
       .reduce((sum, r) => sum + r.amountCents, 0);
 
     const overdueRecords = allRecords.filter((r) => r.status === 'past_due');
-    const overdueAmountCents = overdueRecords.reduce((sum, r) => sum + r.amountCents, 0);
+    const overdueAmountCents = overdueRecords.reduce(
+      (sum, r) => sum + r.amountCents,
+      0,
+    );
 
     const activeClientIds = new Set(
       allRecords
@@ -142,7 +170,10 @@ export class BillingService {
       if (record.type === 'one_time' && record.status === 'paid') {
         entry.totalPaidCents += record.amountCents;
         const updatedAt = record.updatedAt?.toISOString() ?? null;
-        if (!entry.lastPaymentAt || (updatedAt && updatedAt > entry.lastPaymentAt)) {
+        if (
+          !entry.lastPaymentAt ||
+          (updatedAt && updatedAt > entry.lastPaymentAt)
+        ) {
           entry.lastPaymentAt = updatedAt;
         }
       }
@@ -151,14 +182,16 @@ export class BillingService {
       clientMap.set(record.clientId, entry);
     }
 
-    const revenueByClient = Array.from(clientMap.entries()).map(([clientId, data]) => ({
-      clientId,
-      clientName: data.name,
-      mrrCents: data.mrrCents,
-      totalPaidCents: data.totalPaidCents,
-      status: data.status,
-      lastPaymentAt: data.lastPaymentAt,
-    }));
+    const revenueByClient = Array.from(clientMap.entries()).map(
+      ([clientId, data]) => ({
+        clientId,
+        clientName: data.name,
+        mrrCents: data.mrrCents,
+        totalPaidCents: data.totalPaidCents,
+        status: data.status,
+        lastPaymentAt: data.lastPaymentAt,
+      }),
+    );
 
     return {
       mrrCents,
@@ -181,7 +214,10 @@ export class BillingService {
     });
     if (!project) return { error: 'Project not found or access denied' };
 
-    const stripeCustomerId = await this.ensureStripeCustomer(data.clientId, data.billingEmail);
+    const stripeCustomerId = await this.ensureStripeCustomer(
+      data.clientId,
+      data.billingEmail,
+    );
     if (!stripeCustomerId) return { error: 'Client not found' };
 
     const subscription = await this.stripe.createSubscription(
@@ -192,10 +228,14 @@ export class BillingService {
     );
 
     // Grab the hosted invoice URL from the first invoice (if available)
-    const latestInvoice = subscription.latest_invoice as Record<string, any> | string | null; // eslint-disable-line @typescript-eslint/no-explicit-any
-    const hostedInvoiceUrl = typeof latestInvoice === 'object' && latestInvoice !== null
-      ? (latestInvoice['hosted_invoice_url'] ?? null)
-      : null;
+    const latestInvoice = subscription.latest_invoice as
+      | Record<string, any>
+      | string
+      | null; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const hostedInvoiceUrl =
+      typeof latestInvoice === 'object' && latestInvoice !== null
+        ? (latestInvoice['hosted_invoice_url'] ?? null)
+        : null;
 
     const [record] = await this.db
       .insert(schema.billingRecordsTable)
@@ -243,7 +283,10 @@ export class BillingService {
     });
     if (!project) return { error: 'Project not found or access denied' };
 
-    const stripeCustomerId = await this.ensureStripeCustomer(data.clientId, data.billingEmail);
+    const stripeCustomerId = await this.ensureStripeCustomer(
+      data.clientId,
+      data.billingEmail,
+    );
     if (!stripeCustomerId) return { error: 'Client not found' };
 
     const invoice = await this.stripe.createOneTimeInvoice(
@@ -288,7 +331,9 @@ export class BillingService {
         const sub = event.data.object as Stripe.Subscription;
         // If cancel_at_period_end is set the client has cancelled — mark it
         // cancelled immediately rather than waiting for the deletion event
-        const status = sub.cancel_at_period_end ? 'cancelled' : this.mapSubStatus(sub.status);
+        const status = sub.cancel_at_period_end
+          ? 'cancelled'
+          : this.mapSubStatus(sub.status);
         const item = sub.items.data[0];
         await this.db
           .update(schema.billingRecordsTable)
@@ -319,13 +364,24 @@ export class BillingService {
         // Use loose typing for invoice fields that vary between API versions
         const invoice = event.data.object as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
         const hostedUrl = invoice['hosted_invoice_url'] ?? null;
-        const rawSub = invoice['parent']?.['subscription_details']?.['subscription'];
-        const subscriptionId = typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
+        const rawSub =
+          invoice['parent']?.['subscription_details']?.['subscription'];
+        const subscriptionId =
+          typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
         if (subscriptionId) {
           const [affected] = await this.db
             .update(schema.billingRecordsTable)
-            .set({ status: 'active', hostedInvoiceUrl: hostedUrl, updatedAt: new Date() })
-            .where(eq(schema.billingRecordsTable.stripeSubscriptionId, subscriptionId))
+            .set({
+              status: 'active',
+              hostedInvoiceUrl: hostedUrl,
+              updatedAt: new Date(),
+            })
+            .where(
+              eq(
+                schema.billingRecordsTable.stripeSubscriptionId,
+                subscriptionId,
+              ),
+            )
             .returning({
               id: schema.billingRecordsTable.id,
               clientId: schema.billingRecordsTable.clientId,
@@ -339,7 +395,10 @@ export class BillingService {
               action: 'billing.invoice.paid',
               targetType: 'project',
               targetId: affected.projectId ?? null,
-              meta: { billingRecordId: affected.id, amountCents: affected.amountCents },
+              meta: {
+                billingRecordId: affected.id,
+                amountCents: affected.amountCents,
+              },
             });
           }
         } else {
@@ -348,10 +407,14 @@ export class BillingService {
           // at record creation time. Match by paymentIntentId first, then fall back
           // to hostedInvoiceUrl (stable, unique per invoice).
           const rawPi = invoice['payment_intent'];
-          const paymentIntentId = typeof rawPi === 'string' ? rawPi : (rawPi?.id ?? null);
+          const paymentIntentId =
+            typeof rawPi === 'string' ? rawPi : (rawPi?.id ?? null);
 
           const condition = paymentIntentId
-            ? eq(schema.billingRecordsTable.stripePaymentIntentId, paymentIntentId)
+            ? eq(
+                schema.billingRecordsTable.stripePaymentIntentId,
+                paymentIntentId,
+              )
             : hostedUrl
               ? eq(schema.billingRecordsTable.hostedInvoiceUrl, hostedUrl)
               : null;
@@ -379,7 +442,10 @@ export class BillingService {
                 action: 'billing.invoice.paid',
                 targetType: 'project',
                 targetId: affected.projectId ?? null,
-                meta: { billingRecordId: affected.id, amountCents: affected.amountCents },
+                meta: {
+                  billingRecordId: affected.id,
+                  amountCents: affected.amountCents,
+                },
               });
             }
           }
@@ -390,13 +456,24 @@ export class BillingService {
       case 'invoice.payment_failed': {
         const invoice = event.data.object as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
         const hostedUrl = invoice['hosted_invoice_url'] ?? null;
-        const rawSub = invoice['parent']?.['subscription_details']?.['subscription'];
-        const subscriptionId = typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
+        const rawSub =
+          invoice['parent']?.['subscription_details']?.['subscription'];
+        const subscriptionId =
+          typeof rawSub === 'string' ? rawSub : (rawSub?.id ?? null);
         if (subscriptionId) {
           const [affected] = await this.db
             .update(schema.billingRecordsTable)
-            .set({ status: 'past_due', hostedInvoiceUrl: hostedUrl, updatedAt: new Date() })
-            .where(eq(schema.billingRecordsTable.stripeSubscriptionId, subscriptionId))
+            .set({
+              status: 'past_due',
+              hostedInvoiceUrl: hostedUrl,
+              updatedAt: new Date(),
+            })
+            .where(
+              eq(
+                schema.billingRecordsTable.stripeSubscriptionId,
+                subscriptionId,
+              ),
+            )
             .returning({
               id: schema.billingRecordsTable.id,
               clientId: schema.billingRecordsTable.clientId,
@@ -417,7 +494,9 @@ export class BillingService {
     }
   }
 
-  private mapSubStatus(stripeStatus: Stripe.Subscription.Status): BillingRecordStatus {
+  private mapSubStatus(
+    stripeStatus: Stripe.Subscription.Status,
+  ): BillingRecordStatus {
     switch (stripeStatus) {
       case 'active':
         return 'active';

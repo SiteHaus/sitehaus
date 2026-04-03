@@ -13,8 +13,7 @@ export const REQ_PERMS_ANY = "requirePermissionsAny";
  * getUsers() { }
  * ```
  */
-export const RequirePerms = (...permissions: string[]) =>
-  SetMetadata(REQ_PERMS_ALL, permissions);
+export const RequirePerms = (...permissions: string[]) => SetMetadata(REQ_PERMS_ALL, permissions);
 
 /**
  * Require ANY of the specified permissions to access a route.

@@ -8,7 +8,12 @@ import { AssetsController } from './assets.controller';
 import { AssetsService } from './assets.service';
 
 @Module({
-  imports: [DbModule, AuditModule, StorageModule, ConfigModule.forFeature(storageConfig)],
+  imports: [
+    DbModule,
+    AuditModule,
+    StorageModule,
+    ConfigModule.forFeature(storageConfig),
+  ],
   providers: [AssetsService],
   exports: [AssetsService],
   controllers: [AssetsController],

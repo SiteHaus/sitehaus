@@ -22,8 +22,7 @@ const STATIC_LABELS: Record<string, string> = {
   tickets: "Tickets",
 };
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function useBreadcrumbs(): Crumb[] {
   const pathname = usePathname();
@@ -63,9 +62,7 @@ export function useBreadcrumbs(): Crumb[] {
   });
 
   return segments.map((seg, i) => ({
-    label: UUID_RE.test(seg)
-      ? (nameMap.get(seg) ?? "…")
-      : (STATIC_LABELS[seg] ?? seg),
+    label: UUID_RE.test(seg) ? (nameMap.get(seg) ?? "…") : (STATIC_LABELS[seg] ?? seg),
     href: "/" + segments.slice(0, i + 1).join("/"),
   }));
 }

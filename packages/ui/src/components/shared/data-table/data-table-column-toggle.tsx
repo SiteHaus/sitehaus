@@ -24,11 +24,7 @@ export function DataTableViewOptions<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="ml-auto hidden h-8 lg:flex"
-        >
+        <Button variant="secondary" size="sm" className="ml-auto hidden h-8 lg:flex">
           <Settings2 />
           Toggle Columns
         </Button>

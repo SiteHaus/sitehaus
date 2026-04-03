@@ -52,9 +52,7 @@ export function initStoresSdk(opts: StoresInitOptions) {
 
 export function getApi() {
   if (!client) {
-    throw new Error(
-      "Stores SDK not initialized. Call initStoresSdk(...) first."
-    );
+    throw new Error("Stores SDK not initialized. Call initStoresSdk(...) first.");
   }
   return client;
 }

@@ -2,10 +2,7 @@
 
 import { getApi } from "@site-haus/stores/api";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardContent } from "@site-haus/ui/components/base/card";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
@@ -17,7 +14,13 @@ import { queryKeys } from "@/lib/query-keys";
 import { formatDate } from "@site-haus/utils/core/format";
 
 const formatDateTime = (d: string | null) =>
-  formatDate(d, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) ?? "";
+  formatDate(d, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }) ?? "";
 
 export default function VersionDetailPage() {
   const { projectId, version } = useParams<{
@@ -25,7 +28,11 @@ export default function VersionDetailPage() {
     version: string;
   }>();
 
-  const { data: versionData, isLoading, isError } = useQuery({
+  const {
+    data: versionData,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: queryKeys.designDoc.version(projectId, version),
     queryFn: async () => {
       const res = await getApi().designDocuments.getVersion({
@@ -68,19 +75,14 @@ export default function VersionDetailPage() {
       </Button>
 
       <div>
-        <h1 className="text-2xl font-bold">
-          Version {versionData.version}
-        </h1>
+        <h1 className="text-2xl font-bold">Version {versionData.version}</h1>
         <div className="mt-1 text-sm text-muted-foreground">
           {versionData.createdBy && (
             <span>
-              Published by {versionData.createdBy.firstName}{" "}
-              {versionData.createdBy.lastName}
+              Published by {versionData.createdBy.firstName} {versionData.createdBy.lastName}
             </span>
           )}
-          {versionData.createdAt && (
-            <span> &middot; {formatDateTime(versionData.createdAt)}</span>
-          )}
+          {versionData.createdAt && <span> &middot; {formatDateTime(versionData.createdAt)}</span>}
         </div>
         {versionData.changeNote && (
           <p className="mt-2 text-sm italic text-muted-foreground">

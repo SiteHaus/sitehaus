@@ -27,7 +27,7 @@ export const apiErrorValidation = z.object({
       z.object({
         path: z.array(z.union([z.string(), z.number()])),
         message: z.string(),
-      })
+      }),
     ),
   }),
 });

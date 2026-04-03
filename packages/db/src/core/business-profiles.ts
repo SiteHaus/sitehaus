@@ -1,12 +1,4 @@
-import {
-  boolean,
-  jsonb,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { clientsTable } from "../iam/clients.js";
 
 export const businessProfilesTable = pgTable(
@@ -32,7 +24,7 @@ export const businessProfilesTable = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
-  (t) => [uniqueIndex("business_profiles_client_uq").on(t.clientId)]
+  (t) => [uniqueIndex("business_profiles_client_uq").on(t.clientId)],
 );
 
 export type BusinessProfile = typeof businessProfilesTable.$inferSelect;

@@ -16,7 +16,10 @@ import {
   listBillingQuerySchema,
 } from '@site-haus/validation/forms/billing';
 import { AuthedRequest } from 'src/auth/access/access.guard';
-import { RequireAnyPerm, RequirePerms } from 'src/auth/permission/require-perms.decorator';
+import {
+  RequireAnyPerm,
+  RequirePerms,
+} from 'src/auth/permission/require-perms.decorator';
 import { ClientInRequest } from 'src/clients/client.guard';
 import { BillingService } from './billing.service';
 
@@ -42,9 +45,11 @@ export class BillingController {
   @RequireAnyPerm('billing:read', 'billing:manage')
   @Get('portal')
   async getPortalUrl(@Req() req: Req_) {
-    if (req.client!.firstParty) throw new ForbiddenException('Not available for admin');
+    if (req.client!.firstParty)
+      throw new ForbiddenException('Not available for admin');
     const url = await this.billing.getPortalUrl(req.client!.id);
-    if (!url) throw new NotFoundException('Client not found or no billing configured');
+    if (!url)
+      throw new NotFoundException('Client not found or no billing configured');
     return { url };
   }
 

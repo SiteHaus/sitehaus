@@ -1,10 +1,4 @@
-import {
-  clientDetail,
-  MeClient,
-  MeSession,
-  MeUser,
-  ProjectItem,
-} from "@site-haus/contracts";
+import { clientDetail, MeClient, MeSession, MeUser, ProjectItem } from "@site-haus/contracts";
 import { refreshOnce } from "@site-haus/sdk";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistOptions } from "zustand/middleware";
@@ -35,11 +29,7 @@ type AuthState = {
   bootstrapped: boolean;
 
   setAccess: (p: { accessToken: string; accessExpiration: number }) => void;
-  setMe: (p: {
-    user: MeUser | null;
-    session: MeSession | null;
-    permissions?: string[];
-  }) => void;
+  setMe: (p: { user: MeUser | null; session: MeSession | null; permissions?: string[] }) => void;
   clearAuth: () => void;
 
   bootstrap: () => Promise<void>;
@@ -60,9 +50,7 @@ const persistOptions: PersistOptions<AuthState, Persisted> = {
   // Use sessionStorage: cleared when tab closes, more secure than localStorage
   // Access tokens won't persist across browser sessions, reducing XSS risk window
   storage:
-    typeof window !== "undefined"
-      ? createJSONStorage<Persisted>(() => sessionStorage)
-      : undefined,
+    typeof window !== "undefined" ? createJSONStorage<Persisted>(() => sessionStorage) : undefined,
   partialize: (s) => ({
     user: s.user,
     session: s.session,
@@ -115,8 +103,7 @@ export const useAuthStore = create<AuthState>()(
 
       bootstrapped: false,
 
-      setAccess: ({ accessToken, accessExpiration }) =>
-        set({ accessToken, accessExpiration }),
+      setAccess: ({ accessToken, accessExpiration }) => set({ accessToken, accessExpiration }),
 
       setMe: ({ user, session, permissions }) =>
         set({
@@ -154,11 +141,8 @@ export const useAuthStore = create<AuthState>()(
           if (currentState.clients.length === 0) {
             await get().loadMyClients();
           }
-          const visibleClients = get().clients.filter(
-            (c) => !c.hidden && !c.firstParty,
-          );
-          const onlyClient =
-            visibleClients.length === 1 ? visibleClients[0] : undefined;
+          const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
+          const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
           }
@@ -180,11 +164,8 @@ export const useAuthStore = create<AuthState>()(
         if (get().accessToken) {
           await get().me();
           await get().loadMyClients();
-          const visibleClients = get().clients.filter(
-            (c) => !c.hidden && !c.firstParty,
-          );
-          const onlyClient =
-            visibleClients.length === 1 ? visibleClients[0] : undefined;
+          const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
+          const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
           if (onlyClient && !get().managedClientId) {
             set({ managedClientId: onlyClient.id });
           }

@@ -33,8 +33,7 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
     `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase() ||
     user.email?.[0]?.toUpperCase() ||
     "?";
-  const fullName =
-    `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
+  const fullName = `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email;
 
   return (
     <SidebarFooter>
@@ -49,9 +48,7 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground shadow-accent"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">
-                    {initials}
-                  </AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{fullName}</span>
@@ -69,9 +66,7 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg">
-                      {initials}
-                    </AvatarFallback>
+                    <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">{fullName}</span>

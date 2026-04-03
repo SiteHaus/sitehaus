@@ -18,14 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@site-haus/ui/components/base/table";
-import {
-  AlertTriangle,
-  DollarSign,
-  Plus,
-  Receipt,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { AlertTriangle, DollarSign, Plus, Receipt, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
 import { formatCents, formatDate } from "@site-haus/utils/core/format";
 import { BillingRecordCard } from "./billing-record-card";
@@ -33,8 +26,7 @@ import { BillingStatusBadge } from "./billing-status-badge";
 import { CreateBillingSheet } from "./create-billing-sheet";
 
 export function AdminBillingView() {
-  const { overview, loading, createSubscription, createOneTime } =
-    useBillingAdmin();
+  const { overview, loading, createSubscription, createOneTime } = useBillingAdmin();
   const [sheetOpen, setSheetOpen] = useState(false);
 
   if (loading) {
@@ -70,9 +62,7 @@ export function AdminBillingView() {
               <TrendingUp className="h-3.5 w-3.5" />
               Monthly Recurring Revenue
             </CardDescription>
-            <CardTitle className="text-2xl">
-              {formatCents(overview.mrrCents)}
-            </CardTitle>
+            <CardTitle className="text-2xl">{formatCents(overview.mrrCents)}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">per month</p>
@@ -85,9 +75,7 @@ export function AdminBillingView() {
               <DollarSign className="h-3.5 w-3.5" />
               One-Time Revenue
             </CardDescription>
-            <CardTitle className="text-2xl">
-              {formatCents(overview.totalRevenueCents)}
-            </CardTitle>
+            <CardTitle className="text-2xl">{formatCents(overview.totalRevenueCents)}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">total collected</p>
@@ -102,9 +90,7 @@ export function AdminBillingView() {
             </CardDescription>
             <CardTitle className="text-2xl">
               {overview.overdueCount > 0 ? (
-                <span className="text-destructive">
-                  {formatCents(overview.overdueAmountCents)}
-                </span>
+                <span className="text-destructive">{formatCents(overview.overdueAmountCents)}</span>
               ) : (
                 <span>{formatCents(0)}</span>
               )}
@@ -112,8 +98,7 @@ export function AdminBillingView() {
           </CardHeader>
           <CardContent>
             <p className="text-xs text-muted-foreground">
-              {overview.overdueCount} overdue{" "}
-              {overview.overdueCount === 1 ? "record" : "records"}
+              {overview.overdueCount} overdue {overview.overdueCount === 1 ? "record" : "records"}
             </p>
           </CardContent>
         </Card>
@@ -124,14 +109,10 @@ export function AdminBillingView() {
               <Users className="h-3.5 w-3.5" />
               Active Clients
             </CardDescription>
-            <CardTitle className="text-2xl">
-              {overview.activeClientCount}
-            </CardTitle>
+            <CardTitle className="text-2xl">{overview.activeClientCount}</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">
-              with recurring billing
-            </p>
+            <p className="text-xs text-muted-foreground">with recurring billing</p>
           </CardContent>
         </Card>
       </div>
@@ -156,23 +137,13 @@ export function AdminBillingView() {
               <TableBody>
                 {overview.revenueByClient.map((row) => (
                   <TableRow key={row.clientId}>
-                    <TableCell className="font-medium">
-                      {row.clientName}
+                    <TableCell className="font-medium">{row.clientName}</TableCell>
+                    <TableCell>{row.mrrCents > 0 ? formatCents(row.mrrCents) : "—"}</TableCell>
+                    <TableCell>
+                      {row.totalPaidCents > 0 ? formatCents(row.totalPaidCents) : "—"}
                     </TableCell>
                     <TableCell>
-                      {row.mrrCents > 0 ? formatCents(row.mrrCents) : "—"}
-                    </TableCell>
-                    <TableCell>
-                      {row.totalPaidCents > 0
-                        ? formatCents(row.totalPaidCents)
-                        : "—"}
-                    </TableCell>
-                    <TableCell>
-                      {row.status ? (
-                        <BillingStatusBadge status={row.status} />
-                      ) : (
-                        "—"
-                      )}
+                      {row.status ? <BillingStatusBadge status={row.status} /> : "—"}
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       {formatDate(row.lastPaymentAt) ?? "—"}
@@ -202,13 +173,7 @@ export function AdminBillingView() {
               const clientName = overview.revenueByClient.find(
                 (r) => r.clientId === record.clientId,
               )?.clientName;
-              return (
-                <BillingRecordCard
-                  key={record.id}
-                  record={record}
-                  clientName={clientName}
-                />
-              );
+              return <BillingRecordCard key={record.id} record={record} clientName={clientName} />;
             })}
           </div>
         )}

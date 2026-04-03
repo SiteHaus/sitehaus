@@ -14,11 +14,12 @@ export function MarkToolbarButton({
   const editor = useEditorRef();
   const active = useEditorSelector(
     (ed) => {
-      const getMarks = (ed as unknown as { getMarks: () => Record<string, unknown> | null }).getMarks;
+      const getMarks = (ed as unknown as { getMarks: () => Record<string, unknown> | null })
+        .getMarks;
       const marks = getMarks?.();
       return marks ? !!marks[nodeType] : false;
     },
-    [nodeType]
+    [nodeType],
   );
 
   return (

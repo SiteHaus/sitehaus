@@ -37,11 +37,7 @@ export class ModulesController {
     @Req() req: AuthedRequest & { client?: { id: string } },
     @Param('moduleId') moduleId: string,
   ) {
-    await this.modules.enableModule(
-      req.client!.id,
-      moduleId,
-      req.user?.userId,
-    );
+    await this.modules.enableModule(req.client!.id, moduleId, req.user?.userId);
   }
 
   @RequirePerms('roles:manage')

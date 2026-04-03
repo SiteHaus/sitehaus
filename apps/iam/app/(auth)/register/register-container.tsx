@@ -22,8 +22,7 @@ export default function RegisterContainer() {
     const r = await api.auth.public.register({ body: values });
     if (r.status !== 200) throw r;
 
-    const { accessToken, accessTokenExpiresIn, requiresEmailVerification } =
-      r.body;
+    const { accessToken, accessTokenExpiresIn, requiresEmailVerification } = r.body;
 
     if (requiresEmailVerification) {
       // Preserve OAuth params through email verification flow
@@ -48,14 +47,10 @@ export default function RegisterContainer() {
     if (oauthParams) {
       try {
         // Decode the OAuth parameters
-        const params = JSON.parse(
-          atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/"))
-        );
+        const params = JSON.parse(atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/")));
 
         // Build the authorize URL with the original OAuth params
-        const authorizeUrl = new URL(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`
-        );
+        const authorizeUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`);
 
         Object.entries(params).forEach(([key, value]) => {
           if (value) {

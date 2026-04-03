@@ -10,7 +10,10 @@ import {
   sql,
   type Db,
 } from '@site-haus/db';
-import type { CreateProjectInput, ListProjectsQuery } from '@site-haus/validation/forms/project';
+import type {
+  CreateProjectInput,
+  ListProjectsQuery,
+} from '@site-haus/validation/forms/project';
 import type { ProjectStatus } from '@site-haus/db';
 import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
@@ -38,8 +41,19 @@ export class ProjectsService {
     private readonly audit: AuditService,
   ) {}
 
-  async list(filters: ListProjectsQuery, clientId: string, isFirstParty = false) {
-    const { status, type, clientId: filterClientId, search, limit = 50, cursor } = filters;
+  async list(
+    filters: ListProjectsQuery,
+    clientId: string,
+    isFirstParty = false,
+  ) {
+    const {
+      status,
+      type,
+      clientId: filterClientId,
+      search,
+      limit = 50,
+      cursor,
+    } = filters;
 
     // First-party (SiteHaus staff with no x-client-id) sees all projects.
     // Third-party clients are scoped to their own clientId.
@@ -73,7 +87,9 @@ export class ProjectsService {
         columns: { updatedAt: true },
       });
       if (cursorRow?.updatedAt) {
-        conditions.push(lt(schema.projectsTable.updatedAt, cursorRow.updatedAt));
+        conditions.push(
+          lt(schema.projectsTable.updatedAt, cursorRow.updatedAt),
+        );
       }
     }
 
@@ -160,10 +176,7 @@ export class ProjectsService {
     };
   }
 
-  async create(
-    data: CreateProjectInput,
-    ctx: AuditContext,
-  ) {
+  async create(data: CreateProjectInput, ctx: AuditContext) {
     const [project] = await this.db
       .insert(schema.projectsTable)
       .values({
@@ -343,7 +356,10 @@ export class ProjectsService {
               eq(schema.projectsTable.clientId, clientId),
             ),
       )
-      .returning({ id: schema.projectsTable.id, clientId: schema.projectsTable.clientId });
+      .returning({
+        id: schema.projectsTable.id,
+        clientId: schema.projectsTable.clientId,
+      });
 
     if (!project) return false;
 

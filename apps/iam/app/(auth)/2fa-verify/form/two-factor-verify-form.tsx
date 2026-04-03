@@ -15,10 +15,7 @@ import { Input } from "@site-haus/ui/components/base/input";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
-import {
-  type Verify2faLoginInput,
-  verify2faLoginSchema,
-} from "@site-haus/validation/forms/auth";
+import { type Verify2faLoginInput, verify2faLoginSchema } from "@site-haus/validation/forms/auth";
 import { ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -56,8 +53,7 @@ export const TwoFactorVerifyForm = ({
     <div className="w-full max-w-md mx-auto p-8">
       <h1 className="text-2xl font-semibold">Two-Factor Authentication</h1>
       <p className="text-muted-foreground mb-2 text-sm">
-        Enter the 6-digit code from your authenticator app, or use a backup
-        code.
+        Enter the 6-digit code from your authenticator app, or use a backup code.
       </p>
 
       <ClientReadOnlyField authForLabel={authForLabel} />

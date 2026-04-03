@@ -86,7 +86,6 @@ const iamFeatures = [
   },
 ];
 
-
 export default function PlatformPage() {
   return (
     <main className="min-h-screen pt-16">
@@ -99,15 +98,12 @@ export default function PlatformPage() {
             </p>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6">
               Built for us.{" "}
-              <span className="italic font-bold text-foreground/50">
-                Yours to use.
-              </span>
+              <span className="italic font-bold text-foreground/50">Yours to use.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-              Every SiteHaus client gets access to a platform we designed and
-              built ourselves — not a stitched-together collection of third-party
-              tools, but a unified workspace built to the same standard we hold
-              our client work to.
+              Every SiteHaus client gets access to a platform we designed and built ourselves — not
+              a stitched-together collection of third-party tools, but a unified workspace built to
+              the same standard we hold our client work to.
             </p>
           </div>
 
@@ -138,9 +134,9 @@ export default function PlatformPage() {
               Your project, always visible.
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              A dedicated workspace for every project. Milestones, tickets,
-              assets, and documents — all in one place. Clients always know
-              exactly where things stand without having to ask.
+              A dedicated workspace for every project. Milestones, tickets, assets, and documents —
+              all in one place. Clients always know exactly where things stand without having to
+              ask.
             </p>
           </div>
 
@@ -159,11 +155,7 @@ export default function PlatformPage() {
               const Icon = feature.icon;
               return (
                 <div key={feature.title} className="flex flex-col gap-5">
-                  <Screenshot
-                    src={feature.screenshot}
-                    alt={feature.alt}
-                    className=""
-                  />
+                  <Screenshot src={feature.screenshot} alt={feature.alt} className="" />
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Icon aria-hidden="true" className="h-4 w-4 text-primary/60 flex-shrink-0" />
@@ -197,10 +189,9 @@ export default function PlatformPage() {
               Security that doesn&apos;t get in the way.
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              A full Identity and Access Management system — OAuth2 PKCE,
-              TOTP two-factor auth, role-based permissions, and session
-              management. Enterprise-grade security built into every account,
-              managed directly by your team.
+              A full Identity and Access Management system — OAuth2 PKCE, TOTP two-factor auth,
+              role-based permissions, and session management. Enterprise-grade security built into
+              every account, managed directly by your team.
             </p>
           </div>
 
@@ -219,11 +210,7 @@ export default function PlatformPage() {
               const Icon = feature.icon;
               return (
                 <div key={feature.title} className="flex flex-col gap-5">
-                  <Screenshot
-                    src={feature.screenshot}
-                    alt={feature.alt}
-                    className=""
-                  />
+                  <Screenshot src={feature.screenshot} alt={feature.alt} className="" />
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Icon aria-hidden="true" className="h-4 w-4 text-primary/60 flex-shrink-0" />
@@ -250,8 +237,8 @@ export default function PlatformPage() {
             No extra cost. No third-party logins.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            Every client gets full access to the platform from day one. It&apos;s
-            part of how we work — not an upsell.
+            Every client gets full access to the platform from day one. It&apos;s part of how we
+            work — not an upsell.
           </p>
           <Button size="lg" className="h-12 text-base" asChild>
             <Link href="/contact">

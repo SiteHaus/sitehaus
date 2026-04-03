@@ -19,15 +19,7 @@ export const designDocStatusTransitionSchema = z.object({
   status: designDocumentStatusEnum,
 });
 
-export type CreateDesignDocumentInput = z.infer<
-  typeof createDesignDocumentSchema
->;
-export type UpdateDesignDocumentInput = z.infer<
-  typeof updateDesignDocumentSchema
->;
-export type PublishDesignDocumentInput = z.infer<
-  typeof publishDesignDocumentSchema
->;
-export type DesignDocStatusTransition = z.infer<
-  typeof designDocStatusTransitionSchema
->;
+export type CreateDesignDocumentInput = z.infer<typeof createDesignDocumentSchema>;
+export type UpdateDesignDocumentInput = z.infer<typeof updateDesignDocumentSchema>;
+export type PublishDesignDocumentInput = z.infer<typeof publishDesignDocumentSchema>;
+export type DesignDocStatusTransition = z.infer<typeof designDocStatusTransitionSchema>;

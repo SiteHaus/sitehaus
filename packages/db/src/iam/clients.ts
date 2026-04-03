@@ -28,10 +28,7 @@ export const clientsTable = pgTable(
     stripeCustomerId: text("stripe_customer_id"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
-  (t) => [
-    uniqueIndex("clients_key_uq").on(t.key),
-    index("clients_aud_idx").on(t.audience),
-  ]
+  (t) => [uniqueIndex("clients_key_uq").on(t.key), index("clients_aud_idx").on(t.audience)],
 );
 
 export const clientRedirectUrisTable = pgTable(
@@ -45,7 +42,7 @@ export const clientRedirectUrisTable = pgTable(
       }),
     uri: varchar("uri", { length: 512 }).notNull(),
   },
-  (t) => [uniqueIndex("client_uri_uq").on(t.clientId, t.uri)]
+  (t) => [uniqueIndex("client_uri_uq").on(t.clientId, t.uri)],
 );
 
 export type ClientType = (typeof clientTypeEnum.enumValues)[number];

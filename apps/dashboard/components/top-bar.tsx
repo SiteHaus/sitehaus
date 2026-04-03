@@ -26,10 +26,8 @@ export const ClientContextBar = () => {
   const crumbs = useBreadcrumbs();
 
   const activeClient = clients.find((c) => c.id === managedClientId);
-  const isInClientView =
-    isEmployee && !!activeClient && !activeClient.firstParty;
-  const isClientContact =
-    !isEmployee && !!activeClient && !activeClient.firstParty;
+  const isInClientView = isEmployee && !!activeClient && !activeClient.firstParty;
+  const isClientContact = !isEmployee && !!activeClient && !activeClient.firstParty;
 
   const roleLabel = hasPerm("projects:manage") ? "Agency" : "Client";
 
@@ -73,16 +71,12 @@ export const ClientContextBar = () => {
           <span className="text-sm text-muted-foreground">
             {isInClientView ? (
               <>
-                <span className="font-medium text-foreground">
-                  {activeClient!.name}
-                </span>
+                <span className="font-medium text-foreground">{activeClient!.name}</span>
                 {" · Client View"}
               </>
             ) : (
               <>
-                <span className="font-medium text-foreground">
-                  {activeClient!.name}
-                </span>
+                <span className="font-medium text-foreground">{activeClient!.name}</span>
                 <span className="text-muted-foreground"> · {roleLabel}</span>
               </>
             )}

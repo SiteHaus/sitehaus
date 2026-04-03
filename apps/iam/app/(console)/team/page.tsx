@@ -31,12 +31,7 @@ import {
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@site-haus/ui/components/base/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { DataTable } from "@site-haus/ui/components/shared/data-table/data-table";
 import { createInviteSchema } from "@site-haus/validation/forms/invite";
 import { formatDistanceToNow } from "date-fns";
@@ -79,12 +74,7 @@ interface InviteDisplay {
 
 type InviteDisplayKey = Extract<keyof InviteDisplay, string>;
 
-const DEFAULT_INVITE_COLUMNS: InviteDisplayKey[] = [
-  "email",
-  "status",
-  "sent",
-  "expires",
-];
+const DEFAULT_INVITE_COLUMNS: InviteDisplayKey[] = ["email", "status", "sent", "expires"];
 
 type InviteFormValues = z.infer<typeof createInviteSchema>;
 
@@ -216,11 +206,7 @@ function TeamContent() {
     setEditMemberDialogOpen(true);
   };
 
-  const handleToggleRole = async (
-    userId: string,
-    roleId: string,
-    hasRole: boolean,
-  ) => {
+  const handleToggleRole = async (userId: string, roleId: string, hasRole: boolean) => {
     if (hasRole) {
       const res = await api.roles.unassignRole({ params: { userId, roleId } });
       if (res.status === 204) {
@@ -264,9 +250,7 @@ function TeamContent() {
   );
 
   if (permissionDenied) {
-    return (
-      <PermissionDenied resource="the team" clientName={selectedClient?.name} />
-    );
+    return <PermissionDenied resource="the team" clientName={selectedClient?.name} />;
   }
 
   return (
@@ -291,10 +275,7 @@ function TeamContent() {
               </DialogHeader>
 
               <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmitInvite)}
-                  className="space-y-4"
-                >
+                <form onSubmit={form.handleSubmit(onSubmitInvite)} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="email"
@@ -302,11 +283,7 @@ function TeamContent() {
                       <FormItem>
                         <FormLabel>Email address</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="colleague@example.com"
-                            type="email"
-                            {...field}
-                          />
+                          <Input placeholder="colleague@example.com" type="email" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -322,10 +299,7 @@ function TeamContent() {
                           <FormLabel>Roles (optional)</FormLabel>
                           <div className="space-y-2 rounded-md border p-3">
                             {roles.map((role) => (
-                              <div
-                                key={role.id}
-                                className="flex items-center space-x-2"
-                              >
+                              <div key={role.id} className="flex items-center space-x-2">
                                 <Checkbox
                                   id={`role-${role.id}`}
                                   checked={field.value?.includes(role.id)}
@@ -335,9 +309,7 @@ function TeamContent() {
                                       field.onChange([...current, role.id]);
                                     } else {
                                       field.onChange(
-                                        current.filter(
-                                          (id: string) => id !== role.id,
-                                        ),
+                                        current.filter((id: string) => id !== role.id),
                                       );
                                     }
                                   }}
@@ -378,10 +350,7 @@ function TeamContent() {
         }
       />
 
-      <Dialog
-        open={editMemberDialogOpen}
-        onOpenChange={setEditMemberDialogOpen}
-      >
+      <Dialog open={editMemberDialogOpen} onOpenChange={setEditMemberDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Member Roles</DialogTitle>
@@ -393,9 +362,7 @@ function TeamContent() {
           <div className="space-y-2 rounded-md border p-3">
             {roles.map((role) => {
               const hasRole =
-                editingMember?.roles.some(
-                  (r: { id: string }) => r.id === role.id,
-                ) ?? false;
+                editingMember?.roles.some((r: { id: string }) => r.id === role.id) ?? false;
               return (
                 <div key={role.id} className="flex items-center space-x-2">
                   <Checkbox
@@ -419,10 +386,7 @@ function TeamContent() {
           </div>
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setEditMemberDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setEditMemberDialogOpen(false)}>
               Done
             </Button>
           </DialogFooter>
@@ -437,22 +401,16 @@ function TeamContent() {
           </TabsTrigger>
           <TabsTrigger value="invites">
             <span>Invites</span>
-            {pendingInvites.length > 0 && (
-              <Badge>{pendingInvites.length}</Badge>
-            )}
+            {pendingInvites.length > 0 && <Badge>{pendingInvites.length}</Badge>}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="members" className="mt-4">
           {loadingMembers && (
-            <p className="text-sm text-muted-foreground">
-              Loading team members...
-            </p>
+            <p className="text-sm text-muted-foreground">Loading team members...</p>
           )}
 
-          {!loadingMembers && error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
+          {!loadingMembers && error && <p className="text-sm text-destructive">{error}</p>}
 
           {!loadingMembers && !error && (
             <DataTable<ClientMember>
@@ -464,9 +422,7 @@ function TeamContent() {
         </TabsContent>
 
         <TabsContent value="invites" className="mt-4">
-          {loadingInvites && (
-            <p className="text-sm text-muted-foreground">Loading invites...</p>
-          )}
+          {loadingInvites && <p className="text-sm text-muted-foreground">Loading invites...</p>}
 
           {!loadingInvites && invites.length === 0 && (
             <div className="rounded-md border p-8 text-center bg-card">

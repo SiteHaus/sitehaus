@@ -22,10 +22,7 @@ import {
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
-import {
-  updateProfileSchema,
-  type UpdateProfileInput,
-} from "@site-haus/validation/forms/account";
+import { updateProfileSchema, type UpdateProfileInput } from "@site-haus/validation/forms/account";
 import { Pencil, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -78,9 +75,7 @@ export function ProfileSection() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Profile Information</CardTitle>
-            <CardDescription>
-              Your personal details used across SiteHaus.
-            </CardDescription>
+            <CardDescription>Your personal details used across SiteHaus.</CardDescription>
           </div>
           {!editing && (
             <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
@@ -138,21 +133,15 @@ export function ProfileSection() {
         ) : (
           <dl className="grid gap-4 sm:grid-cols-2">
             <div>
-              <dt className="text-sm font-medium text-muted-foreground">
-                First Name
-              </dt>
+              <dt className="text-sm font-medium text-muted-foreground">First Name</dt>
               <dd className="text-sm">{user.firstName}</dd>
             </div>
             <div>
-              <dt className="text-sm font-medium text-muted-foreground">
-                Last Name
-              </dt>
+              <dt className="text-sm font-medium text-muted-foreground">Last Name</dt>
               <dd className="text-sm">{user.lastName}</dd>
             </div>
             <div className="sm:col-span-2">
-              <dt className="text-sm font-medium text-muted-foreground">
-                Email
-              </dt>
+              <dt className="text-sm font-medium text-muted-foreground">Email</dt>
               <dd className="text-sm">{user.email}</dd>
             </div>
           </dl>

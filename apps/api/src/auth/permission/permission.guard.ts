@@ -38,9 +38,10 @@ export class PermissionGuard implements CanActivate {
 
     if (requiredAll.length === 0 && requiredAny.length === 0) return true;
 
-    const req = ctx
-      .switchToHttp()
-      .getRequest<{ user?: { userId: string; clientId: string }; client?: { id: string } }>();
+    const req = ctx.switchToHttp().getRequest<{
+      user?: { userId: string; clientId: string };
+      client?: { id: string };
+    }>();
 
     // Use target client from x-client-id header if set, otherwise fall back to session's client
     const targetClientId = req.client?.id ?? req.user.clientId;

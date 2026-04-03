@@ -2,27 +2,13 @@ import {
   billingRecordStatusValues,
   billingRecordTypeValues,
 } from "@site-haus/validation/core/enums";
-import {
-  index,
-  integer,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { clientsTable } from "../iam/clients.js";
 import { projectsTable } from "./projects.js";
 
-export const billingRecordTypeEnum = pgEnum(
-  "billing_record_type",
-  billingRecordTypeValues
-);
+export const billingRecordTypeEnum = pgEnum("billing_record_type", billingRecordTypeValues);
 
-export const billingRecordStatusEnum = pgEnum(
-  "billing_record_status",
-  billingRecordStatusValues
-);
+export const billingRecordStatusEnum = pgEnum("billing_record_status", billingRecordStatusValues);
 
 export const billingRecordsTable = pgTable(
   "billing_records",
@@ -55,13 +41,11 @@ export const billingRecordsTable = pgTable(
     index("billing_records_client_idx").on(t.clientId),
     index("billing_records_status_idx").on(t.status),
     index("billing_records_stripe_customer_idx").on(t.stripeCustomerId),
-  ]
+  ],
 );
 
-export type BillingRecordType =
-  (typeof billingRecordTypeEnum.enumValues)[number];
-export type BillingRecordStatus =
-  (typeof billingRecordStatusEnum.enumValues)[number];
+export type BillingRecordType = (typeof billingRecordTypeEnum.enumValues)[number];
+export type BillingRecordStatus = (typeof billingRecordStatusEnum.enumValues)[number];
 
 export type BillingRecord = typeof billingRecordsTable.$inferSelect;
 export type NewBillingRecord = typeof billingRecordsTable.$inferInsert;

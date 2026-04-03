@@ -25,7 +25,7 @@ export const usersTable = pgTable(
     lastLogin: timestamp("last_login", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
-  (t) => [uniqueIndex("users_email_uq").on(t.email)]
+  (t) => [uniqueIndex("users_email_uq").on(t.email)],
 );
 
 export type UserStatus = (typeof userStatusEnum.enumValues)[number];

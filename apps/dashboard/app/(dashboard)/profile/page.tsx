@@ -50,7 +50,8 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-2xl py-6 space-y-2">
         <h1 className="text-3xl font-bold">Business Profile</h1>
         <p className="text-muted-foreground">
-          Business profiles are tied to a client organization. Select a client context to view or edit a profile.
+          Business profiles are tied to a client organization. Select a client context to view or
+          edit a profile.
         </p>
       </div>
     );

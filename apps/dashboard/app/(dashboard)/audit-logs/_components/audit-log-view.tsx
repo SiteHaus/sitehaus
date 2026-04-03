@@ -4,11 +4,7 @@ import type { AuditLogItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardContent, CardHeader } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import {
   Select,
@@ -133,11 +129,7 @@ function formatAction(action: string): string {
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 
 function actionVariant(action: string): BadgeVariant {
-  if (
-    action.includes("deleted") ||
-    action.includes("cancelled") ||
-    action.includes("revoked")
-  ) {
+  if (action.includes("deleted") || action.includes("cancelled") || action.includes("revoked")) {
     return "destructive";
   }
   if (
@@ -193,9 +185,7 @@ function AuditRow({ log }: { log: AuditLogItem }) {
           <span className="text-xs text-muted-foreground pt-0.5">
             {log.targetType}
             {log.targetId && (
-              <span className="font-mono ml-1 opacity-50">
-                {log.targetId.slice(0, 8)}
-              </span>
+              <span className="font-mono ml-1 opacity-50">{log.targetId.slice(0, 8)}</span>
             )}
           </span>
         )}
@@ -210,37 +200,32 @@ export function AuditLogView() {
   const [actionFilter, setActionFilter] = useState<string>("");
   const [userSearch, setUserSearch] = useState<string>("");
 
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    useInfiniteQuery({
-      queryKey: ["audit-logs", { action: actionFilter || undefined }],
-      initialPageParam: undefined as string | undefined,
-      queryFn: async ({ pageParam }) => {
-        const res = await getApi().audit.list({
-          query: {
-            action: actionFilter || undefined,
-            cursor: pageParam,
-            limit: 50,
-          },
-        });
-        if (res.status !== 200) throw new Error("Failed to load audit logs");
-        return res.body;
-      },
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-      staleTime: 30_000,
-    });
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery({
+    queryKey: ["audit-logs", { action: actionFilter || undefined }],
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }) => {
+      const res = await getApi().audit.list({
+        query: {
+          action: actionFilter || undefined,
+          cursor: pageParam,
+          limit: 50,
+        },
+      });
+      if (res.status !== 200) throw new Error("Failed to load audit logs");
+      return res.body;
+    },
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+    staleTime: 30_000,
+  });
 
-  const allLogs = useMemo(
-    () => data?.pages.flatMap((p) => p.logs) ?? [],
-    [data],
-  );
+  const allLogs = useMemo(() => data?.pages.flatMap((p) => p.logs) ?? [], [data]);
 
   const filtered = useMemo(() => {
     if (!userSearch.trim()) return allLogs;
     const q = userSearch.toLowerCase();
     return allLogs.filter((log) => {
       if (!log.user) return false;
-      const name =
-        `${log.user.firstName} ${log.user.lastName} ${log.user.email}`.toLowerCase();
+      const name = `${log.user.firstName} ${log.user.lastName} ${log.user.email}`.toLowerCase();
       return name.includes(q);
     });
   }, [allLogs, userSearch]);
@@ -272,10 +257,7 @@ export function AuditLogView() {
           <span className="text-sm font-medium">Filters</span>
         </div>
 
-        <Select
-          value={actionFilter || "all"}
-          onValueChange={handleActionChange}
-        >
+        <Select value={actionFilter || "all"} onValueChange={handleActionChange}>
           <SelectTrigger className="w-52 text-sm">
             <SelectValue placeholder="All events" />
           </SelectTrigger>
@@ -352,9 +334,7 @@ export function AuditLogView() {
               <ClipboardList className="mb-3 h-8 w-8 text-muted-foreground/30" />
               <p className="text-sm font-medium">No events found</p>
               {hasFilters && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Try adjusting your filters.
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">Try adjusting your filters.</p>
               )}
             </div>
           ) : (

@@ -87,12 +87,7 @@ function setAt(arr: string[], i: number, val: string) {
   return next;
 }
 
-export function StringList({
-  value,
-  onChange,
-  placeholder,
-  addLabel,
-}: StringListProps) {
+export function StringList({ value, onChange, placeholder, addLabel }: StringListProps) {
   return (
     <div className="space-y-2">
       {value.map((item, i) => (
@@ -114,12 +109,7 @@ export function StringList({
           </Button>
         </div>
       ))}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => onChange([...value, ""])}
-      >
+      <Button type="button" variant="outline" size="sm" onClick={() => onChange([...value, ""])}>
         <Plus className="mr-1.5 h-3.5 w-3.5" />
         {addLabel}
       </Button>

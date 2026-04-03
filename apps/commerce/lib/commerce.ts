@@ -16,9 +16,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(
-      (body as { message?: string }).message ?? `HTTP ${res.status}`,
-    );
+    throw new Error((body as { message?: string }).message ?? `HTTP ${res.status}`);
   }
 
   return res.json() as Promise<T>;
@@ -67,8 +65,7 @@ export const connectStripe = (returnUrl: string) =>
     body: JSON.stringify({ returnUrl }),
   });
 
-export const getStripeStatus = () =>
-  request<StripeStatus>("/v1/admin/stores/stripe-status");
+export const getStripeStatus = () => request<StripeStatus>("/v1/admin/stores/stripe-status");
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
@@ -115,8 +112,7 @@ export const listProducts = (params?: {
   return request<ProductListResponse>(`/v1/admin/products?${qs}`);
 };
 
-export const getProduct = (id: string) =>
-  request<ProductDetail>(`/v1/admin/products/${id}`);
+export const getProduct = (id: string) => request<ProductDetail>(`/v1/admin/products/${id}`);
 
 export const createProduct = (body: {
   name: string;
@@ -285,8 +281,55 @@ export type CollectionItem = {
   id: string;
   name: string;
   slug: string;
-  isActive: boolean;
+  description: string | null;
+  sortOrder: number;
+  scheduled: boolean;
+  goesLiveAt: string | null;
+  productCount: number;
+};
+
+export type CollectionDetail = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  scheduled: boolean;
+  goesLiveAt: string | null;
+  products: { id: string }[];
 };
 
 export const listCollections = () =>
-  request<{ items: CollectionItem[] }>("/v1/admin/collections");
+  request<{ collections: CollectionItem[] }>("/v1/catalog/collections/");
+
+export const getCollection = (slug: string) =>
+  request<CollectionDetail>(`/v1/catalog/collections/${slug}`);
+
+export const createCollection = (body: {
+  name: string;
+  slug: string;
+  description?: string;
+  sortOrder?: number;
+  goesLiveAt?: string | null;
+}) =>
+  request<CollectionItem>("/v1/admin/collections", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateCollection = (
+  id: string,
+  body: { name?: string; slug?: string; description?: string; goesLiveAt?: string | null },
+) =>
+  request<CollectionItem>(`/v1/admin/collections/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteCollection = (id: string) =>
+  request<{ message: string }>(`/v1/admin/collections/${id}`, { method: "DELETE" });
+
+export const addProductToCollection = (collectionId: string, productId: string) =>
+  request<CollectionItem>(`/v1/admin/collections/${collectionId}/products`, {
+    method: "POST",
+    body: JSON.stringify({ productId }),
+  });

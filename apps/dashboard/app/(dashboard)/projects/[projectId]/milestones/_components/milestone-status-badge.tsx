@@ -1,9 +1,7 @@
 import type { MilestoneItem } from "@site-haus/contracts";
 import { Badge } from "@site-haus/ui/components/base/badge";
 
-const statusVariant = (
-  s: MilestoneItem["status"]
-): "success" | "warning" | "secondary" => {
+const statusVariant = (s: MilestoneItem["status"]): "success" | "warning" | "secondary" => {
   switch (s) {
     case "completed":
       return "success";
@@ -25,12 +23,6 @@ const statusLabel = (s: MilestoneItem["status"]) => {
   }
 };
 
-export function MilestoneStatusBadge({
-  status,
-}: {
-  status: MilestoneItem["status"];
-}) {
-  return (
-    <Badge variant={statusVariant(status)}>{statusLabel(status)}</Badge>
-  );
+export function MilestoneStatusBadge({ status }: { status: MilestoneItem["status"] }) {
+  return <Badge variant={statusVariant(status)}>{statusLabel(status)}</Badge>;
 }

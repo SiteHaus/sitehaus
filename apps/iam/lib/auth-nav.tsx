@@ -27,10 +27,7 @@ const toRecord = (init?: URLSearchParams | null): Record<string, string> => {
   return r;
 };
 
-const appendQuery = (
-  path: string,
-  params: Record<string, string | undefined>
-) => {
+const appendQuery = (path: string, params: Record<string, string | undefined>) => {
   const url = new URL(path, "http://dummy");
   const q = new URLSearchParams(url.search);
 
@@ -61,7 +58,7 @@ export const useAuthParams = (): AuthParams => {
       mode: (sp.get("mode") as VerificationMode) || undefined,
       oauth_params: sp.get("oauth_params") || undefined,
     }),
-    [sp]
+    [sp],
   );
 };
 
@@ -86,17 +83,17 @@ export const useAuthNav = () => {
       const merged = { ...carry, ...(opts.add ?? {}) };
       return appendQuery(path, merged);
     },
-    [sp]
+    [sp],
   );
 
   const push = useCallback(
     (path: string, opts?: BuildOpts) => router.push(build(path, opts)),
-    [router, build]
+    [router, build],
   );
 
   const replace = useCallback(
     (path: string, opts?: BuildOpts) => router.replace(build(path, opts)),
-    [router, build]
+    [router, build],
   );
 
   return { params: current, build, push, replace };

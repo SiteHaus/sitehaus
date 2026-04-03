@@ -30,14 +30,20 @@ import { toast } from "sonner";
 import { OrderStatusBadge } from "../_components/order-status-badge";
 
 function formatCents(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase() }).format(cents / 100);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(cents / 100);
 }
 
 function formatDate(iso: string | null) {
   if (!iso) return "—";
   return new Date(iso).toLocaleString("en-US", {
-    month: "short", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 
@@ -118,7 +124,12 @@ export default function OrderDetailPage() {
             </Button>
           )}
           {canRefund && (
-            <Button size="sm" variant="outline" className="text-destructive hover:text-destructive" onClick={() => setRefundDialogOpen(true)}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-destructive hover:text-destructive"
+              onClick={() => setRefundDialogOpen(true)}
+            >
               <RotateCcw className="size-4" />
               Refund
             </Button>
@@ -128,7 +139,9 @@ export default function OrderDetailPage() {
 
       {/* Timeline */}
       <Card className="mb-4">
-        <CardHeader><CardTitle className="text-base">Timeline</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Timeline</CardTitle>
+        </CardHeader>
         <CardContent className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <p className="text-muted-foreground">Placed</p>
@@ -151,7 +164,9 @@ export default function OrderDetailPage() {
 
       {/* Items */}
       <Card className="mb-4">
-        <CardHeader><CardTitle className="text-base">Items</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle className="text-base">Items</CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
@@ -170,10 +185,16 @@ export default function OrderDetailPage() {
                     <p className="font-medium">{item.productName}</p>
                     <p className="text-xs text-muted-foreground">{item.variantName}</p>
                   </TableCell>
-                  <TableCell className="text-muted-foreground font-mono text-xs">{item.sku ?? "—"}</TableCell>
+                  <TableCell className="text-muted-foreground font-mono text-xs">
+                    {item.sku ?? "—"}
+                  </TableCell>
                   <TableCell>{item.quantity}</TableCell>
-                  <TableCell className="text-right">{formatCents(item.unitPriceCents, order.currency)}</TableCell>
-                  <TableCell className="text-right font-medium">{formatCents(item.totalCents, order.currency)}</TableCell>
+                  <TableCell className="text-right">
+                    {formatCents(item.unitPriceCents, order.currency)}
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {formatCents(item.totalCents, order.currency)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -203,14 +224,18 @@ export default function OrderDetailPage() {
       {/* Shipping address */}
       {hasShipping && (
         <Card>
-          <CardHeader><CardTitle className="text-base">Shipping Address</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Shipping Address</CardTitle>
+          </CardHeader>
           <CardContent className="text-sm space-y-0.5">
             {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
             {order.shippingLine1 && <p>{order.shippingLine1}</p>}
             {order.shippingLine2 && <p>{order.shippingLine2}</p>}
             {(order.shippingCity || order.shippingState || order.shippingZip) && (
               <p>
-                {[order.shippingCity, order.shippingState, order.shippingZip].filter(Boolean).join(", ")}
+                {[order.shippingCity, order.shippingState, order.shippingZip]
+                  .filter(Boolean)
+                  .join(", ")}
               </p>
             )}
           </CardContent>
@@ -233,7 +258,9 @@ export default function OrderDetailPage() {
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShipDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setShipDialogOpen(false)}>
+              Cancel
+            </Button>
             <Button
               onClick={() => shipMutation.mutate()}
               disabled={shipMutation.isPending || !trackingNumber.trim()}
@@ -252,10 +279,13 @@ export default function OrderDetailPage() {
             <DialogTitle>Refund Order #{ref}?</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground py-2">
-            This will issue a full refund of {formatCents(order.totalCents, order.currency)} via Stripe. This cannot be undone.
+            This will issue a full refund of {formatCents(order.totalCents, order.currency)} via
+            Stripe. This cannot be undone.
           </p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRefundDialogOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRefundDialogOpen(false)}>
+              Cancel
+            </Button>
             <Button
               variant="destructive"
               onClick={() => refundMutation.mutate()}

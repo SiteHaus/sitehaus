@@ -64,9 +64,7 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-2xl">SiteHaus Dashboard</CardTitle>
-          <CardDescription>
-            Sign in with your SiteHaus account to continue
-          </CardDescription>
+          <CardDescription>Sign in with your SiteHaus account to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={handleLogin} className="w-full" size="lg">

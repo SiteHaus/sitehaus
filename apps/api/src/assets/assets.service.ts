@@ -1,14 +1,9 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import {
-  and,
-  desc,
-  eq,
-  ilike,
-  lt,
-  schema,
-  type Db,
-} from '@site-haus/db';
-import type { ListAssetsQuery, UpdateAssetInput } from '@site-haus/validation/forms/asset';
+import { and, desc, eq, ilike, lt, schema, type Db } from '@site-haus/db';
+import type {
+  ListAssetsQuery,
+  UpdateAssetInput,
+} from '@site-haus/validation/forms/asset';
 import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
 import { StorageService } from 'src/storage/storage.service';
@@ -29,8 +24,8 @@ const uploaderColumns = {
 
 /** MIME types we allow. Grouped by category for filtering. */
 const ALLOWED_MIME_PREFIXES = [
-  'image/',       // png, jpg, gif, svg, webp
-  'font/',        // ttf, otf, woff, woff2
+  'image/', // png, jpg, gif, svg, webp
+  'font/', // ttf, otf, woff, woff2
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument',

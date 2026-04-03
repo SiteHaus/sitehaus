@@ -52,9 +52,7 @@ function parseDollars(val: string) {
   return Math.round(parseFloat(val) * 100);
 }
 
-type VariantDialogState =
-  | { mode: "create" }
-  | { mode: "edit"; variant: VariantAdmin };
+type VariantDialogState = { mode: "create" } | { mode: "edit"; variant: VariantAdmin };
 
 function VariantDialog({
   open,
@@ -98,9 +96,21 @@ function VariantDialog({
       const compareAtCents = compareAt ? parseDollars(compareAt) : undefined;
 
       if (isEdit) {
-        return updateVariant(state.variant.id, { name, sku: sku || undefined, priceCents, compareAtCents, isActive });
+        return updateVariant(state.variant.id, {
+          name,
+          sku: sku || undefined,
+          priceCents,
+          compareAtCents,
+          isActive,
+        });
       }
-      return createVariant(productId, { name, sku: sku || undefined, priceCents, compareAtCents, isActive });
+      return createVariant(productId, {
+        name,
+        sku: sku || undefined,
+        priceCents,
+        compareAtCents,
+        isActive,
+      });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["product", productId] });
@@ -119,7 +129,12 @@ function VariantDialog({
         <div className="space-y-4 py-2">
           <div className="space-y-2">
             <Label>Name</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. 60 Capsules" autoFocus />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. 60 Capsules"
+              autoFocus
+            />
           </div>
           <div className="space-y-2">
             <Label>SKU</Label>
@@ -151,7 +166,10 @@ function VariantDialog({
           </div>
           <div className="space-y-2">
             <Label>Availability</Label>
-            <Select value={isActive ? "active" : "inactive"} onValueChange={(v) => setIsActive(v === "active")}>
+            <Select
+              value={isActive ? "active" : "inactive"}
+              onValueChange={(v) => setIsActive(v === "active")}
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -163,7 +181,9 @@ function VariantDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
           <Button
             onClick={() => mutation.mutate()}
             disabled={mutation.isPending || !name.trim() || !price}
@@ -266,7 +286,11 @@ export default function ProductDetailPage() {
             disabled={archiveMutation.isPending}
             className="text-destructive hover:text-destructive"
           >
-            {archiveMutation.isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />}
+            {archiveMutation.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Trash2 className="size-4" />
+            )}
             Archive
           </Button>
         )}
@@ -283,7 +307,10 @@ export default function ProductDetailPage() {
             <Input
               id="name"
               value={name}
-              onChange={(e) => { setName(e.target.value); setDirty(true); }}
+              onChange={(e) => {
+                setName(e.target.value);
+                setDirty(true);
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -291,7 +318,10 @@ export default function ProductDetailPage() {
             <Textarea
               id="description"
               value={description}
-              onChange={(e) => { setDescription(e.target.value); setDirty(true); }}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                setDirty(true);
+              }}
               rows={4}
             />
           </div>
@@ -299,7 +329,10 @@ export default function ProductDetailPage() {
             <Label htmlFor="status">Status</Label>
             <Select
               value={status}
-              onValueChange={(v) => { setStatus(v as typeof status); setDirty(true); }}
+              onValueChange={(v) => {
+                setStatus(v as typeof status);
+                setDirty(true);
+              }}
             >
               <SelectTrigger id="status">
                 <SelectValue />
@@ -361,7 +394,13 @@ export default function ProductDetailPage() {
                     <TableCell>${formatCents(v.priceCents)}</TableCell>
                     <TableCell>{v.stock - v.reserved}</TableCell>
                     <TableCell>
-                      <span className={v.isActive ? "text-green-600 dark:text-green-400" : "text-muted-foreground"}>
+                      <span
+                        className={
+                          v.isActive
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-muted-foreground"
+                        }
+                      >
                         {v.isActive ? "Active" : "Inactive"}
                       </span>
                     </TableCell>
@@ -371,7 +410,9 @@ export default function ProductDetailPage() {
                           variant="ghost"
                           size="icon"
                           className="size-8"
-                          onClick={() => setVariantDialog({ open: true, state: { mode: "edit", variant: v } })}
+                          onClick={() =>
+                            setVariantDialog({ open: true, state: { mode: "edit", variant: v } })
+                          }
                         >
                           <Pencil className="size-3.5" />
                         </Button>

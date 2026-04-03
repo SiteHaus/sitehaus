@@ -41,7 +41,10 @@ export class CommentsController {
       parsed.targetId,
     );
     // First-party (SiteHaus employees) can read comments on any client's resources
-    if (!targetClientId || (!req.client!.firstParty && targetClientId !== req.client!.id)) {
+    if (
+      !targetClientId ||
+      (!req.client!.firstParty && targetClientId !== req.client!.id)
+    ) {
       throw new ForbiddenException('Target not found or access denied');
     }
 
@@ -62,7 +65,10 @@ export class CommentsController {
       parsed.targetId,
     );
     // First-party (SiteHaus employees) can comment on any client's resources
-    if (!targetClientId || (!req.client!.firstParty && targetClientId !== req.client!.id)) {
+    if (
+      !targetClientId ||
+      (!req.client!.firstParty && targetClientId !== req.client!.id)
+    ) {
       throw new ForbiddenException('Target not found or access denied');
     }
 
@@ -108,10 +114,7 @@ export class CommentsController {
   @RequirePerms('comments:create')
   @Delete(':commentId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(
-    @Req() req: Req_,
-    @Param('commentId') commentId: string,
-  ) {
+  async remove(@Req() req: Req_, @Param('commentId') commentId: string) {
     // Resolve the owning client for correct audit context
     const existing = await this.comments.resolveCommentTarget(commentId);
     if (!existing) throw new NotFoundException('Comment not found');

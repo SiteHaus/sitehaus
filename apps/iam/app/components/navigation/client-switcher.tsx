@@ -23,8 +23,7 @@ import { Suspense } from "react";
 function ClientSwitcherContent() {
   const user = useAuthStore((s) => s.user);
   const bootstrapped = useAuthStore((s) => s.bootstrapped);
-  const { selectedClient, pageName, clients, setSelectedClient } =
-    useClientContext();
+  const { selectedClient, pageName, clients, setSelectedClient } = useClientContext();
 
   // Wait for bootstrap to complete (ensures clients are loaded)
   if (!user || !bootstrapped) return null;
@@ -58,9 +57,7 @@ function ClientSwitcherContent() {
                     </DropdownMenuItem>
                   ))}
                   {clients.length === 0 && (
-                    <DropdownMenuItem disabled>
-                      No clients available
-                    </DropdownMenuItem>
+                    <DropdownMenuItem disabled>No clients available</DropdownMenuItem>
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>

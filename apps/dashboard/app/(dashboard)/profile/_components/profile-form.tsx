@@ -6,12 +6,7 @@ import { Button } from "@site-haus/ui/components/base/button";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@site-haus/ui/components/base/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 import { useState } from "react";
@@ -23,7 +18,7 @@ import { SocialInput, TikTokIcon } from "./social-input";
 
 async function saveSection(
   profile: BusinessProfileItem | null,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): Promise<BusinessProfileItem | null> {
   try {
     if (!profile) {
@@ -58,9 +53,7 @@ function SaveButton({
         Save
       </Button>
       {disabled && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          Fill in the About section first.
-        </p>
+        <p className="mt-2 text-xs text-muted-foreground">Fill in the About section first.</p>
       )}
     </div>
   );
@@ -78,9 +71,7 @@ function AboutTab({
   const [businessName, setBusinessName] = useState(profile?.businessName ?? "");
   const [industry, setIndustry] = useState(profile?.industry ?? "");
   const [description, setDescription] = useState(profile?.description ?? "");
-  const [targetAudience, setTargetAudience] = useState(
-    profile?.targetAudience ?? ""
-  );
+  const [targetAudience, setTargetAudience] = useState(profile?.targetAudience ?? "");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -105,8 +96,8 @@ function AboutTab({
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted-foreground">
-        Fields marked with <span className="text-destructive font-medium">*</span> are required.
-        All other fields are optional but help us do better work for you.
+        Fields marked with <span className="text-destructive font-medium">*</span> are required. All
+        other fields are optional but help us do better work for you.
       </p>
       <div className="space-y-1.5">
         <Label htmlFor="businessName">
@@ -168,7 +159,7 @@ function BrandTab({
 }) {
   const [hasLogo, setHasLogo] = useState<boolean>(profile?.hasLogo ?? false);
   const [brandColors, setBrandColors] = useState<string[]>(
-    (profile?.brandColors as string[] | null) ?? []
+    (profile?.brandColors as string[] | null) ?? [],
   );
   const [brandFonts, setBrandFonts] = useState(profile?.brandFonts ?? "");
   const [saving, setSaving] = useState(false);
@@ -365,11 +356,9 @@ function GoalsTab({
   const [painPoints, setPainPoints] = useState(profile?.painPoints ?? "");
   const [competitors, setCompetitors] = useState(profile?.competitors ?? "");
   const [inspirationUrls, setInspirationUrls] = useState<string[]>(
-    (profile?.inspirationUrls as string[] | null) ?? []
+    (profile?.inspirationUrls as string[] | null) ?? [],
   );
-  const [additionalNotes, setAdditionalNotes] = useState(
-    profile?.additionalNotes ?? ""
-  );
+  const [additionalNotes, setAdditionalNotes] = useState(profile?.additionalNotes ?? "");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {

@@ -48,19 +48,13 @@ interface AssetSheetProps {
   onClose: () => void;
   onUpdate: (
     id: string,
-    data: { notes?: string | null; reviewStatus?: AssetItem["reviewStatus"] }
+    data: { notes?: string | null; reviewStatus?: AssetItem["reviewStatus"] },
   ) => Promise<boolean>;
   onDelete: (id: string) => Promise<boolean>;
   getAsset: (id: string) => Promise<AssetDetail | null>;
 }
 
-export function AssetSheet({
-  assetId,
-  onClose,
-  onUpdate,
-  onDelete,
-  getAsset,
-}: AssetSheetProps) {
+export function AssetSheet({ assetId, onClose, onUpdate, onDelete, getAsset }: AssetSheetProps) {
   const canManage = useAuthStore((s) => s.hasPerm("assets:manage"));
 
   const [asset, setAsset] = useState<AssetDetail | null>(null);
@@ -79,7 +73,7 @@ export function AssetSheet({
       }
       setAssetLoading(false);
     },
-    [getAsset]
+    [getAsset],
   );
 
   useEffect(() => {
@@ -181,12 +175,7 @@ export function AssetSheet({
                 className="resize-none"
                 rows={3}
               />
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={savingNotes}
-                onClick={handleSaveNotes}
-              >
+              <Button size="sm" variant="outline" disabled={savingNotes} onClick={handleSaveNotes}>
                 {savingNotes && <Spinner className="size-4 mr-2" />}
                 Save Notes
               </Button>
@@ -206,9 +195,7 @@ export function AssetSheet({
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="reviewed">Reviewed</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
-                      <SelectItem value="needs_replacement">
-                        Needs Replacement
-                      </SelectItem>
+                      <SelectItem value="needs_replacement">Needs Replacement</SelectItem>
                     </SelectContent>
                   </Select>
                 </>
@@ -228,16 +215,13 @@ export function AssetSheet({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete file?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        This will permanently delete &quot;{asset.fileName}&quot;.
-                        This action cannot be undone.
+                        This will permanently delete &quot;{asset.fileName}&quot;. This action
+                        cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        variant="destructive"
-                        onClick={handleDelete}
-                      >
+                      <AlertDialogAction variant="destructive" onClick={handleDelete}>
                         Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>

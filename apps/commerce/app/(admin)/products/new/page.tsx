@@ -2,12 +2,7 @@
 
 import { createProduct } from "@/lib/commerce";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import {
@@ -36,7 +31,11 @@ export default function NewProductPage() {
 
     setSaving(true);
     try {
-      const product = await createProduct({ name: name.trim(), description: description || undefined, status });
+      const product = await createProduct({
+        name: name.trim(),
+        description: description || undefined,
+        status,
+      });
       toast.success("Product created");
       router.push(`/products/${product.id}`);
     } catch (err) {

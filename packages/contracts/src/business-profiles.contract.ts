@@ -4,12 +4,7 @@ import {
 } from "@site-haus/validation/forms/business-profile";
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
-import {
-  apiErrorHttp,
-  apiErrorServer,
-  apiErrorValidation,
-  dateTime,
-} from "./primitives.js";
+import { apiErrorHttp, apiErrorServer, apiErrorValidation, dateTime } from "./primitives.js";
 
 const c = initContract();
 

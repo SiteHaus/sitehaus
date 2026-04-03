@@ -9,9 +9,7 @@ export default function AdminHomePage() {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-1">Welcome back, {firstName}</h1>
-      <p className="text-muted-foreground">
-        Manage your store from the sidebar.
-      </p>
+      <p className="text-muted-foreground">Manage your store from the sidebar.</p>
     </div>
   );
 }

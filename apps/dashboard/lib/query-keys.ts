@@ -10,26 +10,21 @@ export const queryKeys = {
   },
   assets: {
     list: (projectId: string) => ["assets", projectId] as const,
-    detail: (projectId: string, assetId: string) =>
-      ["assets", projectId, assetId] as const,
+    detail: (projectId: string, assetId: string) => ["assets", projectId, assetId] as const,
   },
   designDoc: {
     detail: (projectId: string) => ["design-doc", projectId] as const,
-    versions: (projectId: string) =>
-      ["design-doc", projectId, "versions"] as const,
+    versions: (projectId: string) => ["design-doc", projectId, "versions"] as const,
     version: (projectId: string, version: string) =>
       ["design-doc", projectId, "versions", version] as const,
   },
   billing: {
-    project: (projectId: string) =>
-      ["billing", "project", projectId] as const,
+    project: (projectId: string) => ["billing", "project", projectId] as const,
     admin: () => ["billing", "admin"] as const,
-    client: (managedClientId: string | null) =>
-      ["billing", "client", managedClientId] as const,
+    client: (managedClientId: string | null) => ["billing", "client", managedClientId] as const,
   },
   comments: {
-    list: (targetType: string, targetId: string) =>
-      ["comments", targetType, targetId] as const,
+    list: (targetType: string, targetId: string) => ["comments", targetType, targetId] as const,
   },
   breadcrumb: {
     name: (id: string) => ["breadcrumb", id] as const,

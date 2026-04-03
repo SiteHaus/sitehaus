@@ -33,11 +33,7 @@ export interface LoginFormProps {
   authForLabel?: string;
 }
 
-export const LoginForm = ({
-  onSubmit,
-  defaultValues,
-  authForLabel,
-}: LoginFormProps) => {
+export const LoginForm = ({ onSubmit, defaultValues, authForLabel }: LoginFormProps) => {
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -61,9 +57,7 @@ export const LoginForm = ({
   return (
     <div className="w-full max-w-md mx-auto p-8">
       <h1 className="text-2xl font-semibold text-center mb-2">Welcome</h1>
-      <p className="text-sm text-gray-500 text-center mb-6">
-        Please log in to your account
-      </p>
+      <p className="text-sm text-gray-500 text-center mb-6">Please log in to your account</p>
 
       <ClientReadOnlyField authForLabel={authForLabel || "SiteHaus"} />
 
@@ -93,10 +87,7 @@ export const LoginForm = ({
                 <FormLabel>Password</FormLabel>
                 <FormControl>
                   <InputGroup>
-                    <InputGroupInput
-                      type={showPassword ? "text" : "password"}
-                      {...field}
-                    />
+                    <InputGroupInput type={showPassword ? "text" : "password"} {...field} />
 
                     <InputGroupAddon align="inline-end">
                       <InputGroupButton
@@ -115,11 +106,7 @@ export const LoginForm = ({
             )}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Submitting..." : "Log In"}
           </Button>
 
@@ -136,10 +123,7 @@ export const LoginForm = ({
 
           <p className="text-sm text-center text-gray-500 mt-4">
             Don&apos;t have an account?{" "}
-            <AuthLink
-              href="/register"
-              className="text-blue-500 hover:underline"
-            >
+            <AuthLink href="/register" className="text-blue-500 hover:underline">
               Sign up
             </AuthLink>
           </p>

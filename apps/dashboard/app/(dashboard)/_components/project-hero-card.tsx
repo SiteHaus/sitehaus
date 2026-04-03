@@ -59,10 +59,7 @@ export function ProjectHeroCard({ project, milestones }: ProjectHeroCardProps) {
           ) : (
             <div className="space-y-2.5">
               {projectMilestones.map((milestone) => (
-                <div
-                  key={milestone.id}
-                  className="flex items-center justify-between gap-3"
-                >
+                <div key={milestone.id} className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <MilestoneStatusIcon status={milestone.status} />
                     <span className="text-sm truncate">{milestone.name}</span>

@@ -1,19 +1,8 @@
 import { commentTargetTypeValues } from "@site-haus/validation/core/enums";
-import {
-  boolean,
-  index,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { boolean, index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { usersTable } from "../iam/users.js";
 
-export const commentTargetTypeEnum = pgEnum(
-  "comment_target_type",
-  commentTargetTypeValues
-);
+export const commentTargetTypeEnum = pgEnum("comment_target_type", commentTargetTypeValues);
 
 export const commentsTable = pgTable(
   "comments",
@@ -34,11 +23,10 @@ export const commentsTable = pgTable(
     index("comments_target_idx").on(t.targetType, t.targetId),
     index("comments_author_idx").on(t.authorId),
     index("comments_parent_idx").on(t.parentId),
-  ]
+  ],
 );
 
-export type CommentTargetType =
-  (typeof commentTargetTypeEnum.enumValues)[number];
+export type CommentTargetType = (typeof commentTargetTypeEnum.enumValues)[number];
 
 export type Comment = typeof commentsTable.$inferSelect;
 export type NewComment = typeof commentsTable.$inferInsert;

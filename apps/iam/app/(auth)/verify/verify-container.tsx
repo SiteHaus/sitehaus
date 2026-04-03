@@ -4,10 +4,7 @@ import { VerifyCodeForm } from "@/app/(auth)/verify/form/verify-form";
 import { useAuthNav } from "@/lib/auth-nav";
 import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
-import {
-  requestVerifySchema,
-  VerifyInput,
-} from "@site-haus/validation/forms/auth";
+import { requestVerifySchema, VerifyInput } from "@site-haus/validation/forms/auth";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -18,13 +15,9 @@ export type VerificationMode = "email" | "reset";
  */
 function redirectToOAuth(oauthParams: string): boolean {
   try {
-    const params = JSON.parse(
-      atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/"))
-    );
+    const params = JSON.parse(atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/")));
 
-    const authorizeUrl = new URL(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`
-    );
+    const authorizeUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`);
 
     Object.entries(params).forEach(([key, value]) => {
       if (value) {
@@ -91,8 +84,7 @@ export default function VerifyCodeContainer() {
     });
     if (r.status !== 200) throw r;
 
-    const { accessToken, accessTokenExpiresIn, requiresEmailVerification } =
-      r.body;
+    const { accessToken, accessTokenExpiresIn, requiresEmailVerification } = r.body;
 
     if (requiresEmailVerification) {
       replace("/verify", {

@@ -190,7 +190,9 @@ export class AuthService {
 
     // Use shorter TTL for MFA pending tokens
     const mfaPending = opts?.mfaPending ?? false;
-    const accessTtlSec = mfaPending ? MFA_PENDING_TTL_SEC : this.cfg.accessTtlSec;
+    const accessTtlSec = mfaPending
+      ? MFA_PENDING_TTL_SEC
+      : this.cfg.accessTtlSec;
     const mfaClaim = mfaPending ? 'pending' : undefined;
 
     const accessToken = await this.tokens.signAccessToken(
@@ -224,7 +226,13 @@ export class AuthService {
    */
   async completeMfaLogin(
     code: string,
-    ctx: { userId: string; sessionId: string; clientId: string; ip?: string; ua?: string },
+    ctx: {
+      userId: string;
+      sessionId: string;
+      clientId: string;
+      ip?: string;
+      ua?: string;
+    },
   ) {
     // Verify the TOTP code
     const valid = await this.totp.verify(ctx.userId, code);
@@ -301,10 +309,7 @@ export class AuthService {
     }
 
     // Get permissions for user in the session's client context
-    const perms = await this.roles.permsForUserClient(
-      payload.sub,
-      payload.aud,
-    );
+    const perms = await this.roles.permsForUserClient(payload.sub, payload.aud);
 
     return {
       active: true,

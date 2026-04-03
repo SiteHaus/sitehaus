@@ -3,16 +3,12 @@
 import { cn } from "@site-haus/ui/lib/utils";
 import * as React from "react";
 
-export function FixedToolbar({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"div">) {
+export function FixedToolbar({ className, children, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
         "sticky top-0 z-10 flex flex-wrap items-center gap-1 rounded-t-lg border bg-background p-1",
-        className
+        className,
       )}
       role="toolbar"
       {...props}
@@ -36,7 +32,7 @@ export function ToolbarButton({
         "hover:bg-muted hover:text-foreground",
         active && "bg-muted text-foreground",
         !active && "text-muted-foreground",
-        className
+        className,
       )}
       {...props}
     >
@@ -45,14 +41,6 @@ export function ToolbarButton({
   );
 }
 
-export function ToolbarSeparator({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      className={cn("mx-1 h-5 w-px shrink-0 bg-border", className)}
-      {...props}
-    />
-  );
+export function ToolbarSeparator({ className, ...props }: React.ComponentProps<"div">) {
+  return <div className={cn("mx-1 h-5 w-px shrink-0 bg-border", className)} {...props} />;
 }

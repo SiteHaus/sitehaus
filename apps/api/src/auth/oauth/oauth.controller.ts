@@ -158,7 +158,9 @@ export class OAuthController {
 
     // If we have refresh cookie but no req.user, verify the refresh token
     let userId: string;
-    let refreshSession: Awaited<ReturnType<typeof this.sessionService.validateRefreshToken>> = null;
+    let refreshSession: Awaited<
+      ReturnType<typeof this.sessionService.validateRefreshToken>
+    > = null;
     if (req.user) {
       userId = req.user.userId;
     } else {

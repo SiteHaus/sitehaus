@@ -81,23 +81,14 @@ export function CompanyTab() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Workspace</CardTitle>
-          <CardDescription>
-            Your agency name as it appears across the platform.
-          </CardDescription>
+          <CardDescription>Your agency name as it appears across the platform.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="name">Workspace name</Label>
-              <Input
-                id="name"
-                {...register("name")}
-                placeholder="SiteHaus"
-                disabled={!canManage}
-              />
-              {errors.name && (
-                <p className="text-xs text-destructive">{errors.name.message}</p>
-              )}
+              <Input id="name" {...register("name")} placeholder="SiteHaus" disabled={!canManage} />
+              {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
             </div>
 
             <div className="space-y-1.5">
@@ -118,11 +109,7 @@ export function CompanyTab() {
               <>
                 <Separator />
                 <div className="flex justify-end">
-                  <Button
-                    type="submit"
-                    size="sm"
-                    disabled={!isDirty || mutation.isPending}
-                  >
+                  <Button type="submit" size="sm" disabled={!isDirty || mutation.isPending}>
                     {mutation.isPending && <Spinner className="size-3.5 mr-2" />}
                     Save changes
                   </Button>

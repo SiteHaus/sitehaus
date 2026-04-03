@@ -502,15 +502,16 @@ The frontend apps use Zustand for auth state with smart persistence and caching.
 
 ### Storage Strategy
 
-| Data | Storage | Reason |
-|------|---------|--------|
-| `accessToken` | sessionStorage | Cleared on tab close (security) |
-| `accessExpiration` | sessionStorage | Paired with token |
-| `user` | sessionStorage | Quick hydration |
-| `session` | sessionStorage | Quick hydration |
-| `clients` | sessionStorage | Client switcher data |
+| Data               | Storage        | Reason                          |
+| ------------------ | -------------- | ------------------------------- |
+| `accessToken`      | sessionStorage | Cleared on tab close (security) |
+| `accessExpiration` | sessionStorage | Paired with token               |
+| `user`             | sessionStorage | Quick hydration                 |
+| `session`          | sessionStorage | Quick hydration                 |
+| `clients`          | sessionStorage | Client switcher data            |
 
 **Why sessionStorage over localStorage:**
+
 - Access tokens cleared when tab closes (reduces XSS risk window)
 - Isolated per tab (more secure)
 - Refresh token in HttpOnly cookie handles cross-session persistence
@@ -562,12 +563,12 @@ On page load, the auth store runs `bootstrap()`:
 
 ### Performance Optimizations
 
-| Scenario | API Calls | Notes |
-|----------|-----------|-------|
-| Same-tab navigation | 0 | User data cached in memory |
-| New tab (logged in) | 2 | `/me` + `/clients` with existing token |
-| New tab (token expired) | 3 | `/refresh` + `/me` + `/clients` |
-| First visit / logged out | 1 | `/refresh` fails, redirect to login |
+| Scenario                 | API Calls | Notes                                  |
+| ------------------------ | --------- | -------------------------------------- |
+| Same-tab navigation      | 0         | User data cached in memory             |
+| New tab (logged in)      | 2         | `/me` + `/clients` with existing token |
+| New tab (token expired)  | 3         | `/refresh` + `/me` + `/clients`        |
+| First visit / logged out | 1         | `/refresh` fails, redirect to login    |
 
 ### Callback Page Exception
 
@@ -577,7 +578,7 @@ The `/callback` page handles OAuth token exchange and is **excluded from bootstr
 // apps/iam/app/providers/providers.tsx
 useEffect(() => {
   // Skip bootstrap on callback page - it handles its own token exchange
-  if (hydrated && pathname !== "/callback") {
+  if (hydrated && pathname !== '/callback') {
     void useAuthStore.getState().bootstrap();
   }
 }, [hydrated, pathname]);

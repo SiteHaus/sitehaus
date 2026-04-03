@@ -21,6 +21,7 @@ SiteHaus is a full-stack monorepo built with **Next.js, NestJS, Turborepo, TypeS
 ## Commands
 
 ### Development
+
 ```bash
 # Install dependencies (from project root)
 pnpm i
@@ -39,6 +40,7 @@ docker-compose -f docker-compose.dev.yml up
 ```
 
 ### Building
+
 ```bash
 # Build all apps
 pnpm build
@@ -51,6 +53,7 @@ pnpm build --filter=api
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 pnpm test
@@ -63,6 +66,7 @@ cd apps/api && pnpm test:e2e       # E2E tests
 ```
 
 ### Type Checking and Linting
+
 ```bash
 # Type check all apps
 pnpm check-types
@@ -75,6 +79,7 @@ pnpm format
 ```
 
 ### Database Operations
+
 ```bash
 # Generate Drizzle migrations
 cd packages/db && pnpm db:gen
@@ -93,6 +98,7 @@ cd packages/db && pnpm grant-admin
 ```
 
 ### Email Development
+
 ```bash
 # Start email preview server on port 6969
 cd packages/transactional && pnpm dev
@@ -179,6 +185,7 @@ cd packages/transactional && pnpm export
 ## Environment Variables
 
 Required environment variables are in `.env.example`. Key variables:
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` / `JWT_SECRET_B64URL` - JWT signing secrets
 - `ACCESS_TTL_SEC` / `REFRESH_TTL_SEC` - Token expiration times
@@ -186,6 +193,7 @@ Required environment variables are in `.env.example`. Key variables:
 ## CI/CD
 
 The repository uses GitHub Actions:
+
 - **CI** (`.github/workflows/ci.yml`): Runs type checking on PRs to main
 - **CD** (`.github/workflows/cd.yml`): Deployment workflow
 - **Discord Notify** (`.github/workflows/discord_notify.yml`): Notifications
@@ -203,6 +211,7 @@ The repository uses GitHub Actions:
 Full spec: [`docs/standards/react.md`](docs/standards/react.md)
 
 **Key rules:**
+
 - One component per file — no exceptions
 - `page.tsx` files are thin shells (role dispatch only, ≤15 lines); all view components in `_components/`
 - All dashboard pages are `"use client"` (auth dependency)

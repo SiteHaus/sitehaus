@@ -43,10 +43,7 @@ interface SubmitTicketFormProps {
   defaultValues: UpdateTicketInput;
 }
 
-export function SubmitTicketForm({
-  ticketId,
-  defaultValues,
-}: SubmitTicketFormProps) {
+export function SubmitTicketForm({ ticketId, defaultValues }: SubmitTicketFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
 

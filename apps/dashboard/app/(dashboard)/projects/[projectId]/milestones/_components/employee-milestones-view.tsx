@@ -23,24 +23,17 @@ interface EmployeeMilestonesViewProps {
   projectId: string;
 }
 
-export function EmployeeMilestonesView({
-  projectId,
-}: EmployeeMilestonesViewProps) {
-  const { milestones, loading, create, update, remove, reorder } =
-    useMilestones(projectId);
+export function EmployeeMilestonesView({ projectId }: EmployeeMilestonesViewProps) {
+  const { milestones, loading, create, update, remove, reorder } = useMilestones(projectId);
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<MilestoneItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MilestoneItem | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const handleCreate = (
-    data: Parameters<typeof create>[0],
-  ): Promise<boolean> => create(data);
+  const handleCreate = (data: Parameters<typeof create>[0]): Promise<boolean> => create(data);
 
-  const handleUpdate = (
-    data: Parameters<typeof update>[1],
-  ): Promise<boolean> => {
+  const handleUpdate = (data: Parameters<typeof update>[1]): Promise<boolean> => {
     if (!editTarget) return Promise.resolve(false);
     return update(editTarget.id, data);
   };
@@ -140,17 +133,12 @@ export function EmployeeMilestonesView({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete milestone?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete &quot;{deleteTarget?.name}&quot;.
-              This cannot be undone.
+              This will permanently delete &quot;{deleteTarget?.name}&quot;. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={!!deletingId}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={!!deletingId}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleDelete} disabled={!!deletingId}>
               {deletingId && <Spinner className="size-4 mr-2" />}
               Delete
             </AlertDialogAction>

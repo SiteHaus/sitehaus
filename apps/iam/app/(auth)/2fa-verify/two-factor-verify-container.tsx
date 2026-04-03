@@ -17,7 +17,12 @@ export default function TwoFactorVerifyContainer() {
   const clientName = searchParams.get("client") || "";
   const oauthParams = searchParams.get("oauth_params");
 
-  console.log('[DEBUG] 2FA page loaded, oauth_params:', oauthParams, 'URL:', typeof window !== 'undefined' ? window.location.href : 'SSR');
+  console.log(
+    "[DEBUG] 2FA page loaded, oauth_params:",
+    oauthParams,
+    "URL:",
+    typeof window !== "undefined" ? window.location.href : "SSR",
+  );
 
   const accessToken = useAuthStore((s) => s.accessToken);
   const setAccess = useAuthStore((s) => s.setAccess);
@@ -51,14 +56,10 @@ export default function TwoFactorVerifyContainer() {
     if (oauthParams) {
       try {
         // Decode the OAuth parameters
-        const params = JSON.parse(
-          atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/"))
-        );
+        const params = JSON.parse(atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/")));
 
         // Build the authorize URL with the original OAuth params
-        const authorizeUrl = new URL(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`
-        );
+        const authorizeUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`);
 
         Object.entries(params).forEach(([key, value]) => {
           if (value) {
@@ -87,11 +88,5 @@ export default function TwoFactorVerifyContainer() {
     return null;
   }
 
-  return (
-    <TwoFactorVerifyForm
-      onSubmit={onSubmit}
-      onCancel={onCancel}
-      authForLabel={clientName}
-    />
-  );
+  return <TwoFactorVerifyForm onSubmit={onSubmit} onCancel={onCancel} authForLabel={clientName} />;
 }

@@ -37,9 +37,7 @@ export default function NewTicketsPage() {
         router.back();
       } else {
         const msg =
-          res.status === 400
-            ? "Validation error. Check your inputs."
-            : "Failed to create ticket.";
+          res.status === 400 ? "Validation error. Check your inputs." : "Failed to create ticket.";
         toast.error(msg);
       }
     } catch {
@@ -55,15 +53,9 @@ export default function NewTicketsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">New Ticket</h1>
-        <p className="text-muted-foreground mt-1">
-          Create a new ticket for a project.
-        </p>
+        <p className="text-muted-foreground mt-1">Create a new ticket for a project.</p>
       </div>
-      <CreateTicketForm
-        projects={projectOptions}
-        onSubmit={handleSubmit}
-        loading={loading}
-      />
+      <CreateTicketForm projects={projectOptions} onSubmit={handleSubmit} loading={loading} />
     </div>
   );
 }

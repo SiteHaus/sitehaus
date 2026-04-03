@@ -57,7 +57,5 @@ export const listProjectsQuerySchema = z.object({
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
-export type ProjectStatusTransition = z.infer<
-  typeof projectStatusTransitionSchema
->;
+export type ProjectStatusTransition = z.infer<typeof projectStatusTransitionSchema>;
 export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;

@@ -7,11 +7,8 @@ export const passwordCredentialsTable = pgTable("password_credentials", {
     .references(() => usersTable.id, { onDelete: "cascade" }),
   passwordHash: text("password_hash").notNull(),
   version: varchar("version", { length: 32 }).notNull().default("argon2id-1"),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
-    .notNull()
-    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
 export type PasswordCredential = typeof passwordCredentialsTable.$inferSelect;
-export type NewPasswordCredential =
-  typeof passwordCredentialsTable.$inferInsert;
+export type NewPasswordCredential = typeof passwordCredentialsTable.$inferInsert;

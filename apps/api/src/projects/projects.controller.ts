@@ -40,7 +40,11 @@ export class ProjectsController {
   @RequirePerms('projects:read')
   @Get(':projectId')
   async get(@Req() req: Req_, @Param('projectId') projectId: string) {
-    const project = await this.projects.getById(projectId, req.client!.id, req.client!.firstParty);
+    const project = await this.projects.getById(
+      projectId,
+      req.client!.id,
+      req.client!.firstParty,
+    );
     if (!project) throw new NotFoundException('Project not found');
     return { project };
   }
@@ -67,11 +71,17 @@ export class ProjectsController {
     @Body() body: unknown,
   ) {
     const parsed = updateProjectSchema.parse(body);
-    const project = await this.projects.update(projectId, req.client!.id, parsed, {
-      userId: req.user!.userId,
-      ip: req.ip,
-      ua: req.headers['user-agent'] as string | undefined,
-    }, req.client!.firstParty);
+    const project = await this.projects.update(
+      projectId,
+      req.client!.id,
+      parsed,
+      {
+        userId: req.user!.userId,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
+      req.client!.firstParty,
+    );
     if (!project) throw new NotFoundException('Project not found');
     return { project };
   }
@@ -79,15 +89,17 @@ export class ProjectsController {
   @RequirePerms('projects:manage')
   @Delete(':projectId')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(
-    @Req() req: Req_,
-    @Param('projectId') projectId: string,
-  ) {
-    const cancelled = await this.projects.cancel(projectId, req.client!.id, {
-      userId: req.user!.userId,
-      ip: req.ip,
-      ua: req.headers['user-agent'] as string | undefined,
-    }, req.client!.firstParty);
+  async remove(@Req() req: Req_, @Param('projectId') projectId: string) {
+    const cancelled = await this.projects.cancel(
+      projectId,
+      req.client!.id,
+      {
+        userId: req.user!.userId,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
+      req.client!.firstParty,
+    );
     if (!cancelled) throw new NotFoundException('Project not found');
   }
 

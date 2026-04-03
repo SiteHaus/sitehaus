@@ -1,11 +1,4 @@
-import {
-  index,
-  jsonb,
-  pgTable,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { index, jsonb, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
 import { clientsTable } from "../iam/clients.js";
 import { usersTable } from "../iam/users.js";
 
@@ -25,15 +18,13 @@ export const auditLogTable = pgTable(
     ipHash: varchar("ip_hash", { length: 64 }),
     uaHash: varchar("ua_hash", { length: 64 }),
     meta: jsonb("meta"),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     index("audit_client_idx").on(t.clientId),
     index("audit_user_idx").on(t.userId),
     index("audit_created_idx").on(t.createdAt),
-  ]
+  ],
 );
 
 export type Audit = typeof auditLogTable.$inferSelect;

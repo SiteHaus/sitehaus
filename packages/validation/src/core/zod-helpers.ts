@@ -5,11 +5,7 @@ export const emailSchema = z
   .toLowerCase()
   .max(256, "Email is too long");
 
-export const nameSchema = z
-  .string()
-  .trim()
-  .min(1, "Required")
-  .max(120, "Too long");
+export const nameSchema = z.string().trim().min(1, "Required").max(120, "Too long");
 
 export const passwordSchema = z
   .string()

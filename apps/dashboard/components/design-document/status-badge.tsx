@@ -9,11 +9,7 @@ const statusConfig = {
   amended: { label: "Amended", variant: "default" as const },
 };
 
-export function DesignDocStatusBadge({
-  status,
-}: {
-  status: string;
-}) {
+export function DesignDocStatusBadge({ status }: { status: string }) {
   const config = statusConfig[status as keyof typeof statusConfig] ?? {
     label: status,
     variant: "secondary" as const,

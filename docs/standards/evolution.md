@@ -9,6 +9,7 @@ Not a criticism of the old code — it works and ships. This is about raising th
 ## 1. Contracts existed but controllers ignored them
 
 ### What we did
+
 We defined ts-rest contracts in `packages/contracts` with full Zod schemas and typed response shapes. Then the controllers completely bypassed them:
 
 ```typescript
@@ -24,6 +25,7 @@ async create(@Body() body: unknown) {
 The contracts were only used by the frontend SDK client (`@site-haus/sdk`). The backend never bound to them.
 
 ### What we do now
+
 Use `@ts-rest/nest` to bind controllers directly to their contract routes. The contract IS the controller's type system:
 
 ```typescript
@@ -44,6 +46,7 @@ async create(@Req() req: AuthedRequest) {
 ## 2. `unknown` bodies made controllers noisy
 
 ### What we did
+
 Every controller parameter was typed as `unknown`, then immediately parsed:
 
 ```typescript
@@ -56,6 +59,7 @@ async create(@Body() body: unknown) {
 In every single handler. Easy to forget on a quick patch. No compile-time safety until runtime.
 
 ### What we do now
+
 With `@ts-rest/nest`, `body`, `query`, and `params` arrive pre-validated and fully typed inside the `tsRestHandler` callback. No manual `.parse()`. No `unknown` in controllers.
 
 ---
@@ -63,15 +67,17 @@ With `@ts-rest/nest`, `body`, `query`, and `params` arrive pre-validated and ful
 ## 3. Response shapes were unenforced
 
 ### What we did
+
 Controllers returned plain object literals with no type checking on the response:
 
 ```typescript
-return { ticket: result };   // TypeScript doesn't verify this matches the contract
+return { ticket: result }; // TypeScript doesn't verify this matches the contract
 ```
 
 If a field was renamed or a new required field added to the contract, the controller silently returned the wrong shape.
 
 ### What we do now
+
 The `tsRestHandler` return type is derived from the contract's response schemas. Add a field to the contract and forget to add it to the service output — TypeScript errors. Remove a field — TypeScript errors. The compiler enforces contract compliance end-to-end.
 
 ---
@@ -79,9 +85,11 @@ The `tsRestHandler` return type is derived from the contract's response schemas.
 ## 4. Audit logging blocked the hot path
 
 ### What we did
+
 `AuditService.log()` was a direct DB write, awaited inline after every mutation. Every create/update/delete waited for an audit row before returning a response.
 
 ### What we do now
+
 `AuditModule.enqueue()` pushes to the `ecom:audit` BullMQ queue (fire-and-forget). The worker's `AuditProcessor` writes to DB asynchronously. The hot path returns immediately. If the audit write fails, it retries in the worker — it doesn't affect the user's response.
 
 ---
@@ -89,9 +97,11 @@ The `tsRestHandler` return type is derived from the contract's response schemas.
 ## 5. Business logic crept into controllers
 
 ### What we did
+
 Controllers occasionally held logic that belonged in services — ownership checks, conditional branching, constructing multi-field update objects. It wasn't always obvious where the line was.
 
 ### What we do now
+
 The rule is strict: controllers translate (route → parse → call service → map result → return). Services decide (ownership, state transitions, business rules). If you find yourself writing an `if` in a controller that isn't about HTTP status mapping, it belongs in the service.
 
 ---
@@ -99,20 +109,22 @@ The rule is strict: controllers translate (route → parse → call service → 
 ## 6. No repo layer meant bloated services
 
 ### What we did
+
 Services held both business logic and Drizzle queries in the same file. The tickets service was already approaching 370 lines and mixed query construction with state machine logic.
 
 ### What we do now
+
 `*.repo.ts` is an explicit layer. Services grow to ~150 lines before a repo is extracted — not as a rule to always follow, but as a signal. When a service is large, the split makes each layer easier to read, test, and modify independently.
 
 ---
 
 ## Summary
 
-| Old | New | Why |
-|---|---|---|
-| `@Body() body: unknown` + manual `.parse()` | `tsRestHandler` typed callback | Removes boilerplate, enforces at compile time |
-| Contract unused by backend | `@TsRestHandler` binds controller to contract | Single source of truth, TS enforces both ends |
-| Plain object return, no type check | Return must match contract response schema | Catch shape mismatches at build time |
-| `await audit.log()` on hot path | `audit.enqueue()` fire-and-forget | Faster responses, retryable audit writes |
-| Logic in controllers | Controllers route only | Predictable, testable, easy to locate logic |
-| Queries in services | Repo layer extracted at ~150 lines | Easier to read and modify each layer independently |
+| Old                                         | New                                           | Why                                                |
+| ------------------------------------------- | --------------------------------------------- | -------------------------------------------------- |
+| `@Body() body: unknown` + manual `.parse()` | `tsRestHandler` typed callback                | Removes boilerplate, enforces at compile time      |
+| Contract unused by backend                  | `@TsRestHandler` binds controller to contract | Single source of truth, TS enforces both ends      |
+| Plain object return, no type check          | Return must match contract response schema    | Catch shape mismatches at build time               |
+| `await audit.log()` on hot path             | `audit.enqueue()` fire-and-forget             | Faster responses, retryable audit writes           |
+| Logic in controllers                        | Controllers route only                        | Predictable, testable, easy to locate logic        |
+| Queries in services                         | Repo layer extracted at ~150 lines            | Easier to read and modify each layer independently |

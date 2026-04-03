@@ -4,22 +4,10 @@ import type { BusinessProfileItem, MeClient } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import {
-  ArrowLeft,
-  ArrowRight,
-  BadgeCheck,
-  Building2,
-  FolderKanban,
-  UserCog,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, BadgeCheck, Building2, FolderKanban, UserCog } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -105,16 +93,10 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
           </div>
           <div>
             <h1 className="text-2xl font-bold leading-tight">{client.name}</h1>
-            <p className="text-xs text-muted-foreground font-mono mt-0.5">
-              {client.key}
-            </p>
+            <p className="text-xs text-muted-foreground font-mono mt-0.5">{client.key}</p>
           </div>
         </div>
-        <Button
-          onClick={handleManageAsClient}
-          disabled={enteringContext}
-          size="sm"
-        >
+        <Button onClick={handleManageAsClient} disabled={enteringContext} size="sm">
           {enteringContext ? (
             <Spinner className="size-3.5 mr-2" />
           ) : (
@@ -151,18 +133,10 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
                   <ProfileField label="Industry" value={profileData.industry} />
                 )}
                 {profileData.description && (
-                  <ProfileField
-                    label="About"
-                    value={profileData.description}
-                    truncate
-                  />
+                  <ProfileField label="About" value={profileData.description} truncate />
                 )}
                 {profileData.goals && (
-                  <ProfileField
-                    label="Goals"
-                    value={profileData.goals}
-                    truncate
-                  />
+                  <ProfileField label="Goals" value={profileData.goals} truncate />
                 )}
                 {profileData.targetAudience && (
                   <ProfileField
@@ -229,8 +203,7 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
 function ProfileCompleteness({ profile }: { profile: BusinessProfileItem }) {
   const cp = (profile.currentPresence as Record<string, unknown> | null) ?? {};
   const social = (cp.social as Record<string, string> | undefined) ?? {};
-  const hasOnline =
-    !!(cp.website as string) || Object.keys(social).length > 0;
+  const hasOnline = !!(cp.website as string) || Object.keys(social).length > 0;
   const colors = (profile.brandColors as string[] | null) ?? [];
   const urls = (profile.inspirationUrls as string[] | null) ?? [];
 
@@ -274,9 +247,7 @@ function ProfileField({
   return (
     <div className="space-y-1">
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className={`text-sm leading-relaxed ${truncate ? "line-clamp-2" : ""}`}>
-        {value}
-      </p>
+      <p className={`text-sm leading-relaxed ${truncate ? "line-clamp-2" : ""}`}>{value}</p>
     </div>
   );
 }

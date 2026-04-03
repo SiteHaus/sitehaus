@@ -37,8 +37,7 @@ async function main() {
       if (expectedPerms.length === 0) continue;
 
       const role = await db.query.rolesTable.findFirst({
-        where: (t, { and: _and, eq: _eq }) =>
-          _and(_eq(t.clientId, client.id), _eq(t.key, roleKey)),
+        where: (t, { and: _and, eq: _eq }) => _and(_eq(t.clientId, client.id), _eq(t.key, roleKey)),
         columns: { id: true, key: true },
       });
 
@@ -50,17 +49,12 @@ async function main() {
       // Find which expected perms are already present
       const existing = await db.query.rolePermissionsTable.findMany({
         where: (t, { and: _and, eq: _eq, inArray: _in }) =>
-          _and(
-            _eq(t.roleId, role.id),
-            _in(t.perm, expectedPerms as unknown as string[]),
-          ),
+          _and(_eq(t.roleId, role.id), _in(t.perm, expectedPerms as unknown as string[])),
         columns: { perm: true },
       });
 
       const existingSet = new Set(existing.map((r) => r.perm));
-      const missing = (expectedPerms as readonly string[]).filter(
-        (p) => !existingSet.has(p),
-      );
+      const missing = (expectedPerms as readonly string[]).filter((p) => !existingSet.has(p));
 
       if (missing.length === 0) {
         console.log(`  ✓ Role "${roleKey}" — all permissions present`);

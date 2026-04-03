@@ -41,7 +41,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
             code_challenge_method: "S256",
             scope: "openid profile email",
             state,
-          })
+          }),
         )
           .replace(/\+/g, "-")
           .replace(/\//g, "_")
@@ -49,9 +49,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
 
         clearAuth();
 
-        const verifyUrl = new URL(
-          `${process.env.NEXT_PUBLIC_IAM_URL}/verify`
-        );
+        const verifyUrl = new URL(`${process.env.NEXT_PUBLIC_IAM_URL}/verify`);
         verifyUrl.searchParams.set("email", user.email);
         verifyUrl.searchParams.set("mode", "email");
         verifyUrl.searchParams.set("oauth_params", oauthParams);

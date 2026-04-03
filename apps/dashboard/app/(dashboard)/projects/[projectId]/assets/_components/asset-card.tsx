@@ -22,9 +22,7 @@ function fileIcon(mimeType: string) {
   return File;
 }
 
-const reviewStatusVariant = (
-  s: string
-): "secondary" | "outline" | "success" | "destructive" => {
+const reviewStatusVariant = (s: string): "secondary" | "outline" | "success" | "destructive" => {
   switch (s) {
     case "reviewed":
       return "outline";

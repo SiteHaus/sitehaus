@@ -16,7 +16,9 @@ export const AppSideBarHeader = () => {
             </div>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-bold">Commerce</span>
-              <span className="truncate text-xs text-sidebar-foreground/50 font-normal">Store Admin</span>
+              <span className="truncate text-xs text-sidebar-foreground/50 font-normal">
+                Store Admin
+              </span>
             </div>
           </SidebarMenuButton>
         </SidebarMenuItem>

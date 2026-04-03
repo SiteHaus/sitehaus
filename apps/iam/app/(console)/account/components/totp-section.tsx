@@ -144,16 +144,10 @@ export function TotpSection() {
                   <Badge variant="secondary">Disabled</Badge>
                 )}
               </CardTitle>
-              <CardDescription>
-                Add an extra layer of security to your account.
-              </CardDescription>
+              <CardDescription>Add an extra layer of security to your account.</CardDescription>
             </div>
             {status?.enabled ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDisableDialogOpen(true)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setDisableDialogOpen(true)}>
                 <ShieldOff className="mr-2 h-4 w-4" />
                 Disable
               </Button>
@@ -168,13 +162,11 @@ export function TotpSection() {
         <CardContent>
           {status?.enabled ? (
             <p className="text-sm text-muted-foreground">
-              Your account is protected with two-factor authentication using an
-              authenticator app.
+              Your account is protected with two-factor authentication using an authenticator app.
             </p>
           ) : (
             <p className="text-sm text-muted-foreground">
-              Protect your account by requiring a code from your authenticator
-              app when you sign in.
+              Protect your account by requiring a code from your authenticator app when you sign in.
             </p>
           )}
         </CardContent>
@@ -254,18 +246,12 @@ function EnableTotpDialog({
         <DialogHeader>
           <DialogTitle>Set Up Two-Factor Authentication</DialogTitle>
           <DialogDescription>
-            Scan the QR code with your authenticator app, then enter the code to
-            verify.
+            Scan the QR code with your authenticator app, then enter the code to verify.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center py-4">
           <div className="bg-white p-4 rounded-lg">
-            <Image
-              src={setupData.qrCodeDataUrl}
-              alt="2FA QR Code"
-              width={200}
-              height={200}
-            />
+            <Image src={setupData.qrCodeDataUrl} alt="2FA QR Code" width={200} height={200} />
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
             Or enter manually: <code className="break-all">{setupData.secret}</code>
@@ -328,8 +314,8 @@ function BackupCodesDialog({
         <DialogHeader>
           <DialogTitle>Save Your Backup Codes</DialogTitle>
           <DialogDescription>
-            Store these codes in a safe place. You can use them to access your
-            account if you lose your authenticator device.
+            Store these codes in a safe place. You can use them to access your account if you lose
+            your authenticator device.
           </DialogDescription>
         </DialogHeader>
         <div className="bg-muted p-4 rounded-lg font-mono text-sm grid grid-cols-2 gap-2">
@@ -396,8 +382,8 @@ function DisableTotpDialog({
         <DialogHeader>
           <DialogTitle>Disable Two-Factor Authentication</DialogTitle>
           <DialogDescription>
-            Enter your password to disable two-factor authentication. This will
-            make your account less secure.
+            Enter your password to disable two-factor authentication. This will make your account
+            less secure.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>

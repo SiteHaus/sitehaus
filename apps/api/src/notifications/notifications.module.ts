@@ -3,7 +3,10 @@ import { BullModule } from '@nestjs/bullmq';
 import { DbModule } from 'src/db/db.module';
 import { EmailModule } from 'src/email/email.module';
 import { NotificationsProcessor } from './notifications.processor';
-import { NotificationsService, NOTIFICATIONS_QUEUE } from './notifications.service';
+import {
+  NotificationsService,
+  NOTIFICATIONS_QUEUE,
+} from './notifications.service';
 
 @Module({
   imports: [

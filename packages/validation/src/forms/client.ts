@@ -34,7 +34,7 @@ export const addRedirectUriSchema = z.object({
           return false;
         }
       },
-      { message: "Invalid URL format" }
+      { message: "Invalid URL format" },
     ),
 });
 

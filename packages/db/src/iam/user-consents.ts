@@ -11,9 +11,7 @@ export const userConsentsTable = pgTable("user_consents", {
     .notNull()
     .references(() => clientsTable.id, { onDelete: "cascade" }),
   scope: varchar("scope", { length: 512 }).notNull(),
-  grantedAt: timestamp("granted_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  grantedAt: timestamp("granted_at", { withTimezone: true }).defaultNow().notNull(),
   expiresAt: timestamp("expires_at", { withTimezone: true }),
 });
 

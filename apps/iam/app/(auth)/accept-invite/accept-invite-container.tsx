@@ -2,9 +2,7 @@
 
 import { useApi } from "@/lib/typed-api";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import {
-  AcceptInviteInput,
-} from "@site-haus/validation/forms/invite";
+import { AcceptInviteInput } from "@site-haus/validation/forms/invite";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -25,9 +23,7 @@ export default function AcceptInviteContainer() {
   const email = searchParams.get("email") ?? "";
   const code = searchParams.get("code") ?? "";
 
-  const [checkResult, setCheckResult] = useState<InviteCheckResult | null>(
-    null
-  );
+  const [checkResult, setCheckResult] = useState<InviteCheckResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -95,9 +91,7 @@ export default function AcceptInviteContainer() {
   if (error || !checkResult) {
     return (
       <div className="max-w-md mx-auto p-8 text-center">
-        <h2 className="text-xl font-semibold mb-2 text-destructive">
-          Invalid Invitation
-        </h2>
+        <h2 className="text-xl font-semibold mb-2 text-destructive">Invalid Invitation</h2>
         <p className="text-muted-foreground">{error}</p>
       </div>
     );

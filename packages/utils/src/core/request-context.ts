@@ -18,10 +18,7 @@ export type RequestContextOptions = {
   requireClientId?: boolean;
 };
 
-export const extractRequestContext = (
-  req: Request,
-  opts: RequestContextOptions = {}
-) => {
+export const extractRequestContext = (req: Request, opts: RequestContextOptions = {}) => {
   const {
     headerName = "x-client-id",
     defaultClientId,
@@ -41,8 +38,7 @@ export const extractRequestContext = (
   if (trustProxy) {
     const xff = req.headers["x-forwarded-for"] as string | undefined;
     ip = xff?.split(",")[0]?.trim();
-    if (!ip)
-      ip = (req.headers["cf-connecting-ip"] as string | undefined) ?? undefined;
+    if (!ip) ip = (req.headers["cf-connecting-ip"] as string | undefined) ?? undefined;
     if (!ip) ip = (req.headers["x-real-ip"] as string | undefined) ?? undefined;
   }
 

@@ -29,28 +29,28 @@ For the rationale behind these choices vs. the existing SiteHaus API, see [`docs
 
 ### HTTP methods
 
-| Method | Meaning | Success status |
-|---|---|---|
-| `GET` | Read — no side effects, safe to retry | `200 OK` |
-| `POST` | Create a new resource | `201 Created` |
-| `PATCH` | Partial update — only fields provided are changed | `200 OK` |
-| `PUT` | Full replace — rarely used; prefer `PATCH` | `200 OK` |
-| `DELETE` | Remove a resource | `200 OK` (with body) or `204 No Content` |
+| Method   | Meaning                                           | Success status                           |
+| -------- | ------------------------------------------------- | ---------------------------------------- |
+| `GET`    | Read — no side effects, safe to retry             | `200 OK`                                 |
+| `POST`   | Create a new resource                             | `201 Created`                            |
+| `PATCH`  | Partial update — only fields provided are changed | `200 OK`                                 |
+| `PUT`    | Full replace — rarely used; prefer `PATCH`        | `200 OK`                                 |
+| `DELETE` | Remove a resource                                 | `200 OK` (with body) or `204 No Content` |
 
 Use `POST` for actions: `POST /orders/:id/refund`, `POST /stores/connect-stripe`. Not `PATCH /orders/:id` with `{ action: 'refund' }`.
 
 ### Status codes
 
-| Situation | Code |
-|---|---|
-| Successful read or update | `200` |
-| Resource created | `201` |
+| Situation                                 | Code                       |
+| ----------------------------------------- | -------------------------- |
+| Successful read or update                 | `200`                      |
+| Resource created                          | `201`                      |
 | Request valid but business rule blocks it | `422 Unprocessable Entity` |
-| Authentication missing or invalid | `401` |
-| Authenticated but not allowed | `403` |
-| Resource not found | `404` |
-| Conflict with existing state | `409` |
-| Validation failure (malformed input) | `400` |
+| Authentication missing or invalid         | `401`                      |
+| Authenticated but not allowed             | `403`                      |
+| Resource not found                        | `404`                      |
+| Conflict with existing state              | `409`                      |
+| Validation failure (malformed input)      | `400`                      |
 
 `422` vs `400`: use `400` for inputs that are structurally wrong (missing required field, wrong type). Use `422` for inputs that are valid but can't be processed (sold out, store not configured, invalid state transition).
 
@@ -62,13 +62,13 @@ Every layer (controller method, service method, TCP pattern) uses the **same ver
 
 ### CRUD verbs
 
-| Operation | Controller | Service | TCP pattern |
-|---|---|---|---|
-| List resources | `list` | `list` | `products.list` |
-| Get one by ID | `get` | `getById` | `products.get` |
-| Create | `create` | `create` | `products.create` |
-| Partial update | `update` | `update` | `products.update` |
-| Delete/remove | `remove` | `remove` | `products.remove` |
+| Operation      | Controller | Service   | TCP pattern       |
+| -------------- | ---------- | --------- | ----------------- |
+| List resources | `list`     | `list`    | `products.list`   |
+| Get one by ID  | `get`      | `getById` | `products.get`    |
+| Create         | `create`   | `create`  | `products.create` |
+| Partial update | `update`   | `update`  | `products.update` |
+| Delete/remove  | `remove`   | `remove`  | `products.remove` |
 
 `get` vs `getById`: controllers use `get` (the ID comes from params). Services use `getById` to be explicit at the call site.
 
@@ -76,24 +76,24 @@ Every layer (controller method, service method, TCP pattern) uses the **same ver
 
 For operations that aren't clean CRUD, use a specific past-tense-ready verb:
 
-| Operation | Controller | Service | TCP pattern |
-|---|---|---|---|
-| Transition order status → shipped | `ship` | `ship` | `orders.ship` |
-| Refund an order | `refund` | `refund` | `payments.refund` |
-| Reserve inventory | — | `reserve` | `inventory.reserve` |
-| Release a reservation | — | `release` | `inventory.release` |
-| Commit reserved stock | — | `commit` | `inventory.commit` |
-| Merge anonymous cart → user | — | `merge` | `orders.mergeCart` |
+| Operation                         | Controller | Service   | TCP pattern         |
+| --------------------------------- | ---------- | --------- | ------------------- |
+| Transition order status → shipped | `ship`     | `ship`    | `orders.ship`       |
+| Refund an order                   | `refund`   | `refund`  | `payments.refund`   |
+| Reserve inventory                 | —          | `reserve` | `inventory.reserve` |
+| Release a reservation             | —          | `release` | `inventory.release` |
+| Commit reserved stock             | —          | `commit`  | `inventory.commit`  |
+| Merge anonymous cart → user       | —          | `merge`   | `orders.mergeCart`  |
 
 ### What not to use
 
-| Avoid | Use instead |
-|---|---|
-| `fetch`, `retrieve`, `load` | `list` / `getById` |
-| `add`, `insert`, `save` | `create` |
-| `modify`, `edit`, `set`, `put` | `update` |
-| `delete`, `destroy`, `drop` | `remove` |
-| `doX`, `handleX`, `processX` | the actual verb: `refund`, `ship`, `reserve` |
+| Avoid                          | Use instead                                  |
+| ------------------------------ | -------------------------------------------- |
+| `fetch`, `retrieve`, `load`    | `list` / `getById`                           |
+| `add`, `insert`, `save`        | `create`                                     |
+| `modify`, `edit`, `set`, `put` | `update`                                     |
+| `delete`, `destroy`, `drop`    | `remove`                                     |
+| `doX`, `handleX`, `processX`   | the actual verb: `refund`, `ship`, `reserve` |
 
 ---
 
@@ -101,6 +101,7 @@ For operations that aren't clean CRUD, use a specific past-tense-ready verb:
 
 Every HTTP route is defined in `packages/contracts` before the controller exists.
 The contract owns:
+
 - HTTP method + path
 - Request body schema (Zod)
 - Query schema (Zod)
@@ -113,8 +114,8 @@ const c = initContract();
 
 export const productsRouter = c.router({
   create: {
-    method: 'POST',
-    path: '/products',
+    method: "POST",
+    path: "/products",
     body: createProductSchema,
     responses: {
       201: z.object({ product: productItem }),
@@ -123,8 +124,8 @@ export const productsRouter = c.router({
     },
   },
   get: {
-    method: 'GET',
-    path: '/products/:productId',
+    method: "GET",
+    path: "/products/:productId",
     pathParams: z.object({ productId: z.uuid() }),
     responses: {
       200: z.object({ product: productDetail }),
@@ -135,6 +136,7 @@ export const productsRouter = c.router({
 ```
 
 **Rules:**
+
 - Define the contract first, implement second.
 - Response schemas are Zod objects — they validate outgoing data in development.
 - Every realistic error status gets its own response entry.
@@ -149,8 +151,8 @@ export const productsRouter = c.router({
 Use `@TsRestHandler` to bind a method to a contract route and `tsRestHandler` to handle the request. Body, query, and params arrive **already validated and typed** — no manual parsing.
 
 ```typescript
-import { TsRestHandler, tsRestHandler } from '@ts-rest/nest';
-import { contract } from '@sitehaus-ecom/contracts';
+import { TsRestHandler, tsRestHandler } from "@ts-rest/nest";
+import { contract } from "@sitehaus-ecom/contracts";
 
 @Controller()
 export class ProductsController {
@@ -160,7 +162,7 @@ export class ProductsController {
   async create(@Req() req: AuthedRequest) {
     return tsRestHandler(contract.catalog.create, async ({ body }) => {
       const result = await this.products.create(body, req.user!);
-      if ('error' in result) return { status: 422 as const, body: { message: result.error } };
+      if ("error" in result) return { status: 422 as const, body: { message: result.error } };
       return { status: 201 as const, body: { product: result } };
     });
   }
@@ -169,7 +171,7 @@ export class ProductsController {
   async get(@Req() req: AuthedRequest) {
     return tsRestHandler(contract.catalog.get, async ({ params }) => {
       const product = await this.products.getById(params.productId, req.store!.id);
-      if (!product) return { status: 404 as const, body: { message: 'Product not found' } };
+      if (!product) return { status: 404 as const, body: { message: "Product not found" } };
       return { status: 200 as const, body: { product } };
     });
   }
@@ -177,6 +179,7 @@ export class ProductsController {
 ```
 
 **Rules:**
+
 - Never type `@Body()` or `@Query()` as `unknown` — use the `tsRestHandler` callback params.
 - Always use `as const` on status codes — ts-rest needs literal types to enforce the response shape.
 - Map service results to the correct status. TypeScript will error if the body shape doesn't match the contract.
@@ -220,7 +223,7 @@ Every store-scoped operation receives a `StoreContext`:
 ```typescript
 interface StoreContext {
   storeId: string;
-  userId?: string;   // undefined for anonymous/system operations
+  userId?: string; // undefined for anonymous/system operations
 }
 ```
 
@@ -234,7 +237,7 @@ Every mutating operation also receives an `AuditContext` for fire-and-forget aud
 interface AuditContext {
   storeId: string;
   userId?: string;
-  action: string;     // format: domain.past_verb  e.g. 'product.created'
+  action: string; // format: domain.past_verb  e.g. 'product.created'
   targetType: string;
   targetId: string;
   meta?: Record<string, unknown>;
@@ -268,7 +271,7 @@ const product = await this.db.query.productsTable.findFirst({
 // write
 const [product] = await this.db
   .insert(schema.productsTable)
-  .values({ storeId, name, status: 'draft' })
+  .values({ storeId, name, status: "draft" })
   .returning();
 ```
 
@@ -278,10 +281,10 @@ Every query on a store-owned table must include a `storeId` condition. There are
 
 ```typescript
 // ✅
-where: and(eq(schema.productsTable.id, id), eq(schema.productsTable.storeId, storeId))
+where: and(eq(schema.productsTable.id, id), eq(schema.productsTable.storeId, storeId));
 
 // ❌ — missing tenant scope
-where: eq(schema.productsTable.id, id)
+where: eq(schema.productsTable.id, id);
 ```
 
 ### Column selection on joins
@@ -355,12 +358,12 @@ The gateway's `RpcExceptionFilter` maps `status` → HTTP response code.
 
 ### Guards (all global via `SiteHausAuthModule`)
 
-| Guard | What it does |
-|---|---|
-| `AccessGuard` | Introspects token via IAM SDK, populates `req.user: UserContext` |
-| `PermissionGuard` | Reads `@RequirePerms` metadata, checks `req.user.permissions` |
-| `StoreResolutionMiddleware` | Resolves domain/slug → store record, attaches `req.store` |
-| `StoreOwnerGuard` | Verifies `req.user.clientId === req.store.clientId` |
+| Guard                       | What it does                                                     |
+| --------------------------- | ---------------------------------------------------------------- |
+| `AccessGuard`               | Introspects token via IAM SDK, populates `req.user: UserContext` |
+| `PermissionGuard`           | Reads `@RequirePerms` metadata, checks `req.user.permissions`    |
+| `StoreResolutionMiddleware` | Resolves domain/slug → store record, attaches `req.store`        |
+| `StoreOwnerGuard`           | Verifies `req.user.clientId === req.store.clientId`              |
 
 ### Decorators
 
@@ -384,8 +387,8 @@ Fire-and-forget via BullMQ (`ecom:audit` queue). Never awaited on the hot path.
 this.audit.enqueue({
   storeId: ctx.storeId,
   userId: ctx.userId,
-  action: 'product.created',      // domain.past_verb
-  targetType: 'product',
+  action: "product.created", // domain.past_verb
+  targetType: "product",
   targetId: product.id,
   meta: { name: product.name },
 });
@@ -412,14 +415,15 @@ Comment **why**, not **what**.
 ```typescript
 // ✅ — explains a constraint
 // storeId is denormalised on variants for query performance — always include it
-where: and(eq(schema.variantsTable.id, id), eq(schema.variantsTable.storeId, storeId))
+where: and(eq(schema.variantsTable.id, id), eq(schema.variantsTable.storeId, storeId));
 
 // ❌ — restates the obvious
 // Filter by variant ID
-where: eq(schema.variantsTable.id, id)
+where: eq(schema.variantsTable.id, id);
 ```
 
 When to add a comment:
+
 - A guard clause that looks wrong but is intentional
 - A business rule that isn't clear from variable names alone
 - A workaround for a library bug or external API quirk
@@ -431,17 +435,17 @@ Do not comment every method. No JSDoc on internal service methods — only on ex
 
 ## Naming Conventions
 
-| Thing | Convention | Example |
-|---|---|---|
-| Files | `kebab-case.ts` | `products.service.ts` |
-| Classes | `PascalCase` | `ProductsService` |
-| Methods | `camelCase`, imperative | `create`, `getById`, `transitionStatus` |
-| DB injection token | `DB` (constant from `@sitehaus-ecom/database`) | `@Inject(DB)` |
-| Audit actions | `domain.past_verb` | `product.created`, `order.shipped` |
-| TCP patterns | `domain.verb` | `inventory.reserve`, `orders.ship` |
-| BullMQ queues | `ecom:domain` | `ecom:inventory`, `ecom:audit` |
-| Zod schemas | `${verb}${Noun}Schema` / `${noun}Schema` | `createProductSchema`, `productItem` |
-| Inferred types | `${Verb}${Noun}Input` | `CreateProductInput`, `ListProductsQuery` |
+| Thing              | Convention                                     | Example                                   |
+| ------------------ | ---------------------------------------------- | ----------------------------------------- |
+| Files              | `kebab-case.ts`                                | `products.service.ts`                     |
+| Classes            | `PascalCase`                                   | `ProductsService`                         |
+| Methods            | `camelCase`, imperative                        | `create`, `getById`, `transitionStatus`   |
+| DB injection token | `DB` (constant from `@sitehaus-ecom/database`) | `@Inject(DB)`                             |
+| Audit actions      | `domain.past_verb`                             | `product.created`, `order.shipped`        |
+| TCP patterns       | `domain.verb`                                  | `inventory.reserve`, `orders.ship`        |
+| BullMQ queues      | `ecom:domain`                                  | `ecom:inventory`, `ecom:audit`            |
+| Zod schemas        | `${verb}${Noun}Schema` / `${noun}Schema`       | `createProductSchema`, `productItem`      |
+| Inferred types     | `${Verb}${Noun}Input`                          | `CreateProductInput`, `ListProductsQuery` |
 
 ---
 

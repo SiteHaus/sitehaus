@@ -10,9 +10,7 @@ export function SettingsView() {
     <div className="space-y-6 pt-6">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Manage your workspace and team.
-        </p>
+        <p className="text-muted-foreground mt-1 text-sm">Manage your workspace and team.</p>
       </div>
 
       <Tabs defaultValue="company">

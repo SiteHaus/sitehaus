@@ -16,12 +16,9 @@ export const clientsRelations = relations(clientsTable, ({ one, many }) => ({
   businessProfile: one(businessProfilesTable),
 }));
 
-export const clientRedirectUrisRelations = relations(
-  clientRedirectUrisTable,
-  ({ one }) => ({
-    client: one(clientsTable, {
-      fields: [clientRedirectUrisTable.clientId],
-      references: [clientsTable.id],
-    }),
-  })
-);
+export const clientRedirectUrisRelations = relations(clientRedirectUrisTable, ({ one }) => ({
+  client: one(clientsTable, {
+    fields: [clientRedirectUrisTable.clientId],
+    references: [clientsTable.id],
+  }),
+}));

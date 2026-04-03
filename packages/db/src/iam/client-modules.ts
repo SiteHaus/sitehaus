@@ -1,10 +1,4 @@
-import {
-  boolean,
-  pgTable,
-  primaryKey,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { boolean, pgTable, primaryKey, timestamp, uuid } from "drizzle-orm/pg-core";
 import { clientsTable } from "./clients.js";
 import { permissionModulesTable } from "./permission-modules.js";
 import { usersTable } from "./users.js";
@@ -24,7 +18,7 @@ export const clientModulesTable = pgTable(
       onDelete: "set null",
     }),
   },
-  (t) => [primaryKey({ columns: [t.clientId, t.moduleId], name: "client_modules_pk" })]
+  (t) => [primaryKey({ columns: [t.clientId, t.moduleId], name: "client_modules_pk" })],
 );
 
 export type ClientModule = typeof clientModulesTable.$inferSelect;

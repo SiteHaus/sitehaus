@@ -24,12 +24,7 @@ export default function LoginContainer() {
 
     if (r.status !== 200) throw r;
 
-    const {
-      accessToken,
-      accessTokenExpiresIn,
-      requiresEmailVerification,
-      requires2FA,
-    } = r.body;
+    const { accessToken, accessTokenExpiresIn, requiresEmailVerification, requires2FA } = r.body;
 
     if (requiresEmailVerification) {
       replace("/verify", { add: { email: values.email, mode: "email" } });
@@ -38,7 +33,7 @@ export default function LoginContainer() {
 
     // If 2FA is required, store partial token and redirect to 2FA verification
     if (requires2FA) {
-      console.log('[DEBUG] 2FA required, oauth_params:', oauthParams);
+      console.log("[DEBUG] 2FA required, oauth_params:", oauthParams);
       const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
       setAccess({ accessToken, accessExpiration: exp });
       replace("/2fa-verify");
@@ -59,14 +54,10 @@ export default function LoginContainer() {
     if (oauthParams) {
       try {
         // Decode the OAuth parameters
-        const params = JSON.parse(
-          atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/"))
-        );
+        const params = JSON.parse(atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/")));
 
         // Build the authorize URL with the original OAuth params
-        const authorizeUrl = new URL(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`
-        );
+        const authorizeUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`);
 
         Object.entries(params).forEach(([key, value]) => {
           if (value) {

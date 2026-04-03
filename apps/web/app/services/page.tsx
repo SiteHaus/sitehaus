@@ -87,7 +87,12 @@ export default function ServicesPage() {
             "@type": "BreadcrumbList",
             itemListElement: [
               { "@type": "ListItem", position: 1, name: "Home", item: "https://sitehaus.dev" },
-              { "@type": "ListItem", position: 2, name: "Services", item: "https://sitehaus.dev/services" },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Services",
+                item: "https://sitehaus.dev/services",
+              },
             ],
           },
         ]}
@@ -99,15 +104,11 @@ export default function ServicesPage() {
             What we build
           </p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6 max-w-3xl">
-            Any software.{" "}
-            <span className="italic font-bold text-foreground/50">
-              Any platform.
-            </span>
+            Any software. <span className="italic font-bold text-foreground/50">Any platform.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-            We don't specialize in one slice of the stack. If it runs on a
-            screen, we can design and build it — with clear plans and no
-            surprises.
+            We don't specialize in one slice of the stack. If it runs on a screen, we can design and
+            build it — with clear plans and no surprises.
           </p>
         </div>
       </section>
@@ -132,9 +133,7 @@ export default function ServicesPage() {
                     </div>
                     <div className="flex items-center gap-3 mb-4">
                       <Icon className="h-6 w-6 text-primary/70" />
-                      <h2 className="text-3xl md:text-4xl font-bold">
-                        {service.title}
-                      </h2>
+                      <h2 className="text-3xl md:text-4xl font-bold">{service.title}</h2>
                     </div>
                     <p className="text-base text-muted-foreground font-medium leading-snug">
                       {service.tagline}
@@ -148,10 +147,7 @@ export default function ServicesPage() {
                     </p>
                     <ul className="flex flex-col gap-2">
                       {service.examples.map((ex) => (
-                        <li
-                          key={ex}
-                          className="flex items-center gap-3 text-sm text-foreground/70"
-                        >
+                        <li key={ex} className="flex items-center gap-3 text-sm text-foreground/70">
                           <span className="h-1 w-1 rounded-full bg-primary/60 flex-shrink-0" />
                           {ex}
                         </li>
@@ -175,8 +171,8 @@ export default function ServicesPage() {
             Every project starts with a conversation.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            No pricing tables. No packages. Every engagement is scoped to what
-            you actually need. Reach out and we'll talk through it.
+            No pricing tables. No packages. Every engagement is scoped to what you actually need.
+            Reach out and we'll talk through it.
           </p>
           <Button size="lg" className="h-12 text-base" asChild>
             <Link href="/contact">

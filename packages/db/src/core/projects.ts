@@ -20,7 +20,7 @@ export const projectStatusEnum = pgEnum("project_status", projectStatusValues);
 export const projectTypeEnum = pgEnum("project_type", projectTypeValues);
 export const projectBillingStatusEnum = pgEnum(
   "project_billing_status",
-  projectBillingStatusValues
+  projectBillingStatusValues,
 );
 
 export const projectsTable = pgTable(
@@ -30,8 +30,7 @@ export const projectsTable = pgTable(
     clientId: uuid("client_id")
       .references(() => clientsTable.id, { onDelete: "cascade" })
       .notNull(),
-    userId: uuid("user_id")
-      .references(() => usersTable.id, { onDelete: "set null" }),
+    userId: uuid("user_id").references(() => usersTable.id, { onDelete: "set null" }),
     name: text("name").notNull(),
     description: text("description"),
 
@@ -59,12 +58,11 @@ export const projectsTable = pgTable(
     index("projects_client_idx").on(t.clientId),
     index("projects_user_idx").on(t.userId),
     index("projects_status_idx").on(t.status),
-  ]
+  ],
 );
 
 export type ProjectStatus = (typeof projectStatusEnum.enumValues)[number];
-export type ProjectBillingStatus =
-  (typeof projectBillingStatusEnum.enumValues)[number];
+export type ProjectBillingStatus = (typeof projectBillingStatusEnum.enumValues)[number];
 export type ProjectType = (typeof projectTypeEnum.enumValues)[number];
 
 export type Project = typeof projectsTable.$inferSelect;

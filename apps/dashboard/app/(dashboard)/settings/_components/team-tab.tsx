@@ -41,8 +41,8 @@ export function TeamTab() {
             <div>
               <CardTitle className="text-base">Team Members</CardTitle>
               <CardDescription className="mt-1">
-                {members?.length ?? 0}{" "}
-                {(members?.length ?? 0) === 1 ? "member" : "members"} on your workspace.
+                {members?.length ?? 0} {(members?.length ?? 0) === 1 ? "member" : "members"} on your
+                workspace.
               </CardDescription>
             </div>
             <Button variant="outline" size="sm" asChild>
@@ -71,8 +71,7 @@ export function TeamTab() {
                   member.email[0]?.toUpperCase() ||
                   "?";
                 const fullName =
-                  `${member.firstName ?? ""} ${member.lastName ?? ""}`.trim() ||
-                  member.email;
+                  `${member.firstName ?? ""} ${member.lastName ?? ""}`.trim() || member.email;
 
                 return (
                   <div

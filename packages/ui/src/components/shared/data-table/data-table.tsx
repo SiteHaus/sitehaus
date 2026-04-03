@@ -69,20 +69,10 @@ export function DataTable<TData extends Record<string, unknown>>({
 }: DataTableProps<TData>) {
   const columns = useMemo<ColumnDef<TData, unknown>[]>(
     () =>
-      createColumnsFromData<TData>(
-        data,
-        actions,
-        columnRenderers,
-        columnLabels,
-      ).filter((col) => !excludeColumns?.includes(col.id as KeyOf<TData>)),
-    [
-      data,
-      actions,
-      columnLabels,
-      excludeColumns,
-      columnRenderers,
-      columnLabels,
-    ],
+      createColumnsFromData<TData>(data, actions, columnRenderers, columnLabels).filter(
+        (col) => !excludeColumns?.includes(col.id as KeyOf<TData>),
+      ),
+    [data, actions, columnLabels, excludeColumns, columnRenderers, columnLabels],
   );
 
   const [globalFilter, setGlobalFilter] = useState("");
@@ -90,9 +80,7 @@ export function DataTable<TData extends Record<string, unknown>>({
   const [rowSelection, setRowSelection] = useState({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [activeFilters, setActiveFilters] = useState<Record<string, string>>(
-    {},
-  );
+  const [activeFilters, setActiveFilters] = useState<Record<string, string>>({});
 
   const table = useReactTable<TData>({
     data,
@@ -121,29 +109,21 @@ export function DataTable<TData extends Record<string, unknown>>({
         if (col.id === "select" || col.id === "action") {
           return [col.id, true];
         }
-        return [
-          col.id as string,
-          defaultColumns.includes(col.id as KeyOf<TData>),
-        ];
+        return [col.id as string, defaultColumns.includes(col.id as KeyOf<TData>)];
       }),
     );
     setColumnVisibility(newVisibility);
   }, [defaultColumns, columns]);
 
   useEffect(() => {
-    const selectedRows = table
-      .getSelectedRowModel()
-      .rows.map((r) => r.original);
+    const selectedRows = table.getSelectedRowModel().rows.map((r) => r.original);
     onSelectionChange?.(selectedRows);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rowSelection]);
 
   function getFilterLabel(key: string, options: ColumnFilterOption[]): string {
     const active = activeFilters[key];
-    const title =
-      filterTitles?.[key as KeyOf<TData>] ??
-      columnLabels?.[key as KeyOf<TData>] ??
-      key;
+    const title = filterTitles?.[key as KeyOf<TData>] ?? columnLabels?.[key as KeyOf<TData>] ?? key;
     if (!active || active === ALL_FILTER_VALUE) return title;
     return options.find((o) => o.value === active)?.label ?? title;
   }
@@ -215,10 +195,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                     All
                   </DropdownMenuItem>
                   {(options as ColumnFilterOption[]).map((opt) => (
-                    <DropdownMenuItem
-                      key={opt.value}
-                      onSelect={() => applyFilter(key, opt.value)}
-                    >
+                    <DropdownMenuItem key={opt.value} onSelect={() => applyFilter(key, opt.value)}>
                       {opt.label}
                     </DropdownMenuItem>
                   ))}
@@ -249,10 +226,7 @@ export function DataTable<TData extends Record<string, unknown>>({
                 >
                   {header.isPlaceholder
                     ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
+                    : flexRender(header.column.columnDef.header, header.getContext())}
                 </TableHead>
               ))}
             </TableRow>
@@ -265,36 +239,26 @@ export function DataTable<TData extends Record<string, unknown>>({
                 key={row.id}
                 className="cursor-pointer transition-colors duration-100"
                 onClick={(e) => {
-                  if (
-                    (e.target as HTMLElement).closest("[data-stop-propagation]")
-                  )
-                    return;
+                  if ((e.target as HTMLElement).closest("[data-stop-propagation]")) return;
                   onRowClick?.(row.original);
                 }}
                 style={{
-                  background:
-                    i % 2 === 0 ? "var(--table-bg)" : "var(--table-bg-alt)",
+                  background: i % 2 === 0 ? "var(--table-bg)" : "var(--table-bg-alt)",
                   color: "var(--table-text)",
                   borderColor: "var(--table-border)",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background =
-                    "var(--table-hover-bg)";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "var(--table-hover-text)";
+                  (e.currentTarget as HTMLElement).style.background = "var(--table-hover-bg)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--table-hover-text)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLElement).style.background =
                     i % 2 === 0 ? "var(--table-bg)" : "var(--table-bg-alt)";
-                  (e.currentTarget as HTMLElement).style.color =
-                    "var(--table-text)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--table-text)";
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell
-                    key={cell.id}
-                    className="px-5 py-4 text-sm align-middle"
-                  >
+                  <TableCell key={cell.id} className="px-5 py-4 text-sm align-middle">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -307,8 +271,8 @@ export function DataTable<TData extends Record<string, unknown>>({
                 className="h-40 text-center text-sm tracking-wide"
                 style={{ color: "var(--table-text-dim)" }}
               >
-                No tickets yet. When you have a question or need something
-                changed, submit a ticket and we'll get right on it!
+                No tickets yet. When you have a question or need something changed, submit a ticket
+                and we'll get right on it!
               </TableCell>
             </TableRow>
           )}

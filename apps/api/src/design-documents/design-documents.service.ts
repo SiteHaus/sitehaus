@@ -1,11 +1,5 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
-import {
-  and,
-  desc,
-  eq,
-  schema,
-  type Db,
-} from '@site-haus/db';
+import { and, desc, eq, schema, type Db } from '@site-haus/db';
 import type { DesignDocumentStatus } from '@site-haus/db';
 import { AuditService } from 'src/audit/audit.service';
 import { DRIZZLE } from 'src/db/tokens';
@@ -41,7 +35,9 @@ function serialise(row: typeof schema.designDocumentsTable.$inferSelect) {
   };
 }
 
-function serialiseVersion(row: typeof schema.designDocumentVersionsTable.$inferSelect) {
+function serialiseVersion(
+  row: typeof schema.designDocumentVersionsTable.$inferSelect,
+) {
   return {
     ...row,
     createdAt: row.createdAt?.toISOString() ?? null,
@@ -56,7 +52,11 @@ export class DesignDocumentsService {
   ) {}
 
   /** Verify projectId belongs to clientId, return project or null. */
-  async verifyProjectAccess(projectId: string, clientId: string, isFirstParty = false) {
+  async verifyProjectAccess(
+    projectId: string,
+    clientId: string,
+    isFirstParty = false,
+  ) {
     return this.db.query.projectsTable.findFirst({
       where: isFirstParty
         ? eq(schema.projectsTable.id, projectId)
@@ -86,14 +86,20 @@ export class DesignDocumentsService {
     };
   }
 
-  async create(projectId: string, content: string | undefined, ctx: AuditContext) {
+  async create(
+    projectId: string,
+    content: string | undefined,
+    ctx: AuditContext,
+  ) {
     const existing = await this.db.query.designDocumentsTable.findFirst({
       where: eq(schema.designDocumentsTable.projectId, projectId),
       columns: { id: true },
     });
 
     if (existing) {
-      throw new ConflictException('A design document already exists for this project');
+      throw new ConflictException(
+        'A design document already exists for this project',
+      );
     }
 
     const [doc] = await this.db
@@ -144,7 +150,11 @@ export class DesignDocumentsService {
     return this.getByProjectId(projectId);
   }
 
-  async publish(projectId: string, changeNote: string | undefined, ctx: AuditContext) {
+  async publish(
+    projectId: string,
+    changeNote: string | undefined,
+    ctx: AuditContext,
+  ) {
     const doc = await this.db.query.designDocumentsTable.findFirst({
       where: eq(schema.designDocumentsTable.projectId, projectId),
       columns: { id: true, content: true, currentVersion: true },
@@ -240,7 +250,10 @@ export class DesignDocumentsService {
 
   async listVersions(designDocumentId: string) {
     const versions = await this.db.query.designDocumentVersionsTable.findMany({
-      where: eq(schema.designDocumentVersionsTable.designDocumentId, designDocumentId),
+      where: eq(
+        schema.designDocumentVersionsTable.designDocumentId,
+        designDocumentId,
+      ),
       orderBy: [desc(schema.designDocumentVersionsTable.version)],
       columns: {
         id: true,
@@ -256,7 +269,9 @@ export class DesignDocumentsService {
     });
 
     return versions.map((v) => ({
-      ...serialiseVersion(v as unknown as typeof schema.designDocumentVersionsTable.$inferSelect),
+      ...serialiseVersion(
+        v as unknown as typeof schema.designDocumentVersionsTable.$inferSelect,
+      ),
       content: '', // Omit full content from list
       createdBy: v.creator ?? null,
     }));
@@ -265,7 +280,10 @@ export class DesignDocumentsService {
   async getVersion(designDocumentId: string, version: number) {
     const row = await this.db.query.designDocumentVersionsTable.findFirst({
       where: and(
-        eq(schema.designDocumentVersionsTable.designDocumentId, designDocumentId),
+        eq(
+          schema.designDocumentVersionsTable.designDocumentId,
+          designDocumentId,
+        ),
         eq(schema.designDocumentVersionsTable.version, version),
       ),
       with: {

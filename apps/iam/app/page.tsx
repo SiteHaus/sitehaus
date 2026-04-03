@@ -10,13 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@site-haus/ui/components/base/card";
-import {
-  Fingerprint,
-  GlobeLock,
-  IdCard,
-  MoveRight,
-  UsersRound,
-} from "lucide-react";
+import { Fingerprint, GlobeLock, IdCard, MoveRight, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { SiteNav } from "./components/navigation/site-nav";
@@ -77,9 +71,7 @@ export default function LandingPage() {
               <div className="p-2 bg-card/70 border rounded-2xl flex items-center justify-center">
                 <IdCard className="h-10 w-10" />
               </div>
-              <h2 className="text-4xl font-bold">
-                SiteHaus Identity Management
-              </h2>
+              <h2 className="text-4xl font-bold">SiteHaus Identity Management</h2>
             </div>
             <p className="text-lg text-muted-foreground mb-8">
               Authentication and access control for SiteHaus clients
@@ -95,9 +87,7 @@ export default function LandingPage() {
               <CardTitle className="text-xl">Secure Access</CardTitle>
             </CardHeader>
             <CardFooter className="flex items-center justify-between">
-              <CardDescription>
-                Control who has access to your apps.
-              </CardDescription>
+              <CardDescription>Control who has access to your apps.</CardDescription>
               <div className="p-2 bg-background/70 border rounded-2xl flex items-center justify-center">
                 <GlobeLock className="h-10 w-10" />
               </div>

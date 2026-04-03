@@ -22,9 +22,5 @@ function getAudienceVariant(audience: boolean): BadgeVariant {
 }
 
 export function TicketAudienceBadge({ audience }: { audience: boolean }) {
-  return (
-    <Badge variant={getAudienceVariant(audience)}>
-      {audience ? "Internal" : "External"}
-    </Badge>
-  );
+  return <Badge variant={getAudienceVariant(audience)}>{audience ? "Internal" : "External"}</Badge>;
 }

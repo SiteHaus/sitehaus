@@ -35,12 +35,7 @@ interface MilestoneFormSheetProps {
   }) => Promise<boolean>;
 }
 
-export function MilestoneFormSheet({
-  open,
-  onClose,
-  milestone,
-  onSave,
-}: MilestoneFormSheetProps) {
+export function MilestoneFormSheet({ open, onClose, milestone, onSave }: MilestoneFormSheetProps) {
   const isEdit = !!milestone;
 
   const [name, setName] = useState("");
@@ -54,9 +49,7 @@ export function MilestoneFormSheet({
       setName(milestone?.name ?? "");
       setDescription(milestone?.description ?? "");
       setStatus(milestone?.status ?? "not_started");
-      setDueDate(
-        milestone?.dueDate ? milestone.dueDate.slice(0, 10) : ""
-      );
+      setDueDate(milestone?.dueDate ? milestone.dueDate.slice(0, 10) : "");
     }
   }, [open, milestone]);
 
@@ -82,13 +75,9 @@ export function MilestoneFormSheet({
     >
       <SheetContent className="flex flex-col">
         <SheetHeader>
-          <SheetTitle>
-            {isEdit ? "Edit Milestone" : "New Milestone"}
-          </SheetTitle>
+          <SheetTitle>{isEdit ? "Edit Milestone" : "New Milestone"}</SheetTitle>
           <SheetDescription>
-            {isEdit
-              ? "Update this milestone's details."
-              : "Add a new milestone to this project."}
+            {isEdit ? "Update this milestone's details." : "Add a new milestone to this project."}
           </SheetDescription>
         </SheetHeader>
 
@@ -118,12 +107,7 @@ export function MilestoneFormSheet({
           {isEdit && (
             <div className="space-y-1.5">
               <Label>Status</Label>
-              <Select
-                value={status}
-                onValueChange={(v) =>
-                  setStatus(v as MilestoneItem["status"])
-                }
-              >
+              <Select value={status} onValueChange={(v) => setStatus(v as MilestoneItem["status"])}>
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
@@ -151,10 +135,7 @@ export function MilestoneFormSheet({
           <Button variant="outline" onClick={onClose} disabled={saving}>
             Cancel
           </Button>
-          <Button
-            onClick={handleSave}
-            disabled={saving || !name.trim()}
-          >
+          <Button onClick={handleSave} disabled={saving || !name.trim()}>
             {saving && <Spinner className="size-4 mr-2" />}
             {isEdit ? "Save Changes" : "Create Milestone"}
           </Button>

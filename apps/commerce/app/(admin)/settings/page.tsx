@@ -118,8 +118,7 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Store Details</CardTitle>
           <CardDescription>
-            Your store's public-facing slug, custom domain, and checkout
-            settings.
+            Your store's public-facing slug, custom domain, and checkout settings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -127,9 +126,7 @@ export default function SettingsPage() {
             <Label htmlFor="slug">Slug</Label>
             <div className="flex items-center gap-2">
               <span className="text-sm text-muted-foreground select-none">
-                {process.env.NEXT_PUBLIC_STOREFRONT_BASE_URL ??
-                  "https://store.sitehaus.dev"}
-                /
+                {process.env.NEXT_PUBLIC_STOREFRONT_BASE_URL ?? "https://store.sitehaus.dev"}/
               </span>
               <Input
                 id="slug"
@@ -216,9 +213,7 @@ export default function SettingsPage() {
               onClick={() => saveMutation.mutate()}
               disabled={!dirty || saveMutation.isPending}
             >
-              {saveMutation.isPending && (
-                <Loader2 className="size-4 mr-2 animate-spin" />
-              )}
+              {saveMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
               Save Changes
             </Button>
           </div>
@@ -231,9 +226,7 @@ export default function SettingsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Stripe</CardTitle>
-          <CardDescription>
-            Connect Stripe to accept payments on your store.
-          </CardDescription>
+          <CardDescription>Connect Stripe to accept payments on your store.</CardDescription>
         </CardHeader>
         <CardContent>
           {stripeStatus?.connected ? (
@@ -243,25 +236,15 @@ export default function SettingsPage() {
                 <span className="font-medium">Stripe connected</span>
               </div>
               <div className="grid grid-cols-3 gap-3 text-sm">
-                <StatusRow
-                  label="Charges"
-                  enabled={stripeStatus.chargesEnabled}
-                />
-                <StatusRow
-                  label="Payouts"
-                  enabled={stripeStatus.payoutsEnabled}
-                />
-                <StatusRow
-                  label="Details submitted"
-                  enabled={stripeStatus.detailsSubmitted}
-                />
+                <StatusRow label="Charges" enabled={stripeStatus.chargesEnabled} />
+                <StatusRow label="Payouts" enabled={stripeStatus.payoutsEnabled} />
+                <StatusRow label="Details submitted" enabled={stripeStatus.detailsSubmitted} />
               </div>
               {!stripeStatus.detailsSubmitted && (
                 <div className="flex items-start gap-2 rounded-md bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 p-3 text-sm text-yellow-800 dark:text-yellow-300">
                   <AlertCircle className="size-4 mt-0.5 shrink-0" />
                   <span>
-                    Your Stripe account setup is incomplete. Finish onboarding
-                    to enable payments.
+                    Your Stripe account setup is incomplete. Finish onboarding to enable payments.
                   </span>
                 </div>
               )}
@@ -282,16 +265,10 @@ export default function SettingsPage() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                You haven't connected a Stripe account yet. Connect one to start
-                accepting payments.
+                You haven't connected a Stripe account yet. Connect one to start accepting payments.
               </p>
-              <Button
-                onClick={() => connectMutation.mutate()}
-                disabled={connectMutation.isPending}
-              >
-                {connectMutation.isPending && (
-                  <Loader2 className="size-4 mr-2 animate-spin" />
-                )}
+              <Button onClick={() => connectMutation.mutate()} disabled={connectMutation.isPending}>
+                {connectMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
                 Connect Stripe
               </Button>
             </div>
@@ -303,17 +280,13 @@ export default function SettingsPage() {
       <Card className="border-destructive/40">
         <CardHeader>
           <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          <CardDescription>
-            Irreversible actions — proceed with care.
-          </CardDescription>
+          <CardDescription>Irreversible actions — proceed with care.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium">Store ID</p>
-              <p className="text-xs text-muted-foreground font-mono mt-0.5">
-                {store?.id}
-              </p>
+              <p className="text-xs text-muted-foreground font-mono mt-0.5">{store?.id}</p>
             </div>
           </div>
         </CardContent>

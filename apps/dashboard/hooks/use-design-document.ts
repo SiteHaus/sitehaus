@@ -10,10 +10,7 @@ export function useDesignDocument(projectId: string) {
   const queryClient = useQueryClient();
   const key = queryKeys.designDoc.detail(projectId);
 
-  const {
-    data,
-    isLoading: loading,
-  } = useQuery({
+  const { data, isLoading: loading } = useQuery({
     queryKey: key,
     queryFn: async () => {
       const res = await getApi().designDocuments.get({ params: { projectId } });
@@ -91,9 +88,7 @@ export function useDesignDocument(projectId: string) {
     notFound,
     refetch: () => queryClient.invalidateQueries({ queryKey: key }),
     createDocument: (content?: string) =>
-      createMutation.mutateAsync(content).then((r) =>
-        r.status === 201 ? r.body.document : null
-      ),
+      createMutation.mutateAsync(content).then((r) => (r.status === 201 ? r.body.document : null)),
     updateContent: (content: string) =>
       updateContentMutation.mutateAsync(content).then((r) => r.status === 200),
     publishVersion: (changeNote?: string) =>

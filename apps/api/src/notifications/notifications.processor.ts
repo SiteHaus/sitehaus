@@ -45,7 +45,9 @@ export class NotificationsProcessor extends WorkerHost {
         await this.handleBillingPaymentFailed(job.data);
         break;
       default:
-        this.logger.warn(`Unknown notification type: ${(job.data as { type: string }).type}`);
+        this.logger.warn(
+          `Unknown notification type: ${(job.data as { type: string }).type}`,
+        );
     }
   }
 
@@ -66,7 +68,13 @@ export class NotificationsProcessor extends WorkerHost {
       projectName: project?.name ?? 'your project',
       ctaUrl: `${this.dashboardUrl}/projects/${data.projectId}/milestones`,
     });
-    await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
+    await this.email.send({
+      to: emails,
+      subject,
+      html,
+      text,
+      tags: { type: data.type },
+    });
   }
 
   private async handleMilestoneSignedOff(
@@ -101,10 +109,16 @@ export class NotificationsProcessor extends WorkerHost {
 
     if (data.isEmployeeAuthor) {
       // Employee posted → notify the client's users (excluding the author)
-      emails = await this.getClientUserEmails(data.targetClientId, data.authorId);
+      emails = await this.getClientUserEmails(
+        data.targetClientId,
+        data.authorId,
+      );
     } else {
       // Client posted → notify the project's assigned employee
-      const projectId = await this.resolveProjectId(data.targetType, data.targetId);
+      const projectId = await this.resolveProjectId(
+        data.targetType,
+        data.targetId,
+      );
       if (!projectId) return;
 
       const project = await this.db.query.projectsTable.findFirst({
@@ -114,7 +128,10 @@ export class NotificationsProcessor extends WorkerHost {
       });
       // Don't notify if the assigned employee is somehow the same user who commented
       const assignedEmail = project?.user?.email;
-      emails = assignedEmail && project?.user?.id !== data.authorId ? [assignedEmail] : [];
+      emails =
+        assignedEmail && project?.user?.id !== data.authorId
+          ? [assignedEmail]
+          : [];
     }
 
     if (emails.length === 0) return;
@@ -125,7 +142,13 @@ export class NotificationsProcessor extends WorkerHost {
       bodyPreview: data.bodyPreview,
       ctaUrl: `${this.dashboardUrl}/projects/${data.targetId}`,
     });
-    await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
+    await this.email.send({
+      to: emails,
+      subject,
+      html,
+      text,
+      tags: { type: data.type },
+    });
   }
 
   private async handleBillingPaymentFailed(
@@ -139,10 +162,19 @@ export class NotificationsProcessor extends WorkerHost {
       amountFormatted,
       ctaUrl: `${this.dashboardUrl}/billing`,
     });
-    await this.email.send({ to: emails, subject, html, text, tags: { type: data.type } });
+    await this.email.send({
+      to: emails,
+      subject,
+      html,
+      text,
+      tags: { type: data.type },
+    });
   }
 
-  private async getClientUserEmails(clientId: string, excludeUserId?: string): Promise<string[]> {
+  private async getClientUserEmails(
+    clientId: string,
+    excludeUserId?: string,
+  ): Promise<string[]> {
     const rows = await this.db.query.userRolesTable.findMany({
       where: eq(schema.userRolesTable.clientId, clientId),
       with: { user: { columns: { email: true, id: true } } },
@@ -157,7 +189,10 @@ export class NotificationsProcessor extends WorkerHost {
     ];
   }
 
-  private async resolveProjectId(targetType: string, targetId: string): Promise<string | null> {
+  private async resolveProjectId(
+    targetType: string,
+    targetId: string,
+  ): Promise<string | null> {
     switch (targetType) {
       case 'project':
         return targetId;

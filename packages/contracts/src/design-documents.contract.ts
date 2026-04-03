@@ -132,6 +132,4 @@ export const designDocumentsRouter = c.router({
 });
 
 export type DesignDocumentItem = z.infer<typeof designDocumentItem>;
-export type DesignDocumentVersionItem = z.infer<
-  typeof designDocumentVersionItem
->;
+export type DesignDocumentVersionItem = z.infer<typeof designDocumentVersionItem>;

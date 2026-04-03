@@ -49,8 +49,6 @@ export const listTicketsQuerySchema = z.object({
 
 export type CreateTicketInput = z.infer<typeof createTicketSchema>;
 export type UpdateTicketInput = z.infer<typeof updateTicketSchema>;
-export type TicketStatusTransition = z.infer<
-  typeof ticketStatusTransitionSchema
->;
+export type TicketStatusTransition = z.infer<typeof ticketStatusTransitionSchema>;
 export type TicketAssignInput = z.infer<typeof ticketAssignSchema>;
 export type ListTicketsQuery = z.infer<typeof listTicketsQuerySchema>;

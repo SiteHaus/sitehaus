@@ -284,10 +284,7 @@ export class InvitesService {
         // No roles on the invite — fall back to the client's default role
         const defaultRole = await tx.query.rolesTable.findFirst({
           where: (t, { and: _and, eq: _eq }) =>
-            _and(
-              _eq(t.clientId, params.clientId),
-              _eq(t.isDefault, true),
-            ),
+            _and(_eq(t.clientId, params.clientId), _eq(t.isDefault, true)),
           columns: { id: true },
         });
         if (defaultRole) effectiveRoleIds = [defaultRole.id];
@@ -322,7 +319,11 @@ export class InvitesService {
         }
       }
 
-      return { userId: user.id, acceptedAt: now, rolesAssigned: effectiveRoleIds };
+      return {
+        userId: user.id,
+        acceptedAt: now,
+        rolesAssigned: effectiveRoleIds,
+      };
     });
 
     // Audit log runs after the transaction commits so the user FK is satisfied

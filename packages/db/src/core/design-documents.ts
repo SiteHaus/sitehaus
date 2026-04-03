@@ -1,19 +1,11 @@
 import { designDocumentStatusValues } from "@site-haus/validation/core/enums";
-import {
-  integer,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uniqueIndex,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { usersTable } from "../iam/users.js";
 import { projectsTable } from "./projects.js";
 
 export const designDocumentStatusEnum = pgEnum(
   "design_document_status",
-  designDocumentStatusValues
+  designDocumentStatusValues,
 );
 
 export const designDocumentsTable = pgTable(
@@ -36,11 +28,10 @@ export const designDocumentsTable = pgTable(
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
   },
-  (t) => [uniqueIndex("design_documents_project_uq").on(t.projectId)]
+  (t) => [uniqueIndex("design_documents_project_uq").on(t.projectId)],
 );
 
-export type DesignDocumentStatus =
-  (typeof designDocumentStatusEnum.enumValues)[number];
+export type DesignDocumentStatus = (typeof designDocumentStatusEnum.enumValues)[number];
 
 export type DesignDocument = typeof designDocumentsTable.$inferSelect;
 export type NewDesignDocument = typeof designDocumentsTable.$inferInsert;

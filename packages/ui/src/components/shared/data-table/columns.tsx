@@ -25,10 +25,7 @@ export type ColumnRenderers<T extends Record<string, unknown>> = {
 function renderCellValue(
   value: unknown,
   columnKey?: string,
-  columnRenderers?: Record<
-    string,
-    (value: unknown, row: unknown) => React.ReactNode
-  >,
+  columnRenderers?: Record<string, (value: unknown, row: unknown) => React.ReactNode>,
   row?: unknown,
 ): React.ReactNode {
   if (columnKey && columnRenderers?.[columnKey]) {
@@ -37,10 +34,7 @@ function renderCellValue(
 
   if (Array.isArray(value)) {
     const hasNameProperty =
-      value.length > 0 &&
-      typeof value[0] === "object" &&
-      value[0] !== null &&
-      "name" in value[0];
+      value.length > 0 && typeof value[0] === "object" && value[0] !== null && "name" in value[0];
 
     if (hasNameProperty) {
       return (
@@ -58,11 +52,7 @@ function renderCellValue(
   }
 
   if (typeof value === "boolean") {
-    return (
-      <Badge variant={value ? "default" : "outline"}>
-        {value ? "Yes" : "No"}
-      </Badge>
-    );
+    return <Badge variant={value ? "default" : "outline"}>{value ? "Yes" : "No"}</Badge>;
   }
 
   return String(value);
@@ -81,8 +71,7 @@ export function createColumnsFromData<T extends Record<string, unknown>>(
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -143,30 +132,26 @@ export function createColumnsFromData<T extends Record<string, unknown>>(
     enableHiding: true,
   };
 
-  const dataColumns: ColumnDef<T, unknown>[] = Object.keys(data[0]!).map(
-    (key) => ({
-      id: key,
-      accessorKey: key as keyof T & string,
-      filterFn: "equals",
-      header: ({ column }: { column: Column<T, unknown> }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={
-            columnLabels?.[key] ?? key.charAt(0).toUpperCase() + key.slice(1)
-          }
-        />
+  const dataColumns: ColumnDef<T, unknown>[] = Object.keys(data[0]!).map((key) => ({
+    id: key,
+    accessorKey: key as keyof T & string,
+    filterFn: "equals",
+    header: ({ column }: { column: Column<T, unknown> }) => (
+      <DataTableColumnHeader
+        column={column}
+        title={columnLabels?.[key] ?? key.charAt(0).toUpperCase() + key.slice(1)}
+      />
+    ),
+    cell: (info) =>
+      renderCellValue(
+        info.getValue(),
+        key,
+        columnRenderers as
+          | Record<string, (value: unknown, row: unknown) => React.ReactNode>
+          | undefined,
+        info.row.original, // 👈 add this
       ),
-      cell: (info) =>
-        renderCellValue(
-          info.getValue(),
-          key,
-          columnRenderers as
-            | Record<string, (value: unknown, row: unknown) => React.ReactNode>
-            | undefined,
-          info.row.original, // 👈 add this
-        ),
-    }),
-  );
+  }));
 
   return [selectColumn, ...dataColumns, actionColumn];
 }

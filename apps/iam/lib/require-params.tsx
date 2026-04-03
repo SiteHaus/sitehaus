@@ -25,11 +25,7 @@ export function RequireParams({
   return <>{children}</>;
 }
 
-function UnauthorizedMessage({
-  missing,
-}: {
-  missing: "client" | "next" | undefined;
-}) {
+function UnauthorizedMessage({ missing }: { missing: "client" | "next" | undefined }) {
   return (
     <main className="mx-auto max-w-md p-8 text-center">
       <h1 className="text-xl font-semibold mb-2">Missing required parameter</h1>

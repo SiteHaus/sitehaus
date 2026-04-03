@@ -40,25 +40,73 @@ const DESIGN_DOC_CONTENT = JSON.stringify([
   { type: "h1", children: [{ text: "Website Redesign — Ogden Construction Co." }] },
 
   { type: "h2", children: [{ text: "Overview" }] },
-  { type: "p", children: [{ text: "Ogden Construction Co. has been serving the Ogden and Northern Utah area since 1987. Their current website is outdated, not mobile-friendly, and doesn't reflect the quality of work they deliver. This project covers a full redesign and rebuild of their marketing website." }] },
+  {
+    type: "p",
+    children: [
+      {
+        text: "Ogden Construction Co. has been serving the Ogden and Northern Utah area since 1987. Their current website is outdated, not mobile-friendly, and doesn't reflect the quality of work they deliver. This project covers a full redesign and rebuild of their marketing website.",
+      },
+    ],
+  },
 
   { type: "h2", children: [{ text: "Goals" }] },
   { type: "p", children: [{ text: "• Modernize their brand presence online" }] },
   { type: "p", children: [{ text: "• Showcase completed projects and capabilities" }] },
   { type: "p", children: [{ text: "• Make it easy for potential clients to request quotes" }] },
   { type: "p", children: [{ text: "• Significantly improve the mobile experience" }] },
-  { type: "p", children: [{ text: "• Improve local SEO rankings in the Ogden / Weber County area" }] },
+  {
+    type: "p",
+    children: [{ text: "• Improve local SEO rankings in the Ogden / Weber County area" }],
+  },
 
   { type: "h2", children: [{ text: "Scope of Work" }] },
   { type: "h3", children: [{ text: "Pages" }] },
-  { type: "p", children: [{ text: "1. " }, { text: "Home", bold: true }, { text: " — Hero, services overview, featured projects, testimonials, CTA" }] },
-  { type: "p", children: [{ text: "2. " }, { text: "Services", bold: true }, { text: " — Residential, Commercial, Industrial breakdowns" }] },
-  { type: "p", children: [{ text: "3. " }, { text: "Project Gallery", bold: true }, { text: " — Filterable photo gallery of completed work" }] },
-  { type: "p", children: [{ text: "4. " }, { text: "About", bold: true }, { text: " — Team, company history, certifications, licensing" }] },
-  { type: "p", children: [{ text: "5. " }, { text: "Contact", bold: true }, { text: " — Quote request form, phone, address, service area map" }] },
+  {
+    type: "p",
+    children: [
+      { text: "1. " },
+      { text: "Home", bold: true },
+      { text: " — Hero, services overview, featured projects, testimonials, CTA" },
+    ],
+  },
+  {
+    type: "p",
+    children: [
+      { text: "2. " },
+      { text: "Services", bold: true },
+      { text: " — Residential, Commercial, Industrial breakdowns" },
+    ],
+  },
+  {
+    type: "p",
+    children: [
+      { text: "3. " },
+      { text: "Project Gallery", bold: true },
+      { text: " — Filterable photo gallery of completed work" },
+    ],
+  },
+  {
+    type: "p",
+    children: [
+      { text: "4. " },
+      { text: "About", bold: true },
+      { text: " — Team, company history, certifications, licensing" },
+    ],
+  },
+  {
+    type: "p",
+    children: [
+      { text: "5. " },
+      { text: "Contact", bold: true },
+      { text: " — Quote request form, phone, address, service area map" },
+    ],
+  },
 
   { type: "h3", children: [{ text: "Technical Requirements" }] },
-  { type: "p", children: [{ text: "• Built on Next.js with Sanity CMS for client content management" }] },
+  {
+    type: "p",
+    children: [{ text: "• Built on Next.js with Sanity CMS for client content management" }],
+  },
   { type: "p", children: [{ text: "• Mobile-first responsive design" }] },
   { type: "p", children: [{ text: "• Contact form connected to company email" }] },
   { type: "p", children: [{ text: "• Google Maps integration for service area" }] },
@@ -66,18 +114,52 @@ const DESIGN_DOC_CONTENT = JSON.stringify([
   { type: "p", children: [{ text: "• Hosted on Vercel" }] },
 
   { type: "h3", children: [{ text: "CMS Content Types" }] },
-  { type: "p", children: [{ text: "Mike and Sarah will be able to manage the following content directly from the Sanity Studio without developer involvement:" }] },
-  { type: "p", children: [{ text: "• Project gallery entries (title, photos, category, description)" }] },
+  {
+    type: "p",
+    children: [
+      {
+        text: "Mike and Sarah will be able to manage the following content directly from the Sanity Studio without developer involvement:",
+      },
+    ],
+  },
+  {
+    type: "p",
+    children: [{ text: "• Project gallery entries (title, photos, category, description)" }],
+  },
   { type: "p", children: [{ text: "• Testimonials" }] },
   { type: "p", children: [{ text: "• Team member bios" }] },
   { type: "p", children: [{ text: "• Service area updates" }] },
 
   { type: "h2", children: [{ text: "Timeline" }] },
-  { type: "p", children: [{ text: "Discovery & Design Document", bold: true }, { text: " — ✅ Complete — Feb 14, 2026" }] },
-  { type: "p", children: [{ text: "Brand & Design System", bold: true }, { text: " — ✅ Complete — Feb 28, 2026" }] },
-  { type: "p", children: [{ text: "Website Development", bold: true }, { text: " — 🔄 In Progress — Mar 21, 2026" }] },
-  { type: "p", children: [{ text: "Review & QA", bold: true }, { text: " — ⏳ Upcoming — Mar 28, 2026" }] },
-  { type: "p", children: [{ text: "Launch", bold: true }, { text: " — ⏳ Upcoming — Apr 4, 2026" }] },
+  {
+    type: "p",
+    children: [
+      { text: "Discovery & Design Document", bold: true },
+      { text: " — ✅ Complete — Feb 14, 2026" },
+    ],
+  },
+  {
+    type: "p",
+    children: [
+      { text: "Brand & Design System", bold: true },
+      { text: " — ✅ Complete — Feb 28, 2026" },
+    ],
+  },
+  {
+    type: "p",
+    children: [
+      { text: "Website Development", bold: true },
+      { text: " — 🔄 In Progress — Mar 21, 2026" },
+    ],
+  },
+  {
+    type: "p",
+    children: [{ text: "Review & QA", bold: true }, { text: " — ⏳ Upcoming — Mar 28, 2026" }],
+  },
+  {
+    type: "p",
+    children: [{ text: "Launch", bold: true }, { text: " — ⏳ Upcoming — Apr 4, 2026" }],
+  },
 
   { type: "h2", children: [{ text: "Pricing" }] },
   { type: "p", children: [{ text: "Project total: $8,500" }] },
@@ -86,14 +168,30 @@ const DESIGN_DOC_CONTENT = JSON.stringify([
   { type: "p", children: [{ text: "Optional monthly maintenance: $150/mo" }] },
 
   { type: "h2", children: [{ text: "Out of Scope" }] },
-  { type: "p", children: [{ text: "The following are explicitly not included in this engagement:" }] },
+  {
+    type: "p",
+    children: [{ text: "The following are explicitly not included in this engagement:" }],
+  },
   { type: "p", children: [{ text: "• E-commerce or online payment processing" }] },
   { type: "p", children: [{ text: "• Customer portal or user account system" }] },
-  { type: "p", children: [{ text: "• Blog or news section (can be scoped as a Phase 2 addition)" }] },
-  { type: "p", children: [{ text: "• Logo redesign — existing logo will be refined and used as-is" }] },
+  {
+    type: "p",
+    children: [{ text: "• Blog or news section (can be scoped as a Phase 2 addition)" }],
+  },
+  {
+    type: "p",
+    children: [{ text: "• Logo redesign — existing logo will be refined and used as-is" }],
+  },
 
   { type: "h2", children: [{ text: "Approval" }] },
-  { type: "blockquote", children: [{ text: "By approving this document, Ogden Construction Co. confirms that the scope, timeline, and pricing above accurately reflect the agreed engagement." }] },
+  {
+    type: "blockquote",
+    children: [
+      {
+        text: "By approving this document, Ogden Construction Co. confirms that the scope, timeline, and pricing above accurately reflect the agreed engagement.",
+      },
+    ],
+  },
 ]);
 
 async function seed() {
@@ -307,8 +405,7 @@ async function seed() {
       .onConflictDoNothing();
 
     const project = await tx.query.projectsTable.findFirst({
-      where: (t, { eq, and }) =>
-        and(eq(t.clientId, ogden.id), eq(t.name, "Website Redesign")),
+      where: (t, { eq, and }) => and(eq(t.clientId, ogden.id), eq(t.name, "Website Redesign")),
     });
 
     if (!project) throw new Error("Project not found after insert");

@@ -10,11 +10,7 @@ const ADMIN_EMAIL = process.env.SITEHAUS_ADMIN_EMAIL ?? "you@sitehaus.dev";
 const CLIENT_KEY = process.env.SITEHAUS_ADMIN_CLIENT_KEY ?? "all";
 const ADMIN_ROLE_KEY = process.env.SITEHAUS_ADMIN_ROLE_KEY ?? "admin";
 
-async function grantOnClient(
-  userId: string,
-  email: string,
-  clientKey: string,
-) {
+async function grantOnClient(userId: string, email: string, clientKey: string) {
   const client = await db.query.clientsTable.findFirst({
     where: (t, { eq }) => eq(t.key, clientKey),
   });
@@ -25,14 +21,11 @@ async function grantOnClient(
   }
 
   const role = await db.query.rolesTable.findFirst({
-    where: (t, { and, eq }) =>
-      and(eq(t.clientId, client.id), eq(t.key, ADMIN_ROLE_KEY)),
+    where: (t, { and, eq }) => and(eq(t.clientId, client.id), eq(t.key, ADMIN_ROLE_KEY)),
   });
 
   if (!role) {
-    console.warn(
-      `  ⚠ Role key="${ADMIN_ROLE_KEY}" not found on client "${clientKey}", skipping.`,
-    );
+    console.warn(`  ⚠ Role key="${ADMIN_ROLE_KEY}" not found on client "${clientKey}", skipping.`);
     return;
   }
 

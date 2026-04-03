@@ -31,11 +31,18 @@ const STATUS_TABS: { label: string; value: OrderStatus | "all" }[] = [
 ];
 
 function formatCents(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: currency.toUpperCase() }).format(cents / 100);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(cents / 100);
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export default function OrdersPage() {
@@ -88,13 +95,19 @@ export default function OrdersPage() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-56"
           />
-          <Button type="submit" variant="outline" size="sm">Search</Button>
+          <Button type="submit" variant="outline" size="sm">
+            Search
+          </Button>
           {emailSearch && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              onClick={() => { setEmail(""); setEmailSearch(""); setOffset(0); }}
+              onClick={() => {
+                setEmail("");
+                setEmailSearch("");
+                setOffset(0);
+              }}
             >
               Clear
             </Button>
@@ -125,26 +138,27 @@ export default function OrdersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    {Array.from({ length: 6 }).map((_, j) => (
-                      <TableCell key={j}><Skeleton className="h-4 w-24" /></TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              : data?.items.length === 0
-              ? (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                      <ShoppingCart className="size-10 mb-3 opacity-30" />
-                      <p className="font-medium">No orders found</p>
-                    </div>
-                  </TableCell>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <TableCell key={j}>
+                      <Skeleton className="h-4 w-24" />
+                    </TableCell>
+                  ))}
                 </TableRow>
-              )
-              : data?.items.map((order: AdminOrderSummary) => (
+              ))
+            ) : data?.items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6}>
+                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <ShoppingCart className="size-10 mb-3 opacity-30" />
+                    <p className="font-medium">No orders found</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              data?.items.map((order: AdminOrderSummary) => (
                 <TableRow
                   key={order.id}
                   className="cursor-pointer"
@@ -154,26 +168,43 @@ export default function OrdersPage() {
                     #{order.id.slice(0, 8).toUpperCase()}
                   </TableCell>
                   <TableCell className="text-muted-foreground">{order.email}</TableCell>
-                  <TableCell><OrderStatusBadge status={order.status} /></TableCell>
+                  <TableCell>
+                    <OrderStatusBadge status={order.status} />
+                  </TableCell>
                   <TableCell className="text-muted-foreground">{order.itemCount}</TableCell>
                   <TableCell className="font-medium">
                     {formatCents(order.totalCents, order.currency)}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{formatDate(order.createdAt)}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDate(order.createdAt)}
+                  </TableCell>
                 </TableRow>
-              ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </div>
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
-          <span>Page {currentPage} of {totalPages}</span>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={offset === 0} onClick={() => setOffset((o) => Math.max(0, o - LIMIT))}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={offset === 0}
+              onClick={() => setOffset((o) => Math.max(0, o - LIMIT))}
+            >
               Previous
             </Button>
-            <Button variant="outline" size="sm" disabled={offset + LIMIT >= total} onClick={() => setOffset((o) => o + LIMIT)}>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={offset + LIMIT >= total}
+              onClick={() => setOffset((o) => o + LIMIT)}
+            >
               Next
             </Button>
           </div>

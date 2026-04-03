@@ -33,10 +33,7 @@ import {
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
-import {
-  deleteAccountSchema,
-  type DeleteAccountInput,
-} from "@site-haus/validation/forms/account";
+import { deleteAccountSchema, type DeleteAccountInput } from "@site-haus/validation/forms/account";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -96,8 +93,7 @@ export function DeleteSection() {
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">
-          Once you delete your account, there is no going back. This action
-          cannot be undone.
+          Once you delete your account, there is no going back. This action cannot be undone.
         </p>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -108,12 +104,10 @@ export function DeleteSection() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle className="text-destructive">
-                Delete Your Account
-              </DialogTitle>
+              <DialogTitle className="text-destructive">Delete Your Account</DialogTitle>
               <DialogDescription>
-                This action is permanent and cannot be undone. All your data
-                will be permanently removed.
+                This action is permanent and cannot be undone. All your data will be permanently
+                removed.
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>

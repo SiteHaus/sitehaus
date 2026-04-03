@@ -1,4 +1,7 @@
-import { billingRecordStatusValues, billingRecordTypeValues } from "@site-haus/validation/core/enums";
+import {
+  billingRecordStatusValues,
+  billingRecordTypeValues,
+} from "@site-haus/validation/core/enums";
 import { z } from "zod";
 
 export const billingRecordTypeEnum = z.enum(billingRecordTypeValues);

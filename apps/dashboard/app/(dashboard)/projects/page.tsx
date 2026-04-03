@@ -6,12 +6,7 @@ import { getApi } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardDescription, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { label } from "@site-haus/utils/core/format";
@@ -56,9 +51,7 @@ export default function ProjectsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Projects</h1>
-        <p className="text-muted-foreground mt-1">
-          Manage all your web projects.
-        </p>
+        <p className="text-muted-foreground mt-1">Manage all your web projects.</p>
       </div>
 
       <div className="flex items-center gap-3">
@@ -91,9 +84,7 @@ export default function ProjectsPage() {
           {search ? (
             <>
               <h3 className="text-lg font-medium">No projects found</h3>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Try adjusting your search.
-              </p>
+              <p className="text-muted-foreground mt-1 text-sm">Try adjusting your search.</p>
             </>
           ) : canManage ? (
             <>
@@ -112,8 +103,8 @@ export default function ProjectsPage() {
             <>
               <h3 className="text-lg font-medium">No projects here yet</h3>
               <p className="text-muted-foreground mt-2 text-sm max-w-sm">
-                It looks like your account doesn&apos;t have any projects set up
-                yet. Reach out to us and we&apos;ll get things moving.
+                It looks like your account doesn&apos;t have any projects set up yet. Reach out to
+                us and we&apos;ll get things moving.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <Button asChild variant="outline">
@@ -139,12 +130,8 @@ export default function ProjectsPage() {
               <Card className="transition-colors hover:border-primary/40 h-full">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base leading-snug">
-                      {project.name}
-                    </CardTitle>
-                    <Badge variant={statusVariant(project.status)}>
-                      {label(project.status)}
-                    </Badge>
+                    <CardTitle className="text-base leading-snug">{project.name}</CardTitle>
+                    <Badge variant={statusVariant(project.status)}>{label(project.status)}</Badge>
                   </div>
                   <CardDescription className="line-clamp-2 mt-1">
                     {project.description || "No description"}

@@ -53,21 +53,16 @@ const NotificationEmail = ({
       <Preview>{previewText}</Preview>
       <Body className="bg-[#f6f6f6] font-sans">
         <Container className="mx-auto my-10 w-full max-w-[560px] rounded-2xl bg-white p-8 shadow-sm">
-          <Heading className="m-0 text-[24px] font-bold text-brand">
-            {appName}
-          </Heading>
+          <Heading className="m-0 text-[24px] font-bold text-brand">{appName}</Heading>
 
-          <Text className="mt-4 text-[15px] font-semibold text-[#1a1a1a]">
-            {title}
-          </Text>
+          <Text className="mt-4 text-[15px] font-semibold text-[#1a1a1a]">{title}</Text>
           <Text className="mt-1 text-[13px] text-[#555]">{body}</Text>
 
           {context && context.length > 0 && (
             <Section className="mt-4 rounded-xl border border-[#eee] bg-[#fafafa] p-4">
               {context.map((row) => (
                 <Text key={row.label} className="m-0 py-1 text-[13px] text-[#555]">
-                  <span className="font-semibold text-[#333]">{row.label}:</span>{" "}
-                  {row.value}
+                  <span className="font-semibold text-[#333]">{row.label}:</span> {row.value}
                 </Text>
               ))}
             </Section>

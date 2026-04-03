@@ -28,8 +28,8 @@ async function fixIamRedirects() {
       .where(
         and(
           eq(schema.clientRedirectUrisTable.clientId, iamClient.id),
-          eq(schema.clientRedirectUrisTable.uri, oldUri)
-        )
+          eq(schema.clientRedirectUrisTable.uri, oldUri),
+        ),
       );
 
     console.log(`Deleted old redirect URI: ${oldUri}`);

@@ -26,12 +26,8 @@ export const sessionsTable = pgTable(
       .notNull()
       .references(() => clientsTable.id, { onDelete: "cascade" }),
     refreshHash: text("refresh_hash").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    lastUsedAt: timestamp("last_used_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    lastUsedAt: timestamp("last_used_at", { withTimezone: true }).notNull().defaultNow(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
     mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
@@ -45,7 +41,7 @@ export const sessionsTable = pgTable(
     index("sessions_client_idx").on(t.clientId),
     uniqueIndex("sessions_refresh_uq").on(t.refreshHash),
     index("sessions_expires_idx").on(t.expiresAt),
-  ]
+  ],
 );
 
 export type Session = typeof sessionsTable.$inferSelect;
