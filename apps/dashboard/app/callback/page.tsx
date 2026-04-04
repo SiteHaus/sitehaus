@@ -30,6 +30,13 @@ function CallbackContent() {
         return;
       }
 
+      const returnedState = searchParams.get("state");
+      const storedState = sessionStorage.getItem("oauth_state");
+      if (!returnedState || returnedState !== storedState) {
+        setError("State mismatch — possible CSRF attack");
+        return;
+      }
+
       try {
         const codeVerifier = sessionStorage.getItem("oauth_code_verifier");
         if (!codeVerifier) {

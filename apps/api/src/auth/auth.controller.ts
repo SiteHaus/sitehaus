@@ -113,6 +113,7 @@ export class AuthController {
    */
   @Public()
   @HttpCode(HttpStatus.OK)
+  @Throttle({ auth: { limit: 120 } })
   @Post('introspect')
   async introspect(@Headers('authorization') authorization?: string) {
     if (!authorization?.startsWith('Bearer ')) {

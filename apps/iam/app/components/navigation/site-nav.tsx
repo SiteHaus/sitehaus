@@ -1,6 +1,6 @@
 "use client";
 
-import { generatePKCE } from "@site-haus/sdk/oauth";
+import { generatePKCE, generateState } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
 import { ModeToggle } from "@site-haus/ui/components/base/mode-toggle";
@@ -59,7 +59,7 @@ export function SiteNav() {
 
   const handleLogin = async () => {
     const { codeVerifier, codeChallenge } = await generatePKCE();
-    const state = Math.random().toString(36).substring(7);
+    const state = generateState();
 
     sessionStorage.setItem("oauth_code_verifier", codeVerifier);
     sessionStorage.setItem("oauth_state", state);

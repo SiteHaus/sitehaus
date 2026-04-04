@@ -56,6 +56,14 @@ const CLIENTS: NewClient[] = [
     requiresConsent: false,
   },
   {
+    key: "sitehaus-commerce-admin",
+    name: "SiteHaus Commerce Admin",
+    type: "public",
+    firstParty: true,
+    audience: "sitehaus.commerce-admin",
+    requiresConsent: false,
+  },
+  {
     key: "gracejeanne",
     name: "Grace Jeanne",
     type: "public",
@@ -86,6 +94,12 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "https://sitehaus.dev/auth/callback",
   ],
   commerce: ["http://localhost:3004/callback", "https://commerce.sitehaus.dev/callback"],
+  "sitehaus-commerce-admin": [
+    "http://localhost:3004/callback",
+    "http://localhost:3004/auth/callback",
+    "https://admin.commerce.sitehaus.dev/callback",
+    "https://admin.commerce.sitehaus.dev/auth/callback",
+  ],
   gracejeanne: ["https://gracejeanne.com/callback", "https://gracejeanne.com/auth/callback"],
 };
 async function seed() {
