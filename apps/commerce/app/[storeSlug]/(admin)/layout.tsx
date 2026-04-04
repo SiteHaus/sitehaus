@@ -1,7 +1,7 @@
 "use client";
 
 import { RequireAuth } from "@/lib/require-auth";
-import { AppSideBar } from "../../components/sidebar/app-sidebar";
+import { AppSideBar } from "../../../components/sidebar/app-sidebar";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { SidebarInset, SidebarProvider } from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";

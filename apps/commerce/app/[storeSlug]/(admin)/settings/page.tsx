@@ -8,6 +8,7 @@ import {
   type StoreDetail,
   type StripeStatus,
 } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Card,
@@ -40,6 +41,7 @@ const CURRENCIES = [
 ];
 
 export default function SettingsPage() {
+  const { storeSlug } = useStoreNav();
   const queryClient = useQueryClient();
 
   const { data: store, isLoading } = useQuery<StoreDetail>({
@@ -85,7 +87,7 @@ export default function SettingsPage() {
   });
 
   const connectMutation = useMutation({
-    mutationFn: () => connectStripe(`${window.location.origin}/settings`),
+    mutationFn: () => connectStripe(`${window.location.origin}/${storeSlug}/settings`),
     onSuccess: ({ url }) => {
       window.location.href = url;
     },

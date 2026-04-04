@@ -6,6 +6,7 @@ import {
   listCollections,
   type CollectionItem,
 } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Dialog,
@@ -26,12 +27,11 @@ import {
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Layers, Loader2, Plus, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function CollectionsPage() {
-  const router = useRouter();
+  const { push } = useStoreNav();
   const queryClient = useQueryClient();
   const [createOpen, setCreateOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -101,7 +101,7 @@ export default function CollectionsPage() {
                 <TableRow
                   key={col.id}
                   className="cursor-pointer"
-                  onClick={() => router.push(`/collections/${col.id}`)}
+                  onClick={() => push(`/collections/${col.id}`)}
                 >
                   <TableCell className="font-medium">{col.name}</TableCell>
                   <TableCell className="text-muted-foreground font-mono text-sm">
@@ -141,7 +141,7 @@ export default function CollectionsPage() {
         onOpenChange={setCreateOpen}
         onCreated={(col) => {
           queryClient.invalidateQueries({ queryKey: ["collections"] });
-          router.push(`/collections/${col.id}`);
+          push(`/collections/${col.id}`);
         }}
       />
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { getOrder, refundOrder, shipOrder } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import {
@@ -24,7 +25,7 @@ import {
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, RotateCcw, Truck } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { OrderStatusBadge } from "../_components/order-status-badge";
@@ -49,7 +50,7 @@ function formatDate(iso: string | null) {
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
+  const { push } = useStoreNav();
   const qc = useQueryClient();
 
   const { data: order, isLoading } = useQuery({
@@ -106,7 +107,7 @@ export default function OrderDetailPage() {
     <div className="max-w-3xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/orders")}>
+        <Button variant="ghost" size="icon" onClick={() => push("/orders")}>
           <ArrowLeft className="size-4" />
         </Button>
         <div className="flex-1 min-w-0">

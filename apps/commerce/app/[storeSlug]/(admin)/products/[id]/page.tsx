@@ -9,6 +9,7 @@ import {
   updateVariant,
   type VariantAdmin,
 } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import {
@@ -39,7 +40,7 @@ import {
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "../_components/status-badge";
@@ -199,7 +200,7 @@ function VariantDialog({
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
+  const { push } = useStoreNav();
   const qc = useQueryClient();
 
   const { data: product, isLoading } = useQuery({
@@ -240,7 +241,7 @@ export default function ProductDetailPage() {
     mutationFn: () => archiveProduct(id),
     onSuccess: () => {
       toast.success("Product archived");
-      router.push("/products");
+      push("/products");
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to archive"),
   });
@@ -269,7 +270,7 @@ export default function ProductDetailPage() {
   return (
     <div className="max-w-3xl">
       <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/products")}>
+        <Button variant="ghost" size="icon" onClick={() => push("/products")}>
           <ArrowLeft className="size-4" />
         </Button>
         <div className="flex-1 min-w-0">

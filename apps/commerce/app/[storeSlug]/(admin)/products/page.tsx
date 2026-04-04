@@ -1,6 +1,7 @@
 "use client";
 
 import { listProducts, type ProductItem, type ProductStatus } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
@@ -15,7 +16,6 @@ import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs"
 import { useQuery } from "@tanstack/react-query";
 import { Package, Plus } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { StatusBadge } from "./_components/status-badge";
 
@@ -37,7 +37,7 @@ function formatDate(iso: string) {
 }
 
 export default function ProductsPage() {
-  const router = useRouter();
+  const { push } = useStoreNav();
   const [status, setStatus] = useState<ProductStatus | "all">("all");
   const [offset, setOffset] = useState(0);
 
@@ -69,7 +69,7 @@ export default function ProductsPage() {
             {isLoading ? "—" : `${total} product${total !== 1 ? "s" : ""}`}
           </p>
         </div>
-        <Button onClick={() => router.push("/products/new")}>
+        <Button onClick={() => push("/products/new")}>
           <Plus className="size-4" />
           New Product
         </Button>
@@ -132,7 +132,7 @@ export default function ProductsPage() {
                 <TableRow
                   key={product.id}
                   className="cursor-pointer"
-                  onClick={() => router.push(`/products/${product.id}`)}
+                  onClick={() => push(`/products/${product.id}`)}
                 >
                   <TableCell>
                     {product.primaryImage ? (

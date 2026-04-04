@@ -1,6 +1,7 @@
 "use client";
 
 import { createProduct } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
@@ -14,12 +15,11 @@ import {
 } from "@site-haus/ui/components/base/select";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function NewProductPage() {
-  const router = useRouter();
+  const { push } = useStoreNav();
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -37,7 +37,7 @@ export default function NewProductPage() {
         status,
       });
       toast.success("Product created");
-      router.push(`/products/${product.id}`);
+      push(`/products/${product.id}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to create product");
       setSaving(false);
@@ -47,7 +47,7 @@ export default function NewProductPage() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/products")}>
+        <Button variant="ghost" size="icon" onClick={() => push("/products")}>
           <ArrowLeft className="size-4" />
         </Button>
         <h1 className="text-2xl font-bold">New Product</h1>
@@ -101,7 +101,7 @@ export default function NewProductPage() {
         </Card>
 
         <div className="flex justify-end gap-3 mt-4">
-          <Button type="button" variant="outline" onClick={() => router.push("/products")}>
+          <Button type="button" variant="outline" onClick={() => push("/products")}>
             Cancel
           </Button>
           <Button type="submit" disabled={saving || !name.trim()}>

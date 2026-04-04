@@ -10,6 +10,7 @@ import {
   type CollectionItem,
   type ProductItem,
 } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Dialog,
@@ -30,13 +31,13 @@ import {
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Loader2, Package, Plus } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function CollectionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
+  const { push } = useStoreNav();
   const queryClient = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
 
@@ -74,7 +75,6 @@ export default function CollectionDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["collection", id] });
       setDirty(false);
       toast.success("Collection saved");
-      // If slug changed, the detail query key is now stale — refetch with new slug
       setSlug(updated.slug);
     },
     onError: (err: Error) => toast.error(err.message),
@@ -93,7 +93,7 @@ export default function CollectionDetailPage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => router.push("/collections")}>
+        <Button variant="ghost" size="icon" onClick={() => push("/collections")}>
           <ArrowLeft className="size-4" />
         </Button>
         <div>
@@ -192,7 +192,7 @@ export default function CollectionDetailPage() {
                   <TableRow
                     key={p.id}
                     className="cursor-pointer"
-                    onClick={() => router.push(`/products/${p.id}`)}
+                    onClick={() => push(`/products/${p.id}`)}
                   >
                     <TableCell className="font-mono text-xs text-muted-foreground">
                       {p.id}

@@ -1,6 +1,7 @@
 "use client";
 
 import { listOrders, type AdminOrderSummary, type OrderStatus } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
@@ -15,7 +16,6 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { ShoppingCart } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { OrderStatusBadge } from "./_components/order-status-badge";
 
@@ -46,7 +46,7 @@ function formatDate(iso: string) {
 }
 
 export default function OrdersPage() {
-  const router = useRouter();
+  const { push } = useStoreNav();
   const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [email, setEmail] = useState("");
   const [emailSearch, setEmailSearch] = useState("");
@@ -162,7 +162,7 @@ export default function OrdersPage() {
                 <TableRow
                   key={order.id}
                   className="cursor-pointer"
-                  onClick={() => router.push(`/orders/${order.id}`)}
+                  onClick={() => push(`/orders/${order.id}`)}
                 >
                   <TableCell className="font-mono text-sm font-medium">
                     #{order.id.slice(0, 8).toUpperCase()}

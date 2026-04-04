@@ -44,6 +44,11 @@ export type StripeStatus = {
   detailsSubmitted: boolean;
 };
 
+export type AccessibleStore = { id: string; clientId: string; slug: string; name: string };
+
+export const getAccessibleStores = (clientIds: string) =>
+  request<{ stores: AccessibleStore[] }>(`/v1/admin/stores/accessible?clientIds=${clientIds}`);
+
 export const getMyStore = () => request<StoreDetail>("/v1/admin/stores/me");
 
 export const updateStore = (body: {
