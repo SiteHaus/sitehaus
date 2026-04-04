@@ -17,13 +17,6 @@ export default function TwoFactorVerifyContainer() {
   const clientName = searchParams.get("client") || "";
   const oauthParams = searchParams.get("oauth_params");
 
-  console.log(
-    "[DEBUG] 2FA page loaded, oauth_params:",
-    oauthParams,
-    "URL:",
-    typeof window !== "undefined" ? window.location.href : "SSR",
-  );
-
   const accessToken = useAuthStore((s) => s.accessToken);
   const setAccess = useAuthStore((s) => s.setAccess);
   const clearAuth = useAuthStore((s) => s.clearAuth);

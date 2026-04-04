@@ -5,6 +5,7 @@ import { useApi } from "@/lib/typed-api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { LoginInput } from "@site-haus/validation/forms/auth";
 import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { LoginForm } from "./form/login-form";
 
 export default function LoginContainer() {
@@ -18,6 +19,26 @@ export default function LoginContainer() {
   const oauthParams = searchParams.get("oauth_params");
 
   const setAccess = useAuthStore((s) => s.setAccess);
+  const user = useAuthStore((s) => s.user);
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
+
+  // SSO shortcut: if already authenticated and this is an OAuth flow,
+  // skip the login form and bounce straight back to the authorize endpoint.
+  // The browser will send the sh_refresh cookie and the authorize endpoint
+  // will complete the flow silently.
+  useEffect(() => {
+    if (!bootstrapped || !user || !oauthParams) return;
+    try {
+      const params = JSON.parse(atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/")));
+      const authorizeUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`);
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) authorizeUrl.searchParams.set(key, value as string);
+      });
+      window.location.href = authorizeUrl.toString();
+    } catch {
+      // Malformed oauth_params — fall through to login form
+    }
+  }, [bootstrapped, user, oauthParams]);
 
   const onSubmit = async (values: LoginInput) => {
     const r = await api.auth.loginOnly.login({ body: values });
@@ -33,7 +54,6 @@ export default function LoginContainer() {
 
     // If 2FA is required, store partial token and redirect to 2FA verification
     if (requires2FA) {
-      console.log("[DEBUG] 2FA required, oauth_params:", oauthParams);
       const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
       setAccess({ accessToken, accessExpiration: exp });
       replace("/2fa-verify");

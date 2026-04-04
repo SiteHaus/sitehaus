@@ -89,7 +89,6 @@ export default function TicketDetailPage() {
       const res = await getApi().tickets.get({ params: { ticketId } });
       if (res.status === 200) {
         setTicket(res.body.ticket);
-        console.log(ticket);
       } else {
         setNotFound(true);
       }
