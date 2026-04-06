@@ -338,3 +338,45 @@ export const addProductToCollection = (collectionId: string, productId: string) 
     method: "POST",
     body: JSON.stringify({ productId }),
   });
+
+// ─── Product Images ───────────────────────────────────────────────────────────
+
+export type ProductImage = {
+  id: string;
+  productId: string;
+  storeId: string;
+  r2Key: string;
+  cdnUrl: string;
+  altText: string | null;
+  sortOrder: number;
+  createdAt: string;
+};
+
+export const listProductImages = (productId: string) =>
+  request<ProductImage[]>(`/v1/admin/products/${productId}/images`);
+
+export const getImageUploadUrl = (productId: string, contentType: string) =>
+  request<{ uploadUrl: string; r2Key: string; cdnUrl: string }>(
+    `/v1/admin/products/${productId}/images/upload-url`,
+    { method: "POST", body: JSON.stringify({ contentType }) },
+  );
+
+export const confirmProductImage = (productId: string, r2Key: string, altText?: string) =>
+  request<ProductImage>(`/v1/admin/products/${productId}/images/confirm`, {
+    method: "POST",
+    body: JSON.stringify({ r2Key, ...(altText ? { altText } : {}) }),
+  });
+
+export const deleteProductImage = (productId: string, imageId: string) =>
+  request<{ message: string }>(`/v1/admin/products/${productId}/images/${imageId}`, {
+    method: "DELETE",
+  });
+
+export const reorderProductImages = (
+  productId: string,
+  items: Array<{ imageId: string; sortOrder: number }>,
+) =>
+  request<ProductImage[]>(`/v1/admin/products/${productId}/images/reorder`, {
+    method: "PATCH",
+    body: JSON.stringify({ items }),
+  });

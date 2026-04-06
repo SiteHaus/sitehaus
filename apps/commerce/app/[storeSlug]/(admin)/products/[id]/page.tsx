@@ -44,6 +44,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "../_components/status-badge";
+import { ImagesCard } from "./_components/ImagesCard";
 
 function formatCents(cents: number) {
   return (cents / 100).toFixed(2);
@@ -356,6 +357,8 @@ export default function ProductDetailPage() {
           )}
         </CardContent>
       </Card>
+
+      <ImagesCard productId={id} />
 
       {/* Variants card */}
       <Card>

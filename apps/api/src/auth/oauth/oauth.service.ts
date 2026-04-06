@@ -226,6 +226,16 @@ export class OAuthService {
     userId: string,
     clientId: string,
   ): Promise<void> {
+    // Only auto-join first-party clients. Merchant clients require an explicit
+    // invite — anyone with a SiteHaus account should not be able to
+    // self-join a store by constructing an OAuth URL.
+    const client = await this.db.query.clientsTable.findFirst({
+      where: (t, { eq }) => eq(t.id, clientId),
+      columns: { firstParty: true },
+    });
+
+    if (!client?.firstParty) return;
+
     // Check if user already has any role in this client
     const existing = await this.db.query.userRolesTable.findFirst({
       where: (t, { and: _and, eq: _eq }) =>

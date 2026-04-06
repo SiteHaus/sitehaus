@@ -1,6 +1,6 @@
 "use client";
 
-import { exchangeCodeForTokens } from "@site-haus/sdk";
+import { exchangeCodeForTokens, updateSDKClientKey } from "@site-haus/sdk";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -59,6 +59,8 @@ function CallbackContent() {
         }
 
         const exp = Math.floor(Date.now() / 1000) + tokens.expires_in;
+
+        updateSDKClientKey(clientKey);
 
         setAccess({
           accessToken: tokens.access_token,
