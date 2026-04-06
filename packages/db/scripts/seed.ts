@@ -64,6 +64,7 @@ const CLIENTS: NewClient[] = [
     requiresConsent: false,
   },
   {
+    id: "00000000-cafe-4bab-8000-000000000002",
     key: "gracejeanne",
     name: "Grace Jeanne",
     type: "public",
@@ -119,7 +120,12 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "https://admin.commerce.sitehaus.dev/callback",
     "https://admin.commerce.sitehaus.dev/auth/callback",
   ],
-  gracejeanne: ["https://gracejeanne.com/callback", "https://gracejeanne.com/auth/callback"],
+  gracejeanne: [
+    "http://localhost:3004/callback",
+    "https://commerce.localhost/callback",
+    "https://gracejeanne.com/callback",
+    "https://gracejeanne.com/auth/callback",
+  ],
   onehealth: ["http://localhost:3004/callback", "https://commerce.localhost/callback"],
 };
 async function seed() {

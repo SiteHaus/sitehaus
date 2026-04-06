@@ -8,6 +8,7 @@ import { Input } from "@site-haus/ui/components/base/input";
 import { useSearchParams } from "next/navigation";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { Ticket, Plus, Search, UserCheck, ChevronDown, CircleCheck } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -115,8 +116,11 @@ export default function TicketsPage() {
     await Promise.all(selectedTickets.map((t) => handleAssign(t.id, assigneeId)));
   };
 
+  const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("open");
+
   const filtered = tickets.filter((t) => {
     if (assignedToMe && t.assigneeId !== me?.id) return false;
+    if (statusFilter !== "all" && t.status !== statusFilter) return false;
     if (!search) return true;
     return (
       t.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -141,7 +145,7 @@ export default function TicketsPage() {
                 : "View and track your support tickets."}
           </p>
         </div>
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -158,6 +162,18 @@ export default function TicketsPage() {
             </Link>
           </Button>
         </div>
+        <Tabs
+          value={statusFilter}
+          onValueChange={(v) => setStatusFilter(v as TicketStatus | "all")}
+        >
+          <TabsList>
+            <TabsTrigger value="open">Open</TabsTrigger>
+            <TabsTrigger value="in_progress">In Progress</TabsTrigger>
+            <TabsTrigger value="resolved">Resolved</TabsTrigger>
+            <TabsTrigger value="closed">Closed</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {loading ? (

@@ -12,9 +12,9 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { sideBarMenuItems } from "./sidebar-links";
 
-function isActive(pathname: string, url: string): boolean {
-  if (url === "/") return pathname === url;
-  return pathname === url || pathname.startsWith(url + "/");
+function isActive(pathname: string, href: string, isRoot: boolean): boolean {
+  if (isRoot) return pathname === href;
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
 export const AppSideBarContent = () => {
@@ -33,7 +33,7 @@ export const AppSideBarContent = () => {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     tooltip={item.title}
-                    isActive={isActive(pathname, href)}
+                    isActive={isActive(pathname, href, item.url === "/")}
                     asChild
                   >
                     <Link href={href}>

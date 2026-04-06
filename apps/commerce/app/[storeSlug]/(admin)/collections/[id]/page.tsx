@@ -205,21 +205,23 @@ export default function CollectionDetailPage() {
         )}
       </div>
 
-      <AddProductDialog
-        open={addOpen}
-        onOpenChange={setAddOpen}
-        existingProductIds={productIds}
-        onAdd={(productId) => {
-          addProductToCollection(id, productId)
-            .then(() => {
-              queryClient.invalidateQueries({ queryKey: ["collections"] });
-              queryClient.invalidateQueries({ queryKey: ["collection", id] });
-              toast.success("Product added");
-              setAddOpen(false);
-            })
-            .catch((err: Error) => toast.error(err.message));
-        }}
-      />
+      {addOpen && (
+        <AddProductDialog
+          open={addOpen}
+          onOpenChange={setAddOpen}
+          existingProductIds={productIds}
+          onAdd={(productId) => {
+            addProductToCollection(id, productId)
+              .then(() => {
+                queryClient.invalidateQueries({ queryKey: ["collections"] });
+                queryClient.invalidateQueries({ queryKey: ["collection", id] });
+                toast.success("Product added");
+                setAddOpen(false);
+              })
+              .catch((err: Error) => toast.error(err.message));
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -238,10 +240,9 @@ function AddProductDialog({
   const [search, setSearch] = useState("");
   const [adding, setAdding] = useState<string | null>(null);
 
-  const { data } = useQuery({
+  const { data, isError } = useQuery({
     queryKey: ["products", "all"],
-    queryFn: () => listProducts({ limit: 200 }),
-    enabled: open,
+    queryFn: () => listProducts({ limit: 100 }),
   });
 
   const filtered = (data?.items ?? []).filter(
@@ -267,7 +268,7 @@ function AddProductDialog({
         <div className="max-h-72 overflow-y-auto space-y-1 -mx-1 px-1">
           {filtered.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">
-              {data ? "No products to add" : "Loading..."}
+              {isError ? "Failed to load products." : data ? "No products to add." : "Loading..."}
             </p>
           ) : (
             filtered.map((p: ProductItem) => (
