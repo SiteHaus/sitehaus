@@ -45,6 +45,7 @@ export function ImagesCard({ productId }: { productId: string }) {
       reorderProductImages(productId, items),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["product-images", productId] });
+      qc.invalidateQueries({ queryKey: ["products"] });
     },
     onError: () => toast.error("Failed to reorder images"),
   });
