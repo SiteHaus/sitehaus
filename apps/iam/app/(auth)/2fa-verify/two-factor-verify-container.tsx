@@ -45,24 +45,26 @@ export default function TwoFactorVerifyContainer() {
       // Continue with redirect even if me() fails - user is authenticated
     }
 
-    // Check if this is an OAuth flow
+    // Check if this is an OAuth flow — use sso-link form POST so the cookie
+    // lands in the first-party api.localhost jar (Firefox TCP fix).
     if (oauthParams) {
       try {
-        // Decode the OAuth parameters
-        const params = JSON.parse(atob(oauthParams.replace(/-/g, "+").replace(/_/g, "/")));
-
-        // Build the authorize URL with the original OAuth params
-        const authorizeUrl = new URL(`${process.env.NEXT_PUBLIC_API_URL}/auth/authorize`);
-
-        Object.entries(params).forEach(([key, value]) => {
-          if (value) {
-            authorizeUrl.searchParams.set(key, value as string);
-          }
-        });
-
-        // Redirect to the API authorize endpoint
-        // The browser will automatically send the refresh token cookie
-        window.location.href = authorizeUrl.toString();
+        clearAuth();
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = `${process.env.NEXT_PUBLIC_API_URL}/auth/sso-link`;
+        form.style.display = "none";
+        const addField = (name: string, value: string) => {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = name;
+          input.value = value;
+          form.appendChild(input);
+        };
+        addField("accessToken", newToken);
+        addField("oauthParams", oauthParams);
+        document.body.appendChild(form);
+        form.submit();
         return;
       } catch {
         // Fall through to normal redirect

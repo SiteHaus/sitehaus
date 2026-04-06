@@ -74,6 +74,7 @@ export default function StoreResolverPage() {
     const state = generateState();
     sessionStorage.setItem("oauth_code_verifier", codeVerifier);
     sessionStorage.setItem("oauth_state", state);
+    sessionStorage.setItem("oauth_client_key", clientKey);
 
     const params = new URLSearchParams({
       client_key: clientKey,

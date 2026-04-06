@@ -20,6 +20,8 @@ services:
   commerce:
     image: ghcr.io/sitehaus/sitehaus-commerce-app:latest
     restart: always
+    env_file:
+      - ./apps/commerce/.env
     networks:
       - sitehaus-network
 

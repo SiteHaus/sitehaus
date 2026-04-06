@@ -1,5 +1,5 @@
 import { clientDetail, MeClient, MeSession, MeUser, ProjectItem } from "@site-haus/contracts";
-import { refreshOnce } from "@site-haus/sdk";
+import { refreshOnce, runSingleRefresh } from "@site-haus/sdk";
 import { create } from "zustand";
 import { createJSONStorage, persist, PersistOptions } from "zustand/middleware";
 import { getApi } from "./api.js";
@@ -154,7 +154,7 @@ export const useAuthStore = create<AuthState>()(
 
         // No valid token in memory, try to refresh using cookie
         try {
-          await refreshOnce();
+          await runSingleRefresh(refreshOnce);
         } catch {
           // Refresh failed - user needs to log in
           get().clearAuth();

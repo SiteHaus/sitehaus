@@ -24,6 +24,7 @@ import { type AuthedRequest } from '../access/access.guard';
 import { AuthCodeService } from '../auth-code/auth-code.service';
 import { AuthService } from '../auth.service';
 import { setRefreshCookie } from '../cookie/cookies';
+import { TokenService } from '../token/token.service';
 import { TotpService } from '../totp/totp.service';
 import { VerifiedOptional } from '../verified/verified.guard';
 import { OAuthService } from './oauth.service';
@@ -68,8 +69,86 @@ export class OAuthController {
     private readonly usersService: UsersService,
     private readonly sessionService: SessionService,
     private readonly totpService: TotpService,
+    private readonly tokenService: TokenService,
     private readonly config: ConfigService,
   ) {}
+
+  /**
+   * SSO link — called via form POST from IAM after login.
+   * Because this is a browser navigation (form POST), api.localhost is the
+   * top-level site, so the Set-Cookie lands in the unpartitioned jar and is
+   * visible to subsequent same-origin requests (including GET /auth/authorize).
+   *
+   * This works around Firefox's Total Cookie Protection, which partitions
+   * cookies set via cross-site fetch (iam.localhost → api.localhost) so they
+   * are NOT visible when the browser later navigates to api.localhost directly.
+   */
+  @Public()
+  @Post('sso-link')
+  @HttpCode(HttpStatus.FOUND)
+  async ssoLink(
+    @Body() body: Record<string, string>,
+    @Req() req: ExpressRequest,
+    @Res() res: ExpressResponse,
+  ) {
+    const { accessToken, oauthParams } = body ?? {};
+
+    if (!accessToken || !oauthParams) {
+      return res.status(HttpStatus.BAD_REQUEST).send('Missing required fields');
+    }
+
+    try {
+      const payload = await this.tokenService.verifyAccess(accessToken);
+
+      // Reject MFA-pending tokens — the user hasn't finished 2FA yet.
+      if (payload.mfa === 'pending') {
+        const iamUrl = this.config.get<string>('email.appBaseUrl');
+        return res.redirect(`${iamUrl}/login`);
+      }
+
+      // Create a new session for this user. createSession internally revokes
+      // any existing session for the same user/client/device before inserting,
+      // so there is no session leak from the login-time session.
+      // Carry mfaVerifiedAt if the token indicates MFA was completed, so
+      // the /auth/authorize 2FA re-check passes without bouncing to login.
+      const { refreshToken, refreshExpiresAt } =
+        await this.sessionService.createSession({
+          userId: payload.sub,
+          clientId: payload.aud,
+          ip: req.ip,
+          ua: req.headers['user-agent'] as string | undefined,
+          // No mfa claim = user completed 2FA (or never had it). Stamp the
+          // new session so /auth/authorize's TOTP re-check passes.
+          mfaVerifiedAt: new Date(),
+        });
+
+      // Set cookie in the first-party api.localhost context.
+      setRefreshCookie(res, refreshToken, refreshExpiresAt);
+
+      // Decode oauth params and redirect to authorize.
+      const params = JSON.parse(
+        Buffer.from(
+          oauthParams.replace(/-/g, '+').replace(/_/g, '/'),
+          'base64',
+        ).toString('utf-8'),
+      ) as Record<string, string>;
+
+      const authorizeUrl = new URL(
+        '/auth/authorize',
+        `${req.protocol}://${req.get('host')}`,
+      );
+      Object.entries(params).forEach(([key, value]) => {
+        if (value) authorizeUrl.searchParams.set(key, String(value));
+      });
+
+      return res.redirect(authorizeUrl.toString());
+    } catch {
+      // Invalid token — redirect to IAM login without oauth params so the user
+      // can start a fresh auth flow.
+      const iamUrl = this.config.get<string>('email.appBaseUrl');
+      return res.redirect(`${iamUrl}/login`);
+    }
+  }
 
   /**
    * OAuth2 Authorization endpoint

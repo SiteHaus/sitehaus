@@ -53,11 +53,9 @@ async function main() {
   console.log(`Granting admin to ${user.email} (${user.id})`);
 
   if (CLIENT_KEY === "all") {
-    // Grant admin on every first-party client
-    const clients = await db.query.clientsTable.findMany({
-      where: (t, { eq }) => eq(t.firstParty, true),
-    });
-    console.log(`Targeting all ${clients.length} first-party clients...`);
+    // Grant admin on every client (first-party and merchant)
+    const clients = await db.query.clientsTable.findMany();
+    console.log(`Targeting all ${clients.length} clients...`);
     for (const c of clients) {
       await grantOnClient(user.id, user.email, c.key);
     }

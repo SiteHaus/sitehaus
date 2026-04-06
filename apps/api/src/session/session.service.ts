@@ -81,6 +81,7 @@ export class SessionService {
     clientId: string;
     ip?: string;
     ua?: string;
+    mfaVerifiedAt?: Date | null;
   }) {
     return this.createSessionWith(this.db, input);
   }

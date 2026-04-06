@@ -43,11 +43,14 @@ function CallbackContent() {
           throw new Error("Code verifier not found");
         }
 
+        const clientKey =
+          sessionStorage.getItem("oauth_client_key") || process.env.NEXT_PUBLIC_CLIENT_KEY!;
+
         const tokens = await exchangeCodeForTokens({
           tokenUrl: `${process.env.NEXT_PUBLIC_API_URL}/auth/token`,
           code,
           codeVerifier,
-          clientKey: process.env.NEXT_PUBLIC_CLIENT_KEY!,
+          clientKey,
           redirectUri: `${window.location.origin}/callback`,
         });
 
@@ -66,6 +69,7 @@ function CallbackContent() {
 
         sessionStorage.removeItem("oauth_code_verifier");
         sessionStorage.removeItem("oauth_state");
+        sessionStorage.removeItem("oauth_client_key");
 
         router.replace("/");
       } catch (err) {

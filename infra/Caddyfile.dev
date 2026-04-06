@@ -1,0 +1,32 @@
+# Local development reverse proxy
+# Run with: caddy run --config infra/Caddyfile.dev
+# Requires sudo for port 443: sudo caddy run --config infra/Caddyfile.dev
+
+{
+	http_port 80
+	https_port 443
+}
+
+sitehaus.localhost {
+	reverse_proxy localhost:3000
+}
+
+dashboard.localhost {
+	reverse_proxy localhost:3001
+}
+
+iam.localhost {
+	reverse_proxy localhost:3002
+}
+
+api.localhost {
+	reverse_proxy localhost:3003
+}
+
+commerce.localhost {
+	reverse_proxy localhost:3004
+}
+
+commerce-api.localhost {
+	reverse_proxy localhost:7020
+}

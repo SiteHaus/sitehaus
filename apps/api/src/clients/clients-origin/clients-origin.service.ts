@@ -23,11 +23,18 @@ export class ClientsOriginService {
       }
     }
 
+    // Local dev (port-based)
     origins.add('http://localhost:3000');
     origins.add('http://localhost:3001');
     origins.add('http://localhost:3002');
 
-    // Temporary!!
+    // Local dev (Caddy)
+    origins.add('https://sitehaus.localhost');
+    origins.add('https://iam.localhost');
+    origins.add('https://dashboard.localhost');
+    origins.add('https://commerce.localhost');
+
+    // Production
     origins.add('https://sitehaus.dev');
     origins.add('https://dashboard.sitehaus.dev');
     origins.add('https://iam.sitehaus.dev');
