@@ -380,3 +380,27 @@ export const reorderProductImages = (
     method: "PATCH",
     body: JSON.stringify({ items }),
   });
+
+// ─── Inventory ────────────────────────────────────────────────────────────────
+
+export type InventoryItem = {
+  variantId: string;
+  stock: number;
+  reserved: number;
+  available: number;
+  allowBackorder: boolean;
+  reservationTtlMinutes: number;
+  updatedAt: string;
+};
+
+export const getInventory = (variantId: string) =>
+  request<InventoryItem>(`/v1/admin/inventory/${variantId}`);
+
+export const updateInventory = (
+  variantId: string,
+  body: { stock?: number; allowBackorder?: boolean },
+) =>
+  request<InventoryItem>(`/v1/admin/inventory/${variantId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });

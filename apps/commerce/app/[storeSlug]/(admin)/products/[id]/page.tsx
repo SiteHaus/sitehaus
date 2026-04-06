@@ -45,6 +45,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "../_components/status-badge";
 import { ImagesCard } from "./_components/ImagesCard";
+import { InventoryCard } from "./_components/InventoryCard";
 
 function formatCents(cents: number) {
   return (cents / 100).toFixed(2);
@@ -359,6 +360,8 @@ export default function ProductDetailPage() {
       </Card>
 
       <ImagesCard productId={id} />
+
+      <InventoryCard productId={id} variants={product.variants} />
 
       {/* Variants card */}
       <Card>
