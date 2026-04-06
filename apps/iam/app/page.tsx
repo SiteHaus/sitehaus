@@ -17,16 +17,15 @@ import { SiteNav } from "./components/navigation/site-nav";
 
 export default function LandingPage() {
   const user = useAuthStore((s) => s.user);
-  const hydrated = useAuthStore((s) => s.hydrated);
   const bootstrapped = useAuthStore((s) => s.bootstrapped);
   const router = useRouter();
 
   // Redirect logged-in users to the console
   useEffect(() => {
-    if (hydrated && bootstrapped && user) {
+    if (bootstrapped && user) {
       router.replace("/my-sessions");
     }
-  }, [hydrated, bootstrapped, user, router]);
+  }, [bootstrapped, user, router]);
 
   const handleLogin = async () => {
     const { codeVerifier, codeChallenge } = await generatePKCE();
@@ -48,8 +47,8 @@ export default function LandingPage() {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize?${params}`;
   };
 
-  // Loading state while auth store hydrates or redirecting
-  if (!hydrated || !bootstrapped || user) {
+  // Loading state while bootstrap runs or redirecting
+  if (!bootstrapped || user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

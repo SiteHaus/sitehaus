@@ -36,14 +36,13 @@ const queryClient = new QueryClient({
 });
 
 const Providers = ({ children }: ProvidersProps) => {
-  const hydrated = useAuthStore((s) => s.hydrated);
   const pathname = usePathname();
 
   useEffect(() => {
-    if (hydrated && pathname !== "/callback") {
+    if (pathname !== "/callback") {
       void useAuthStore.getState().bootstrap();
     }
-  }, [hydrated, pathname]);
+  }, [pathname]);
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -7,9 +7,9 @@ import { SidebarInset, SidebarProvider } from "@site-haus/ui/components/base/sid
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const hydrated = useAuthStore((s) => s.hydrated);
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
 
-  if (!hydrated) {
+  if (!bootstrapped) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-6 text-primary" />

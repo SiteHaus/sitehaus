@@ -229,12 +229,12 @@ export class BillingService {
 
     // Grab the hosted invoice URL from the first invoice (if available)
     const latestInvoice = subscription.latest_invoice as
-      | Record<string, any>
+      | Record<string, unknown>
       | string
-      | null; // eslint-disable-line @typescript-eslint/no-explicit-any
+      | null;
     const hostedInvoiceUrl =
       typeof latestInvoice === 'object' && latestInvoice !== null
-        ? (latestInvoice['hosted_invoice_url'] ?? null)
+        ? ((latestInvoice['hosted_invoice_url'] as string | null) ?? null)
         : null;
 
     const [record] = await this.db

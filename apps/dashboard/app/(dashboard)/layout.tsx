@@ -8,9 +8,9 @@ import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { AppSideBar } from "../../components/sidebar/app-sidebar";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const hydrated = useAuthStore((s) => s.hydrated);
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
 
-  if (!hydrated) {
+  if (!bootstrapped) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-6 text-primary" />

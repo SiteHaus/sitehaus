@@ -18,13 +18,13 @@ import { useEffect } from "react";
 export default function LoginPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const hydrated = useAuthStore((s) => s.hydrated);
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
 
   useEffect(() => {
-    if (hydrated && user) {
+    if (bootstrapped && user) {
       router.replace("/");
     }
-  }, [hydrated, user, router]);
+  }, [bootstrapped, user, router]);
 
   const handleLogin = async () => {
     const { codeVerifier, codeChallenge } = await generatePKCE();
@@ -46,7 +46,7 @@ export default function LoginPage() {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize?${params}`;
   };
 
-  if (!hydrated) {
+  if (!bootstrapped) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-6 text-primary" />

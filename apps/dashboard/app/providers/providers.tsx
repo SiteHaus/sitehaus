@@ -36,16 +36,13 @@ const queryClient = new QueryClient({
 });
 
 const Providers = ({ children }: ProvidersProps) => {
-  const hydrated = useAuthStore((s) => s.hydrated);
   const pathname = usePathname();
 
   useEffect(() => {
-    // Skip bootstrap on callback page - it handles its own token exchange
-    // Running bootstrap here would race with the OAuth flow and cause session conflicts
-    if (hydrated && pathname !== "/callback") {
+    if (pathname !== "/callback") {
       void useAuthStore.getState().bootstrap();
     }
-  }, [hydrated, pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {

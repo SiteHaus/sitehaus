@@ -13,45 +13,120 @@ env:
   IMAGE_PREFIX: ghcr.io/sitehaus/sitehaus
 
 jobs:
-  build-and-push:
-    name: Build ${{ matrix.app }}
+  # ── Stage 1: Build & push staging images ──────────────────────────────────
+  build-staging:
+    name: Build ${{ matrix.app }} (staging)
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     strategy:
       matrix:
         include:
           - app: web
             dockerfile: apps/web/Dockerfile
+            api_url: https://api.staging.sitehaus.dev
             client_key: ""
           - app: dashboard
             dockerfile: apps/dashboard/Dockerfile
+            api_url: https://api.staging.sitehaus.dev
             client_key: dashboard
           - app: iam
             dockerfile: apps/iam/Dockerfile
+            api_url: https://api.staging.sitehaus.dev
             client_key: iam
           - app: api
             dockerfile: apps/api/Dockerfile
+            api_url: ""
             client_key: ""
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: |
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:staging
+            ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:staging-${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ matrix.api_url }}
+            NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
+          cache-from: type=gha,scope=${{ matrix.app }}-staging
+          cache-to: type=gha,scope=${{ matrix.app }}-staging,mode=max
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
+  # ── Stage 2: Deploy to staging ────────────────────────────────────────────
+  deploy-staging:
+    name: Deploy to Staging
+    needs: build-staging
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VULTR_STAGING_IP }}
+          username: deploy
+          key: ${{ secrets.VULTR_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            cd /srv/sitehaus
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose -f docker-compose.staging.yml pull
+            docker compose -f docker-compose.staging.yml up -d --remove-orphans
+            docker image prune -f
+
+  # ── Stage 3: Manual approval gate ─────────────────────────────────────────
+  await-approval:
+    name: Awaiting approval to promote to production
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - run: echo "Approved — promoting to production"
+
+  # ── Stage 4: Build & push production images ───────────────────────────────
+  build-production:
+    name: Build ${{ matrix.app }} (production)
+    needs: await-approval
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - app: web
+            dockerfile: apps/web/Dockerfile
+            api_url: https://api.sitehaus.dev
+            client_key: ""
+          - app: dashboard
+            dockerfile: apps/dashboard/Dockerfile
+            api_url: https://api.sitehaus.dev
+            client_key: dashboard
+          - app: iam
+            dockerfile: apps/iam/Dockerfile
+            api_url: https://api.sitehaus.dev
+            client_key: iam
+          - app: api
+            dockerfile: apps/api/Dockerfile
+            api_url: ""
+            client_key: ""
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.dockerfile }}
@@ -60,35 +135,28 @@ jobs:
             ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:latest
             ${{ env.IMAGE_PREFIX }}-${{ matrix.app }}:${{ github.sha }}
           build-args: |
-            NEXT_PUBLIC_API_URL=https://api.sitehaus.dev
+            NEXT_PUBLIC_API_URL=${{ matrix.api_url }}
             NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,scope=${{ matrix.app }},mode=max
 
-  deploy:
-    needs: build-and-push
-    permissions: {}
+  # ── Stage 5: Deploy to production ─────────────────────────────────────────
+  deploy-production:
+    name: Deploy to Production
+    needs: build-production
     runs-on: ubuntu-latest
-
+    permissions: {}
     steps:
-      - name: Deploy to Production
-        uses: appleboy/ssh-action@master
+      - uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VULTR_IP }}
           username: deploy
           key: ${{ secrets.VULTR_SSH_KEY }}
           script: |
             set -euo pipefail
-
             cd /srv/sitehaus
-
             git pull origin main
-
-            # Pull pre-built images
             docker compose -f docker-compose.prod.yml pull
-
-            # Deploy
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
-
-            # Cleanup
+            docker compose -f docker-compose.prod.yml restart caddy
             docker image prune -f
