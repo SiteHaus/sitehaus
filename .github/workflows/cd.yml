@@ -43,6 +43,7 @@ jobs:
             dockerfile: apps/commerce/Dockerfile
             api_url: https://api.staging.sitehaus.dev
             client_key: commerce
+            commerce_url: https://api.staging.commerce.sitehaus.dev
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -62,6 +63,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=${{ matrix.api_url }}
             NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
+            NEXT_PUBLIC_COMMERCE_URL=${{ matrix.commerce_url }}
           cache-from: type=gha,scope=${{ matrix.app }}-staging
           cache-to: type=gha,scope=${{ matrix.app }}-staging,mode=max
 
@@ -127,6 +129,7 @@ jobs:
             dockerfile: apps/commerce/Dockerfile
             api_url: https://api.sitehaus.dev
             client_key: commerce
+            commerce_url: https://api.commerce.sitehaus.dev
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -146,6 +149,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=${{ matrix.api_url }}
             NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
+            NEXT_PUBLIC_COMMERCE_URL=${{ matrix.commerce_url }}
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,scope=${{ matrix.app }},mode=max
 

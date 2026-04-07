@@ -5,4 +5,5 @@ export default registerAs('email', () => ({
   resendApiKey: process.env.RESEND_API_KEY ?? '',
   appBaseUrl: process.env.IAM_APP_URL ?? 'http://localhost:3002',
   enabled: process.env.EMAIL_ENABLED !== 'false',
+  devRedirect: process.env.EMAIL_DEV_REDIRECT ?? null,
 }));
