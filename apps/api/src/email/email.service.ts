@@ -46,9 +46,21 @@ export class EmailService {
 
     const from = opts.from ?? this.cfg.from;
 
+    if (!this.cfg.enabled) {
+      this.log.warn(
+        `Email disabled — skipping send to ${to.join(', ')}: ${opts.subject}`,
+      );
+      return { messageId: 'disabled' };
+    }
+
+    const recipient = this.cfg.devRedirect ? [this.cfg.devRedirect] : to;
+    if (this.cfg.devRedirect) {
+      this.log.warn(`DEV redirect: ${to.join(', ')} → ${this.cfg.devRedirect}`);
+    }
+
     const result = await this.resend.emails.send({
       from,
-      to,
+      to: recipient,
       subject: opts.subject,
       html: opts.html,
       text: textFallback,
