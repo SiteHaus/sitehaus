@@ -73,6 +73,7 @@ jobs:
           host: ${{ secrets.SITEHAUS_STAGING_IP }}
           username: deploy
           key: ${{ secrets.VULTR_SSH_KEY }}
+          host_public_key: ${{ secrets.SITEHAUS_STAGING_HOST_KEY }}
           script: |
             set -euo pipefail
             cd /srv/sitehaus
