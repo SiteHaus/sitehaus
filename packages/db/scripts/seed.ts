@@ -90,6 +90,8 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "http://localhost:3001/auth/callback",
     "https://dashboard.localhost/callback",
     "https://dashboard.localhost/auth/callback",
+    "https://dashboard.staging.sitehaus.dev/callback",
+    "https://dashboard.staging.sitehaus.dev/auth/callback",
     "https://dashboard.sitehaus.dev/callback",
     "https://dashboard.sitehaus.dev/auth/callback",
   ],
@@ -98,6 +100,8 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "http://localhost:3002/auth/callback",
     "https://iam.localhost/callback",
     "https://iam.localhost/auth/callback",
+    "https://iam.staging.sitehaus.dev/callback",
+    "https://iam.staging.sitehaus.dev/auth/callback",
     "https://iam.sitehaus.dev/callback",
     "https://iam.sitehaus.dev/auth/callback",
   ],
@@ -110,6 +114,7 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
   commerce: [
     "http://localhost:3004/callback",
     "https://commerce.localhost/callback",
+    "https://commerce.staging.sitehaus.dev/callback",
     "https://commerce.sitehaus.dev/callback",
   ],
   "sitehaus-commerce-admin": [
