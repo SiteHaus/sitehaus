@@ -30,22 +30,12 @@ export function ConsolePageWrapper({
   requireAuth = true,
 }: ConsolePageWrapperProps) {
   const content = (
-    <div
-      className={cn(
-        "container mx-auto mt-12",
-        maxWidthClasses[maxWidth],
-        className,
-      )}
-    >
+    <div className={cn("container mx-auto mt-12", maxWidthClasses[maxWidth], className)}>
       {children}
     </div>
   );
 
-  const wrappedContent = requireAuth ? (
-    <RequireAuth>{content}</RequireAuth>
-  ) : (
-    content
-  );
+  const wrappedContent = requireAuth ? <RequireAuth>{content}</RequireAuth> : content;
 
   return (
     <Suspense

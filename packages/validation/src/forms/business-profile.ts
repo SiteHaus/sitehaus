@@ -50,9 +50,5 @@ export const updateBusinessProfileSchema = z
     message: "No changes provided",
   });
 
-export type CreateBusinessProfileInput = z.infer<
-  typeof createBusinessProfileSchema
->;
-export type UpdateBusinessProfileInput = z.infer<
-  typeof updateBusinessProfileSchema
->;
+export type CreateBusinessProfileInput = z.infer<typeof createBusinessProfileSchema>;
+export type UpdateBusinessProfileInput = z.infer<typeof updateBusinessProfileSchema>;

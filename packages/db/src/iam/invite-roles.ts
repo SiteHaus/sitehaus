@@ -15,7 +15,7 @@ export const inviteRolesTable = pgTable(
   (t) => [
     primaryKey({ columns: [t.inviteId, t.roleId], name: "invite_roles_pk" }),
     index("invite_roles_role_idx").on(t.roleId),
-  ]
+  ],
 );
 
 export type InviteRole = typeof inviteRolesTable.$inferSelect;

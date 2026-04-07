@@ -115,7 +115,9 @@ export default function DesignShowcase() {
               <Button size="lg">Large</Button>
               <Button>Default</Button>
               <Button size="sm">Small</Button>
-              <Button size="icon"><Plus className="h-4 w-4" /></Button>
+              <Button size="icon">
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
           </div>
           <div>
@@ -238,12 +240,18 @@ export default function DesignShowcase() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm">Recent Tickets</CardTitle>
-              <Button variant="ghost" size="sm">View all</Button>
+              <Button variant="ghost" size="sm">
+                View all
+              </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-1 p-0">
             {[
-              { title: "Homepage hero section needs copy update", type: "Content", priority: "normal" },
+              {
+                title: "Homepage hero section needs copy update",
+                type: "Content",
+                priority: "normal",
+              },
               { title: "Mobile nav broken on Safari 17", type: "Bug", priority: "high" },
               { title: "Add FAQ section to pricing page", type: "Feature", priority: "normal" },
             ].map((ticket, i) => (
@@ -282,8 +290,8 @@ export default function DesignShowcase() {
             <AlertTitle>Payment overdue</AlertTitle>
             <AlertDescription>
               You have 2 outstanding payments.{" "}
-              <span className="underline font-medium cursor-pointer">View billing</span>{" "}
-              to take action.
+              <span className="underline font-medium cursor-pointer">View billing</span> to take
+              action.
             </AlertDescription>
           </Alert>
           <Alert className="border-primary/30 bg-primary/5">
@@ -368,7 +376,9 @@ export default function DesignShowcase() {
                   <p className="text-xs text-muted-foreground">{sub}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <Badge variant={badge.variant} className="text-xs">{badge.label}</Badge>
+                  <Badge variant={badge.variant} className="text-xs">
+                    {badge.label}
+                  </Badge>
                   <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
               </div>

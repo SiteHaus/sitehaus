@@ -45,11 +45,7 @@ interface CreateTicketFormProps {
   loading?: boolean;
 }
 
-export const CreateTicketForm = ({
-  projects,
-  onSubmit,
-  loading,
-}: CreateTicketFormProps) => {
+export const CreateTicketForm = ({ projects, onSubmit, loading }: CreateTicketFormProps) => {
   const form = useForm<CreateTicketInput>({
     resolver: zodResolver(createTicketSchema),
     defaultValues: {

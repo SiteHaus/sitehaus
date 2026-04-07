@@ -34,7 +34,7 @@ export const rolesTable = pgTable(
     uniqueIndex("roles_one_default_per_client")
       .on(t.clientId)
       .where(sql`${t.isDefault} = true`),
-  ]
+  ],
 );
 
 export const userRolesTable = pgTable(
@@ -57,14 +57,12 @@ export const userRolesTable = pgTable(
         onDelete: "cascade",
       }),
     assignedBy: uuid("assigned_by"),
-    createdAt: timestamp("created_at", { withTimezone: true })
-      .notNull()
-      .defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     uniqueIndex("user_client_role_uq").on(t.userId, t.clientId, t.roleId),
     index("user_client_idx").on(t.userId, t.clientId),
-  ]
+  ],
 );
 
 export const permissionsCatalogTable = pgTable(
@@ -76,7 +74,7 @@ export const permissionsCatalogTable = pgTable(
       .references(() => permissionModulesTable.id, { onDelete: "cascade" }),
     description: varchar("description", { length: 255 }),
   },
-  (t) => [index("permissions_catalog_module_idx").on(t.moduleId)]
+  (t) => [index("permissions_catalog_module_idx").on(t.moduleId)],
 );
 
 export const rolePermissionsTable = pgTable(
@@ -92,7 +90,7 @@ export const rolePermissionsTable = pgTable(
   (t) => [
     primaryKey({ columns: [t.roleId, t.perm], name: "role_permissions_pk" }),
     index("role_perms_perm_idx").on(t.perm),
-  ]
+  ],
 );
 
 export type Role = typeof rolesTable.$inferSelect;

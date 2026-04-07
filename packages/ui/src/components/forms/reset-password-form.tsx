@@ -11,10 +11,7 @@ import {
   FormMessage,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  ResetInput,
-  resetPasswordSchema,
-} from "@site-haus/validation/forms/password";
+import { ResetInput, resetPasswordSchema } from "@site-haus/validation/forms/password";
 import { useForm } from "react-hook-form";
 
 export const ResetPasswordForm = () => {
@@ -37,9 +34,7 @@ export const ResetPasswordForm = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-8">
-      <h2 className="text-2xl font-semibold text-center mb-6">
-        Reset Password
-      </h2>
+      <h2 className="text-2xl font-semibold text-center mb-6">Reset Password</h2>
       <p className="text-sm text-gray-500 text-center mb-6">
         Enter your code and new password below to reset your account.
       </p>

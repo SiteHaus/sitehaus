@@ -16,10 +16,7 @@ export {
 } from "./decorators/require-perms.decorator.js";
 
 // Services
-export {
-  IntrospectionService,
-  SITEHAUS_AUTH_CONFIG,
-} from "./services/introspection.service.js";
+export { IntrospectionService, SITEHAUS_AUTH_CONFIG } from "./services/introspection.service.js";
 
 // Types
 export type {

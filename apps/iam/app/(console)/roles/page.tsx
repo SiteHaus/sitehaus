@@ -44,14 +44,7 @@ import { Switch } from "@site-haus/ui/components/base/switch";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { ALL_PERMISSIONS, PERM } from "@site-haus/validation/core/perms";
 import { createRoleSchema } from "@site-haus/validation/forms/role";
-import {
-  ChevronDown,
-  ChevronRight,
-  Pencil,
-  Plus,
-  Shield,
-  Trash2,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Pencil, Plus, Shield, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -141,9 +134,7 @@ function RolesContent() {
   };
 
   if (permissionDenied) {
-    return (
-      <PermissionDenied resource="roles" clientName={selectedClient?.name} />
-    );
+    return <PermissionDenied resource="roles" clientName={selectedClient?.name} />;
   }
 
   return (
@@ -182,9 +173,7 @@ function RolesContent() {
             <EmptyState
               icon={Shield}
               title="No roles defined yet."
-              description={
-                canManage ? "Create your first role to get started." : undefined
-              }
+              description={canManage ? "Create your first role to get started." : undefined}
             />
           </CardContent>
         </Card>
@@ -206,10 +195,7 @@ function RolesContent() {
         </div>
       )}
 
-      <Dialog
-        open={!!editingRole}
-        onOpenChange={(open) => !open && setEditingRole(null)}
-      >
+      <Dialog open={!!editingRole} onOpenChange={(open) => !open && setEditingRole(null)}>
         <DialogContent>
           {editingRole && (
             <EditRoleDialog
@@ -224,10 +210,7 @@ function RolesContent() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={!!editPermsRole}
-        onOpenChange={(open) => !open && setEditPermsRole(null)}
-      >
+      <Dialog open={!!editPermsRole} onOpenChange={(open) => !open && setEditPermsRole(null)}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           {editPermsRole && (
             <EditPermissionsDialog
@@ -277,12 +260,8 @@ function RoleCard({
               )}
             </div>
             <CardDescription className="mt-1">
-              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                {role.key}
-              </code>
-              {role.description && (
-                <span className="ml-2">{role.description}</span>
-              )}
+              <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{role.key}</code>
+              {role.description && <span className="ml-2">{role.description}</span>}
             </CardDescription>
           </div>
 
@@ -310,11 +289,7 @@ function RoleCard({
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          {expanded ? (
-            <ChevronDown className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
+          {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
           <span>
             {perms.length} permission{perms.length !== 1 && "s"}
           </span>
@@ -323,9 +298,7 @@ function RoleCard({
         {expanded && (
           <div className="mt-3 space-y-2">
             {perms.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No permissions assigned.
-              </p>
+              <p className="text-sm text-muted-foreground">No permissions assigned.</p>
             ) : (
               <div className="flex flex-wrap gap-1.5">
                 {perms.map((perm) => (
@@ -337,12 +310,7 @@ function RoleCard({
             )}
 
             {canManage && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-2"
-                onClick={onEditPerms}
-              >
+              <Button variant="outline" size="sm" className="mt-2" onClick={onEditPerms}>
                 Edit Permissions
               </Button>
             )}
@@ -388,9 +356,7 @@ function CreateRoleDialog({
     <>
       <DialogHeader>
         <DialogTitle>Create New Role</DialogTitle>
-        <DialogDescription>
-          Create a new role to assign permissions to users.
-        </DialogDescription>
+        <DialogDescription>Create a new role to assign permissions to users.</DialogDescription>
       </DialogHeader>
 
       <Form {...form}>
@@ -418,9 +384,7 @@ function CreateRoleDialog({
                 <FormControl>
                   <Input placeholder="editor" {...field} />
                 </FormControl>
-                <FormDescription>
-                  Unique identifier (lowercase, no spaces)
-                </FormDescription>
+                <FormDescription>Unique identifier (lowercase, no spaces)</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -433,10 +397,7 @@ function CreateRoleDialog({
               <FormItem>
                 <FormLabel>Description (optional)</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Can edit content but not manage users"
-                    {...field}
-                  />
+                  <Textarea placeholder="Can edit content but not manage users" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -450,15 +411,10 @@ function CreateRoleDialog({
               <FormItem className="flex items-center justify-between rounded-lg border p-3">
                 <div>
                   <FormLabel className="text-base">Default Role</FormLabel>
-                  <FormDescription>
-                    Automatically assigned to new users
-                  </FormDescription>
+                  <FormDescription>Automatically assigned to new users</FormDescription>
                 </div>
                 <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}
@@ -498,11 +454,7 @@ function EditRoleDialog({
     },
   });
 
-  const onSubmit = async (values: {
-    name: string;
-    description: string;
-    isDefault: boolean;
-  }) => {
+  const onSubmit = async (values: { name: string; description: string; isDefault: boolean }) => {
     const res = await api.roles.update({
       params: { roleId: role.id },
       body: values,
@@ -519,9 +471,7 @@ function EditRoleDialog({
     <>
       <DialogHeader>
         <DialogTitle>Edit Role</DialogTitle>
-        <DialogDescription>
-          Update the role details. The key cannot be changed.
-        </DialogDescription>
+        <DialogDescription>Update the role details. The key cannot be changed.</DialogDescription>
       </DialogHeader>
 
       <Form {...form}>
@@ -566,15 +516,10 @@ function EditRoleDialog({
               <FormItem className="flex items-center justify-between rounded-lg border p-3">
                 <div>
                   <FormLabel className="text-base">Default Role</FormLabel>
-                  <FormDescription>
-                    Automatically assigned to new users
-                  </FormDescription>
+                  <FormDescription>Automatically assigned to new users</FormDescription>
                 </div>
                 <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}
@@ -608,9 +553,7 @@ function EditPermissionsDialog({
   onCancel: () => void;
 }) {
   const api = useApi();
-  const [selectedPerms, setSelectedPerms] = useState<Set<string>>(
-    new Set(currentPerms),
-  );
+  const [selectedPerms, setSelectedPerms] = useState<Set<string>>(new Set(currentPerms));
   const [saving, setSaving] = useState(false);
 
   const togglePerm = (perm: string) => {
@@ -663,9 +606,7 @@ function EditPermissionsDialog({
     <>
       <DialogHeader>
         <DialogTitle>Edit Permissions for {role.name}</DialogTitle>
-        <DialogDescription>
-          Select which permissions this role should have.
-        </DialogDescription>
+        <DialogDescription>Select which permissions this role should have.</DialogDescription>
       </DialogHeader>
 
       <div className="flex gap-2 mb-4">
@@ -678,63 +619,53 @@ function EditPermissionsDialog({
       </div>
 
       <div className="space-y-4">
-        {(Object.entries(PERM) as [string, readonly string[]][]).map(
-          ([resource, actions]) => {
-            const resourcePerms = actions.map((a) => `${resource}:${a}`);
-            const selectedCount = resourcePerms.filter((p) =>
-              selectedPerms.has(p),
-            ).length;
-            const allSelected = selectedCount === resourcePerms.length;
-            const someSelected = selectedCount > 0 && !allSelected;
+        {(Object.entries(PERM) as [string, readonly string[]][]).map(([resource, actions]) => {
+          const resourcePerms = actions.map((a) => `${resource}:${a}`);
+          const selectedCount = resourcePerms.filter((p) => selectedPerms.has(p)).length;
+          const allSelected = selectedCount === resourcePerms.length;
+          const someSelected = selectedCount > 0 && !allSelected;
 
-            return (
-              <div key={resource} className="rounded-lg border p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <Checkbox
-                    checked={allSelected}
-                    ref={(el) => {
-                      if (el) {
-                        (
-                          el as HTMLButtonElement & { indeterminate: boolean }
-                        ).indeterminate = someSelected;
-                      }
-                    }}
-                    onCheckedChange={() => toggleResource(resource, actions)}
-                  />
-                  <Label className="font-medium capitalize cursor-pointer">
-                    {resource}
-                  </Label>
-                  <span className="text-xs text-muted-foreground">
-                    ({selectedCount}/{actions.length})
-                  </span>
-                </div>
-
-                <Separator className="my-2" />
-
-                <div className="grid grid-cols-2 gap-2">
-                  {actions.map((action) => {
-                    const perm = `${resource}:${action}`;
-                    return (
-                      <div key={perm} className="flex items-center gap-2">
-                        <Checkbox
-                          id={perm}
-                          checked={selectedPerms.has(perm)}
-                          onCheckedChange={() => togglePerm(perm)}
-                        />
-                        <Label
-                          htmlFor={perm}
-                          className="text-sm font-normal cursor-pointer"
-                        >
-                          {action}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </div>
+          return (
+            <div key={resource} className="rounded-lg border p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Checkbox
+                  checked={allSelected}
+                  ref={(el) => {
+                    if (el) {
+                      (el as HTMLButtonElement & { indeterminate: boolean }).indeterminate =
+                        someSelected;
+                    }
+                  }}
+                  onCheckedChange={() => toggleResource(resource, actions)}
+                />
+                <Label className="font-medium capitalize cursor-pointer">{resource}</Label>
+                <span className="text-xs text-muted-foreground">
+                  ({selectedCount}/{actions.length})
+                </span>
               </div>
-            );
-          },
-        )}
+
+              <Separator className="my-2" />
+
+              <div className="grid grid-cols-2 gap-2">
+                {actions.map((action) => {
+                  const perm = `${resource}:${action}`;
+                  return (
+                    <div key={perm} className="flex items-center gap-2">
+                      <Checkbox
+                        id={perm}
+                        checked={selectedPerms.has(perm)}
+                        onCheckedChange={() => togglePerm(perm)}
+                      />
+                      <Label htmlFor={perm} className="text-sm font-normal cursor-pointer">
+                        {action}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <DialogFooter className="mt-4">

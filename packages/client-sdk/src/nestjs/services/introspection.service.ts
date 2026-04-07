@@ -14,9 +14,7 @@ export class IntrospectionService {
   private readonly cache = new Map<string, CacheEntry>();
   private readonly cacheTtlMs: number;
 
-  constructor(
-    @Inject(SITEHAUS_AUTH_CONFIG) private readonly config: SiteHausAuthConfig
-  ) {
+  constructor(@Inject(SITEHAUS_AUTH_CONFIG) private readonly config: SiteHausAuthConfig) {
     this.cacheTtlMs = config.cacheTtlMs ?? 5000;
   }
 
@@ -42,9 +40,7 @@ export class IntrospectionService {
       });
 
       if (!response.ok) {
-        this.logger.warn(
-          `Introspection failed with status ${response.status}`
-        );
+        this.logger.warn(`Introspection failed with status ${response.status}`);
         return { active: false };
       }
 

@@ -1,7 +1,4 @@
-import {
-  acceptInviteSchema,
-  createInviteSchema,
-} from "@site-haus/validation/forms/invite";
+import { acceptInviteSchema, createInviteSchema } from "@site-haus/validation/forms/invite";
 import { initContract } from "@ts-rest/core";
 import z from "zod";
 import { apiErrorHttp, apiErrorServer, dateTime } from "./primitives.js";

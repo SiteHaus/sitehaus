@@ -3,14 +3,7 @@
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import {
-  ComponentProps,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const PAGE_NAMES: Record<string, string> = {
   "/": "Home",

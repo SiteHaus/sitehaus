@@ -54,8 +54,7 @@ export default function ContactPage() {
           <CheckCircle className="h-12 w-12 text-primary mx-auto mb-6" />
           <h1 className="text-3xl font-bold mb-3">We'll be in touch.</h1>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            Thanks for reaching out. We'll review your message and get back to
-            you shortly.
+            Thanks for reaching out. We'll review your message and get back to you shortly.
           </p>
         </div>
       </main>
@@ -73,13 +72,11 @@ export default function ContactPage() {
             </p>
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight leading-[1.05] mb-5">
               Let's talk about{" "}
-              <span className="italic font-bold text-foreground/50">
-                your project.
-              </span>
+              <span className="italic font-bold text-foreground/50">your project.</span>
             </h1>
             <p className="text-lg text-muted-foreground leading-relaxed mb-10 sm:mb-12">
-              Tell us what you're building and we'll get back to you. No
-              commitment, no sales pitch — just a conversation.
+              Tell us what you're building and we'll get back to you. No commitment, no sales pitch
+              — just a conversation.
             </p>
 
             <form action={formAction} className="flex flex-col gap-6">
@@ -114,9 +111,7 @@ export default function ContactPage() {
               <div className="flex flex-col gap-2">
                 <Label htmlFor="company">
                   Company{" "}
-                  <span className="text-xs text-muted-foreground font-normal">
-                    (optional)
-                  </span>
+                  <span className="text-xs text-muted-foreground font-normal">(optional)</span>
                 </Label>
                 <Input
                   id="company"
@@ -148,12 +143,7 @@ export default function ContactPage() {
               )}
 
               <div>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="h-12 text-base"
-                  disabled={isPending}
-                >
+                <Button type="submit" size="lg" className="h-12 text-base" disabled={isPending}>
                   {isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -186,12 +176,7 @@ export default function ContactPage() {
                   boxShadow: "0 20px 50px rgba(0,0,0,0.12)",
                 }}
               >
-                <Image
-                  src={b.src}
-                  alt={b.alt}
-                  fill
-                  className="object-cover"
-                />
+                <Image src={b.src} alt={b.alt} fill className="object-cover" />
               </div>
             ))}
           </div>

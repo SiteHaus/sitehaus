@@ -44,10 +44,7 @@ function formatAuditAction(
   meta: unknown,
   staffMap: Record<string, string>,
 ): string {
-  const m = (meta && typeof meta === "object" ? meta : {}) as Record<
-    string,
-    string
-  >;
+  const m = (meta && typeof meta === "object" ? meta : {}) as Record<string, string>;
   switch (action) {
     case "ticket.created":
       return "Ticket created";
@@ -92,7 +89,6 @@ export default function TicketDetailPage() {
       const res = await getApi().tickets.get({ params: { ticketId } });
       if (res.status === 200) {
         setTicket(res.body.ticket);
-        console.log(ticket);
       } else {
         setNotFound(true);
       }
@@ -107,9 +103,7 @@ export default function TicketDetailPage() {
     const res = await getApi().clients.firstParty();
     if (res.status === 200) {
       setStaffMap(
-        Object.fromEntries(
-          res.body.staff.map((m) => [m.id, `${m.firstName} ${m.lastName}`]),
-        ),
+        Object.fromEntries(res.body.staff.map((m) => [m.id, `${m.firstName} ${m.lastName}`])),
       );
     }
   }, []);
@@ -120,9 +114,7 @@ export default function TicketDetailPage() {
         query: { targetType: "ticket", targetId: ticketId, limit: 5, cursor },
       });
       if (res.status === 200) {
-        setActivity((prev) =>
-          cursor ? [...prev, ...res.body.logs] : res.body.logs,
-        );
+        setActivity((prev) => (cursor ? [...prev, ...res.body.logs] : res.body.logs));
         setActivityCursor(res.body.nextCursor);
         setHasMoreActivity(!!res.body.nextCursor);
       }
@@ -220,9 +212,7 @@ export default function TicketDetailPage() {
           </CardHeader>
           <CardContent>
             {ticket.closedAt && (
-              <p className="text-xs text-muted-foreground">
-                Closed {formatDate(ticket.closedAt)}
-              </p>
+              <p className="text-xs text-muted-foreground">Closed {formatDate(ticket.closedAt)}</p>
             )}
           </CardContent>
         </Card>
@@ -242,9 +232,7 @@ export default function TicketDetailPage() {
           <CardContent>
             <p className="text-xs text-muted-foreground">
               Reported by{" "}
-              {ticket.author
-                ? `${ticket.author.firstName} ${ticket.author.lastName}`
-                : "Unknown"}
+              {ticket.author ? `${ticket.author.firstName} ${ticket.author.lastName}` : "Unknown"}
             </p>
           </CardContent>
         </Card>
@@ -254,9 +242,7 @@ export default function TicketDetailPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/10 text-green-600 dark:text-green-500">
               <MessageCircle className="h-4 w-4" />
             </div>
-            <CardTitle className="text-lg mt-2">
-              {ticket.commentCount}
-            </CardTitle>
+            <CardTitle className="text-lg mt-2">{ticket.commentCount}</CardTitle>
             <CardDescription>Comments</CardDescription>
           </CardHeader>
         </Card>
@@ -268,9 +254,7 @@ export default function TicketDetailPage() {
             <CardTitle>Description</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              {ticket.description}
-            </p>
+            <p className="text-sm text-muted-foreground">{ticket.description}</p>
           </CardContent>
         </Card>
       )}
@@ -347,16 +331,12 @@ export default function TicketDetailPage() {
                         </span>
                       )}
                     </p>{" "}
-                    <p className="text-muted-foreground">
-                      {formatDate(entry.createdAt)}
-                    </p>
+                    <p className="text-muted-foreground">{formatDate(entry.createdAt)}</p>
                   </div>
                 </div>
               ))}
               {activity.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  No activity yet.
-                </p>
+                <p className="text-xs text-muted-foreground">No activity yet.</p>
               )}
               {hasMoreActivity && (
                 <button

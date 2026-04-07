@@ -50,9 +50,7 @@ export function ClientHomeView() {
   const [loading, setLoading] = useState(true);
   const [showSetupCard, setShowSetupCard] = useState(false);
 
-  const dismissKey = managedClientId
-    ? `profile_setup_dismissed_${managedClientId}`
-    : null;
+  const dismissKey = managedClientId ? `profile_setup_dismissed_${managedClientId}` : null;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -102,9 +100,7 @@ export function ClientHomeView() {
   );
   const isSingleProject = activeProjects.length === 1;
   const overdueRecords = billingRecords.filter(
-    (r) =>
-      r.status === "past_due" ||
-      (r.type === "one_time" && r.status === "active"),
+    (r) => r.status === "past_due" || (r.type === "one_time" && r.status === "active"),
   );
 
   return (
@@ -127,12 +123,9 @@ export function ClientHomeView() {
                   <Building2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <CardTitle className="text-base">
-                    Complete your business profile
-                  </CardTitle>
+                  <CardTitle className="text-base">Complete your business profile</CardTitle>
                   <CardDescription className="mt-1">
-                    Tell us about your brand and goals so we can hit the ground
-                    running.
+                    Tell us about your brand and goals so we can hit the ground running.
                   </CardDescription>
                 </div>
               </div>
@@ -178,10 +171,7 @@ export function ClientHomeView() {
           {isSingleProject ? (
             /* ── Single-project hero layout ── */
             <>
-              <ProjectHeroCard
-                project={activeProjects[0]!}
-                milestones={milestones}
-              />
+              <ProjectHeroCard project={activeProjects[0]!} milestones={milestones} />
 
               {/* Recent Tickets */}
               <div>
@@ -345,9 +335,7 @@ export function ClientHomeView() {
                   {milestones.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center rounded-xl border">
                       <Milestone className="mb-2 h-6 w-6 text-muted-foreground/40" />
-                      <p className="text-sm text-muted-foreground">
-                        No upcoming milestones
-                      </p>
+                      <p className="text-sm text-muted-foreground">No upcoming milestones</p>
                     </div>
                   ) : (
                     <div className="space-y-2">
@@ -358,9 +346,7 @@ export function ClientHomeView() {
                         >
                           <div className="flex items-start justify-between gap-3 rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer">
                             <div className="min-w-0">
-                              <p className="text-sm font-medium truncate">
-                                {milestone.name}
-                              </p>
+                              <p className="text-sm font-medium truncate">{milestone.name}</p>
                               <p className="text-xs text-muted-foreground mt-0.5">
                                 {milestone.projectName}
                               </p>

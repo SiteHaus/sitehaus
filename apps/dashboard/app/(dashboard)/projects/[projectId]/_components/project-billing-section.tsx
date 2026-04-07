@@ -46,7 +46,7 @@ export function ProjectBillingSection({
 }: ProjectBillingSectionProps) {
   const { records, loading, createSubscription, createOneTime } = useBillingProject(
     projectId,
-    clientId
+    clientId,
   );
   const [sheetOpen, setSheetOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -159,7 +159,12 @@ export function ProjectBillingSection({
         </div>
       )}
 
-      <Sheet open={sheetOpen} onOpenChange={(o) => { if (!o) setSheetOpen(false); }}>
+      <Sheet
+        open={sheetOpen}
+        onOpenChange={(o) => {
+          if (!o) setSheetOpen(false);
+        }}
+      >
         <SheetContent className="flex flex-col">
           <SheetHeader>
             <SheetTitle>Add Billing</SheetTitle>
@@ -171,15 +176,21 @@ export function ProjectBillingSection({
           <div className="flex-1 overflow-y-auto px-6 pb-4">
             <Tabs defaultValue="subscription">
               <TabsList className="w-full">
-                <TabsTrigger value="subscription" className="flex-1">Recurring</TabsTrigger>
-                <TabsTrigger value="onetime" className="flex-1">One-Time</TabsTrigger>
+                <TabsTrigger value="subscription" className="flex-1">
+                  Recurring
+                </TabsTrigger>
+                <TabsTrigger value="onetime" className="flex-1">
+                  One-Time
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="subscription" className="space-y-4 pt-4">
                 <div className="space-y-1.5">
                   <Label htmlFor="proj-sub-amount">Amount (USD)</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                      $
+                    </span>
                     <Input
                       id="proj-sub-amount"
                       type="number"
@@ -244,7 +255,9 @@ export function ProjectBillingSection({
                 <div className="space-y-1.5">
                   <Label htmlFor="proj-ot-amount">Amount (USD)</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
+                      $
+                    </span>
                     <Input
                       id="proj-ot-amount"
                       type="number"

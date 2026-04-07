@@ -1,8 +1,5 @@
 import { assetReviewStatusValues } from "@site-haus/validation/core/enums";
-import {
-  listAssetsQuerySchema,
-  updateAssetSchema,
-} from "@site-haus/validation/forms/asset";
+import { listAssetsQuerySchema, updateAssetSchema } from "@site-haus/validation/forms/asset";
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 import {

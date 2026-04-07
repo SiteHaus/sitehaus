@@ -61,9 +61,7 @@ export function UploadZone({ onUpload, uploadingFiles, disabled }: UploadZonePro
       >
         <Upload className="h-8 w-8 text-muted-foreground" />
         <div>
-          <p className="text-sm font-medium">
-            Drag files here or click to browse
-          </p>
+          <p className="text-sm font-medium">Drag files here or click to browse</p>
           <p className="text-xs text-muted-foreground mt-0.5">
             Images, PDFs, fonts, design files, and documents
           </p>
@@ -82,10 +80,7 @@ export function UploadZone({ onUpload, uploadingFiles, disabled }: UploadZonePro
       {uploadingFiles.length > 0 && (
         <ul className="space-y-1">
           {uploadingFiles.map((name) => (
-            <li
-              key={name}
-              className="flex items-center gap-2 text-xs text-muted-foreground"
-            >
+            <li key={name} className="flex items-center gap-2 text-xs text-muted-foreground">
               <Spinner className="size-3 shrink-0" />
               <span className="truncate">{name}</span>
             </li>

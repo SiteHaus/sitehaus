@@ -66,13 +66,9 @@ function CommentItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">
-            {comment.author
-              ? `${comment.author.firstName} ${comment.author.lastName}`
-              : "Unknown"}
+            {comment.author ? `${comment.author.firstName} ${comment.author.lastName}` : "Unknown"}
           </span>
-          <span className="text-xs text-muted-foreground">
-            {timeAgo(comment.createdAt)}
-          </span>
+          <span className="text-xs text-muted-foreground">{timeAgo(comment.createdAt)}</span>
           {comment.isInternal && (
             <Badge variant="outline" className="text-[10px]">
               Internal
@@ -184,12 +180,7 @@ export function CommentList({
     <div className="space-y-4">
       {threads.map((thread) => (
         <div key={thread.id} className="space-y-3">
-          <CommentItem
-            comment={thread}
-            onReply={onReply}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
+          <CommentItem comment={thread} onReply={onReply} onEdit={onEdit} onDelete={onDelete} />
           {thread.replies.map((reply) => (
             <CommentItem
               key={reply.id}

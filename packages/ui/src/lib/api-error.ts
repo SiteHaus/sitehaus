@@ -34,8 +34,7 @@ export function parseRetryAfter(h?: Headers | null): number | undefined {
 export function parseApiError(resOrErr: unknown): ParsedApiError {
   if (!isApiResponse(resOrErr)) {
     const msg =
-      (resOrErr as any)?.message ??
-      "Network error. Please check your connection and try again.";
+      (resOrErr as any)?.message ?? "Network error. Please check your connection and try again.";
     return { kind: "network", message: String(msg) };
   }
 
@@ -59,8 +58,7 @@ export function parseApiError(resOrErr: unknown): ParsedApiError {
   }
 
   if (body && typeof body === "object" && body.error?.type === "http_error") {
-    const message =
-      typeof body.message === "string" ? body.message : "Request failed.";
+    const message = typeof body.message === "string" ? body.message : "Request failed.";
     return { kind: "http", message, status, retryAfter };
   }
 
@@ -70,8 +68,7 @@ export function parseApiError(resOrErr: unknown): ParsedApiError {
   }
 
   const generic =
-    (body && typeof body === "object" && body.message) ||
-    `Request failed with status ${status}.`;
+    (body && typeof body === "object" && body.message) || `Request failed with status ${status}.`;
   return { kind: "unknown", message: String(generic) };
 }
 

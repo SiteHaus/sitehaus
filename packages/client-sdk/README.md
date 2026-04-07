@@ -34,15 +34,15 @@ The SDK uses **token introspection** - your backend calls the IAM API to validat
 
 ```typescript
 // app.module.ts
-import { Module } from '@nestjs/common';
-import { SiteHausAuthModule } from '@sitehaus/client-sdk/nestjs';
+import { Module } from "@nestjs/common";
+import { SiteHausAuthModule } from "@sitehaus/client-sdk/nestjs";
 
 @Module({
   imports: [
     SiteHausAuthModule.forRoot({
-      iamUrl: process.env.IAM_URL,        // e.g., 'https://api.sitehaus.dev'
+      iamUrl: process.env.IAM_URL, // e.g., 'https://api.sitehaus.dev'
       clientKey: process.env.IAM_CLIENT_KEY,
-      cacheTtlMs: 5000,                    // Optional: introspection cache TTL
+      cacheTtlMs: 5000, // Optional: introspection cache TTL
     }),
   ],
 })
@@ -52,15 +52,15 @@ export class AppModule {}
 ### Async Configuration
 
 ```typescript
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Module({
   imports: [
     SiteHausAuthModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (config: ConfigService) => ({
-        iamUrl: config.get('IAM_URL'),
-        clientKey: config.get('IAM_CLIENT_KEY'),
+        iamUrl: config.get("IAM_URL"),
+        clientKey: config.get("IAM_CLIENT_KEY"),
       }),
       inject: [ConfigService],
     }),
@@ -78,13 +78,13 @@ import {
   RequirePerms,
   RequirePermsAny,
   UserContext,
-} from '@sitehaus/client-sdk/nestjs';
+} from "@sitehaus/client-sdk/nestjs";
 
-@Controller('orders')
+@Controller("orders")
 export class OrdersController {
   // Public route - no authentication required
   @Public()
-  @Get('catalog')
+  @Get("catalog")
   getCatalog() {
     return this.catalogService.getAll();
   }
@@ -96,25 +96,22 @@ export class OrdersController {
   }
 
   // Protected with ALL permissions required
-  @RequirePerms('orders:read', 'orders:manage')
-  @Get('admin')
+  @RequirePerms("orders:read", "orders:manage")
+  @Get("admin")
   getAllOrders() {
     return this.ordersService.findAll();
   }
 
   // Protected with ANY permission required
-  @RequirePermsAny('admin', 'orders:manage')
-  @Delete(':id')
-  deleteOrder(@Param('id') id: string) {
+  @RequirePermsAny("admin", "orders:manage")
+  @Delete(":id")
+  deleteOrder(@Param("id") id: string) {
     return this.ordersService.delete(id);
   }
 
   // Access specific user property
   @Post()
-  createOrder(
-    @CurrentUser('userId') userId: string,
-    @Body() dto: CreateOrderDto,
-  ) {
+  createOrder(@CurrentUser("userId") userId: string, @Body() dto: CreateOrderDto) {
     return this.ordersService.create(userId, dto);
   }
 }
@@ -140,16 +137,16 @@ interface UserContext {
 
 ### API Reference
 
-| Export | Description |
-|--------|-------------|
-| `SiteHausAuthModule` | Main module with `forRoot()` and `forRootAsync()` |
-| `AccessGuard` | Validates tokens via introspection |
-| `PermissionGuard` | Checks user permissions |
-| `@Public()` | Mark route as public |
-| `@CurrentUser()` | Extract user from request |
-| `@RequirePerms()` | Require ALL permissions |
-| `@RequirePermsAny()` | Require ANY permission |
-| `IntrospectionService` | Direct access to introspection API |
+| Export                 | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `SiteHausAuthModule`   | Main module with `forRoot()` and `forRootAsync()` |
+| `AccessGuard`          | Validates tokens via introspection                |
+| `PermissionGuard`      | Checks user permissions                           |
+| `@Public()`            | Mark route as public                              |
+| `@CurrentUser()`       | Extract user from request                         |
+| `@RequirePerms()`      | Require ALL permissions                           |
+| `@RequirePermsAny()`   | Require ANY permission                            |
+| `IntrospectionService` | Direct access to introspection API                |
 
 ---
 
@@ -167,11 +164,11 @@ async function generatePKCE() {
   const verifier = crypto.randomUUID() + crypto.randomUUID();
   const encoder = new TextEncoder();
   const data = encoder.encode(verifier);
-  const hash = await crypto.subtle.digest('SHA-256', data);
+  const hash = await crypto.subtle.digest("SHA-256", data);
   const challenge = btoa(String.fromCharCode(...new Uint8Array(hash)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
   return { verifier, challenge };
 }
 
@@ -181,17 +178,17 @@ async function login() {
   const state = crypto.randomUUID();
 
   // Store for callback
-  sessionStorage.setItem('pkce_verifier', verifier);
-  sessionStorage.setItem('oauth_state', state);
+  sessionStorage.setItem("pkce_verifier", verifier);
+  sessionStorage.setItem("oauth_state", state);
 
   const params = new URLSearchParams({
     client_id: process.env.NEXT_PUBLIC_IAM_CLIENT_ID,
     redirect_uri: `${window.location.origin}/auth/callback`,
-    response_type: 'code',
+    response_type: "code",
     code_challenge: challenge,
-    code_challenge_method: 'S256',
+    code_challenge_method: "S256",
     state,
-    scope: 'openid profile email',
+    scope: "openid profile email",
   });
 
   window.location.href = `${process.env.NEXT_PUBLIC_IAM_URL}/auth/authorize?${params}`;
@@ -204,22 +201,22 @@ async function login() {
 // app/auth/callback/page.tsx (Next.js example)
 
 async function handleCallback(searchParams: URLSearchParams) {
-  const code = searchParams.get('code');
-  const state = searchParams.get('state');
-  const savedState = sessionStorage.getItem('oauth_state');
-  const verifier = sessionStorage.getItem('pkce_verifier');
+  const code = searchParams.get("code");
+  const state = searchParams.get("state");
+  const savedState = sessionStorage.getItem("oauth_state");
+  const verifier = sessionStorage.getItem("pkce_verifier");
 
   // Validate state
   if (state !== savedState) {
-    throw new Error('Invalid state parameter');
+    throw new Error("Invalid state parameter");
   }
 
   // Exchange code for tokens
   const response = await fetch(`${process.env.NEXT_PUBLIC_IAM_URL}/auth/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code,
       redirect_uri: `${window.location.origin}/auth/callback`,
       code_verifier: verifier,
@@ -230,15 +227,15 @@ async function handleCallback(searchParams: URLSearchParams) {
   const tokens = await response.json();
 
   // Store tokens (use httpOnly cookies for production!)
-  localStorage.setItem('access_token', tokens.access_token);
-  localStorage.setItem('token_expires', Date.now() + tokens.expires_in * 1000);
+  localStorage.setItem("access_token", tokens.access_token);
+  localStorage.setItem("token_expires", Date.now() + tokens.expires_in * 1000);
 
   // Cleanup
-  sessionStorage.removeItem('pkce_verifier');
-  sessionStorage.removeItem('oauth_state');
+  sessionStorage.removeItem("pkce_verifier");
+  sessionStorage.removeItem("oauth_state");
 
   // Redirect to app
-  window.location.href = '/dashboard';
+  window.location.href = "/dashboard";
 }
 ```
 
@@ -248,7 +245,7 @@ async function handleCallback(searchParams: URLSearchParams) {
 // lib/api.ts
 
 async function fetchWithAuth(url: string, options: RequestInit = {}) {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
 
   const response = await fetch(url, {
     ...options,
@@ -260,15 +257,15 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
 
   if (response.status === 401) {
     // Token expired - redirect to login
-    localStorage.removeItem('access_token');
-    window.location.href = '/login';
+    localStorage.removeItem("access_token");
+    window.location.href = "/login";
   }
 
   return response;
 }
 
 // Usage
-const orders = await fetchWithAuth('https://your-api.com/orders').then(r => r.json());
+const orders = await fetchWithAuth("https://your-api.com/orders").then((r) => r.json());
 ```
 
 ### 4. Get Current User
@@ -276,7 +273,7 @@ const orders = await fetchWithAuth('https://your-api.com/orders').then(r => r.js
 ```typescript
 // Fetch user info from your backend (which uses introspection)
 async function getCurrentUser() {
-  const response = await fetchWithAuth('https://your-api.com/me');
+  const response = await fetchWithAuth("https://your-api.com/me");
   if (!response.ok) return null;
   return response.json();
 }
@@ -286,18 +283,18 @@ async function getCurrentUser() {
 
 ```typescript
 async function logout() {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
 
   // Optionally notify IAM to revoke session
   await fetch(`${process.env.NEXT_PUBLIC_IAM_URL}/auth/logout`, {
-    method: 'POST',
+    method: "POST",
     headers: { Authorization: `Bearer ${token}` },
-    credentials: 'include',
+    credentials: "include",
   });
 
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('token_expires');
-  window.location.href = '/';
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("token_expires");
+  window.location.href = "/";
 }
 ```
 
@@ -323,12 +320,14 @@ Before integrating, register your application as a client in SiteHaus:
 ## Environment Variables
 
 ### Backend
+
 ```env
 IAM_URL=https://api.sitehaus.dev
 IAM_CLIENT_KEY=your-client-key
 ```
 
 ### Frontend
+
 ```env
 NEXT_PUBLIC_IAM_URL=https://api.sitehaus.dev
 NEXT_PUBLIC_IAM_CLIENT_ID=your-client-uuid

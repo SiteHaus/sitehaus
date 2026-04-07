@@ -202,7 +202,10 @@ export class AccountController {
   @Post('2fa/enable')
   @HttpCode(HttpStatus.OK)
   @Throttle({ auth: { limit: 6 } })
-  async enable2fa(@Body() body: unknown, @Req() req: AuthedRequest & ClientInRequest) {
+  async enable2fa(
+    @Body() body: unknown,
+    @Req() req: AuthedRequest & ClientInRequest,
+  ) {
     const { code } = enable2faSchema.parse(body);
 
     // The secret should be stored temporarily (e.g., in session or passed from client)
@@ -234,7 +237,10 @@ export class AccountController {
    */
   @Post('2fa/disable')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async disable2fa(@Body() body: unknown, @Req() req: AuthedRequest & ClientInRequest) {
+  async disable2fa(
+    @Body() body: unknown,
+    @Req() req: AuthedRequest & ClientInRequest,
+  ) {
     const { password } = disable2faSchema.parse(body);
 
     const user = await this.users.findById(req.user!.userId);

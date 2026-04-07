@@ -71,11 +71,7 @@ export function CommentForm({
               Cancel
             </Button>
           )}
-          <Button
-            size="sm"
-            onClick={handleSubmit}
-            disabled={!body.trim() || submitting}
-          >
+          <Button size="sm" onClick={handleSubmit} disabled={!body.trim() || submitting}>
             <Send className="mr-2 h-3.5 w-3.5" />
             {submitting ? "Sending..." : "Comment"}
           </Button>

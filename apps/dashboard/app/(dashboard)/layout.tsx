@@ -3,21 +3,14 @@
 import { RequireAuth } from "@/lib/require-auth";
 import { ClientContextBar } from "../../components/top-bar";
 import { useAuthStore } from "@site-haus/stores/auth-store";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@site-haus/ui/components/base/sidebar";
+import { SidebarInset, SidebarProvider } from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { AppSideBar } from "../../components/sidebar/app-sidebar";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const hydrated = useAuthStore((s) => s.hydrated);
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
 
-  if (!hydrated) {
+  if (!bootstrapped) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-6 text-primary" />

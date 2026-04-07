@@ -43,7 +43,10 @@ export class PasswordController {
 
   @Post('change')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async changePassword(@Req() req: AuthedRequest & ClientInRequest, @Body() body: unknown) {
+  async changePassword(
+    @Req() req: AuthedRequest & ClientInRequest,
+    @Body() body: unknown,
+  ) {
     const parsed = changePasswordSchema.parse(body);
 
     const u = await this.users.findById(req.user!.userId);
@@ -86,14 +89,21 @@ export class PasswordController {
     const { code } = await this.otps.create(u.id, 'password_reset');
     const iamUrl = this.config.get<string>('email.appBaseUrl');
     const supportUrl = `${iamUrl}/reset-password?email=${encodeURIComponent(parsed.email)}`;
-    await this.email.sendOtpCodeEmail(u.email, { code, appName: 'Site Haus', supportUrl });
+    await this.email.sendOtpCodeEmail(u.email, {
+      code,
+      appName: 'Site Haus',
+      supportUrl,
+    });
   }
 
   @Public()
   @Post('reset')
   @HttpCode(HttpStatus.NO_CONTENT)
   @Throttle({ auth: { limit: 6 } })
-  async reset(@Body() body: unknown, @Req() req: AuthedRequest & ClientInRequest) {
+  async reset(
+    @Body() body: unknown,
+    @Req() req: AuthedRequest & ClientInRequest,
+  ) {
     const parsed = resetPasswordSchema.parse(body);
 
     const u = await this.users.findByEmail(parsed.email);

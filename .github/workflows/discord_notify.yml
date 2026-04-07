@@ -2,8 +2,7 @@ name: Discord Notify
 
 on:
   push:
-    branches:
-      - "**"
+    branches: ["**"]
   pull_request:
     types: [opened, closed, reopened, synchronized]
 
@@ -11,13 +10,26 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send Discord notification
+      - name: Notify on push
+        if: github.event_name == 'push'
         uses: tsickert/discord-webhook@v7.0.0
         with:
           webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
-          content: |
-            ${{ github.actor }} triggered a ${{ github.event_name }} event.
+          embed-title: "Push — ${{ github.repository }}"
+          embed-description: "**Branch:** `${{ github.ref_name }}`\n**Commit:** ${{ github.sha }}"
+          embed-url: "https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          embed-author-name: ${{ github.actor }}
+          embed-author-icon-url: "https://github.com/${{ github.actor }}.png"
+          embed-color: 10040319
 
-            ${{ github.event_name == 'push' && 'Pushed to branch: ' }}${{ github.ref_name }}
-
-            ${{ github.event_name == 'pull_request' && 'Pull request #' }}${{ github.event.number }} ${{ github.event.action }}
+      - name: Notify on pull request
+        if: github.event_name == 'pull_request'
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK }}
+          embed-title: "PR #${{ github.event.number }} ${{ github.event.action }} — ${{ github.repository }}"
+          embed-description: "**${{ github.event.pull_request.title }}**\n`${{ github.event.pull_request.head.ref }}` → `${{ github.event.pull_request.base.ref }}`"
+          embed-url: ${{ github.event.pull_request.html_url }}
+          embed-author-name: ${{ github.actor }}
+          embed-author-icon-url: "https://github.com/${{ github.actor }}.png"
+          embed-color: 10040319

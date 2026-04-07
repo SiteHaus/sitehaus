@@ -7,7 +7,6 @@ interface MilestoneStatusIconProps {
 }
 
 export function MilestoneStatusIcon({ status }: MilestoneStatusIconProps) {
-  if (status === "in_progress")
-    return <Clock className="h-4 w-4 shrink-0 text-warning" />;
+  if (status === "in_progress") return <Clock className="h-4 w-4 shrink-0 text-warning" />;
   return <Circle className="h-4 w-4 shrink-0 text-muted-foreground" />;
 }

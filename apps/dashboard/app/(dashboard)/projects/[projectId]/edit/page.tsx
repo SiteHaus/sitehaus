@@ -16,11 +16,7 @@ import {
   FormSection,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@site-haus/ui/components/base/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@site-haus/ui/components/base/popover";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
@@ -28,7 +24,6 @@ import { ComboBoxField } from "@site-haus/ui/components/shared/combobox-field";
 import { cn } from "@site-haus/ui/lib/utils";
 import {
   projectBillingStatusEnum,
-
   projectTypeEnum,
   type UpdateProjectInput,
   updateProjectSchema,
@@ -40,7 +35,6 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-
 
 const typeOptions = projectTypeEnum.options.map((v) => ({
   label: v.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()),
@@ -232,11 +226,7 @@ export default function EditProjectPage() {
                   <FormItem className="flex-1">
                     <FormLabel>Domain</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="example.com"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
+                      <Input placeholder="example.com" {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -296,11 +286,7 @@ export default function EditProjectPage() {
                         {...field}
                         value={field.value ?? ""}
                         onChange={(e) =>
-                          field.onChange(
-                            e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value)
-                          )
+                          field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
                         }
                       />
                     </FormControl>
@@ -321,11 +307,7 @@ export default function EditProjectPage() {
                         {...field}
                         value={field.value ?? ""}
                         onChange={(e) =>
-                          field.onChange(
-                            e.target.value === ""
-                              ? undefined
-                              : Number(e.target.value)
-                          )
+                          field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
                         }
                       />
                     </FormControl>
@@ -353,7 +335,7 @@ export default function EditProjectPage() {
                             variant="outline"
                             className={cn(
                               "text-left font-normal w-full",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -368,12 +350,8 @@ export default function EditProjectPage() {
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          onSelect={(date) =>
-                            field.onChange(date?.toISOString() ?? null)
-                          }
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => field.onChange(date?.toISOString() ?? null)}
                           captionLayout="dropdown"
                         />
                       </PopoverContent>
@@ -396,7 +374,7 @@ export default function EditProjectPage() {
                             variant="outline"
                             className={cn(
                               "text-left font-normal w-full",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -411,12 +389,8 @@ export default function EditProjectPage() {
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          onSelect={(date) =>
-                            field.onChange(date?.toISOString() ?? null)
-                          }
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => field.onChange(date?.toISOString() ?? null)}
                           captionLayout="dropdown"
                         />
                       </PopoverContent>

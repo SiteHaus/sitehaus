@@ -127,7 +127,13 @@ export class AuthCodeService {
       ua?: string;
     },
     db?: Db,
-  ): Promise<{ sessionId: string; userId: string; scope: string | null; refreshToken: string; refreshExpiresAt: Date }> {
+  ): Promise<{
+    sessionId: string;
+    userId: string;
+    scope: string | null;
+    refreshToken: string;
+    refreshExpiresAt: Date;
+  }> {
     const dbInstance = db ?? this.db;
 
     // Hash the provided code (SHA256)
@@ -151,6 +157,11 @@ export class AuthCodeService {
       throw new Error('Invalid authorization code');
     }
 
+    // Validate client ID matches the one the code was issued for
+    if (authCode.clientId !== params.clientId) {
+      throw new Error('Client ID mismatch');
+    }
+
     // Validate PKCE: SHA256(code_verifier) should equal stored code_challenge
     const computedChallenge = this.crypto.sha256b64url(params.codeVerifier);
 
@@ -161,7 +172,7 @@ export class AuthCodeService {
     // Create session
     const session = await this.session.createSession({
       userId: authCode.userId,
-      clientId: params.clientId,
+      clientId: authCode.clientId,
       ip: params.ip,
       ua: params.ua,
     });

@@ -30,6 +30,13 @@ function CallbackContent() {
         return;
       }
 
+      const returnedState = searchParams.get("state");
+      const storedState = sessionStorage.getItem("oauth_state");
+      if (!returnedState || returnedState !== storedState) {
+        setError("State mismatch — possible CSRF attack");
+        return;
+      }
+
       try {
         const codeVerifier = sessionStorage.getItem("oauth_code_verifier");
         if (!codeVerifier) {
@@ -62,10 +69,7 @@ function CallbackContent() {
 
         router.replace("/");
       } catch (err) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : "Failed to exchange code for tokens";
+        const message = err instanceof Error ? err.message : "Failed to exchange code for tokens";
         setError(message);
         toast.error(message);
       }
@@ -78,9 +82,7 @@ function CallbackContent() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-8 max-w-md">
-          <h1 className="text-2xl font-semibold mb-4 text-red-600">
-            Authentication Failed
-          </h1>
+          <h1 className="text-2xl font-semibold mb-4 text-red-600">Authentication Failed</h1>
           <p className="text-muted-foreground">{error}</p>
           <button
             onClick={() => router.push("/login")}
@@ -97,9 +99,7 @@ function CallbackContent() {
     <div className="flex items-center justify-center min-h-screen">
       <div className="flex flex-col items-center justify-center">
         <Spinner className="size-6 text-primary" />
-        <p className="mt-4 text-muted-foreground">
-          Completing authentication...
-        </p>
+        <p className="mt-4 text-muted-foreground">Completing authentication...</p>
       </div>
     </div>
   );

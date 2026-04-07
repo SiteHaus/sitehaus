@@ -16,11 +16,7 @@ export const refreshOnce = async () => {
     accessTokenExpiresIn?: number;
   };
 
-  if (
-    onAuthUpdate &&
-    data.accessToken &&
-    typeof data.accessTokenExpiresIn === "number"
-  ) {
+  if (onAuthUpdate && data.accessToken && typeof data.accessTokenExpiresIn === "number") {
     const exp = Math.floor(Date.now() / 1000) + data.accessTokenExpiresIn;
     onAuthUpdate({ accessToken: data.accessToken, accessExpiration: exp });
   }

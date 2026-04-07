@@ -61,9 +61,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${displayFont.variable} ${bodyFont.variable} bg-hazy-dots`}
-      >
+      <body className={`${displayFont.variable} ${bodyFont.variable} bg-hazy-dots`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -109,7 +107,8 @@ export default function RootLayout({
                 <div className="max-w-xs">
                   <span className="font-display text-lg tracking-wider">SiteHaus</span>
                   <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                    Your long-term partner in software. We build web, mobile, and desktop software with clear plans and no surprises.
+                    Your long-term partner in software. We build web, mobile, and desktop software
+                    with clear plans and no surprises.
                   </p>
                 </div>
 
@@ -119,17 +118,47 @@ export default function RootLayout({
                     <span className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground">
                       Company
                     </span>
-                    <a href="/services" className="text-muted-foreground hover:text-foreground transition-colors">Services</a>
-                    <a href="/our-method" className="text-muted-foreground hover:text-foreground transition-colors">Our Method</a>
-                    <a href="/platform" className="text-muted-foreground hover:text-foreground transition-colors">Platform</a>
-                    <a href="/about" className="text-muted-foreground hover:text-foreground transition-colors">About</a>
-                    <a href="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</a>
+                    <a
+                      href="/services"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Services
+                    </a>
+                    <a
+                      href="/our-method"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Our Method
+                    </a>
+                    <a
+                      href="/platform"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Platform
+                    </a>
+                    <a
+                      href="/about"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      About
+                    </a>
+                    <a
+                      href="/contact"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Contact
+                    </a>
                   </nav>
                   <nav aria-label="Legal pages" className="flex flex-col gap-3">
                     <span className="text-xs font-semibold tracking-[0.2em] uppercase text-muted-foreground">
                       Legal
                     </span>
-                    <a href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
+                    <a
+                      href="/privacy"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Privacy Policy
+                    </a>
                   </nav>
                 </div>
               </div>

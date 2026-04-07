@@ -2,12 +2,7 @@
 
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { ArrowLeft, Check, FileText, Plus } from "lucide-react";
@@ -40,8 +35,11 @@ export default function DesignDocumentPage() {
     transitionStatus,
   } = useDesignDocument(projectId);
 
-  const { versions, loading: versionsLoading, refetch: refetchVersions } =
-    useDesignDocVersions(projectId);
+  const {
+    versions,
+    loading: versionsLoading,
+    refetch: refetchVersions,
+  } = useDesignDocVersions(projectId);
 
   const {
     threads,
@@ -56,8 +54,7 @@ export default function DesignDocumentPage() {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latestContentRef = useRef<string | null>(null);
 
-  const isEditable =
-    isEmployee && doc && (doc.status === "draft" || doc.status === "amended");
+  const isEditable = isEmployee && doc && (doc.status === "draft" || doc.status === "amended");
 
   const handleEditorChange = useCallback(
     (serialized: string) => {
@@ -74,7 +71,7 @@ export default function DesignDocumentPage() {
         setSaveStatus(ok ? "saved" : "idle");
       }, 2000);
     },
-    [isEditable, updateContent]
+    [isEditable, updateContent],
   );
 
   // Manual save
@@ -120,8 +117,7 @@ export default function DesignDocumentPage() {
             <FileText className="mb-4 h-12 w-12 text-muted-foreground/50" />
             <h3 className="text-lg font-medium">No Design Document Yet</h3>
             <p className="text-muted-foreground mt-1 text-sm">
-              Create a design document to outline the project vision and get
-              client approval.
+              Create a design document to outline the project vision and get client approval.
             </p>
             <Button className="mt-4" onClick={() => createDocument()}>
               <Plus className="mr-2 h-4 w-4" />
@@ -209,11 +205,7 @@ export default function DesignDocumentPage() {
       </Card>
 
       {/* Version History */}
-      <VersionHistory
-        projectId={projectId}
-        versions={versions}
-        loading={versionsLoading}
-      />
+      <VersionHistory projectId={projectId} versions={versions} loading={versionsLoading} />
 
       {/* Comments */}
       <Card>
@@ -243,10 +235,7 @@ export default function DesignDocumentPage() {
 
           <Separator />
 
-          <CommentForm
-            onSubmit={addComment}
-            placeholder="Write a comment..."
-          />
+          <CommentForm onSubmit={addComment} placeholder="Write a comment..." />
         </CardContent>
       </Card>
     </div>

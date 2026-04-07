@@ -131,16 +131,12 @@ export default function App() {
             </h1>
 
             <p className="text-base sm:text-lg md:text-xl pt-2 text-foreground/75 leading-relaxed max-w-md">
-              We design and build web, mobile, and desktop software — with clear
-              plans, shared milestones, and software built to be owned.
+              We design and build web, mobile, and desktop software — with clear plans, shared
+              milestones, and software built to be owned.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 mt-8 md:mt-10">
-              <Button
-                size="lg"
-                className="h-11 md:h-12 text-sm md:text-base shadow-sm"
-                asChild
-              >
+              <Button size="lg" className="h-11 md:h-12 text-sm md:text-base shadow-sm" asChild>
                 <Link href="/contact">
                   Start a project <MoveRight className="ml-1" />
                 </Link>
@@ -231,10 +227,7 @@ export default function App() {
                   {i < values.length - 1 && (
                     <div className="flex items-center gap-4">
                       <div className="flex-1 h-px bg-border/60" />
-                      <ShipWheel
-                        aria-hidden="true"
-                        className="text-primary/30"
-                      />
+                      <ShipWheel aria-hidden="true" className="text-primary/30" />
                       <div className="flex-1 h-px bg-border/60" />
                     </div>
                   )}
@@ -254,13 +247,12 @@ export default function App() {
               The SiteHaus platform
             </p>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-5">
-              We built the tools{" "}
-              <span className="italic text-foreground/50">we use.</span>
+              We built the tools <span className="italic text-foreground/50">we use.</span>
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Every client gets access to a platform we designed and built
-              ourselves — not a collection of third-party tools, but a unified
-              system built to the same standard we hold our client work to.
+              Every client gets access to a platform we designed and built ourselves — not a
+              collection of third-party tools, but a unified system built to the same standard we
+              hold our client work to.
             </p>
           </div>
 
@@ -274,15 +266,10 @@ export default function App() {
                   className="flex flex-col gap-4 p-6 rounded-2xl border border-border/60 bg-background/60"
                 >
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Icon
-                      aria-hidden="true"
-                      className="h-5 w-5 text-primary/70"
-                    />
+                    <Icon aria-hidden="true" className="h-5 w-5 text-primary/70" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-base mb-1.5">
-                      {feature.title}
-                    </h3>
+                    <h3 className="font-bold text-base mb-1.5">{feature.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {feature.description}
                     </p>
@@ -295,16 +282,10 @@ export default function App() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button size="lg" className="h-12 text-base" asChild>
               <Link href="/contact">
-                Start a project{" "}
-                <MoveRight aria-hidden="true" className="ml-2" />
+                Start a project <MoveRight aria-hidden="true" className="ml-2" />
               </Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="h-12 text-base"
-              asChild
-            >
+            <Button size="lg" variant="outline" className="h-12 text-base" asChild>
               <Link href="/platform">Explore the platform</Link>
             </Button>
           </div>

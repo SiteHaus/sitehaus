@@ -170,7 +170,10 @@ export class TotpService {
       const tokenCounter = currentCounter + delta;
 
       // Replay protection: reject if this counter was already used
-      if (cred.lastUsedCounter !== null && tokenCounter <= cred.lastUsedCounter) {
+      if (
+        cred.lastUsedCounter !== null &&
+        tokenCounter <= cred.lastUsedCounter
+      ) {
         return false; // Code already used or older than last used
       }
 

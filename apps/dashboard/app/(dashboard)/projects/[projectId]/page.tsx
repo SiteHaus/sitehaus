@@ -103,15 +103,11 @@ export default function ProjectDetailPage() {
           <div>
             <h1 className="text-3xl font-bold">{project.name}</h1>
             {project.description && (
-              <p className="text-muted-foreground mt-1">
-                {project.description}
-              </p>
+              <p className="text-muted-foreground mt-1">{project.description}</p>
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <Badge variant={statusVariant(project.status)}>
-              {label(project.status)}
-            </Badge>
+            <Badge variant={statusVariant(project.status)}>{label(project.status)}</Badge>
             <Badge variant="outline">{label(project.type)}</Badge>
             {canManage && (
               <Button asChild size="sm" variant="outline">
@@ -133,15 +129,11 @@ export default function ProjectDetailPage() {
                 <Ticket className="h-4 w-4" />
               </div>
             </div>
-            <CardTitle className="text-2xl mt-2">
-              {project.ticketCount}
-            </CardTitle>
+            <CardTitle className="text-2xl mt-2">{project.ticketCount}</CardTitle>
             <CardDescription>Tickets</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">
-              {project.openTicketCount} open
-            </p>
+            <p className="text-xs text-muted-foreground">{project.openTicketCount} open</p>
           </CardContent>
         </Card>
 
@@ -152,9 +144,7 @@ export default function ProjectDetailPage() {
                 <Milestone className="h-4 w-4" />
               </div>
             </div>
-            <CardTitle className="text-2xl mt-2">
-              {project.milestoneCount}
-            </CardTitle>
+            <CardTitle className="text-2xl mt-2">{project.milestoneCount}</CardTitle>
             <CardDescription>Milestones</CardDescription>
           </CardHeader>
           <CardContent>
@@ -196,25 +186,17 @@ export default function ProjectDetailPage() {
                 <User className="h-4 w-4" />
               </div>
             </div>
-            <CardTitle className="text-lg mt-2">
-              {project.client?.name ?? "Unknown"}
-            </CardTitle>
+            <CardTitle className="text-lg mt-2">{project.client?.name ?? "Unknown"}</CardTitle>
             <CardDescription>Client</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {project.creator && (
               <p className="text-xs text-muted-foreground">
-                Created by {project.creator.firstName}{" "}
-                {project.creator.lastName}
+                Created by {project.creator.firstName} {project.creator.lastName}
               </p>
             )}
             {canManage && project.client && (
-              <Button
-                asChild
-                variant="outline"
-                size="sm"
-                className="h-7 text-xs"
-              >
+              <Button asChild variant="outline" size="sm" className="h-7 text-xs">
                 <Link href={`/clients/${project.client.id}/business-profile`}>
                   View Business Profile
                 </Link>
@@ -235,9 +217,7 @@ export default function ProjectDetailPage() {
                 <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
               </div>
               <CardTitle className="mt-3">View Design Document</CardTitle>
-              <CardDescription>
-                Review and manage the project design document
-              </CardDescription>
+              <CardDescription>Review and manage the project design document</CardDescription>
             </CardHeader>
           </Link>
         </Card>
@@ -252,9 +232,7 @@ export default function ProjectDetailPage() {
                 <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
               </div>
               <CardTitle className="mt-3">Project Milestones</CardTitle>
-              <CardDescription>
-                Track progress and sign off on completed milestones
-              </CardDescription>
+              <CardDescription>Track progress and sign off on completed milestones</CardDescription>
             </CardHeader>
           </Link>
         </Card>
@@ -269,9 +247,7 @@ export default function ProjectDetailPage() {
                 <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
               </div>
               <CardTitle className="mt-3">Project Assets</CardTitle>
-              <CardDescription>
-                Logos, images, fonts, and other project files
-              </CardDescription>
+              <CardDescription>Logos, images, fonts, and other project files</CardDescription>
             </CardHeader>
           </Link>
         </Card>

@@ -19,7 +19,10 @@ import {
   updateDesignDocumentSchema,
 } from '@site-haus/validation/forms/design-document';
 import { AuthedRequest } from 'src/auth/access/access.guard';
-import { RequireAnyPerm, RequirePerms } from 'src/auth/permission/require-perms.decorator';
+import {
+  RequireAnyPerm,
+  RequirePerms,
+} from 'src/auth/permission/require-perms.decorator';
 import { ClientInRequest } from 'src/clients/client.guard';
 import { DesignDocumentsService } from './design-documents.service';
 
@@ -30,17 +33,22 @@ export class DesignDocumentsController {
   constructor(private readonly docs: DesignDocumentsService) {}
 
   /** Shared helper: verify project access or throw */
-  private async verifyAccess(projectId: string, clientId: string, isFirstParty = false) {
-    const ok = await this.docs.verifyProjectAccess(projectId, clientId, isFirstParty);
+  private async verifyAccess(
+    projectId: string,
+    clientId: string,
+    isFirstParty = false,
+  ) {
+    const ok = await this.docs.verifyProjectAccess(
+      projectId,
+      clientId,
+      isFirstParty,
+    );
     if (!ok) throw new ForbiddenException('Project not found or access denied');
   }
 
   @RequirePerms('documents:read')
   @Get()
-  async get(
-    @Req() req: Req_,
-    @Param('projectId') projectId: string,
-  ) {
+  async get(@Req() req: Req_, @Param('projectId') projectId: string) {
     await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const document = await this.docs.getByProjectId(projectId);
     if (!document) throw new NotFoundException('Design document not found');
@@ -112,7 +120,11 @@ export class DesignDocumentsController {
     const { status } = designDocStatusTransitionSchema.parse(body);
 
     // Clients (non-first-party) may only approve or request amendments
-    if (!req.client!.firstParty && status !== 'approved' && status !== 'amended') {
+    if (
+      !req.client!.firstParty &&
+      status !== 'approved' &&
+      status !== 'amended'
+    ) {
       throw new ForbiddenException('Insufficient permissions');
     }
 
@@ -129,10 +141,7 @@ export class DesignDocumentsController {
 
   @RequirePerms('documents:read')
   @Get('versions')
-  async listVersions(
-    @Req() req: Req_,
-    @Param('projectId') projectId: string,
-  ) {
+  async listVersions(@Req() req: Req_, @Param('projectId') projectId: string) {
     await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const doc = await this.docs.getByProjectId(projectId);
     if (!doc) throw new NotFoundException('Design document not found');
@@ -151,7 +160,8 @@ export class DesignDocumentsController {
     const doc = await this.docs.getByProjectId(projectId);
     if (!doc) throw new NotFoundException('Design document not found');
     const versionNum = parseInt(versionParam, 10);
-    if (isNaN(versionNum)) throw new BadRequestException('Invalid version number');
+    if (isNaN(versionNum))
+      throw new BadRequestException('Invalid version number');
     const version = await this.docs.getVersion(doc.id, versionNum);
     if (!version) throw new NotFoundException('Version not found');
     return { version };

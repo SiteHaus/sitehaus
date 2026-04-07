@@ -15,9 +15,7 @@ export type MilestoneCompletedEmailProps = {
   ctaUrl: string;
 };
 
-export async function renderMilestoneCompletedEmail(
-  props: MilestoneCompletedEmailProps
-) {
+export async function renderMilestoneCompletedEmail(props: MilestoneCompletedEmailProps) {
   const subject = `Milestone ready for sign-off: ${props.milestoneName}`;
   const { html, text } = await render(
     <NotificationEmail
@@ -30,7 +28,7 @@ export async function renderMilestoneCompletedEmail(
       ]}
       ctaText="Review & sign off"
       ctaUrl={props.ctaUrl}
-    />
+    />,
   );
   return { subject, html, text };
 }
@@ -44,9 +42,7 @@ export type MilestoneSignedOffEmailProps = {
   ctaUrl: string;
 };
 
-export async function renderMilestoneSignedOffEmail(
-  props: MilestoneSignedOffEmailProps
-) {
+export async function renderMilestoneSignedOffEmail(props: MilestoneSignedOffEmailProps) {
   const subject = `Client signed off: ${props.milestoneName}`;
   const { html, text } = await render(
     <NotificationEmail
@@ -60,7 +56,7 @@ export async function renderMilestoneSignedOffEmail(
       ]}
       ctaText="View project"
       ctaUrl={props.ctaUrl}
-    />
+    />,
   );
   return { subject, html, text };
 }
@@ -73,9 +69,7 @@ export type MilestoneCreatedEmailProps = {
   ctaUrl: string;
 };
 
-export async function renderMilestoneCreatedEmail(
-  props: MilestoneCreatedEmailProps
-) {
+export async function renderMilestoneCreatedEmail(props: MilestoneCreatedEmailProps) {
   const subject = `New milestone added: ${props.milestoneName}`;
   const { html, text } = await render(
     <NotificationEmail
@@ -88,7 +82,7 @@ export async function renderMilestoneCreatedEmail(
       ]}
       ctaText="View milestones"
       ctaUrl={props.ctaUrl}
-    />
+    />,
   );
   return { subject, html, text };
 }
@@ -102,9 +96,7 @@ export type CommentCreatedEmailProps = {
   ctaUrl: string;
 };
 
-export async function renderCommentCreatedEmail(
-  props: CommentCreatedEmailProps
-) {
+export async function renderCommentCreatedEmail(props: CommentCreatedEmailProps) {
   const subject = `New comment from ${props.authorName}`;
   const { html, text } = await render(
     <NotificationEmail
@@ -114,7 +106,7 @@ export async function renderCommentCreatedEmail(
       context={[{ label: "On", value: props.targetLabel }]}
       ctaText="View & reply"
       ctaUrl={props.ctaUrl}
-    />
+    />,
   );
   return { subject, html, text };
 }
@@ -135,7 +127,7 @@ export async function renderPaymentFailedEmail(props: PaymentFailedEmailProps) {
       body={`A payment of ${props.amountFormatted} could not be processed. Please update your payment method to avoid any interruption to your service.`}
       ctaText="Update payment method"
       ctaUrl={props.ctaUrl}
-    />
+    />,
   );
   return { subject, html, text };
 }

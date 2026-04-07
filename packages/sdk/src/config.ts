@@ -18,6 +18,10 @@ export const configureSDK = (c: SDKConfig) => {
   cfg = { proactiveRefreshSkewSec: 60, ...c };
 };
 
+export const updateSDKClientKey = (clientKey: string) => {
+  if (cfg) cfg = { ...cfg, clientKey };
+};
+
 export const getConfig = () => {
   if (!cfg) throw new Error("SDK not configured");
   return cfg;

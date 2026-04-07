@@ -13,10 +13,7 @@ interface BillingRecordCardProps {
 }
 
 function needsPayment(record: BillingRecordItem) {
-  return (
-    record.status === "past_due" ||
-    (record.type === "one_time" && record.status === "active")
-  );
+  return record.status === "past_due" || (record.type === "one_time" && record.status === "active");
 }
 
 export function BillingRecordCard({ record, clientName, onOpenPortal }: BillingRecordCardProps) {
@@ -57,9 +54,7 @@ export function BillingRecordCard({ record, clientName, onOpenPortal }: BillingR
             </Badge>
           </div>
 
-          {clientName && (
-            <p className="text-xs text-muted-foreground">{clientName}</p>
-          )}
+          {clientName && <p className="text-xs text-muted-foreground">{clientName}</p>}
 
           <div className="flex items-center gap-3 flex-wrap">
             {isRecurring && record.currentPeriodEnd && (
@@ -89,11 +84,7 @@ export function BillingRecordCard({ record, clientName, onOpenPortal }: BillingR
         )}
 
         {record.status === "paid" && record.hostedInvoiceUrl && (
-          <Button
-            size="sm"
-            variant="ghost"
-            asChild
-          >
+          <Button size="sm" variant="ghost" asChild>
             <a href={record.hostedInvoiceUrl} target="_blank" rel="noreferrer">
               <Download className="mr-1.5 h-3.5 w-3.5" />
               Receipt

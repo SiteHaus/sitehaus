@@ -48,12 +48,38 @@ const CLIENTS: NewClient[] = [
     requiresConsent: false,
   },
   {
+    key: "commerce",
+    name: "Commerce",
+    type: "public",
+    firstParty: true,
+    audience: "sitehaus.commerce",
+    requiresConsent: false,
+  },
+  {
+    key: "sitehaus-commerce-admin",
+    name: "SiteHaus Commerce Admin",
+    type: "public",
+    firstParty: true,
+    audience: "sitehaus.commerce-admin",
+    requiresConsent: false,
+  },
+  {
+    id: "00000000-cafe-4bab-8000-000000000002",
     key: "gracejeanne",
     name: "Grace Jeanne",
     type: "public",
     firstParty: false,
     audience: "gracejeanne.com",
     requiresConsent: true,
+  },
+  {
+    id: "00000000-cafe-4bab-8000-000000000001",
+    key: "onehealth",
+    name: "OneHealth",
+    type: "public",
+    firstParty: false,
+    audience: "onehealth.com",
+    requiresConsent: false,
   },
 ];
 
@@ -62,12 +88,16 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
   dashboard: [
     "http://localhost:3001/callback",
     "http://localhost:3001/auth/callback",
+    "https://dashboard.localhost/callback",
+    "https://dashboard.localhost/auth/callback",
     "https://dashboard.sitehaus.dev/callback",
     "https://dashboard.sitehaus.dev/auth/callback",
   ],
   iam: [
     "http://localhost:3002/callback",
     "http://localhost:3002/auth/callback",
+    "https://iam.localhost/callback",
+    "https://iam.localhost/auth/callback",
     "https://iam.sitehaus.dev/callback",
     "https://iam.sitehaus.dev/auth/callback",
   ],
@@ -77,10 +107,26 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "https://sitehaus.dev/callback",
     "https://sitehaus.dev/auth/callback",
   ],
+  commerce: [
+    "http://localhost:3004/callback",
+    "https://commerce.localhost/callback",
+    "https://commerce.sitehaus.dev/callback",
+  ],
+  "sitehaus-commerce-admin": [
+    "http://localhost:3004/callback",
+    "http://localhost:3004/auth/callback",
+    "https://commerce.localhost/callback",
+    "https://commerce.localhost/auth/callback",
+    "https://admin.commerce.sitehaus.dev/callback",
+    "https://admin.commerce.sitehaus.dev/auth/callback",
+  ],
   gracejeanne: [
+    "http://localhost:3004/callback",
+    "https://commerce.localhost/callback",
     "https://gracejeanne.com/callback",
     "https://gracejeanne.com/auth/callback",
   ],
+  onehealth: ["http://localhost:3004/callback", "https://commerce.localhost/callback"],
 };
 async function seed() {
   await db.transaction(async (tx) => {
@@ -120,10 +166,7 @@ async function seed() {
       moduleId: modulesByKey.get(p.module)!.id,
     }));
 
-    await tx
-      .insert(schema.permissionsCatalogTable)
-      .values(permsToInsert)
-      .onConflictDoNothing();
+    await tx.insert(schema.permissionsCatalogTable).values(permsToInsert).onConflictDoNothing();
 
     // 6. Enable core modules for all clients (IAM is always enabled)
     const coreModules = modules.filter((m) => m.isCore);
@@ -175,16 +218,12 @@ async function seed() {
 
       await tx
         .insert(schema.rolePermissionsTable)
-        .values(
-          DEFAULT_ROLE_PERMS.admin.map((perm) => ({ roleId: admin.id, perm }))
-        )
+        .values(DEFAULT_ROLE_PERMS.admin.map((perm) => ({ roleId: admin.id, perm })))
         .onConflictDoNothing();
 
       await tx
         .insert(schema.rolePermissionsTable)
-        .values(
-          DEFAULT_ROLE_PERMS.member.map((perm) => ({ roleId: member.id, perm }))
-        )
+        .values(DEFAULT_ROLE_PERMS.member.map((perm) => ({ roleId: member.id, perm })))
         .onConflictDoNothing();
 
       // Add developer role permissions for IAM
@@ -195,7 +234,7 @@ async function seed() {
             DEFAULT_ROLE_PERMS.developer.map((perm) => ({
               roleId: developer.id,
               perm,
-            }))
+            })),
           )
           .onConflictDoNothing();
       }

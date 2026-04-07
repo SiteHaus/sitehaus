@@ -34,7 +34,11 @@ export class MilestonesService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  private async resolveProject(projectId: string, clientId: string, isFirstParty: boolean) {
+  private async resolveProject(
+    projectId: string,
+    clientId: string,
+    isFirstParty: boolean,
+  ) {
     return this.db.query.projectsTable.findFirst({
       where: isFirstParty
         ? eq(schema.projectsTable.id, projectId)
@@ -72,7 +76,9 @@ export class MilestonesService {
       )
       .where(
         and(
-          isFirstParty ? undefined : eq(schema.projectsTable.clientId, clientId),
+          isFirstParty
+            ? undefined
+            : eq(schema.projectsTable.clientId, clientId),
           ne(schema.milestonesTable.status, 'completed'),
           isNotNull(schema.milestonesTable.dueDate),
         ),
@@ -91,7 +97,11 @@ export class MilestonesService {
   }
 
   async list(projectId: string, clientId: string, isFirstParty = false) {
-    const project = await this.resolveProject(projectId, clientId, isFirstParty);
+    const project = await this.resolveProject(
+      projectId,
+      clientId,
+      isFirstParty,
+    );
     if (!project) return null;
 
     const rows = await this.db.query.milestonesTable.findMany({
@@ -108,7 +118,11 @@ export class MilestonesService {
     ctx: AuditContext,
     isFirstParty = false,
   ) {
-    const project = await this.resolveProject(projectId, ctx.clientId, isFirstParty);
+    const project = await this.resolveProject(
+      projectId,
+      ctx.clientId,
+      isFirstParty,
+    );
     if (!project) return { error: 'Project not found or access denied' };
 
     // Auto-assign sortOrder to end of list
@@ -145,7 +159,11 @@ export class MilestonesService {
     return serialise(milestone);
   }
 
-  async update(milestoneId: string, data: UpdateMilestoneInput, ctx: AuditContext) {
+  async update(
+    milestoneId: string,
+    data: UpdateMilestoneInput,
+    ctx: AuditContext,
+  ) {
     const existing = await this.db.query.milestonesTable.findFirst({
       where: eq(schema.milestonesTable.id, milestoneId),
       columns: { id: true, status: true, projectId: true },
@@ -163,7 +181,11 @@ export class MilestonesService {
       updates.completedAt = new Date();
     }
     // When un-completing, clear completedAt
-    if (data.status && data.status !== 'completed' && existing.status === 'completed') {
+    if (
+      data.status &&
+      data.status !== 'completed' &&
+      existing.status === 'completed'
+    ) {
       updates.completedAt = null;
     }
 
@@ -247,12 +269,17 @@ export class MilestonesService {
 
     if (!milestone) return null;
     if (milestone.project.clientId !== clientId) return null;
-    if (milestone.status !== 'completed') return { error: 'Milestone is not completed yet' };
+    if (milestone.status !== 'completed')
+      return { error: 'Milestone is not completed yet' };
     if (milestone.signedOffAt) return { error: 'Milestone already signed off' };
 
     const [updated] = await this.db
       .update(schema.milestonesTable)
-      .set({ signedOffAt: new Date(), signedOffBy: userId, updatedAt: new Date() })
+      .set({
+        signedOffAt: new Date(),
+        signedOffBy: userId,
+        updatedAt: new Date(),
+      })
       .where(eq(schema.milestonesTable.id, milestoneId))
       .returning();
 
@@ -261,9 +288,10 @@ export class MilestonesService {
       where: eq(schema.usersTable.id, userId),
       columns: { firstName: true, lastName: true },
     });
-    const signedOffByName = [signingUser?.firstName, signingUser?.lastName]
-      .filter(Boolean)
-      .join(' ') || 'A client';
+    const signedOffByName =
+      [signingUser?.firstName, signingUser?.lastName]
+        .filter(Boolean)
+        .join(' ') || 'A client';
 
     await this.notifications.enqueue({
       type: 'milestone.signed_off',

@@ -36,3 +36,10 @@ api.sitehaus.dev {
 	tls sitehausdev@gmail.com
 	encode gzip
 }
+
+commerce.sitehaus.dev {
+	import security_headers
+	reverse_proxy commerce:3000
+	tls sitehausdev@gmail.com
+	encode gzip
+}

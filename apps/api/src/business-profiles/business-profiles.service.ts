@@ -44,7 +44,9 @@ export class BusinessProfilesService {
     });
 
     if (existing) {
-      throw new ConflictException('A business profile already exists for this organization');
+      throw new ConflictException(
+        'A business profile already exists for this organization',
+      );
     }
 
     const [profile] = await this.db
@@ -81,7 +83,11 @@ export class BusinessProfilesService {
     return serialise(profile);
   }
 
-  async update(clientId: string, data: UpdateBusinessProfileInput, ctx: AuditContext) {
+  async update(
+    clientId: string,
+    data: UpdateBusinessProfileInput,
+    ctx: AuditContext,
+  ) {
     const updates: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(data)) {

@@ -22,8 +22,7 @@ export function EmployeeClientsView() {
           <h1 className="text-3xl font-bold">Clients</h1>
           {!isLoading && (
             <p className="text-muted-foreground mt-1 text-sm">
-              {clients?.length ?? 0}{" "}
-              {(clients?.length ?? 0) === 1 ? "client" : "clients"} total
+              {clients?.length ?? 0} {(clients?.length ?? 0) === 1 ? "client" : "clients"} total
             </p>
           )}
         </div>
@@ -70,14 +69,10 @@ export function EmployeeClientsView() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{client.name}</p>
-                    <p className="text-xs text-muted-foreground font-mono mt-0.5">
-                      {client.key}
-                    </p>
+                    <p className="text-xs text-muted-foreground font-mono mt-0.5">{client.key}</p>
                   </div>
                 </div>
-                <div className="text-xs text-muted-foreground shrink-0">
-                  View →
-                </div>
+                <div className="text-xs text-muted-foreground shrink-0">View →</div>
               </div>
             </Link>
           ))}

@@ -14,5 +14,5 @@ export const designDocumentVersionsRelations = relations(
       fields: [designDocumentVersionsTable.createdBy],
       references: [usersTable.id],
     }),
-  })
+  }),
 );

@@ -46,11 +46,9 @@ export const disable2faSchema = z.object({
  */
 export const deleteAccountSchema = z.object({
   password: z.string().min(1, "Password is required"),
-  confirmation: z
-    .string()
-    .refine((val) => val === "DELETE", {
-      message: 'Type "DELETE" to confirm',
-    }),
+  confirmation: z.string().refine((val) => val === "DELETE", {
+    message: 'Type "DELETE" to confirm',
+  }),
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

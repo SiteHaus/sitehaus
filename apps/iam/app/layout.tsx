@@ -20,11 +20,7 @@ export const metadata: Metadata = {
     "Identity gateway manages users, roles, and invites for all our first party clients.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body

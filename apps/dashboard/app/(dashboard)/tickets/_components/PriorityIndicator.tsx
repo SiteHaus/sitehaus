@@ -20,9 +20,7 @@ function getPriorityColor(priority: string): string {
 export function PriorityIndicator({ priority }: { priority: string }) {
   return (
     <span className="flex items-center gap-2">
-      <span
-        className={`h-2.5 w-2.5 rounded-full ${getPriorityColor(priority)}`}
-      />
+      <span className={`h-2.5 w-2.5 rounded-full ${getPriorityColor(priority)}`} />
       {label(priority)}
     </span>
   );

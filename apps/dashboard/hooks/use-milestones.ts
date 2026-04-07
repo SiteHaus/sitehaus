@@ -22,11 +22,7 @@ export function useMilestones(projectId: string) {
   const invalidate = () => queryClient.invalidateQueries({ queryKey: key });
 
   const createMutation = useMutation({
-    mutationFn: (data: {
-      name: string;
-      description?: string | null;
-      dueDate?: string | null;
-    }) =>
+    mutationFn: (data: { name: string; description?: string | null; dueDate?: string | null }) =>
       getApi().milestones.create({
         params: { projectId },
         body: {
@@ -61,12 +57,11 @@ export function useMilestones(projectId: string) {
         status?: MilestoneItem["status"];
         dueDate?: string | null;
       };
-    }) =>
-      getApi().milestones.update({ params: { milestoneId }, body: data }),
+    }) => getApi().milestones.update({ params: { milestoneId }, body: data }),
     onSuccess: (res) => {
       if (res.status === 200) {
         queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) =>
-          prev.map((m) => (m.id === res.body.milestone.id ? res.body.milestone : m))
+          prev.map((m) => (m.id === res.body.milestone.id ? res.body.milestone : m)),
         );
         toast.success("Milestone updated");
       } else {
@@ -82,7 +77,7 @@ export function useMilestones(projectId: string) {
     onSuccess: (res, milestoneId) => {
       if (res.status === 204) {
         queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) =>
-          prev.filter((m) => m.id !== milestoneId)
+          prev.filter((m) => m.id !== milestoneId),
         );
         toast.success("Milestone deleted");
       } else {
@@ -98,7 +93,7 @@ export function useMilestones(projectId: string) {
     onSuccess: (res) => {
       if (res.status === 200) {
         queryClient.setQueryData<MilestoneItem[]>(key, (prev = []) =>
-          prev.map((m) => (m.id === res.body.milestone.id ? res.body.milestone : m))
+          prev.map((m) => (m.id === res.body.milestone.id ? res.body.milestone : m)),
         );
         toast.success("Milestone signed off");
       } else {
@@ -109,8 +104,7 @@ export function useMilestones(projectId: string) {
   });
 
   const reorderMutation = useMutation({
-    mutationFn: (orderedIds: string[]) =>
-      getApi().milestones.reorder({ body: { orderedIds } }),
+    mutationFn: (orderedIds: string[]) => getApi().milestones.reorder({ body: { orderedIds } }),
     onMutate: async (orderedIds) => {
       await queryClient.cancelQueries({ queryKey: key });
       const previous = queryClient.getQueryData<MilestoneItem[]>(key);

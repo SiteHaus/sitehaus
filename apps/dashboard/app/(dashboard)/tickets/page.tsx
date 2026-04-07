@@ -7,14 +7,8 @@ import { Button } from "@site-haus/ui/components/base/button";
 import { Input } from "@site-haus/ui/components/base/input";
 import { useSearchParams } from "next/navigation";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import {
-  Ticket,
-  Plus,
-  Search,
-  UserCheck,
-  ChevronDown,
-  CircleCheck,
-} from "lucide-react";
+import { Ticket, Plus, Search, UserCheck, ChevronDown, CircleCheck } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -91,13 +85,9 @@ export default function TicketsPage() {
       body: { assigneeId },
     });
     if (res.status === 200) {
-      setTickets((prev) =>
-        prev.map((t) => (t.id === ticketId ? { ...t, assigneeId } : t)),
-      );
+      setTickets((prev) => prev.map((t) => (t.id === ticketId ? { ...t, assigneeId } : t)));
     } else {
-      toast(
-        (res.body as { message?: string }).message ?? "Failed to assign ticket",
-      );
+      toast((res.body as { message?: string }).message ?? "Failed to assign ticket");
     }
   };
 
@@ -107,21 +97,15 @@ export default function TicketsPage() {
       body: { status },
     });
     if (res.status === 200) {
-      setTickets((prev) =>
-        prev.map((t) => (t.id === ticketId ? { ...t, status } : t)),
-      );
+      setTickets((prev) => prev.map((t) => (t.id === ticketId ? { ...t, status } : t)));
     } else {
-      toast(
-        (res.body as { message?: string }).message ?? "Failed to update status",
-      );
+      toast((res.body as { message?: string }).message ?? "Failed to update status");
     }
   };
 
   const handleBulkClose = async () => {
     try {
-      await Promise.all(
-        selectedTickets.map((t) => handleStatusChange(t.id, "closed")),
-      );
+      await Promise.all(selectedTickets.map((t) => handleStatusChange(t.id, "closed")));
       setSelectedTickets([]);
     } catch (e: any) {
       toast(e.message);
@@ -129,13 +113,14 @@ export default function TicketsPage() {
   };
 
   const handleBulkAssign = async (assigneeId: string) => {
-    await Promise.all(
-      selectedTickets.map((t) => handleAssign(t.id, assigneeId)),
-    );
+    await Promise.all(selectedTickets.map((t) => handleAssign(t.id, assigneeId)));
   };
+
+  const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("open");
 
   const filtered = tickets.filter((t) => {
     if (assignedToMe && t.assigneeId !== me?.id) return false;
+    if (statusFilter !== "all" && t.status !== statusFilter) return false;
     if (!search) return true;
     return (
       t.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -150,11 +135,7 @@ export default function TicketsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">
-            {assignedToMe
-              ? "Assigned to Me"
-              : canManage
-                ? "All Tickets"
-                : "My Tickets"}
+            {assignedToMe ? "Assigned to Me" : canManage ? "All Tickets" : "My Tickets"}
           </h1>
           <p className="text-muted-foreground mt-1">
             {assignedToMe
@@ -164,7 +145,7 @@ export default function TicketsPage() {
                 : "View and track your support tickets."}
           </p>
         </div>
-        <div className="flex items-center gap-3 mb-5">
+        <div className="flex items-center gap-3 mb-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -181,6 +162,18 @@ export default function TicketsPage() {
             </Link>
           </Button>
         </div>
+        <Tabs
+          value={statusFilter}
+          onValueChange={(v) => setStatusFilter(v as TicketStatus | "all")}
+        >
+          <TabsList>
+            <TabsTrigger value="open">Open</TabsTrigger>
+            <TabsTrigger value="in_progress">In Progress</TabsTrigger>
+            <TabsTrigger value="resolved">Resolved</TabsTrigger>
+            <TabsTrigger value="closed">Closed</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       {loading ? (
@@ -193,9 +186,7 @@ export default function TicketsPage() {
           {search ? (
             <>
               <h3 className="text-lg font-medium">No tickets found</h3>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Try adjusting your search.
-              </p>
+              <p className="text-muted-foreground mt-1 text-sm">Try adjusting your search.</p>
             </>
           ) : !canManage ? (
             <>
@@ -231,21 +222,13 @@ export default function TicketsPage() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
                   {Object.entries(memberMap).map(([id, name]) => (
-                    <DropdownMenuItem
-                      key={id}
-                      onSelect={() => handleBulkAssign(id)}
-                    >
+                    <DropdownMenuItem key={id} onSelect={() => handleBulkAssign(id)}>
                       {name}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-8"
-                onClick={handleBulkClose}
-              >
+              <Button size="sm" variant="outline" className="h-8" onClick={handleBulkClose}>
                 <CircleCheck className="mr-2 h-3.5 w-3.5" />
                 Close tickets
               </Button>

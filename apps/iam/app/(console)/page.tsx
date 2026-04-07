@@ -9,12 +9,8 @@ export default function DashboardPage() {
   return (
     <RequireAuth>
       <div className="container mx-auto mt-12">
-        <h1 className="text-3xl font-bold mb-4">
-          Welcome back, {user?.firstName}!
-        </h1>
-        <p className="text-muted-foreground mb-8">
-          Manage your identity and access settings
-        </p>
+        <h1 className="text-3xl font-bold mb-4">Welcome back, {user?.firstName}!</h1>
+        <p className="text-muted-foreground mb-8">Manage your identity and access settings</p>
       </div>
     </RequireAuth>
   );

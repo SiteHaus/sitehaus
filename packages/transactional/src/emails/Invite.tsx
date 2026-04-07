@@ -35,11 +35,7 @@ const InviteEmail = ({
   expiresAt,
   expiresInMinutes,
 }: InviteEmailProps): React.JSX.Element => {
-  const roleLabel = roles?.length
-    ? roles.length === 1
-      ? roles[0]
-      : roles.join(", ")
-    : "User";
+  const roleLabel = roles?.length ? (roles.length === 1 ? roles[0] : roles.join(", ")) : "User";
 
   const expiryText = (() => {
     if (expiresAt) {
@@ -74,9 +70,7 @@ const InviteEmail = ({
         <Head />
         <Body className="bg-[#f6f6f6] font-sans">
           <Container className="mx-auto my-10 w-full max-w-[560px] rounded-2xl bg-white p-8 shadow-sm">
-            <Heading className="m-0 text-[24px] font-bold text-brand">
-              {appName}
-            </Heading>
+            <Heading className="m-0 text-[24px] font-bold text-brand">{appName}</Heading>
             <Text className="mt-1 text-[13px] text-[#666]">
               {inviterName
                 ? `${inviterName} invited you to join${clientName ? ` ${clientName}` : ""} as ${roleLabel}.`
@@ -99,15 +93,12 @@ const InviteEmail = ({
               </Text>
             </Section>
 
-            <Text className="mt-4 text-[12px] text-[#777]">
-              {expiryText}
-            </Text>
+            <Text className="mt-4 text-[12px] text-[#777]">{expiryText}</Text>
 
             <Hr className="my-8 border-[#eee]" />
 
             <Text className="text-[12px] leading-5 text-[#666]">
-              If you weren't expecting this invitation, you can safely ignore
-              this email.
+              If you weren't expecting this invitation, you can safely ignore this email.
             </Text>
 
             <Text className="mt-2 text-[12px] text-[#aaa]">

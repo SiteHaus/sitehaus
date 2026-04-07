@@ -9,12 +9,7 @@ import { useClientContext } from "@/lib/use-client-context";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import {
   Select,
@@ -64,13 +59,7 @@ const ACTION_CATEGORIES = {
 } as const;
 
 const ACTION_BY_CATEGORY: Record<string, string[]> = {
-  auth: [
-    "user.login",
-    "user.logout",
-    "user.registered",
-    "user.2fa.enabled",
-    "user.2fa.disabled",
-  ],
+  auth: ["user.login", "user.logout", "user.registered", "user.2fa.enabled", "user.2fa.disabled"],
   password: ["user.password.changed", "user.password.reset"],
   roles: [
     "role.created",
@@ -82,11 +71,7 @@ const ACTION_BY_CATEGORY: Record<string, string[]> = {
   ],
   invites: ["invite.created", "invite.cancelled", "invite.accepted"],
   sessions: ["session.revoked", "sessions.revokedAll"],
-  clients: [
-    "client.updated",
-    "client.redirectUri.added",
-    "client.redirectUri.removed",
-  ],
+  clients: ["client.updated", "client.redirectUri.added", "client.redirectUri.removed"],
 };
 
 function getActionBadgeVariant(
@@ -142,8 +127,7 @@ function AuditLogContent() {
     async (cursor?: string, direction: "next" | "prev" | "reset" = "reset") => {
       setLoading(true);
       try {
-        const actionFilter =
-          category !== "all" ? ACTION_BY_CATEGORY[category]?.[0] : undefined;
+        const actionFilter = category !== "all" ? ACTION_BY_CATEGORY[category]?.[0] : undefined;
 
         const res = await api.audit.list({
           query: {
@@ -187,28 +171,18 @@ function AuditLogContent() {
         (log) =>
           log.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
           log.user?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          log.user?.firstName
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
+          log.user?.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
           log.user?.lastName.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : logs;
 
   if (permissionDenied) {
-    return (
-      <PermissionDenied
-        resource="audit logs"
-        clientName={selectedClient?.name}
-      />
-    );
+    return <PermissionDenied resource="audit logs" clientName={selectedClient?.name} />;
   }
 
   return (
     <>
-      <PageHeader
-        title="Audit Log"
-        description="View security events and activity history."
-      />
+      <PageHeader title="Audit Log" description="View security events and activity history." />
 
       <Card className="mb-4">
         <CardContent className="pt-6">
@@ -247,9 +221,7 @@ function AuditLogContent() {
               icon={ScrollText}
               title="No audit logs found."
               description={
-                searchQuery || category !== "all"
-                  ? "Try adjusting your filters."
-                  : undefined
+                searchQuery || category !== "all" ? "Try adjusting your filters." : undefined
               }
             />
           </CardContent>
@@ -285,14 +257,10 @@ function AuditLogContent() {
                           <div className="font-medium text-sm">
                             {log.user.firstName} {log.user.lastName}
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            {log.user.email}
-                          </div>
+                          <div className="text-xs text-muted-foreground">{log.user.email}</div>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground text-sm">
-                          System
-                        </span>
+                        <span className="text-muted-foreground text-sm">System</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -301,9 +269,7 @@ function AuditLogContent() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {log.targetType && (
-                        <span className="capitalize">{log.targetType}</span>
-                      )}
+                      {log.targetType && <span className="capitalize">{log.targetType}</span>}
                       {log.targetId && (
                         <span className="ml-1 font-mono text-xs">
                           ({log.targetId.slice(0, 8)}...)

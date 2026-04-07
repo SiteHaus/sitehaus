@@ -16,11 +16,7 @@ import {
   FormSection,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@site-haus/ui/components/base/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@site-haus/ui/components/base/popover";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
@@ -152,9 +148,7 @@ export default function EditProjectPage() {
           </Link>
         </Button>
         <h1 className="text-3xl font-bold">Edit {ticket.title}</h1>
-        <p className="text-muted-foreground mt-1 mb-4">
-          Update ticket details below.
-        </p>
+        <p className="text-muted-foreground mt-1 mb-4">Update ticket details below.</p>
         <SubmitTicketForm
           ticketId={ticketId}
           defaultValues={{

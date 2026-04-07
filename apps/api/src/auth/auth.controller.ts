@@ -113,6 +113,7 @@ export class AuthController {
    */
   @Public()
   @HttpCode(HttpStatus.OK)
+  @Throttle({ auth: { limit: 120 } })
   @Post('introspect')
   async introspect(@Headers('authorization') authorization?: string) {
     if (!authorization?.startsWith('Bearer ')) {
@@ -261,7 +262,9 @@ export class AuthController {
   @Get('me')
   async me(@Req() req: AuthedRequest & ClientInRequest) {
     const { userId, clientId: sessionClientId, sessionId } = req.user!;
-    // Use x-client-id header if provided, otherwise fall back to session's client
+    // targetClientId drives permission lookup (honours x-client-id for first-party
+    // apps managing a different client), but the session identity always reflects
+    // the token's audience so callers can reliably detect which client they're in.
     const targetClientId = req.client?.id ?? sessionClientId;
 
     const user = await this.users.findById(userId);
@@ -278,7 +281,7 @@ export class AuthController {
             status: user.status,
           }
         : null,
-      session: { id: sessionId, clientId: targetClientId },
+      session: { id: sessionId, clientId: sessionClientId },
       permissions: [...perms],
     };
   }

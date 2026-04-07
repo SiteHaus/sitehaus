@@ -45,8 +45,8 @@ export function PublishDialog({
         <DialogHeader>
           <DialogTitle>Publish Version</DialogTitle>
           <DialogDescription>
-            Save a snapshot of the current document as a new version. You can
-            optionally add a note describing what changed.
+            Save a snapshot of the current document as a new version. You can optionally add a note
+            describing what changed.
           </DialogDescription>
         </DialogHeader>
         <Textarea
@@ -56,11 +56,7 @@ export function PublishDialog({
           rows={3}
         />
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setOpen(false)}
-            disabled={loading}
-          >
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
             Cancel
           </Button>
           <Button onClick={handlePublish} disabled={loading}>

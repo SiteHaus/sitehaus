@@ -4,12 +4,7 @@ import type { BusinessProfileItem } from "@site-haus/contracts";
 import { getApi } from "@site-haus/stores/api";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@site-haus/ui/components/base/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { ExternalLink, ArrowLeft } from "lucide-react";
@@ -43,13 +38,7 @@ function computeCompleteness(profile: BusinessProfileItem) {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function ProfileSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function ProfileSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -62,18 +51,10 @@ function ProfileSection({
   );
 }
 
-function Field({
-  label,
-  value,
-}: {
-  label?: string;
-  value: string | null | undefined;
-}) {
+function Field({ label, value }: { label?: string; value: string | null | undefined }) {
   return (
     <div className="space-y-1">
-      {label && (
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      )}
+      {label && <p className="text-xs font-medium text-muted-foreground">{label}</p>}
       {value ? (
         <p className="text-sm leading-relaxed">{value}</p>
       ) : (
@@ -86,9 +67,7 @@ function Field({
 function LinkField({ label, value }: { label?: string; value: string | null | undefined }) {
   return (
     <div className="space-y-1">
-      {label && (
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      )}
+      {label && <p className="text-xs font-medium text-muted-foreground">{label}</p>}
       {value ? (
         <a
           href={value.startsWith("http") ? value : `https://${value}`}
@@ -118,9 +97,7 @@ function ColorSwatches({ colors }: { colors: string[] }) {
             className="h-6 w-6 rounded-full border shadow-sm"
             style={{ backgroundColor: color }}
           />
-          <span className="font-mono text-xs text-muted-foreground">
-            {color}
-          </span>
+          <span className="font-mono text-xs text-muted-foreground">{color}</span>
         </div>
       ))}
     </div>
@@ -235,7 +212,15 @@ export default function BusinessProfileReviewPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               Business Profile
               {profile.updatedAt && (
-                <> · Last updated {formatDate(profile.updatedAt, { month: "long", day: "numeric", year: "numeric" })}</>
+                <>
+                  {" "}
+                  · Last updated{" "}
+                  {formatDate(profile.updatedAt, {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </>
               )}
             </p>
           </div>
@@ -284,11 +269,7 @@ export default function BusinessProfileReviewPage() {
           {socialEntries.length > 0 && (
             <div className="grid gap-3 sm:grid-cols-2">
               {socialEntries.map((entry) => (
-                <LinkField
-                  key={entry.label}
-                  label={entry.label}
-                  value={entry.value}
-                />
+                <LinkField key={entry.label} label={entry.label} value={entry.value} />
               ))}
             </div>
           )}
@@ -316,9 +297,7 @@ export default function BusinessProfileReviewPage() {
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs font-medium text-muted-foreground">
-              Brand Colors
-            </p>
+            <p className="text-xs font-medium text-muted-foreground">Brand Colors</p>
             <ColorSwatches colors={brandColors} />
           </div>
           <Field label="Brand Fonts" value={profile.brandFonts} />

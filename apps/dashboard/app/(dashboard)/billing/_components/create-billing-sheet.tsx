@@ -104,7 +104,7 @@ export function CreateBillingSheet({
               name: p.name,
               monthlyRateCents: p.monthlyRateCents,
               depositAmountCents: p.depositAmountCents,
-            }))
+            })),
           );
         }
       })
@@ -156,7 +156,12 @@ export function CreateBillingSheet({
   const baseValid = !!clientId && !!projectId;
 
   return (
-    <Sheet open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+    <Sheet
+      open={open}
+      onOpenChange={(o) => {
+        if (!o) onClose();
+      }}
+    >
       <SheetContent className="flex flex-col">
         <SheetHeader>
           <SheetTitle>Create Billing</SheetTitle>
@@ -196,10 +201,10 @@ export function CreateBillingSheet({
                     !clientId
                       ? "Select a client first"
                       : loadingProjects
-                      ? "Loading…"
-                      : projects.length === 0
-                      ? "No projects"
-                      : "Select a project…"
+                        ? "Loading…"
+                        : projects.length === 0
+                          ? "No projects"
+                          : "Select a project…"
                   }
                 />
               </SelectTrigger>
@@ -264,12 +269,7 @@ export function CreateBillingSheet({
                 </Button>
                 <Button
                   onClick={handleSubscription}
-                  disabled={
-                    saving ||
-                    !baseValid ||
-                    !subAmount ||
-                    parseFloat(subAmount) <= 0
-                  }
+                  disabled={saving || !baseValid || !subAmount || parseFloat(subAmount) <= 0}
                 >
                   {saving && <Spinner className="size-4 mr-2" />}
                   Create Subscription
@@ -315,12 +315,7 @@ export function CreateBillingSheet({
                 </Button>
                 <Button
                   onClick={handleOneTime}
-                  disabled={
-                    saving ||
-                    !baseValid ||
-                    !otAmount ||
-                    parseFloat(otAmount) <= 0
-                  }
+                  disabled={saving || !baseValid || !otAmount || parseFloat(otAmount) <= 0}
                 >
                   {saving && <Spinner className="size-4 mr-2" />}
                   Send Invoice

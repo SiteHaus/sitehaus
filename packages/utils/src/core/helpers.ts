@@ -30,7 +30,7 @@ export const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 export const buildAcceptUrl = (
   base: string,
-  p: { clientId: string; email: string; code: string }
+  p: { clientId: string; email: string; code: string },
 ) => {
   const u = new URL("/accept-invite", base);
   u.searchParams.set("clientId", p.clientId);
@@ -52,10 +52,7 @@ export const maskEmail = (email: string): string => {
   return `${maskedUser}@${domain}`;
 };
 
-export const deriveAuthForLabel = (
-  nextUrl?: string,
-  fallback: string = "Unknown App"
-) => {
+export const deriveAuthForLabel = (nextUrl?: string, fallback: string = "Unknown App") => {
   try {
     if (!nextUrl) return fallback;
 

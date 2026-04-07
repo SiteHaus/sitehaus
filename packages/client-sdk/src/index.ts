@@ -9,8 +9,4 @@
  */
 
 // Re-export types that are useful in both contexts
-export type {
-  UserContext,
-  IntrospectionResponse,
-  SiteHausAuthConfig,
-} from "./nestjs/types.js";
+export type { UserContext, IntrospectionResponse, SiteHausAuthConfig } from "./nestjs/types.js";

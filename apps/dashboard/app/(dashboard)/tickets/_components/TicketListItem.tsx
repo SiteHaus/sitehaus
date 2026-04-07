@@ -35,13 +35,7 @@ export function buildTicketListColumns({
     members.map((m) => [m.id, `${m.firstName} ${m.lastName}`]),
   );
   return {
-    excludeColumns: [
-      "description",
-      "id",
-      "authorId",
-      "closedAt",
-      "updatedAt",
-    ] as string[],
+    excludeColumns: ["description", "id", "authorId", "closedAt", "updatedAt"] as string[],
 
     defaultColumns: [
       "title",
@@ -76,10 +70,7 @@ export function buildTicketListColumns({
         const id = v as string;
         return (
           <div onClick={(e) => e.stopPropagation()}>
-            <Link
-              href={`/projects/${id}`}
-              className="underline decoration-dotted"
-            >
+            <Link href={`/projects/${id}`} className="underline decoration-dotted">
               {projectMap[id]}
             </Link>
           </div>
@@ -97,10 +88,7 @@ export function buildTicketListColumns({
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {ticketStatusValues.map((s) => (
-                  <DropdownMenuItem
-                    key={s}
-                    onSelect={() => onStatusChange(ticket.id, s)}
-                  >
+                  <DropdownMenuItem key={s} onSelect={() => onStatusChange(ticket.id, s)}>
                     {label(s)}
                   </DropdownMenuItem>
                 ))}
@@ -127,10 +115,7 @@ export function buildTicketListColumns({
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {Object.entries(memberMap).map(([id, name]) => (
-                  <DropdownMenuItem
-                    key={id}
-                    onSelect={() => onAssign(ticket.id, id)}
-                  >
+                  <DropdownMenuItem key={id} onSelect={() => onAssign(ticket.id, id)}>
                     {name}
                   </DropdownMenuItem>
                 ))}

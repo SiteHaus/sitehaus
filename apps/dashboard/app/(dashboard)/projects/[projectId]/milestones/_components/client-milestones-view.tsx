@@ -47,16 +47,13 @@ export function ClientMilestonesView({ projectId }: ClientMilestonesViewProps) {
         <Milestone className="mb-4 h-12 w-12 text-muted-foreground/40" />
         <h3 className="text-base font-medium">No milestones yet</h3>
         <p className="text-muted-foreground mt-1 text-sm">
-          Your project milestones will appear here once your SiteHaus team sets
-          them up.
+          Your project milestones will appear here once your SiteHaus team sets them up.
         </p>
       </div>
     );
   }
 
-  const completedCount = milestones.filter(
-    (m) => m.status === "completed",
-  ).length;
+  const completedCount = milestones.filter((m) => m.status === "completed").length;
   const total = milestones.length;
   const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
 
@@ -66,8 +63,7 @@ export function ClientMilestonesView({ projectId }: ClientMilestonesViewProps) {
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            {completedCount} of {total}{" "}
-            {total === 1 ? "step" : "steps"} complete
+            {completedCount} of {total} {total === 1 ? "step" : "steps"} complete
           </span>
           <span className="font-medium">{pct}%</span>
         </div>
@@ -102,15 +98,13 @@ export function ClientMilestonesView({ projectId }: ClientMilestonesViewProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>Sign off on this milestone?</AlertDialogTitle>
             <AlertDialogDescription>
-              Confirm that you&apos;ve reviewed and approved this milestone.
-              This can&apos;t be undone.
+              Confirm that you&apos;ve reviewed and approved this milestone. This can&apos;t be
+              undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmSignOff}>
-              Yes, sign off
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleConfirmSignOff}>Yes, sign off</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

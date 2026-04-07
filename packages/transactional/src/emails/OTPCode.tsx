@@ -46,9 +46,7 @@ const OTPCodeEmail = ({
         </Preview>
         <Body className="bg-[#f6f6f6] font-sans">
           <Container className="mx-auto my-10 w-full max-w-[560px] rounded-2xl bg-white p-8 shadow-sm">
-            <Heading className="m-0 text-[24px] font-bold text-brand">
-              {appName}
-            </Heading>
+            <Heading className="m-0 text-[24px] font-bold text-brand">{appName}</Heading>
             <Text className="mt-1 text-[13px] text-[#666]">
               Use the one-time code below to continue.
             </Text>

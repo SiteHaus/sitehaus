@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import { InviteClientDialog } from "../../../../components/invite-client-dialog";
 import type { ProjectItem } from "@site-haus/contracts";
 
-
 export default function NewProjectPage() {
   const router = useRouter();
   const session = useAuthStore((s) => s.session);
@@ -24,10 +23,7 @@ export default function NewProjectPage() {
   const [createdProject, setCreatedProject] = useState<ProjectItem | null>(null);
 
   const clientOptions: ClientOption[] = useMemo(
-    () =>
-      storeClients
-        .filter((c) => !c.hidden)
-        .map((c) => ({ id: c.id, name: c.name })),
+    () => storeClients.filter((c) => !c.hidden).map((c) => ({ id: c.id, name: c.name })),
     [storeClients],
   );
 
@@ -40,9 +36,7 @@ export default function NewProjectPage() {
         setCreatedProject(res.body.project);
       } else {
         const msg =
-          res.status === 400
-            ? "Validation error. Check your inputs."
-            : "Failed to create project.";
+          res.status === 400 ? "Validation error. Check your inputs." : "Failed to create project.";
         toast.error(msg);
       }
     } catch {
@@ -96,9 +90,7 @@ export default function NewProjectPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">New Project</h1>
-        <p className="text-muted-foreground mt-1">
-          Create a new web project for a client.
-        </p>
+        <p className="text-muted-foreground mt-1">Create a new web project for a client.</p>
       </div>
       <CreateProjectForm
         clients={clientOptions}

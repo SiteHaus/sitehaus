@@ -12,11 +12,7 @@ export type FetchArgs = {
 };
 
 export const fetchWithAuth = async (args: FetchArgs): Promise<Response> => {
-  const {
-    clientKey,
-    tokenProvider,
-    proactiveRefreshSkewSec = 60,
-  } = getConfig();
+  const { clientKey, tokenProvider, proactiveRefreshSkewSec = 60 } = getConfig();
 
   const headers: Record<string, string> = {
     "x-client-key": clientKey,
@@ -39,9 +35,7 @@ export const fetchWithAuth = async (args: FetchArgs): Promise<Response> => {
       method: args.method,
       credentials: "include",
       headers,
-      body:
-        args.rawBody ??
-        (args.body !== undefined ? JSON.stringify(args.body) : undefined),
+      body: args.rawBody ?? (args.body !== undefined ? JSON.stringify(args.body) : undefined),
       signal: args.fetchOptions?.signal,
     });
 

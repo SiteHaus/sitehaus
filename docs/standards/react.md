@@ -25,6 +25,7 @@ Server components are acceptable only for pure layout wrappers that do not touch
 Use **React Query** (`@tanstack/react-query`) for all async data in the dashboard.
 
 **Query (read):**
+
 ```ts
 const { data: milestones = [], isLoading } = useQuery({
   queryKey: queryKeys.milestones.list(projectId),
@@ -37,6 +38,7 @@ const { data: milestones = [], isLoading } = useQuery({
 ```
 
 **Mutation (write):**
+
 ```ts
 const queryClient = useQueryClient();
 
@@ -52,6 +54,7 @@ const createMutation = useMutation({
 ```
 
 Rules:
+
 - All query keys come from `@/lib/query-keys` — never inline string arrays.
 - Default `staleTime` is 30 s (set in `QueryClientProvider`). Use `Infinity` for rarely-changing data (e.g., breadcrumb names).
 - `retry: 1`, `refetchOnWindowFocus: false` by default.
@@ -72,11 +75,11 @@ Hooks that do not perform async fetching (`useIsEmployee`, `useClientContext`) s
 
 ## Component Organization
 
-| Layer | Location | Rule |
-|-------|----------|------|
-| Generic UI | `@site-haus/ui` | No domain knowledge, no business logic |
-| Shared dashboard | `apps/dashboard/components/` | Shared across multiple pages, may use domain types |
-| Colocated | `apps/dashboard/app/**/_components/` | One page only — delete if the page is removed |
+| Layer            | Location                             | Rule                                               |
+| ---------------- | ------------------------------------ | -------------------------------------------------- |
+| Generic UI       | `@site-haus/ui`                      | No domain knowledge, no business logic             |
+| Shared dashboard | `apps/dashboard/components/`         | Shared across multiple pages, may use domain types |
+| Colocated        | `apps/dashboard/app/**/_components/` | One page only — delete if the page is removed      |
 
 ### One component per file
 
@@ -110,8 +113,8 @@ app/(dashboard)/
 
 ```ts
 const canManage = useAuthStore((s) => s.hasPerm("projects:manage"));
-const isEmployee = useIsEmployee();          // SiteHaus staff with canManage
-const client = useClientContext();           // non-first-party client, or null
+const isEmployee = useIsEmployee(); // SiteHaus staff with canManage
+const client = useClientContext(); // non-first-party client, or null
 ```
 
 ---
@@ -126,11 +129,11 @@ const client = useClientContext();           // non-first-party client, or null
 
 ## Utilities
 
-| What | Where to import from |
-|------|---------------------|
-| `formatDate`, `formatCents`, `label` | `@site-haus/utils/core/format` |
-| Badge variants (status, billing, etc.) | `@/lib/variants` |
-| Query key factories | `@/lib/query-keys` |
+| What                                   | Where to import from           |
+| -------------------------------------- | ------------------------------ |
+| `formatDate`, `formatCents`, `label`   | `@site-haus/utils/core/format` |
+| Badge variants (status, billing, etc.) | `@/lib/variants`               |
+| Query key factories                    | `@/lib/query-keys`             |
 
 ---
 
@@ -144,10 +147,10 @@ const client = useClientContext();           // non-first-party client, or null
 
 ## Naming Conventions
 
-| Thing | Convention |
-|-------|-----------|
-| Files | `kebab-case.tsx` |
-| Components | `PascalCase` |
-| Hooks | `use` prefix, file in `use-<noun>.ts` |
-| Query keys | Always via `queryKeys.*` factory from `@/lib/query-keys` |
-| Private page components | Defined in same file or `_components/` subdirectory |
+| Thing                   | Convention                                               |
+| ----------------------- | -------------------------------------------------------- |
+| Files                   | `kebab-case.tsx`                                         |
+| Components              | `PascalCase`                                             |
+| Hooks                   | `use` prefix, file in `use-<noun>.ts`                    |
+| Query keys              | Always via `queryKeys.*` factory from `@/lib/query-keys` |
+| Private page components | Defined in same file or `_components/` subdirectory      |

@@ -22,10 +22,7 @@ import {
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  sideBarMenuItems,
-  type SidebarMenuItem as SidebarMenuItemType,
-} from "./sidebar-links";
+import { sideBarMenuItems, type SidebarMenuItem as SidebarMenuItemType } from "./sidebar-links";
 
 function isActive(pathname: string, url: string): boolean {
   if (url === "/") return pathname === "/";
@@ -47,17 +44,19 @@ export const AppSideBarContent = () => {
   const visibleItems = sideBarMenuItems
     .filter((item) => {
       const permOk = !item.requirePerm || hasPerm(item.requirePerm);
-      const clientFallback =
-        !!item.showForClients && !isEmployee && !!clientContext;
+      const clientFallback = !!item.showForClients && !isEmployee && !!clientContext;
       return permOk || clientFallback;
     })
     .filter((item) => !item.requireClient || !!clientContext)
     .map((item) => ({
       ...item,
       subItems: item.subItems?.filter((sub) => {
+        // Client-exclusive: showForClients with no requirePerm means clients only
+        if (sub.showForClients && !sub.requirePerm) {
+          return !isEmployee && !!clientContext;
+        }
         const permOk = !sub.requirePerm || hasPerm(sub.requirePerm);
-        const clientFallback =
-          !!sub.showForClients && !isEmployee && !!clientContext;
+        const clientFallback = !!sub.showForClients && !isEmployee && !!clientContext;
         return permOk || clientFallback;
       }),
     }));

@@ -1,18 +1,15 @@
 export function formatDate(
   d: string | null | undefined,
-  opts?: Intl.DateTimeFormatOptions
+  opts?: Intl.DateTimeFormatOptions,
 ): string | null {
   if (!d) return null;
   return new Date(d).toLocaleDateString(
     "en-US",
-    opts ?? { month: "short", day: "numeric", year: "numeric" }
+    opts ?? { month: "short", day: "numeric", year: "numeric" },
   );
 }
 
-export function formatCents(
-  cents: number | null | undefined,
-  currency = "USD"
-): string | null {
+export function formatCents(cents: number | null | undefined, currency = "USD"): string | null {
   if (cents == null) return null;
   return new Intl.NumberFormat("en-US", {
     style: "currency",

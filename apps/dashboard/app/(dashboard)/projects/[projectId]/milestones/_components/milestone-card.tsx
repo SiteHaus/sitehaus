@@ -77,9 +77,7 @@ export function MilestoneCard({
         </div>
 
         {milestone.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">
-            {milestone.description}
-          </p>
+          <p className="text-xs text-muted-foreground line-clamp-2">{milestone.description}</p>
         )}
 
         <div className="flex items-center gap-3 flex-wrap">
@@ -120,12 +118,7 @@ export function MilestoneCard({
 
         {canManage && (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={onEdit}
-            >
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onEdit}>
               <Pencil className="h-3.5 w-3.5" />
             </Button>
             <Button

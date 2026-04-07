@@ -10,11 +10,7 @@ import {
   FormItem,
   FormLabel,
 } from "@site-haus/ui/components/base/form";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@site-haus/ui/components/base/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@site-haus/ui/components/base/input-otp";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
@@ -73,8 +69,7 @@ export const VerifyCodeForm = ({
     }
   };
 
-  const title =
-    mode === "email" ? "Verify Your Account" : "Enter Your Reset Code";
+  const title = mode === "email" ? "Verify Your Account" : "Enter Your Reset Code";
 
   const submitLabel =
     mode === "email" ? (
@@ -97,11 +92,7 @@ export const VerifyCodeForm = ({
           className="px-0 text-blue-500"
           disabled={resending || cooldown > 0}
         >
-          {resending
-            ? "Sending..."
-            : cooldown > 0
-              ? `Resend in ${cooldown}s`
-              : "Resend OTP"}
+          {resending ? "Sending..." : cooldown > 0 ? `Resend in ${cooldown}s` : "Resend OTP"}
         </Button>
       </p>
 
@@ -130,8 +121,7 @@ export const VerifyCodeForm = ({
                   </InputOTP>
                 </FormControl>
                 <FormDescription>
-                  We sent a code to{" "}
-                  {`${maskEmail(defaultValues?.email || "")}` || "Your Email"},
+                  We sent a code to {`${maskEmail(defaultValues?.email || "")}` || "Your Email"},
                   please enter it below.
                 </FormDescription>
               </FormItem>

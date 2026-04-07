@@ -58,8 +58,7 @@ export const MODULES = {
   dashboard: {
     key: "dashboard",
     name: "Dashboard",
-    description:
-      "Project management, client collaboration, and agency operations",
+    description: "Project management, client collaboration, and agency operations",
     isCore: true,
     permissions: {
       projects: ["read", "manage"] as const,
@@ -83,32 +82,26 @@ type IamResource = keyof typeof PERM;
 type IamAction<R extends IamResource = IamResource> = (typeof PERM)[R][number];
 
 type DashResource = keyof typeof DASHBOARD_PERM;
-type DashAction<R extends DashResource = DashResource> =
-  (typeof DASHBOARD_PERM)[R][number];
+type DashAction<R extends DashResource = DashResource> = (typeof DASHBOARD_PERM)[R][number];
 
-export type Permission =
-  | `${IamResource}:${IamAction}`
-  | `${DashResource}:${DashAction}`;
+export type Permission = `${IamResource}:${IamAction}` | `${DashResource}:${DashAction}`;
 
 /** Generate all permissions for a module */
-function modulePermissions<M extends ModuleKey>(
-  moduleKey: M
-): Array<{ perm: string; module: M }> {
+function modulePermissions<M extends ModuleKey>(moduleKey: M): Array<{ perm: string; module: M }> {
   const mod = MODULES[moduleKey];
-  return (
-    Object.entries(mod.permissions) as [string, readonly string[]][]
-  ).flatMap(([resource, actions]) =>
-    actions.map((action) => ({
-      perm: `${resource}:${action}`,
-      module: moduleKey,
-    }))
+  return (Object.entries(mod.permissions) as [string, readonly string[]][]).flatMap(
+    ([resource, actions]) =>
+      actions.map((action) => ({
+        perm: `${resource}:${action}`,
+        module: moduleKey,
+      })),
   );
 }
 
 /** All permissions with their module keys */
-export const ALL_PERMISSIONS_WITH_MODULES = (
-  Object.keys(MODULES) as ModuleKey[]
-).flatMap((key) => modulePermissions(key));
+export const ALL_PERMISSIONS_WITH_MODULES = (Object.keys(MODULES) as ModuleKey[]).flatMap((key) =>
+  modulePermissions(key),
+);
 
 /** Flat list of all core permission strings (IAM + Dashboard) */
 export const ALL_PERMISSIONS: Permission[] = [
@@ -117,47 +110,38 @@ export const ALL_PERMISSIONS: Permission[] = [
 ].map((p) => p.perm as Permission);
 
 /** All permissions organized by module key */
-export const PERMISSIONS_BY_MODULE = (
-  Object.keys(MODULES) as ModuleKey[]
-).reduce(
+export const PERMISSIONS_BY_MODULE = (Object.keys(MODULES) as ModuleKey[]).reduce(
   (acc, key) => {
     acc[key] = modulePermissions(key).map((p) => p.perm);
     return acc;
   },
-  {} as Record<ModuleKey, string[]>
+  {} as Record<ModuleKey, string[]>,
 );
 
-export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "client", Permission[]> = {
-  admin: [...ALL_PERMISSIONS],
-  member: [
-    "sessions:read",
-    "sessions:revoke",
-    "devices:read",
-    "devices:revoke",
-  ],
-  developer: [
-    ...ALL_PERMISSIONS,
-    "clients:view_hidden",
-  ],
-  client: [
-    "projects:read",
-    "profiles:read",
-    "profiles:manage",
-    "tickets:read",
-    "tickets:create",
-    "documents:read",
-    "documents:approve",
-    "assets:read",
-    "assets:upload",
-    "comments:read",
-    "comments:create",
-    "billing:read",
-    "sessions:read",
-    "sessions:revoke",
-    "devices:read",
-    "devices:revoke",
-  ],
-};
+export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "client", Permission[]> =
+  {
+    admin: [...ALL_PERMISSIONS],
+    member: ["sessions:read", "sessions:revoke", "devices:read", "devices:revoke"],
+    developer: [...ALL_PERMISSIONS, "clients:view_hidden"],
+    client: [
+      "projects:read",
+      "profiles:read",
+      "profiles:manage",
+      "tickets:read",
+      "tickets:create",
+      "documents:read",
+      "documents:approve",
+      "assets:read",
+      "assets:upload",
+      "comments:read",
+      "comments:create",
+      "billing:read",
+      "sessions:read",
+      "sessions:revoke",
+      "devices:read",
+      "devices:revoke",
+    ],
+  };
 
 /** Permissions that grant access to organization-level IAM features */
 export const ADMIN_PERMISSIONS: Permission[] = [

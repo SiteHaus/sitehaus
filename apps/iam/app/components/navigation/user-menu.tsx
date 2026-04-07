@@ -19,8 +19,7 @@ export function UserMenu() {
 
   if (!user) return null;
 
-  const initials =
-    `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase();
+  const initials = `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase();
 
   return (
     <DropdownMenu>
@@ -60,10 +59,7 @@ export function UserMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem
-          onClick={logout}
-          className="text-red-600 cursor-pointer"
-        >
+        <DropdownMenuItem onClick={logout} className="text-red-600 cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           Sign out
         </DropdownMenuItem>

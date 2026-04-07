@@ -85,7 +85,7 @@ export function useAssets(projectId: string) {
       if (res.status === 200) {
         queryClient.setQueryData<typeof data>(key, (prev) => ({
           assets: (prev?.assets ?? []).map((a) =>
-            a.id === res.body.asset.id ? res.body.asset : a
+            a.id === res.body.asset.id ? res.body.asset : a,
           ),
           nextCursor: prev?.nextCursor,
         }));
@@ -97,8 +97,7 @@ export function useAssets(projectId: string) {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (assetId: string) =>
-      getApi().assets.remove({ params: { projectId, assetId } }),
+    mutationFn: (assetId: string) => getApi().assets.remove({ params: { projectId, assetId } }),
     onSuccess: (res, assetId) => {
       if (res.status === 204) {
         queryClient.setQueryData<typeof data>(key, (prev) => ({
@@ -133,10 +132,11 @@ export function useAssets(projectId: string) {
     load: () => queryClient.invalidateQueries({ queryKey: key }),
     loadMore,
     upload: (files: File[]) => uploadMutation.mutateAsync(files),
-    update: (assetId: string, updateData: Parameters<typeof updateMutation.mutateAsync>[0]["data"]) =>
-      updateMutation.mutateAsync({ assetId, data: updateData }).then((r) => r.status === 200),
-    remove: (assetId: string) =>
-      removeMutation.mutateAsync(assetId).then((r) => r.status === 204),
+    update: (
+      assetId: string,
+      updateData: Parameters<typeof updateMutation.mutateAsync>[0]["data"],
+    ) => updateMutation.mutateAsync({ assetId, data: updateData }).then((r) => r.status === 200),
+    remove: (assetId: string) => removeMutation.mutateAsync(assetId).then((r) => r.status === 204),
     getAsset,
   };
 }

@@ -126,9 +126,7 @@ export async function exchangeCodeForTokens(params: {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(
-      error.error_description || error.error || "Token exchange failed"
-    );
+    throw new Error(error.error_description || error.error || "Token exchange failed");
   }
 
   return response.json();

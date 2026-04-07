@@ -21,7 +21,5 @@ export default function RequestPasswordResetContainer() {
     replace("/verify", { add: { email: values.email, mode: "reset" } });
   };
 
-  return (
-    <RequestPasswordResetForm onSubmit={onSubmit} authForLabel={clientName} />
-  );
+  return <RequestPasswordResetForm onSubmit={onSubmit} authForLabel={clientName} />;
 }

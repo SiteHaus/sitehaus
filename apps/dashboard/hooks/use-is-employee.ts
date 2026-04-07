@@ -8,7 +8,5 @@ import { useAuthStore } from "@site-haus/stores/auth-store";
  * (e.g. the dashboard app itself via ensureClientMembership) does NOT qualify.
  */
 export function useIsEmployee() {
-  return useAuthStore((s) =>
-    s.clients.some((c) => c.firstParty && c.canManage),
-  );
+  return useAuthStore((s) => s.clients.some((c) => c.firstParty && c.canManage));
 }

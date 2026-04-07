@@ -41,17 +41,8 @@ import { Input } from "@site-haus/ui/components/base/input";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Switch } from "@site-haus/ui/components/base/switch";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
-import {
-  addRedirectUriSchema,
-  updateClientSchema,
-} from "@site-haus/validation/forms/client";
-import {
-  AppWindow,
-  ExternalLink,
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { addRedirectUriSchema, updateClientSchema } from "@site-haus/validation/forms/client";
+import { AppWindow, ExternalLink, Pencil, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -156,12 +147,7 @@ function AppsContent() {
   };
 
   if (permissionDenied) {
-    return (
-      <PermissionDenied
-        resource="app settings"
-        clientName={selectedClient?.name}
-      />
-    );
+    return <PermissionDenied resource="app settings" clientName={selectedClient?.name} />;
   }
 
   return (
@@ -185,30 +171,17 @@ function AppsContent() {
                   <div>
                     <CardTitle className="text-xl">{client.name}</CardTitle>
                     <CardDescription className="flex items-center gap-2 mt-1">
-                      <code className="text-xs bg-muted px-1.5 py-0.5 rounded">
-                        {client.key}
-                      </code>
-                      <Badge
-                        variant={
-                          client.type === "confidential"
-                            ? "default"
-                            : "secondary"
-                        }
-                      >
+                      <code className="text-xs bg-muted px-1.5 py-0.5 rounded">{client.key}</code>
+                      <Badge variant={client.type === "confidential" ? "default" : "secondary"}>
                         {client.type}
                       </Badge>
-                      {client.firstParty && (
-                        <Badge variant="outline">First Party</Badge>
-                      )}
+                      {client.firstParty && <Badge variant="outline">First Party</Badge>}
                     </CardDescription>
                   </div>
                 </div>
 
                 {canManage && (
-                  <Dialog
-                    open={editDialogOpen}
-                    onOpenChange={setEditDialogOpen}
-                  >
+                  <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
                     <DialogTrigger asChild>
                       <Button variant="outline" size="sm">
                         <Pencil className="h-4 w-4 mr-2" />
@@ -249,25 +222,17 @@ function AppsContent() {
                 </div>
 
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Allowed Scopes
-                  </p>
+                  <p className="text-sm text-muted-foreground">Allowed Scopes</p>
                   <p className="text-sm">
                     {client.allowedScopes || (
-                      <span className="text-muted-foreground italic">
-                        None specified
-                      </span>
+                      <span className="text-muted-foreground italic">None specified</span>
                     )}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-sm text-muted-foreground">
-                    Requires Consent
-                  </p>
-                  <p className="text-sm">
-                    {client.requiresConsent ? "Yes" : "No"}
-                  </p>
+                  <p className="text-sm text-muted-foreground">Requires Consent</p>
+                  <p className="text-sm">{client.requiresConsent ? "Yes" : "No"}</p>
                 </div>
               </div>
 
@@ -298,10 +263,7 @@ function AppsContent() {
                 </div>
 
                 {canManage && (
-                  <Dialog
-                    open={addUriDialogOpen}
-                    onOpenChange={setAddUriDialogOpen}
-                  >
+                  <Dialog open={addUriDialogOpen} onOpenChange={setAddUriDialogOpen}>
                     <DialogTrigger asChild>
                       <Button size="sm">
                         <Plus className="h-4 w-4 mr-2" />
@@ -327,11 +289,7 @@ function AppsContent() {
                 <EmptyState
                   icon={ExternalLink}
                   title="No redirect URIs configured."
-                  description={
-                    canManage
-                      ? "Add a redirect URI to enable OAuth flows."
-                      : undefined
-                  }
+                  description={canManage ? "Add a redirect URI to enable OAuth flows." : undefined}
                   className="py-8"
                 />
               ) : (
@@ -341,9 +299,7 @@ function AppsContent() {
                       key={uri.id}
                       className="flex items-center justify-between rounded-lg border px-4 py-3"
                     >
-                      <code className="text-sm font-mono break-all">
-                        {uri.uri}
-                      </code>
+                      <code className="text-sm font-mono break-all">{uri.uri}</code>
                       <div className="flex items-center gap-1 ml-4 flex-shrink-0">
                         <CopyButton value={uri.uri} label="URI" size="default" />
                         {canManage && (
@@ -415,8 +371,7 @@ function EditClientDialog({
       <DialogHeader>
         <DialogTitle>Edit App Settings</DialogTitle>
         <DialogDescription>
-          Update your OAuth client configuration. Some fields cannot be changed
-          after creation.
+          Update your OAuth client configuration. Some fields cannot be changed after creation.
         </DialogDescription>
       </DialogHeader>
 
@@ -467,15 +422,10 @@ function EditClientDialog({
               <FormItem className="flex items-center justify-between rounded-lg border p-3">
                 <div>
                   <FormLabel className="text-base">Require Consent</FormLabel>
-                  <FormDescription>
-                    Show consent screen to users during OAuth flow.
-                  </FormDescription>
+                  <FormDescription>Show consent screen to users during OAuth flow.</FormDescription>
                 </div>
                 <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Switch checked={field.value} onCheckedChange={field.onChange} />
                 </FormControl>
               </FormItem>
             )}
@@ -529,9 +479,7 @@ function AddRedirectUriDialog({
     <>
       <DialogHeader>
         <DialogTitle>Add Redirect URI</DialogTitle>
-        <DialogDescription>
-          Add an allowed callback URL for OAuth authentication.
-        </DialogDescription>
+        <DialogDescription>Add an allowed callback URL for OAuth authentication.</DialogDescription>
       </DialogHeader>
 
       <Form {...form}>
@@ -543,15 +491,10 @@ function AddRedirectUriDialog({
               <FormItem>
                 <FormLabel>Redirect URI</FormLabel>
                 <FormControl>
-                  <Input
-                    type="url"
-                    placeholder="https://example.com/callback"
-                    {...field}
-                  />
+                  <Input type="url" placeholder="https://example.com/callback" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Must be a valid URL. For development, localhost URLs are
-                  allowed.
+                  Must be a valid URL. For development, localhost URLs are allowed.
                 </FormDescription>
                 <FormMessage />
               </FormItem>

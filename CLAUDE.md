@@ -21,6 +21,7 @@ SiteHaus is a full-stack monorepo built with **Next.js, NestJS, Turborepo, TypeS
 ## Commands
 
 ### Development
+
 ```bash
 # Install dependencies (from project root)
 pnpm i
@@ -39,6 +40,7 @@ docker-compose -f docker-compose.dev.yml up
 ```
 
 ### Building
+
 ```bash
 # Build all apps
 pnpm build
@@ -51,6 +53,7 @@ pnpm build --filter=api
 ```
 
 ### Testing
+
 ```bash
 # Run all tests
 pnpm test
@@ -63,6 +66,7 @@ cd apps/api && pnpm test:e2e       # E2E tests
 ```
 
 ### Type Checking and Linting
+
 ```bash
 # Type check all apps
 pnpm check-types
@@ -75,6 +79,7 @@ pnpm format
 ```
 
 ### Database Operations
+
 ```bash
 # Generate Drizzle migrations
 cd packages/db && pnpm db:gen
@@ -93,6 +98,7 @@ cd packages/db && pnpm grant-admin
 ```
 
 ### Email Development
+
 ```bash
 # Start email preview server on port 6969
 cd packages/transactional && pnpm dev
@@ -179,6 +185,7 @@ cd packages/transactional && pnpm export
 ## Environment Variables
 
 Required environment variables are in `.env.example`. Key variables:
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` / `JWT_SECRET_B64URL` - JWT signing secrets
 - `ACCESS_TTL_SEC` / `REFRESH_TTL_SEC` - Token expiration times
@@ -186,23 +193,57 @@ Required environment variables are in `.env.example`. Key variables:
 ## CI/CD
 
 The repository uses GitHub Actions:
+
 - **CI** (`.github/workflows/ci.yml`): Runs type checking on PRs to main
 - **CD** (`.github/workflows/cd.yml`): Deployment workflow
 - **Discord Notify** (`.github/workflows/discord_notify.yml`): Notifications
+
+## Sibling Repositories
+
+This repo is part of a broader SiteHaus ecosystem. Related repos live at `~/Dev/`:
+
+- **`sitehaus-commerce`** (`~/Dev/sitehaus-commerce`) — Multi-tenant ecommerce API. NestJS microservices: HTTP gateway (:7020), commerce TCP service (:7021), payments TCP service (:7022), BullMQ worker. Stripe Connect for payments, Cloudflare R2 for storage. Auth delegates to this IAM via `@sitehaus/client-sdk` token introspection.
+- **`sitehaus-cli`** (`~/Dev/sitehaus-cli`) — Rust CLI (`sitehaus` binary) for managing production/staging servers. SSH-based, wraps Docker Compose operations. Config at `~/.sitehaus/config.yml`.
+
+Each sibling repo has its own `CLAUDE.md` with full context.
+
+## Local Dev Networking (Caddy)
+
+All apps are proxied through Caddy for local development. Config: `infra/Caddyfile.dev`.
+
+Run with: `sudo caddy run --config infra/Caddyfile.dev`
+
+| Domain                   | App                       | Port  |
+| ------------------------ | ------------------------- | ----- |
+| `sitehaus.localhost`     | Marketing site            | :3000 |
+| `dashboard.localhost`    | Dashboard                 | :3001 |
+| `iam.localhost`          | IAM portal                | :3002 |
+| `api.localhost`          | NestJS API                | :3003 |
+| `commerce.localhost`     | Commerce admin UI         | :3004 |
+| `commerce-api.localhost` | sitehaus-commerce gateway | :7020 |
+
+Caddy provides HTTPS via auto-provisioned TLS for `.localhost` domains, enabling proper cookie scoping and OAuth redirect URIs that mirror production.
 
 ## Port Assignments
 
 - 3000: Marketing site (web)
 - 3001: Dashboard
 - 3002: IAM portal
+- 3003: NestJS API
+- 3004: Commerce admin UI
 - 6969: Email preview server (transactional)
 - 5432: PostgreSQL (Docker)
+
+## Architecture Docs
+
+- [`docs/architecture/auth-flow.md`](docs/architecture/auth-flow.md) — End-to-end OAuth PKCE + JWT + session auth flow
 
 ## React/Next Standards (Dashboard)
 
 Full spec: [`docs/standards/react.md`](docs/standards/react.md)
 
 **Key rules:**
+
 - One component per file — no exceptions
 - `page.tsx` files are thin shells (role dispatch only, ≤15 lines); all view components in `_components/`
 - All dashboard pages are `"use client"` (auth dependency)

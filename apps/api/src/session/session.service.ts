@@ -81,6 +81,7 @@ export class SessionService {
     clientId: string;
     ip?: string;
     ua?: string;
+    mfaVerifiedAt?: Date | null;
   }) {
     return this.createSessionWith(this.db, input);
   }
@@ -303,7 +304,12 @@ export class SessionService {
   async validateRefreshToken(
     refreshToken: string,
     clientId?: string,
-  ): Promise<{ userId: string; sessionId: string; clientId: string; mfaVerifiedAt: Date | null } | null> {
+  ): Promise<{
+    userId: string;
+    sessionId: string;
+    clientId: string;
+    mfaVerifiedAt: Date | null;
+  } | null> {
     const hash = this.crypto.sha256b64url(refreshToken);
 
     const sessions = await this.db

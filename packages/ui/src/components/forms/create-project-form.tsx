@@ -20,11 +20,7 @@ import {
   FormSection,
 } from "@site-haus/ui/components/base/form";
 import { Input } from "@site-haus/ui/components/base/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@site-haus/ui/components/base/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@site-haus/ui/components/base/popover";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { ComboBoxField } from "@site-haus/ui/components/shared/combobox-field";
 import { cn } from "@site-haus/ui/lib/utils";
@@ -39,7 +35,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 const slugify = (s: string) =>
-  s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 const projectTypeOptions = projectTypeEnum.options.map((value) => ({
   label: value.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()),
@@ -116,10 +116,20 @@ export const CreateProjectForm = ({
   };
 
   const handleCreateClient = async () => {
-    if (!newClientName.trim() || !newClientKey.trim() || !newClientAudience.trim() || !onCreateClient) return;
+    if (
+      !newClientName.trim() ||
+      !newClientKey.trim() ||
+      !newClientAudience.trim() ||
+      !onCreateClient
+    )
+      return;
     setCreatingClient(true);
     try {
-      const created = await onCreateClient(newClientName.trim(), newClientKey.trim(), newClientAudience.trim());
+      const created = await onCreateClient(
+        newClientName.trim(),
+        newClientKey.trim(),
+        newClientAudience.trim(),
+      );
       if (created) {
         setClientList((prev) => [...prev, created]);
         form.setValue("clientId", created.id);
@@ -214,10 +224,7 @@ export const CreateProjectForm = ({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder="Brief description of the project..."
-                      {...field}
-                    />
+                    <Textarea placeholder="Brief description of the project..." {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -236,10 +243,7 @@ export const CreateProjectForm = ({
                   <FormItem className="flex-1">
                     <FormLabel>Repository URL</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="https://github.com/org/repo"
-                        {...field}
-                      />
+                      <Input placeholder="https://github.com/org/repo" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -294,11 +298,7 @@ export const CreateProjectForm = ({
                               !field.value && "text-muted-foreground",
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -306,12 +306,8 @@ export const CreateProjectForm = ({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          onSelect={(date) =>
-                            field.onChange(date?.toISOString())
-                          }
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => field.onChange(date?.toISOString())}
                           captionLayout="dropdown"
                         />
                       </PopoverContent>
@@ -336,11 +332,7 @@ export const CreateProjectForm = ({
                               !field.value && "text-muted-foreground",
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
+                            {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
@@ -348,12 +340,8 @@ export const CreateProjectForm = ({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={
-                            field.value ? new Date(field.value) : undefined
-                          }
-                          onSelect={(date) =>
-                            field.onChange(date?.toISOString())
-                          }
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => field.onChange(date?.toISOString())}
                           captionLayout="dropdown"
                         />
                       </PopoverContent>
@@ -453,9 +441,7 @@ export const CreateProjectForm = ({
               onClick={handleCreateClient}
               disabled={!newClientName.trim() || !newClientKey.trim() || creatingClient}
             >
-              {creatingClient && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {creatingClient && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Client
             </Button>
           </DialogFooter>

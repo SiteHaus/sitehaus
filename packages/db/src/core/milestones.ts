@@ -1,20 +1,9 @@
 import { milestoneStatusValues } from "@site-haus/validation/core/enums";
-import {
-  index,
-  integer,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { usersTable } from "../iam/users.js";
 import { projectsTable } from "./projects.js";
 
-export const milestoneStatusEnum = pgEnum(
-  "milestone_status",
-  milestoneStatusValues
-);
+export const milestoneStatusEnum = pgEnum("milestone_status", milestoneStatusValues);
 
 export const milestonesTable = pgTable(
   "milestones",
@@ -42,11 +31,10 @@ export const milestonesTable = pgTable(
   (t) => [
     index("milestones_project_idx").on(t.projectId),
     index("milestones_assignee_idx").on(t.assigneeId),
-  ]
+  ],
 );
 
-export type MilestoneStatus =
-  (typeof milestoneStatusEnum.enumValues)[number];
+export type MilestoneStatus = (typeof milestoneStatusEnum.enumValues)[number];
 
 export type Milestone = typeof milestonesTable.$inferSelect;
 export type NewMilestone = typeof milestonesTable.$inferInsert;

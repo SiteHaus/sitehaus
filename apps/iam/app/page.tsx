@@ -1,6 +1,6 @@
 "use client";
 
-import { generatePKCE } from "@site-haus/sdk/oauth";
+import { generatePKCE, generateState } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -10,33 +10,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@site-haus/ui/components/base/card";
-import {
-  Fingerprint,
-  GlobeLock,
-  IdCard,
-  MoveRight,
-  UsersRound,
-} from "lucide-react";
+import { Fingerprint, GlobeLock, IdCard, MoveRight, UsersRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { SiteNav } from "./components/navigation/site-nav";
 
 export default function LandingPage() {
   const user = useAuthStore((s) => s.user);
-  const hydrated = useAuthStore((s) => s.hydrated);
   const bootstrapped = useAuthStore((s) => s.bootstrapped);
   const router = useRouter();
 
   // Redirect logged-in users to the console
   useEffect(() => {
-    if (hydrated && bootstrapped && user) {
+    if (bootstrapped && user) {
       router.replace("/my-sessions");
     }
-  }, [hydrated, bootstrapped, user, router]);
+  }, [bootstrapped, user, router]);
 
   const handleLogin = async () => {
     const { codeVerifier, codeChallenge } = await generatePKCE();
-    const state = Math.random().toString(36).substring(7);
+    const state = generateState();
 
     sessionStorage.setItem("oauth_code_verifier", codeVerifier);
     sessionStorage.setItem("oauth_state", state);
@@ -54,8 +47,8 @@ export default function LandingPage() {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize?${params}`;
   };
 
-  // Loading state while auth store hydrates or redirecting
-  if (!hydrated || !bootstrapped || user) {
+  // Loading state while bootstrap runs or redirecting
+  if (!bootstrapped || user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -77,9 +70,7 @@ export default function LandingPage() {
               <div className="p-2 bg-card/70 border rounded-2xl flex items-center justify-center">
                 <IdCard className="h-10 w-10" />
               </div>
-              <h2 className="text-4xl font-bold">
-                SiteHaus Identity Management
-              </h2>
+              <h2 className="text-4xl font-bold">SiteHaus Identity Management</h2>
             </div>
             <p className="text-lg text-muted-foreground mb-8">
               Authentication and access control for SiteHaus clients
@@ -95,9 +86,7 @@ export default function LandingPage() {
               <CardTitle className="text-xl">Secure Access</CardTitle>
             </CardHeader>
             <CardFooter className="flex items-center justify-between">
-              <CardDescription>
-                Control who has access to your apps.
-              </CardDescription>
+              <CardDescription>Control who has access to your apps.</CardDescription>
               <div className="p-2 bg-background/70 border rounded-2xl flex items-center justify-center">
                 <GlobeLock className="h-10 w-10" />
               </div>

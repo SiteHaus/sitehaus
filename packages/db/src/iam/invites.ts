@@ -1,12 +1,5 @@
 import { sql } from "drizzle-orm";
-import {
-  index,
-  pgTable,
-  timestamp,
-  uniqueIndex,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { index, pgTable, timestamp, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
 import { clientsTable } from "./clients.js";
 import { usersTable } from "./users.js";
 
@@ -33,7 +26,7 @@ export const invitesTable = pgTable(
     uniqueIndex("invites_open_email_uq")
       .on(t.clientId, t.email)
       .where(sql`accepted_at IS NULL AND revoked_at IS NULL`),
-  ]
+  ],
 );
 
 export type Invite = typeof invitesTable.$inferSelect;

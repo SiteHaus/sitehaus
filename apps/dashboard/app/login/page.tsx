@@ -1,6 +1,6 @@
 "use client";
 
-import { generatePKCE } from "@site-haus/sdk/oauth";
+import { generatePKCE, generateState } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -18,17 +18,17 @@ import { useEffect } from "react";
 export default function LoginPage() {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
-  const hydrated = useAuthStore((s) => s.hydrated);
+  const bootstrapped = useAuthStore((s) => s.bootstrapped);
 
   useEffect(() => {
-    if (hydrated && user) {
+    if (bootstrapped && user) {
       router.replace("/");
     }
-  }, [hydrated, user, router]);
+  }, [bootstrapped, user, router]);
 
   const handleLogin = async () => {
     const { codeVerifier, codeChallenge } = await generatePKCE();
-    const state = Math.random().toString(36).substring(7);
+    const state = generateState();
 
     sessionStorage.setItem("oauth_code_verifier", codeVerifier);
     sessionStorage.setItem("oauth_state", state);
@@ -46,7 +46,7 @@ export default function LoginPage() {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize?${params}`;
   };
 
-  if (!hydrated) {
+  if (!bootstrapped) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-6 text-primary" />
@@ -64,9 +64,7 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-2xl">SiteHaus Dashboard</CardTitle>
-          <CardDescription>
-            Sign in with your SiteHaus account to continue
-          </CardDescription>
+          <CardDescription>Sign in with your SiteHaus account to continue</CardDescription>
         </CardHeader>
         <CardContent>
           <Button onClick={handleLogin} className="w-full" size="lg">

@@ -60,14 +60,23 @@ export class MilestonesController {
   @RequirePerms('projects:manage')
   @Post('projects/:projectId/milestones')
   @HttpCode(HttpStatus.CREATED)
-  async create(@Req() req: Req_, @Param('projectId') projectId: string, @Body() body: unknown) {
+  async create(
+    @Req() req: Req_,
+    @Param('projectId') projectId: string,
+    @Body() body: unknown,
+  ) {
     const parsed = createMilestoneSchema.parse(body);
-    const result = await this.milestones.create(projectId, parsed, {
-      userId: req.user!.userId,
-      clientId: req.client!.id,
-      ip: req.ip,
-      ua: req.headers['user-agent'] as string | undefined,
-    }, req.client!.firstParty);
+    const result = await this.milestones.create(
+      projectId,
+      parsed,
+      {
+        userId: req.user!.userId,
+        clientId: req.client!.id,
+        ip: req.ip,
+        ua: req.headers['user-agent'] as string | undefined,
+      },
+      req.client!.firstParty,
+    );
     if ('error' in result) throw new ForbiddenException(result.error);
     return { milestone: result };
   }

@@ -1,12 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  and,
-  desc,
-  eq,
-  lt,
-  schema,
-  type Db,
-} from '@site-haus/db';
+import { and, desc, eq, lt, schema, type Db } from '@site-haus/db';
 import type { CommentTargetType } from '@site-haus/db';
 import type {
   CreateCommentInput,
@@ -88,17 +81,26 @@ export class CommentsService {
    * Resolve a comment's target type, targetId, and owning clientId.
    * Used to build correct audit context for update/delete.
    */
-  async resolveCommentTarget(
-    commentId: string,
-  ): Promise<{ targetType: CommentTargetType; targetId: string; targetClientId: string | null } | null> {
+  async resolveCommentTarget(commentId: string): Promise<{
+    targetType: CommentTargetType;
+    targetId: string;
+    targetClientId: string | null;
+  } | null> {
     const comment = await this.db.query.commentsTable.findFirst({
       where: eq(schema.commentsTable.id, commentId),
       columns: { id: true, targetType: true, targetId: true },
     });
     if (!comment) return null;
 
-    const targetClientId = await this.resolveTargetClientId(comment.targetType, comment.targetId);
-    return { targetType: comment.targetType, targetId: comment.targetId, targetClientId };
+    const targetClientId = await this.resolveTargetClientId(
+      comment.targetType,
+      comment.targetId,
+    );
+    return {
+      targetType: comment.targetType,
+      targetId: comment.targetId,
+      targetClientId,
+    };
   }
 
   async list(
@@ -124,7 +126,9 @@ export class CommentsService {
         columns: { createdAt: true },
       });
       if (cursorRow?.createdAt) {
-        conditions.push(lt(schema.commentsTable.createdAt, cursorRow.createdAt));
+        conditions.push(
+          lt(schema.commentsTable.createdAt, cursorRow.createdAt),
+        );
       }
     }
 
@@ -161,7 +165,10 @@ export class CommentsService {
       if (!parent) {
         return { error: 'Parent comment not found' };
       }
-      if (parent.targetType !== data.targetType || parent.targetId !== data.targetId) {
+      if (
+        parent.targetType !== data.targetType ||
+        parent.targetId !== data.targetId
+      ) {
         return { error: 'Parent comment belongs to a different target' };
       }
     }
@@ -179,7 +186,10 @@ export class CommentsService {
       .returning();
 
     // Resolve the owning client so the audit log appears in the correct client's history
-    const resolvedClientId = await this.resolveTargetClientId(data.targetType, data.targetId);
+    const resolvedClientId = await this.resolveTargetClientId(
+      data.targetType,
+      data.targetId,
+    );
 
     await this.audit.log({
       clientId: resolvedClientId ?? ctx.clientId,
@@ -205,9 +215,12 @@ export class CommentsService {
         }),
         this.resolveTargetClientId(data.targetType, data.targetId),
       ]);
-      const authorName = [author?.firstName, author?.lastName].filter(Boolean).join(' ') || 'Someone';
+      const authorName =
+        [author?.firstName, author?.lastName].filter(Boolean).join(' ') ||
+        'Someone';
       const targetLabel = `${data.targetType.replace('_', ' ')}: ${data.targetId}`;
-      const bodyPreview = data.body.slice(0, 200) + (data.body.length > 200 ? '…' : '');
+      const bodyPreview =
+        data.body.slice(0, 200) + (data.body.length > 200 ? '…' : '');
 
       await this.notifications.enqueue({
         type: 'comment.created',

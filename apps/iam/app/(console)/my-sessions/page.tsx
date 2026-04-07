@@ -34,11 +34,7 @@ function getBrowserIcon(browser: string | null | undefined) {
   if (!browser) return Globe;
   const lower = browser.toLowerCase();
   if (lower.includes("chrome")) return Chrome;
-  if (
-    lower.includes("mobile") ||
-    lower.includes("android") ||
-    lower.includes("ios")
-  )
+  if (lower.includes("mobile") || lower.includes("android") || lower.includes("ios"))
     return Smartphone;
   return Monitor;
 }
@@ -137,15 +133,12 @@ function MySessionsContent() {
                   <DialogTitle>Sign out other devices?</DialogTitle>
                   <DialogDescription>
                     This will revoke {otherSessionsCount} other{" "}
-                    {otherSessionsCount === 1 ? "session" : "sessions"}. You
-                    will remain signed in on this device.
+                    {otherSessionsCount === 1 ? "session" : "sessions"}. You will remain signed in
+                    on this device.
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={() => setRevokeAllOpen(false)}
-                  >
+                  <Button variant="outline" onClick={() => setRevokeAllOpen(false)}>
                     Cancel
                   </Button>
                   <SubmitButton
@@ -167,11 +160,7 @@ function MySessionsContent() {
       {loading ? (
         <LoadingState className="py-12" />
       ) : sessions.length === 0 ? (
-        <EmptyState
-          icon={Monitor}
-          title="No active sessions found."
-          className="py-12"
-        />
+        <EmptyState icon={Monitor} title="No active sessions found." className="py-12" />
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {sessions.map((session) => {
@@ -187,19 +176,13 @@ function MySessionsContent() {
                         <BrowserIcon className="h-5 w-5" />
                       </div>
                       <div>
-                        <CardTitle className="text-base">
-                          {getDeviceLabel(session)}
-                        </CardTitle>
+                        <CardTitle className="text-base">{getDeviceLabel(session)}</CardTitle>
                         {session.device?.platform && (
-                          <p className="text-sm text-muted-foreground">
-                            {session.device.platform}
-                          </p>
+                          <p className="text-sm text-muted-foreground">{session.device.platform}</p>
                         )}
                       </div>
                     </div>
-                    {session.isCurrent && (
-                      <Badge variant="success">Current</Badge>
-                    )}
+                    {session.isCurrent && <Badge variant="success">Current</Badge>}
                   </div>
                 </CardHeader>
                 <CardContent className="pb-3">
@@ -255,11 +238,7 @@ function RevokeSessionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-destructive hover:text-destructive"
-        >
+        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
           <LogOut className="mr-2 h-4 w-4" />
           Revoke
         </Button>
@@ -268,9 +247,8 @@ function RevokeSessionDialog({
         <DialogHeader>
           <DialogTitle>Revoke this session?</DialogTitle>
           <DialogDescription>
-            This will sign out the session on{" "}
-            <span className="font-medium">{sessionLabel}</span>. The device will
-            need to sign in again to access this account.
+            This will sign out the session on <span className="font-medium">{sessionLabel}</span>.
+            The device will need to sign in again to access this account.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>

@@ -7,24 +7,11 @@ import {
   CommandItem,
   CommandList,
 } from "@site-haus/ui/components/base/command";
-import {
-  FormControl,
-  FormItem,
-  FormLabel,
-} from "@site-haus/ui/components/base/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@site-haus/ui/components/base/popover";
+import { FormControl, FormItem, FormLabel } from "@site-haus/ui/components/base/form";
+import { Popover, PopoverContent, PopoverTrigger } from "@site-haus/ui/components/base/popover";
 import { cn } from "@site-haus/ui/lib/utils";
 import { Check } from "lucide-react";
-import {
-  ControllerRenderProps,
-  FieldValues,
-  Path,
-  UseFormReturn,
-} from "react-hook-form";
+import { ControllerRenderProps, FieldValues, Path, UseFormReturn } from "react-hook-form";
 
 type Option = {
   label: string;
@@ -57,10 +44,7 @@ export const ComboBoxField = <T extends FieldValues>({
             <Button
               variant="outline"
               role="combobox"
-              className={cn(
-                "w-full justify-between",
-                !field.value && "text-muted-foreground"
-              )}
+              className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
             >
               {field.value
                 ? options.find((opt: any) => opt.value === field.value)?.label
@@ -84,9 +68,7 @@ export const ComboBoxField = <T extends FieldValues>({
                     <Check
                       className={cn(
                         "ml-auto",
-                        option.value === field.value
-                          ? "opacity-100"
-                          : "opacity-0"
+                        option.value === field.value ? "opacity-100" : "opacity-0",
                       )}
                     />
                   </CommandItem>

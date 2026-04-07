@@ -1,19 +1,11 @@
 "use client";
 
-import { generatePKCE } from "@site-haus/sdk/oauth";
+import { generatePKCE, generateState } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Button } from "@site-haus/ui/components/base/button";
 import { ModeToggle } from "@site-haus/ui/components/base/mode-toggle";
 import { cn } from "@site-haus/ui/lib/utils";
-import {
-  AppWindow,
-  HelpCircle,
-  LogIn,
-  Monitor,
-  ScrollText,
-  Shield,
-  Users,
-} from "lucide-react";
+import { AppWindow, HelpCircle, LogIn, Monitor, ScrollText, Shield, Users } from "lucide-react";
 import { ClientLink } from "@/lib/use-client-context";
 import Image from "next/image";
 import { UserMenu } from "./user-menu";
@@ -67,7 +59,7 @@ export function SiteNav() {
 
   const handleLogin = async () => {
     const { codeVerifier, codeChallenge } = await generatePKCE();
-    const state = Math.random().toString(36).substring(7);
+    const state = generateState();
 
     sessionStorage.setItem("oauth_code_verifier", codeVerifier);
     sessionStorage.setItem("oauth_state", state);
@@ -115,7 +107,7 @@ export function SiteNav() {
                       href={link.href}
                       className={cn(
                         "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium",
-                        "hover:bg-accent hover:text-accent-foreground transition-colors"
+                        "hover:bg-accent hover:text-accent-foreground transition-colors",
                       )}
                     >
                       <Icon className="h-4 w-4" />
@@ -135,7 +127,7 @@ export function SiteNav() {
                     href="/apps"
                     className={cn(
                       "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium",
-                      "hover:bg-accent hover:text-accent-foreground transition-colors"
+                      "hover:bg-accent hover:text-accent-foreground transition-colors",
                     )}
                   >
                     <AppWindow className="h-4 w-4" />

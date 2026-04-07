@@ -1,10 +1,5 @@
 import { z } from "zod";
-import {
-  codeSchema,
-  emailSchema,
-  nameSchema,
-  passwordSchema,
-} from "../core/zod-helpers.js";
+import { codeSchema, emailSchema, nameSchema, passwordSchema } from "../core/zod-helpers.js";
 
 export const registerSchema = z.object({
   email: emailSchema,

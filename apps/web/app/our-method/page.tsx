@@ -73,14 +73,11 @@ export default function OurMethodPage() {
           </p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] mb-6">
             Document-driven.{" "}
-            <span className="italic font-bold text-foreground/50">
-              Fully transparent.
-            </span>
+            <span className="italic font-bold text-foreground/50">Fully transparent.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-            You will never have to ask what we're working on. Every decision,
-            every milestone, every line of progress is visible to you before we
-            start and throughout the entire build.
+            You will never have to ask what we're working on. Every decision, every milestone, every
+            line of progress is visible to you before we start and throughout the entire build.
           </p>
         </div>
       </section>
@@ -110,9 +107,7 @@ export default function OurMethodPage() {
 
                   {/* Content */}
                   <div className="flex-1 pt-3 pb-2">
-                    <h2 className="text-xl md:text-2xl font-bold mb-3">
-                      {step.title}
-                    </h2>
+                    <h2 className="text-xl md:text-2xl font-bold mb-3">{step.title}</h2>
                     <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
                       {step.description}
                     </p>
@@ -134,10 +129,9 @@ export default function OurMethodPage() {
             Your project lives in one place.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            Our client dashboard gives you a real-time view of everything — your
-            design document, active milestones, completed work, uploaded assets,
-            and open tickets. No email threads, no status meetings, no
-            guessing.
+            Our client dashboard gives you a real-time view of everything — your design document,
+            active milestones, completed work, uploaded assets, and open tickets. No email threads,
+            no status meetings, no guessing.
           </p>
           <Button size="lg" variant="outline" className="h-12 text-base" asChild>
             <Link href="/contact">

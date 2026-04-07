@@ -1,5 +1,6 @@
 export {
   configureSDK,
+  updateSDKClientKey,
   getConfig,
   type SDKConfig,
   type TokenProvider,

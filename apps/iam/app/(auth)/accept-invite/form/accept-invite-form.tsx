@@ -54,9 +54,7 @@ export const AcceptInviteForm = ({
   roles,
 }: AcceptInviteFormProps) => {
   // Use different schema based on whether user exists
-  const schema = userExists
-    ? acceptInviteExistingUserSchema
-    : acceptInviteNewUserSchema;
+  const schema = userExists ? acceptInviteExistingUserSchema : acceptInviteNewUserSchema;
 
   const form = useForm<AcceptInviteInput>({
     resolver: zodResolver(schema),
@@ -80,24 +78,18 @@ export const AcceptInviteForm = ({
     }
   };
 
-  const title = userExists
-    ? `Join ${clientName || "Team"}`
-    : "Accept Invitation";
+  const title = userExists ? `Join ${clientName || "Team"}` : "Accept Invitation";
 
   const subtitle = userExists
     ? "Click below to join the team with your existing account."
     : "Complete your account setup to join the team.";
 
-  const buttonText = userExists
-    ? `Join ${clientName || "Team"}`
-    : "Create Account & Join";
+  const buttonText = userExists ? `Join ${clientName || "Team"}` : "Create Account & Join";
 
   return (
     <div className="w-full max-w-md mx-auto p-8">
       <h2 className="text-2xl font-semibold text-center mb-2">{title}</h2>
-      <p className="text-sm text-muted-foreground text-center mb-6">
-        {subtitle}
-      </p>
+      <p className="text-sm text-muted-foreground text-center mb-6">{subtitle}</p>
 
       {/* Show roles being assigned */}
       {roles.length > 0 && (
@@ -181,9 +173,7 @@ export const AcceptInviteForm = ({
                         <InputGroupAddon align="inline-end">
                           <InputGroupButton
                             type="button"
-                            title={
-                              showPassword ? "Hide password" : "Show password"
-                            }
+                            title={showPassword ? "Hide password" : "Show password"}
                             size="icon-xs"
                             onClick={() => setShowPassword((prev) => !prev)}
                           >
@@ -199,11 +189,7 @@ export const AcceptInviteForm = ({
             </>
           )}
 
-          <Button
-            type="submit"
-            className="w-full mt-2"
-            disabled={form.formState.isSubmitting}
-          >
+          <Button type="submit" className="w-full mt-2" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Joining..." : buttonText}
           </Button>
         </form>

@@ -37,7 +37,7 @@ export const otpsTable = pgTable(
   (t) => [
     index("otp_user_purpose_idx").on(t.userId, t.purpose),
     index("otps_expires_idx").on(t.expiresAt),
-  ]
+  ],
 );
 
 export type OtpPurpose = (typeof otpPurposeEnum.enumValues)[number];

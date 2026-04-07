@@ -1,11 +1,4 @@
-import {
-  boolean,
-  pgTable,
-  timestamp,
-  uniqueIndex,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
+import { boolean, pgTable, timestamp, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
 
 export const permissionModulesTable = pgTable(
   "permission_modules",
@@ -17,7 +10,7 @@ export const permissionModulesTable = pgTable(
     isCore: boolean("is_core").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
   },
-  (t) => [uniqueIndex("permission_modules_key_uq").on(t.key)]
+  (t) => [uniqueIndex("permission_modules_key_uq").on(t.key)],
 );
 
 export type PermissionModule = typeof permissionModulesTable.$inferSelect;

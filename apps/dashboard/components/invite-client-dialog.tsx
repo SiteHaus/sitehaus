@@ -98,8 +98,7 @@ export function InviteClientDialog({
         <DialogHeader>
           <DialogTitle>Invite {clientName}</DialogTitle>
           <DialogDescription>
-            Your project is ready. Give {clientName} access by inviting their
-            contact.
+            Your project is ready. Give {clientName} access by inviting their contact.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -121,11 +120,7 @@ export function InviteClientDialog({
               disabled={loadingRoles}
             >
               <SelectTrigger id="invite-role">
-                <SelectValue
-                  placeholder={
-                    loadingRoles ? "Loading roles..." : "Select a role"
-                  }
-                />
+                <SelectValue placeholder={loadingRoles ? "Loading roles..." : "Select a role"} />
               </SelectTrigger>
               <SelectContent>
                 {roles.map((r) => (
@@ -138,10 +133,7 @@ export function InviteClientDialog({
           </div>
         </div>
         <DialogFooter className="flex-col gap-2 sm:flex-col">
-          <Button
-            onClick={handleSend}
-            disabled={loading || !email || !selectedRoleId}
-          >
+          <Button onClick={handleSend} disabled={loading || !email || !selectedRoleId}>
             {loading ? "Sending..." : "Send Invite"}
           </Button>
           <button

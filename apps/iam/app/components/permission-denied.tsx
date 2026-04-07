@@ -16,10 +16,8 @@ export function PermissionDenied({ resource, clientName }: PermissionDeniedProps
       <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
       <p className="text-muted-foreground max-w-md">
         You don&apos;t have permission to manage {resource} for{" "}
-        <span className="font-medium text-foreground">
-          {clientName ?? "this client"}
-        </span>
-        . Contact an administrator to request access.
+        <span className="font-medium text-foreground">{clientName ?? "this client"}</span>. Contact
+        an administrator to request access.
       </p>
     </div>
   );

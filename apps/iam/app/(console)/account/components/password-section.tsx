@@ -73,9 +73,7 @@ export function PasswordSection() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Password</CardTitle>
-            <CardDescription>
-              Change your password to keep your account secure.
-            </CardDescription>
+            <CardDescription>Change your password to keep your account secure.</CardDescription>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>

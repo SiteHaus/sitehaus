@@ -3,22 +3,12 @@ import {
   ticketStatusValues,
   ticketTypeValues,
 } from "@site-haus/validation/core/enums";
-import {
-  index,
-  pgEnum,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-} from "drizzle-orm/pg-core";
+import { index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { usersTable } from "../iam/users.js";
 import { projectsTable } from "./projects.js";
 
 export const ticketTypeEnum = pgEnum("ticket_type", ticketTypeValues);
-export const ticketPriorityEnum = pgEnum(
-  "ticket_priority",
-  ticketPriorityValues
-);
+export const ticketPriorityEnum = pgEnum("ticket_priority", ticketPriorityValues);
 export const ticketStatusEnum = pgEnum("ticket_status", ticketStatusValues);
 
 export const ticketsTable = pgTable(
@@ -48,7 +38,7 @@ export const ticketsTable = pgTable(
     index("tickets_author_idx").on(t.authorId),
     index("tickets_assignee_idx").on(t.assigneeId),
     index("tickets_status_idx").on(t.status),
-  ]
+  ],
 );
 
 export type TicketType = (typeof ticketTypeEnum.enumValues)[number];

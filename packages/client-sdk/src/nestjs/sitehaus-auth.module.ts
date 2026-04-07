@@ -2,10 +2,7 @@ import { DynamicModule, Global, Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { AccessGuard } from "./guards/access.guard.js";
 import { PermissionGuard } from "./guards/permission.guard.js";
-import {
-  IntrospectionService,
-  SITEHAUS_AUTH_CONFIG,
-} from "./services/introspection.service.js";
+import { IntrospectionService, SITEHAUS_AUTH_CONFIG } from "./services/introspection.service.js";
 import type { SiteHausAuthConfig } from "./types.js";
 
 /**
@@ -76,9 +73,7 @@ export class SiteHausAuthModule {
    */
   static forRootAsync(options: {
     imports?: any[];
-    useFactory: (
-      ...args: any[]
-    ) => SiteHausAuthConfig | Promise<SiteHausAuthConfig>;
+    useFactory: (...args: any[]) => SiteHausAuthConfig | Promise<SiteHausAuthConfig>;
     inject?: any[];
   }): DynamicModule {
     return {

@@ -86,8 +86,7 @@ export function useComments(targetType: TargetType, targetId: string) {
   });
 
   const removeMutation = useMutation({
-    mutationFn: (commentId: string) =>
-      getApi().comments.remove({ params: { commentId } }),
+    mutationFn: (commentId: string) => getApi().comments.remove({ params: { commentId } }),
     onSuccess: (res) => {
       if (res.status === 204) {
         void invalidate();

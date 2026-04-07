@@ -1,10 +1,5 @@
 // Re-export from @site-haus/sdk
-export {
-  configureSDK,
-  getConfig,
-  type SDKConfig,
-  type TokenProvider,
-} from "@site-haus/sdk";
+export { configureSDK, getConfig, type SDKConfig, type TokenProvider } from "@site-haus/sdk";
 
 export { apiFetcher } from "@site-haus/sdk";
 export { fetchWithAuth, type FetchArgs } from "@site-haus/sdk";
@@ -27,7 +22,4 @@ export { useAuthStore } from "@site-haus/stores/auth-store";
 
 // Re-export contracts for type-safe API calls
 export { apiContract } from "@site-haus/contracts";
-export type {
-  MeUser,
-  MeSession,
-} from "@site-haus/contracts";
+export type { MeUser, MeSession } from "@site-haus/contracts";

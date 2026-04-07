@@ -23,10 +23,7 @@ export const RequireAuth = ({ children }: RequireAuthProps) => {
       if (startingOAuth.current) return;
       startingOAuth.current = true;
 
-      const computedNext =
-        window.location.pathname +
-        window.location.search +
-        window.location.hash;
+      const computedNext = window.location.pathname + window.location.search + window.location.hash;
 
       const next = params.next ?? computedNext;
 

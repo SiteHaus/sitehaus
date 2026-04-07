@@ -1,11 +1,7 @@
 "use client";
 
 import { useBillingClient } from "@/hooks/use-billing";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@site-haus/ui/components/base/alert";
+import { Alert, AlertDescription, AlertTitle } from "@site-haus/ui/components/base/alert";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Card,
@@ -40,13 +36,9 @@ export function ClientBillingView() {
     );
   }
 
-  const activePlan = records.find(
-    (r) => r.type === "recurring" && r.status === "active",
-  );
+  const activePlan = records.find((r) => r.type === "recurring" && r.status === "active");
   const overdueRecords = records.filter(
-    (r) =>
-      r.status === "past_due" ||
-      (r.type === "one_time" && r.status === "active"),
+    (r) => r.status === "past_due" || (r.type === "one_time" && r.status === "active"),
   );
   const historyRecords = records.filter((r) => r !== activePlan);
 
@@ -59,12 +51,7 @@ export function ClientBillingView() {
             Your invoices and subscription details.
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleOpenPortal}
-          disabled={openingPortal}
-        >
+        <Button variant="outline" size="sm" onClick={handleOpenPortal} disabled={openingPortal}>
           {openingPortal ? (
             <Spinner className="size-4 mr-2" />
           ) : (
@@ -83,10 +70,7 @@ export function ClientBillingView() {
             {overdueRecords.length === 1 ? "invoice" : "invoices"} that{" "}
             {overdueRecords.length === 1 ? "needs" : "need"} attention. Click{" "}
             <strong>Pay Now</strong> on the record below, or{" "}
-            <button
-              className="underline font-medium cursor-pointer"
-              onClick={handleOpenPortal}
-            >
+            <button className="underline font-medium cursor-pointer" onClick={handleOpenPortal}>
               open the billing portal
             </button>{" "}
             to update your payment method.

@@ -1,15 +1,7 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from "@nestjs/common";
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { IS_PUBLIC_KEY } from "../decorators/public.decorator.js";
-import {
-  REQ_PERMS_ALL,
-  REQ_PERMS_ANY,
-} from "../decorators/require-perms.decorator.js";
+import { REQ_PERMS_ALL, REQ_PERMS_ANY } from "../decorators/require-perms.decorator.js";
 import type { AuthedRequest } from "../types.js";
 
 /**
@@ -54,8 +46,7 @@ export class PermissionGuard implements CanActivate {
     const hasAll = requiredAll.every((p) => userPerms.has(p));
 
     // Check ANY permission is present (or no ANY requirements)
-    const hasAny =
-      requiredAny.length === 0 || requiredAny.some((p) => userPerms.has(p));
+    const hasAny = requiredAny.length === 0 || requiredAny.some((p) => userPerms.has(p));
 
     if (hasAll && hasAny) {
       return true;

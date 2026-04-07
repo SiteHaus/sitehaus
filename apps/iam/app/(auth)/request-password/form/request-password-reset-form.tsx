@@ -15,10 +15,7 @@ import { Input } from "@site-haus/ui/components/base/input";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { ClientReadOnlyField } from "@site-haus/ui/components/shared/client-readonly-field";
 import { getDisplayMessage, parseApiError } from "@site-haus/ui/lib/api-error";
-import {
-  RequestInput,
-  requestPasswordResetSchema,
-} from "@site-haus/validation/forms/password";
+import { RequestInput, requestPasswordResetSchema } from "@site-haus/validation/forms/password";
 import { ArrowLeft } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -65,9 +62,7 @@ export const RequestPasswordResetForm = ({
         </AuthLink>
       </div>
 
-      <h2 className="text-2xl font-semibold text-center mb-2">
-        Request Password Reset
-      </h2>
+      <h2 className="text-2xl font-semibold text-center mb-2">Request Password Reset</h2>
       <p className="text-sm text-gray-500 text-center mb-6">
         Enter your email and we&lsquo;ll send you a link to reset your password.
       </p>
@@ -86,22 +81,14 @@ export const RequestPasswordResetForm = ({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="you@example.com"
-                    type="email"
-                    {...field}
-                  />
+                  <Input placeholder="you@example.com" type="email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={form.formState.isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting ? "Sending..." : "Request Password"}
           </Button>
         </form>

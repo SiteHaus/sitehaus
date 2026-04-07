@@ -1,13 +1,6 @@
-import {
-  clientDetail,
-  MeClient,
-  MeSession,
-  MeUser,
-  ProjectItem,
-} from "@site-haus/contracts";
-import { refreshOnce } from "@site-haus/sdk";
+import { MeClient, MeSession, MeUser, ProjectItem } from "@site-haus/contracts";
+import { refreshOnce, runSingleRefresh } from "@site-haus/sdk";
 import { create } from "zustand";
-import { createJSONStorage, persist, PersistOptions } from "zustand/middleware";
 import { getApi } from "./api.js";
 
 type AuthState = {
@@ -29,17 +22,10 @@ type AuthState = {
   managedClientId: string | null;
   setManagedClientId: (id: string | null) => void;
 
-  hydrated: boolean;
-  setHydrated: () => void;
-
   bootstrapped: boolean;
 
   setAccess: (p: { accessToken: string; accessExpiration: number }) => void;
-  setMe: (p: {
-    user: MeUser | null;
-    session: MeSession | null;
-    permissions?: string[];
-  }) => void;
+  setMe: (p: { user: MeUser | null; session: MeSession | null; permissions?: string[] }) => void;
   clearAuth: () => void;
 
   bootstrap: () => Promise<void>;
@@ -50,193 +36,143 @@ type AuthState = {
   hasPerm: (perm: string) => boolean;
 };
 
-type Persisted = Pick<
-  AuthState,
-  "user" | "session" | "accessToken" | "accessExpiration" | "clients"
->;
+export const useAuthStore = create<AuthState>()((set, get) => ({
+  accessToken: null,
+  accessExpiration: null,
 
-const persistOptions: PersistOptions<AuthState, Persisted> = {
-  name: "auth",
-  // Use sessionStorage: cleared when tab closes, more secure than localStorage
-  // Access tokens won't persist across browser sessions, reducing XSS risk window
-  storage:
-    typeof window !== "undefined"
-      ? createJSONStorage<Persisted>(() => sessionStorage)
-      : undefined,
-  partialize: (s) => ({
-    user: s.user,
-    session: s.session,
-    accessToken: s.accessToken,
-    accessExpiration: s.accessExpiration,
-    clients: s.clients,
-    projects: s.projects,
-  }),
-  onRehydrateStorage: () => (state) => {
-    state?.setHydrated();
+  user: null,
+  session: null,
+  permissions: new Set(),
+
+  clients: [],
+  setClients: (clients) => set({ clients }),
+
+  projects: [],
+  setProjects: (projects) => set({ projects }),
+
+  managedClientId: null,
+  setManagedClientId: (id) => set({ managedClientId: id }),
+
+  loadMyClients: async () => {
+    const { clients } = getApi();
+    const r = await clients.meClients();
+    if (r.status === 200) set({ clients: r.body.clients });
   },
-};
 
-export const useAuthStore = create<AuthState>()(
-  persist<AuthState, [], [], Persisted>(
-    (set, get) => ({
+  loadMyProjects: async () => {
+    const { projects } = getApi();
+    const clientId = get().managedClientId ?? undefined;
+    const r = await projects.list({
+      query: { clientId },
+    });
+    if (r.status === 200) set({ projects: r.body.projects });
+  },
+
+  bootstrapped: false,
+
+  setAccess: ({ accessToken, accessExpiration }) => set({ accessToken, accessExpiration }),
+
+  setMe: ({ user, session, permissions }) =>
+    set({
+      user,
+      session,
+      permissions: permissions ? new Set(permissions) : get().permissions,
+    }),
+
+  clearAuth: () =>
+    set({
       accessToken: null,
       accessExpiration: null,
-
       user: null,
       session: null,
       permissions: new Set(),
-
-      clients: [],
-      setClients: (clients) => set({ clients }),
-
-      projects: [],
-      setProjects: (projects) => set({ projects }),
-
-      managedClientId: null,
-      setManagedClientId: (id) => set({ managedClientId: id }),
-
-      loadMyClients: async () => {
-        const { clients } = getApi();
-        const r = await clients.meClients();
-        if (r.status === 200) set({ clients: r.body.clients });
-      },
-
-      loadMyProjects: async () => {
-        const { projects } = getApi();
-        const clientId = get().managedClientId ?? undefined;
-        const r = await projects.list({
-          query: { clientId },
-        });
-        if (r.status === 200) set({ projects: r.body.projects });
-      },
-
-      hydrated: false,
-      setHydrated: () => set({ hydrated: true }),
-
-      bootstrapped: false,
-
-      setAccess: ({ accessToken, accessExpiration }) =>
-        set({ accessToken, accessExpiration }),
-
-      setMe: ({ user, session, permissions }) =>
-        set({
-          user,
-          session,
-          permissions: permissions ? new Set(permissions) : get().permissions,
-        }),
-
-      clearAuth: () =>
-        set({
-          accessToken: null,
-          accessExpiration: null,
-          user: null,
-          session: null,
-          permissions: new Set(),
-        }),
-
-      hasPerm: (perm: string) => get().permissions.has(perm),
-
-      bootstrap: async () => {
-        // If we already have a valid access token, skip the refresh
-        const currentState = get();
-        const now = Math.floor(Date.now() / 1000);
-        const hasValidToken =
-          currentState.accessToken &&
-          currentState.accessExpiration &&
-          currentState.accessExpiration > now;
-
-        if (hasValidToken) {
-          // Always fetch me() to get correct permissions for the selected client
-          // (permissions depend on x-client-id header which changes with ?manage= param)
-          await get().me();
-
-          // Only fetch clients if not already loaded
-          if (currentState.clients.length === 0) {
-            await get().loadMyClients();
-          }
-          const visibleClients = get().clients.filter(
-            (c) => !c.hidden && !c.firstParty,
-          );
-          const onlyClient =
-            visibleClients.length === 1 ? visibleClients[0] : undefined;
-          if (onlyClient && !get().managedClientId) {
-            set({ managedClientId: onlyClient.id });
-            // Re-fetch permissions now that we have a client context
-            await get().me();
-          }
-          set({ bootstrapped: true });
-          return;
-        }
-
-        // No valid token in memory, try to refresh using cookie
-        try {
-          await refreshOnce();
-        } catch {
-          // Refresh failed - user needs to log in
-          get().clearAuth();
-          set({ bootstrapped: true });
-          return;
-        }
-
-        // If refresh succeeded, fetch user data
-        if (get().accessToken) {
-          await get().me();
-          await get().loadMyClients();
-          const visibleClients = get().clients.filter(
-            (c) => !c.hidden && !c.firstParty,
-          );
-          const onlyClient =
-            visibleClients.length === 1 ? visibleClients[0] : undefined;
-          if (onlyClient && !get().managedClientId) {
-            set({ managedClientId: onlyClient.id });
-            // Re-fetch permissions now that we have a client context
-            await get().me();
-          }
-        }
-        set({ bootstrapped: true });
-      },
-
-      login: async ({ email, password }) => {
-        const { auth } = getApi();
-        const r = await auth.loginOnly.login({ body: { email, password } });
-        if (r.status !== 200) throw new Error("");
-
-        const { accessToken, accessTokenExpiresIn } = r.body;
-        const now = Math.floor(Date.now() / 1000);
-
-        get().setAccess({
-          accessToken,
-          accessExpiration: now + accessTokenExpiresIn,
-        });
-        await get().me();
-      },
-
-      me: async () => {
-        const { auth } = getApi();
-        const r = await auth.private.me();
-        if (r.status === 200) {
-          const { user, session, permissions } = r.body;
-          get().setMe({
-            user: user ?? null,
-            session: session ?? null,
-            permissions,
-          });
-        } else if (r.status === 403) {
-          // MFA pending — token is real but incomplete. Treat as unauthenticated.
-          get().clearAuth();
-          throw new Error("mfa_pending");
-        }
-      },
-
-      logout: async () => {
-        const { auth } = getApi();
-        try {
-          await auth.private.logout();
-        } finally {
-          get().clearAuth();
-        }
-      },
     }),
-    persistOptions,
-  ),
-);
+
+  hasPerm: (perm: string) => get().permissions.has(perm),
+
+  bootstrap: async () => {
+    // If we already have a valid access token in memory, skip the refresh
+    const currentState = get();
+    const now = Math.floor(Date.now() / 1000);
+    const hasValidToken =
+      currentState.accessToken &&
+      currentState.accessExpiration &&
+      currentState.accessExpiration > now;
+
+    if (hasValidToken) {
+      await get().me();
+      if (currentState.clients.length === 0) {
+        await get().loadMyClients();
+      }
+      const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
+      const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
+      if (onlyClient && !get().managedClientId) {
+        set({ managedClientId: onlyClient.id });
+        await get().me();
+      }
+      set({ bootstrapped: true });
+      return;
+    }
+
+    // No valid token in memory — try silent refresh via sh_refresh HttpOnly cookie
+    try {
+      await runSingleRefresh(refreshOnce);
+    } catch {
+      get().clearAuth();
+      set({ bootstrapped: true });
+      return;
+    }
+
+    if (get().accessToken) {
+      await get().me();
+      await get().loadMyClients();
+      const visibleClients = get().clients.filter((c) => !c.hidden && !c.firstParty);
+      const onlyClient = visibleClients.length === 1 ? visibleClients[0] : undefined;
+      if (onlyClient && !get().managedClientId) {
+        set({ managedClientId: onlyClient.id });
+        await get().me();
+      }
+    }
+    set({ bootstrapped: true });
+  },
+
+  login: async ({ email, password }) => {
+    const { auth } = getApi();
+    const r = await auth.loginOnly.login({ body: { email, password } });
+    if (r.status !== 200) throw new Error("");
+
+    const { accessToken, accessTokenExpiresIn } = r.body;
+    const now = Math.floor(Date.now() / 1000);
+
+    get().setAccess({
+      accessToken,
+      accessExpiration: now + accessTokenExpiresIn,
+    });
+    await get().me();
+  },
+
+  me: async () => {
+    const { auth } = getApi();
+    const r = await auth.private.me();
+    if (r.status === 200) {
+      const { user, session, permissions } = r.body;
+      get().setMe({
+        user: user ?? null,
+        session: session ?? null,
+        permissions,
+      });
+    } else if (r.status === 403) {
+      get().clearAuth();
+      throw new Error("mfa_pending");
+    }
+  },
+
+  logout: async () => {
+    const { auth } = getApi();
+    try {
+      await auth.private.logout();
+    } finally {
+      get().clearAuth();
+    }
+  },
+}));

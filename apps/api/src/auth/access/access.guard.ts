@@ -49,7 +49,9 @@ export class AccessGuard implements CanActivate {
 
     const req = ctx
       .switchToHttp()
-      .getRequest<AuthedRequest & { client?: { id: string } }>();
+      .getRequest<
+        AuthedRequest & { client?: { id: string; firstParty: boolean } }
+      >();
     const auth = req.headers.authorization;
 
     // For public routes, still try to populate req.user if token is present
@@ -96,8 +98,9 @@ export class AccessGuard implements CanActivate {
 
     const clientInReq = req.client?.id;
     if (clientInReq && clientInReq !== payload.aud) {
-      // Allow first-party clients to make cross-client requests
-      if (!session.client?.firstParty) {
+      // Allow first-party clients (e.g. sitehaus-commerce-admin) to call IAM
+      // APIs with tokens issued for a different (merchant) client.
+      if (!req.client?.firstParty) {
         throw new UnauthorizedException('Token audience mismatch');
       }
     }

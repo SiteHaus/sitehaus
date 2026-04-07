@@ -22,11 +22,7 @@ export const SiteNav = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 border-b border-border/50">
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
         {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-2.5"
-          onClick={() => setOpen(false)}
-        >
+        <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <Image
             src="/sitehaus-icon.svg"
             width={20}
@@ -38,7 +34,10 @@ export const SiteNav = () => {
         </Link>
 
         {/* Desktop links */}
-        <nav aria-label="Main navigation" className="hidden md:flex items-center gap-7 text-sm font-medium">
+        <nav
+          aria-label="Main navigation"
+          className="hidden md:flex items-center gap-7 text-sm font-medium"
+        >
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -72,17 +71,22 @@ export const SiteNav = () => {
             aria-controls="mobile-menu"
             onClick={() => setOpen((v) => !v)}
           >
-            {open
-              ? <X aria-hidden="true" className="h-5 w-5" />
-              : <Menu aria-hidden="true" className="h-5 w-5" />
-            }
+            {open ? (
+              <X aria-hidden="true" className="h-5 w-5" />
+            ) : (
+              <Menu aria-hidden="true" className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
 
       {/* Mobile menu */}
       {open && (
-        <nav id="mobile-menu" aria-label="Mobile navigation" className="md:hidden bg-background border-t border-border/50">
+        <nav
+          id="mobile-menu"
+          aria-label="Mobile navigation"
+          className="md:hidden bg-background border-t border-border/50"
+        >
           <div className="container mx-auto px-6 py-4 flex flex-col gap-1">
             {navLinks.map((link) => (
               <Link

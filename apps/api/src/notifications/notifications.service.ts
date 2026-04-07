@@ -8,7 +8,8 @@ export const NOTIFICATIONS_QUEUE = 'notifications';
 @Injectable()
 export class NotificationsService {
   constructor(
-    @InjectQueue(NOTIFICATIONS_QUEUE) private readonly queue: Queue<NotificationJobData>,
+    @InjectQueue(NOTIFICATIONS_QUEUE)
+    private readonly queue: Queue<NotificationJobData>,
   ) {}
 
   async enqueue(job: NotificationJobData): Promise<void> {
