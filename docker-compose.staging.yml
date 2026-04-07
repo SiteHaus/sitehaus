@@ -93,6 +93,17 @@ services:
           cpus: "0.5"
           memory: 512M
 
+  commerce:
+    image: ghcr.io/sitehaus/sitehaus-commerce:staging
+    restart: always
+    networks:
+      - sitehaus-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
   caddy:
     image: caddy:2-alpine
     restart: always
@@ -110,6 +121,7 @@ services:
       - web
       - dashboard
       - iam
+      - commerce
     deploy:
       resources:
         limits:

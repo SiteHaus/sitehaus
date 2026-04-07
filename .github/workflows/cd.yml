@@ -39,6 +39,10 @@ jobs:
             dockerfile: apps/api/Dockerfile
             api_url: ""
             client_key: ""
+          - app: commerce
+            dockerfile: apps/commerce/Dockerfile
+            api_url: https://api.staging.sitehaus.dev
+            client_key: commerce
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -119,6 +123,10 @@ jobs:
             dockerfile: apps/api/Dockerfile
             api_url: ""
             client_key: ""
+          - app: commerce
+            dockerfile: apps/commerce/Dockerfile
+            api_url: https://api.sitehaus.dev
+            client_key: commerce
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
