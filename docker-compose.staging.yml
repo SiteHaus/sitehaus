@@ -100,7 +100,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./infra/Caddyfile:/etc/caddy/Caddyfile
+      - ./infra/Caddyfile.staging:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     networks:
