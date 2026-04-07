@@ -70,7 +70,7 @@ jobs:
     steps:
       - uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.VULTR_STAGING_IP }}
+          host: ${{ secrets.SITEHAUS_STAGING_IP }}
           username: deploy
           key: ${{ secrets.VULTR_SSH_KEY }}
           script: |
