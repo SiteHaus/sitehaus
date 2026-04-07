@@ -41,7 +41,7 @@ export default function StoreResolverPage() {
         const { stores: fetchedStores } = await getAccessibleStores(clientIds);
 
         if (fetchedStores.length === 0) {
-          setError("No stores found for your account.");
+          setError("Your store is being set up.");
           return;
         }
 
@@ -109,8 +109,32 @@ export default function StoreResolverPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-1 text-center px-4">
         <p className="text-muted-foreground">{error}</p>
+        {error.includes("access to any stores") && (
+          <p className="text-sm text-muted-foreground">
+            Contact{" "}
+            <a
+              href="mailto:support@sitehaus.com"
+              className="underline underline-offset-4 hover:text-foreground transition-colors"
+            >
+              SiteHaus
+            </a>{" "}
+            to get started.
+          </p>
+        )}
+        {error.includes("store is being set up") && (
+          <p className="text-sm text-muted-foreground">
+            Reach out to your{" "}
+            <a
+              href="mailto:support@sitehaus.com"
+              className="underline underline-offset-4 hover:text-foreground transition-colors"
+            >
+              SiteHaus
+            </a>{" "}
+            contact if you have questions.
+          </p>
+        )}
       </div>
     );
   }
