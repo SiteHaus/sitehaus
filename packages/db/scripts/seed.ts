@@ -128,10 +128,17 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
   gracejeanne: [
     "http://localhost:3004/callback",
     "https://commerce.localhost/callback",
+    "https://commerce.staging.sitehaus.dev/callback",
+    "https://commerce.sitehaus.dev/callback",
     "https://gracejeanne.com/callback",
     "https://gracejeanne.com/auth/callback",
   ],
-  onehealth: ["http://localhost:3004/callback", "https://commerce.localhost/callback"],
+  onehealth: [
+    "http://localhost:3004/callback",
+    "https://commerce.localhost/callback",
+    "https://commerce.staging.sitehaus.dev/callback",
+    "https://commerce.sitehaus.dev/callback",
+  ],
 };
 async function seed() {
   await db.transaction(async (tx) => {
