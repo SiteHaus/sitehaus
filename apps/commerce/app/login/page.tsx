@@ -32,6 +32,7 @@ export default function LoginPage() {
 
     sessionStorage.setItem("oauth_code_verifier", codeVerifier);
     sessionStorage.setItem("oauth_state", state);
+    sessionStorage.setItem("oauth_client_key", process.env.NEXT_PUBLIC_CLIENT_KEY!);
 
     const params = new URLSearchParams({
       client_key: process.env.NEXT_PUBLIC_CLIENT_KEY!,
