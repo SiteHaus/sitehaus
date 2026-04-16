@@ -42,7 +42,7 @@ jobs:
           - app: commerce
             dockerfile: apps/commerce/Dockerfile
             api_url: https://api.staging.sitehaus.dev
-            client_key: commerce
+            client_key: sitehaus-commerce-admin
             commerce_url: https://api.staging.commerce.sitehaus.dev
     steps:
       - uses: actions/checkout@v4
@@ -128,7 +128,7 @@ jobs:
           - app: commerce
             dockerfile: apps/commerce/Dockerfile
             api_url: https://api.sitehaus.dev
-            client_key: commerce
+            client_key: sitehaus-commerce-admin
             commerce_url: https://api.commerce.sitehaus.dev
     steps:
       - uses: actions/checkout@v4
