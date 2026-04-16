@@ -61,7 +61,6 @@ function CallbackContent() {
         const exp = Math.floor(Date.now() / 1000) + tokens.expires_in;
 
         updateSDKClientKey(clientKey);
-        localStorage.setItem("commerce_client_key", clientKey);
 
         setAccess({
           accessToken: tokens.access_token,
