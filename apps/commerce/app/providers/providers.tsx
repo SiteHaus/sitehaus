@@ -1,5 +1,6 @@
 "use client";
 
+import { updateSDKClientKey } from "@site-haus/sdk";
 import { initStoresSdk } from "@site-haus/stores/api";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { ThemeProvider } from "@site-haus/ui/components/base/theme-provider";
@@ -39,10 +40,13 @@ const Providers = ({ children }: ProvidersProps) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname !== "/callback") {
-      void useAuthStore.getState().bootstrap();
+    if (pathname === "/callback") return;
+    const storedClientKey = localStorage.getItem("commerce_client_key");
+    if (storedClientKey) {
+      updateSDKClientKey(storedClientKey);
     }
-  }, [pathname]);
+    void useAuthStore.getState().bootstrap();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <QueryClientProvider client={queryClient}>
