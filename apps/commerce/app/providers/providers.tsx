@@ -39,10 +39,9 @@ const Providers = ({ children }: ProvidersProps) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (pathname !== "/callback") {
-      void useAuthStore.getState().bootstrap();
-    }
-  }, [pathname]);
+    if (pathname === "/callback") return;
+    void useAuthStore.getState().bootstrap();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <QueryClientProvider client={queryClient}>
