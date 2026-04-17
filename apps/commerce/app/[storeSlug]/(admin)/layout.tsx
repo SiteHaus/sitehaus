@@ -1,12 +1,12 @@
 "use client";
 
 import { RequireAuth } from "@/lib/require-auth";
-import { AppSideBar } from "../../../components/sidebar/app-sidebar";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { SidebarInset, SidebarProvider } from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
+import { AppSideBar } from "../../../components/sidebar/app-sidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const bootstrapped = useAuthStore((s) => s.bootstrapped);
@@ -19,6 +19,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!managedClientId) {
       const stored = sessionStorage.getItem(`commerce_client:${slug}`);
+      console.log("[restore]", { slug, stored, managedClientId });
+
       if (stored) setManagedClientId(stored);
     }
   }, []);
