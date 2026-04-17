@@ -25,6 +25,7 @@ export interface UserContext {
   sessionId: string;
   clientId: string;
   permissions: string[];
+  accessibleClientIds: string[];
 }
 
 /**
@@ -45,6 +46,7 @@ export interface IntrospectionResponse {
     clientId: string;
   };
   permissions?: string[];
+  accessibleClientIds?: string[];
   exp?: number;
 }
 

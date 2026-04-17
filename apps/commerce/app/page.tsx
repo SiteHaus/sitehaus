@@ -1,7 +1,6 @@
 "use client";
 
 import { getAccessibleStores, type AccessibleStore } from "@/lib/commerce";
-import { generatePKCE, generateState } from "@site-haus/sdk/oauth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useRouter } from "next/navigation";
@@ -16,7 +15,7 @@ export default function StoreResolverPage() {
   useEffect(() => {
     if (!bootstrapped) return;
 
-    const { accessToken, session, clients, loadMyClients } = useAuthStore.getState();
+    const { accessToken, clients, loadMyClients } = useAuthStore.getState();
 
     if (!accessToken) {
       router.replace("/login");
@@ -47,16 +46,8 @@ export default function StoreResolverPage() {
 
         if (fetchedStores.length === 1) {
           const store = fetchedStores[0]!;
-          if (session?.clientId === store.clientId) {
-            router.replace(`/${store.slug}`);
-          } else {
-            const client = resolvedClients.find((c) => c.id === store.clientId);
-            if (!client) {
-              setError("Unable to authenticate with store.");
-              return;
-            }
-            await reAuth(client.key);
-          }
+          useAuthStore.getState().setManagedClientId(store.clientId);
+          router.replace(`/${store.slug}`);
           return;
         }
 
@@ -69,34 +60,9 @@ export default function StoreResolverPage() {
     resolve();
   }, [bootstrapped, router]);
 
-  async function reAuth(clientKey: string) {
-    const { codeVerifier, codeChallenge } = await generatePKCE();
-    const state = generateState();
-    sessionStorage.setItem("oauth_code_verifier", codeVerifier);
-    sessionStorage.setItem("oauth_state", state);
-    sessionStorage.setItem("oauth_client_key", clientKey);
-
-    const params = new URLSearchParams({
-      client_key: clientKey,
-      redirect_uri: `${window.location.origin}/callback`,
-      response_type: "code",
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
-      scope: "openid profile email",
-      state,
-    });
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/authorize?${params}`;
-  }
-
-  async function handleSelectStore(store: AccessibleStore) {
-    const { session, clients } = useAuthStore.getState();
-    if (session?.clientId === store.clientId) {
-      router.replace(`/${store.slug}`);
-      return;
-    }
-    const client = clients.find((c) => c.id === store.clientId);
-    if (!client) return;
-    await reAuth(client.key);
+  function handleSelectStore(store: AccessibleStore) {
+    useAuthStore.getState().setManagedClientId(store.clientId);
+    router.replace(`/${store.slug}`);
   }
 
   if (!stores && !error) {

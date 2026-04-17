@@ -1,6 +1,6 @@
 "use client";
 
-import { exchangeCodeForTokens, updateSDKClientKey } from "@site-haus/sdk";
+import { exchangeCodeForTokens } from "@site-haus/sdk";
 import { useAuthStore } from "@site-haus/stores/auth-store";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -43,14 +43,11 @@ function CallbackContent() {
           throw new Error("Code verifier not found");
         }
 
-        const clientKey =
-          sessionStorage.getItem("oauth_client_key") || process.env.NEXT_PUBLIC_CLIENT_KEY!;
-
         const tokens = await exchangeCodeForTokens({
           tokenUrl: `${process.env.NEXT_PUBLIC_API_URL}/auth/token`,
           code,
           codeVerifier,
-          clientKey,
+          clientKey: process.env.NEXT_PUBLIC_CLIENT_KEY!,
           redirectUri: `${window.location.origin}/callback`,
         });
 
@@ -59,8 +56,6 @@ function CallbackContent() {
         }
 
         const exp = Math.floor(Date.now() / 1000) + tokens.expires_in;
-
-        updateSDKClientKey(clientKey);
 
         setAccess({
           accessToken: tokens.access_token,
@@ -71,7 +66,6 @@ function CallbackContent() {
 
         sessionStorage.removeItem("oauth_code_verifier");
         sessionStorage.removeItem("oauth_state");
-        sessionStorage.removeItem("oauth_client_key");
 
         router.replace("/");
       } catch (err) {
