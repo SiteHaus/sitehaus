@@ -36,7 +36,7 @@ export class ClientGuard implements CanActivate {
         id: target.id,
         audience: target.audience,
         key: caller.key,
-        firstParty: target.firstParty,
+        firstParty: caller.firstParty,
       };
     } else {
       // Same client or only one specified
