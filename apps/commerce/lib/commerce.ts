@@ -3,13 +3,14 @@ import { useAuthStore } from "@site-haus/stores/auth-store";
 const COMMERCE_URL = process.env.NEXT_PUBLIC_COMMERCE_URL!;
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = useAuthStore.getState().accessToken;
+  const { accessToken: token, managedClientId } = useAuthStore.getState();
 
   const res = await fetch(`${COMMERCE_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(managedClientId ? { "x-client-id": managedClientId } : {}),
       ...options.headers,
     },
   });
