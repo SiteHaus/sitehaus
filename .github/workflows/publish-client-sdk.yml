@@ -69,3 +69,5 @@ jobs:
       - name: Publish
         working-directory: packages/client-sdk
         run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
