@@ -24,8 +24,8 @@ export interface UserContext {
   status: string;
   sessionId: string;
   clientId: string;
+  clientIsFirstParty: boolean;
   permissions: string[];
-  accessibleClientIds: string[];
 }
 
 /**
@@ -44,9 +44,9 @@ export interface IntrospectionResponse {
   session?: {
     id: string;
     clientId: string;
+    clientIsFirstParty?: boolean;
   };
   permissions?: string[];
-  accessibleClientIds?: string[];
   exp?: number;
 }
 
