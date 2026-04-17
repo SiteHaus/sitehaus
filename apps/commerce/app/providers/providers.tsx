@@ -22,7 +22,7 @@ initStoresSdk({
   baseURL: API,
   clientKey: CLIENT,
   proactiveRefreshSkewSec: 60,
-  targetClientIdProvider: () => null,
+  targetClientIdProvider: () => useAuthStore.getState().managedClientId ?? null,
 });
 
 const queryClient = new QueryClient({

@@ -60,6 +60,7 @@ export class AccessGuard implements CanActivate {
       sessionId: result.session!.id,
       clientId: result.session!.clientId,
       permissions: result.permissions ?? [],
+      accessibleClientIds: result.accessibleClientIds ?? [],
     };
 
     request.user = userContext;

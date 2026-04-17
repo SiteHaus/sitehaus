@@ -311,6 +311,15 @@ export class AuthService {
     // Get permissions for user in the session's client context
     const perms = await this.roles.permsForUserClient(payload.sub, payload.aud);
 
+    // Get all client IDs the user has any role in (for x-client-id validation downstream)
+    const clientRoles = await this.db.query.userRolesTable.findMany({
+      where: (t, { eq }) => eq(t.userId, payload.sub),
+      columns: { clientId: true },
+    });
+    const accessibleClientIds = [
+      ...new Set(clientRoles.map((r) => r.clientId)),
+    ];
+
     return {
       active: true,
       user: {
@@ -326,6 +335,7 @@ export class AuthService {
         clientId: session.clientId,
       },
       permissions: [...perms],
+      accessibleClientIds,
       exp: payload.exp,
     };
   }
