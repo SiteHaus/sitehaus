@@ -5,7 +5,7 @@ import { useAuthStore } from "@site-haus/stores/auth-store";
 import { SidebarInset, SidebarProvider } from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppSideBar } from "../../../components/sidebar/app-sidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

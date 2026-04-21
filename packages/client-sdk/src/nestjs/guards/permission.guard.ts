@@ -40,6 +40,10 @@ export class PermissionGuard implements CanActivate {
     }
 
     const request = ctx.switchToHttp().getRequest<AuthedRequest>();
+
+    // First-party clients are platform operators — bypass permission checks
+    if (request.user?.clientIsFirstParty) return true;
+
     const userPerms = new Set(request.user?.permissions ?? []);
 
     // Check ALL permissions are present

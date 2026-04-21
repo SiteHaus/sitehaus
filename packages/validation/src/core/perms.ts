@@ -118,30 +118,39 @@ export const PERMISSIONS_BY_MODULE = (Object.keys(MODULES) as ModuleKey[]).reduc
   {} as Record<ModuleKey, string[]>,
 );
 
-export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "client", Permission[]> =
-  {
-    admin: [...ALL_PERMISSIONS],
-    member: ["sessions:read", "sessions:revoke", "devices:read", "devices:revoke"],
-    developer: [...ALL_PERMISSIONS, "clients:view_hidden"],
-    client: [
-      "projects:read",
-      "profiles:read",
-      "profiles:manage",
-      "tickets:read",
-      "tickets:create",
-      "documents:read",
-      "documents:approve",
-      "assets:read",
-      "assets:upload",
-      "comments:read",
-      "comments:create",
-      "billing:read",
-      "sessions:read",
-      "sessions:revoke",
-      "devices:read",
-      "devices:revoke",
-    ],
-  };
+const ALL_COMMERCE_PERMISSIONS = PERMISSIONS_BY_MODULE.commerce;
+
+export const DEFAULT_ROLE_PERMS: Record<"admin" | "member" | "developer" | "client", string[]> = {
+  admin: [...ALL_PERMISSIONS, ...ALL_COMMERCE_PERMISSIONS],
+  member: [
+    "sessions:read",
+    "sessions:revoke",
+    "devices:read",
+    "devices:revoke",
+    "products:read",
+    "orders:read",
+    "payments:read",
+  ],
+  developer: [...ALL_PERMISSIONS, "clients:view_hidden", ...ALL_COMMERCE_PERMISSIONS],
+  client: [
+    "projects:read",
+    "profiles:read",
+    "profiles:manage",
+    "tickets:read",
+    "tickets:create",
+    "documents:read",
+    "documents:approve",
+    "assets:read",
+    "assets:upload",
+    "comments:read",
+    "comments:create",
+    "billing:read",
+    "sessions:read",
+    "sessions:revoke",
+    "devices:read",
+    "devices:revoke",
+  ],
+};
 
 /** Permissions that grant access to organization-level IAM features */
 export const ADMIN_PERMISSIONS: Permission[] = [
