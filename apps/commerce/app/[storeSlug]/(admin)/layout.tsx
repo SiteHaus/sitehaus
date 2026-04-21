@@ -5,7 +5,7 @@ import { useAuthStore } from "@site-haus/stores/auth-store";
 import { SidebarInset, SidebarProvider } from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AppSideBar } from "../../../components/sidebar/app-sidebar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -14,15 +14,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const setManagedClientId = useAuthStore((s) => s.setManagedClientId);
   const params = useParams();
   const slug = params.storeSlug as string;
+  const [restored, setRestored] = useState(false);
 
-  // Restore managedClientId from sessionStorage on reload, keyed by slug
+  // Restore managedClientId from sessionStorage on reload, keyed by slug.
+  // Must complete before children render so queries include x-client-id.
   useEffect(() => {
     if (!managedClientId) {
       const stored = sessionStorage.getItem(`commerce_client:${slug}`);
-      console.log("[restore]", { slug, stored, managedClientId });
-
       if (stored) setManagedClientId(stored);
     }
+    setRestored(true);
   }, []);
 
   // Persist managedClientId to sessionStorage keyed by slug
@@ -32,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [managedClientId, slug]);
 
-  if (!bootstrapped) {
+  if (!bootstrapped || !restored) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Spinner className="size-6 text-primary" />

@@ -1,6 +1,6 @@
 {
   "name": "@sitehaus/client-sdk",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/SiteHaus/sitehaus"
@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "dev": "tsc -w",
-    "build": "tsc"
+    "build": "tsup"
   },
   "exports": {
     ".": {
@@ -22,6 +22,10 @@
     "./nestjs": {
       "types": "./dist/nestjs/index.d.ts",
       "default": "./dist/nestjs/index.js"
+    },
+    "./frontend": {
+      "types": "./dist/frontend/index.d.ts",
+      "default": "./dist/frontend/index.js"
     }
   },
   "peerDependencies": {
@@ -40,13 +44,14 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@site-haus/contracts": "workspace:*",
+    "@site-haus/eslint-config": "workspace:*",
     "@site-haus/sdk": "workspace:*",
     "@site-haus/stores": "workspace:*",
-    "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",
     "eslint": "^9.31.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
+    "tsup": "^8.5.1",
     "typescript": "5.8.2"
   }
 }
