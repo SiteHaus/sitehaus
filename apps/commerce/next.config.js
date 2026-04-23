@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "cdn.staging.commerce.sitehaus.dev",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.commerce.sitehaus.dev",
+      },
     ],
   },
 };
