@@ -140,7 +140,10 @@ export class NotificationsProcessor extends WorkerHost {
       authorName: data.authorName,
       targetLabel: data.targetLabel,
       bodyPreview: data.bodyPreview,
-      ctaUrl: `${this.dashboardUrl}/projects/${data.targetId}`,
+      ctaUrl:
+        data.targetType === 'ticket'
+          ? `${this.dashboardUrl}/tickets/${data.targetId}`
+          : `${this.dashboardUrl}/projects/${data.targetId}`,
     });
     await this.email.send({
       to: emails,

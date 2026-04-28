@@ -3,6 +3,7 @@ import {
   and,
   desc,
   eq,
+  or,
   schema,
   type Db,
   type BillingRecordStatus,
@@ -296,13 +297,15 @@ export class BillingService {
     );
 
     const invoiceData = invoice as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+    const rawPi = invoiceData['payment_intent'];
+    const piId = typeof rawPi === 'string' ? rawPi : (rawPi?.id ?? null);
     const [record] = await this.db
       .insert(schema.billingRecordsTable)
       .values({
         projectId: data.projectId,
         clientId: data.clientId,
         stripeCustomerId,
-        stripePaymentIntentId: invoiceData['payment_intent']?.id ?? null,
+        stripePaymentIntentId: piId,
         type: 'one_time',
         amountCents: data.amountCents,
         currency: 'usd',
@@ -410,14 +413,22 @@ export class BillingService {
           const paymentIntentId =
             typeof rawPi === 'string' ? rawPi : (rawPi?.id ?? null);
 
-          const condition = paymentIntentId
-            ? eq(
-                schema.billingRecordsTable.stripePaymentIntentId,
-                paymentIntentId,
-              )
-            : hostedUrl
-              ? eq(schema.billingRecordsTable.hostedInvoiceUrl, hostedUrl)
-              : null;
+          // OR both identifiers: PI ID for new records, hostedInvoiceUrl as
+          // fallback for older records where PI ID wasn't stored correctly.
+          const orClauses = [
+            ...(paymentIntentId
+              ? [
+                  eq(
+                    schema.billingRecordsTable.stripePaymentIntentId,
+                    paymentIntentId,
+                  ),
+                ]
+              : []),
+            ...(hostedUrl
+              ? [eq(schema.billingRecordsTable.hostedInvoiceUrl, hostedUrl)]
+              : []),
+          ];
+          const condition = orClauses.length > 0 ? or(...orClauses) : null;
 
           if (condition) {
             const [affected] = await this.db

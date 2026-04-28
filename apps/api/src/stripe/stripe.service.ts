@@ -87,18 +87,22 @@ export class StripeService {
     amountCents: number,
     description: string,
   ): Promise<Stripe.Invoice> {
+    // Create the invoice first with 'exclude' so only explicitly attached items
+    // are included — prevents pulling in unrelated pending items from other invoices.
+    const invoice = await this.client.invoices.create({
+      customer: stripeCustomerId,
+      auto_advance: false,
+      pending_invoice_items_behavior: 'exclude',
+    });
+
     await this.client.invoiceItems.create({
       customer: stripeCustomerId,
       amount: amountCents,
       currency: 'usd',
       description,
+      invoice: invoice.id,
     });
 
-    const invoice = await this.client.invoices.create({
-      customer: stripeCustomerId,
-      auto_advance: true,
-      pending_invoice_items_behavior: 'include',
-    });
     return this.client.invoices.finalizeInvoice(invoice.id);
   }
 }
