@@ -25,6 +25,8 @@ services:
   web:
     image: ghcr.io/sitehaus/sitehaus-web:latest
     restart: always
+    env_file:
+      - ./apps/web/.env
     networks:
       - sitehaus-network
 
