@@ -64,7 +64,7 @@ const steps = [
 
 export default function OurMethodPage() {
   return (
-    <main className="min-h-screen pt-16">
+    <main className="min-h-screen pt-24">
       {/* Hero */}
       <section className="py-14 sm:py-20 md:py-28 lg:py-36 border-b border-border/50">
         <div className="container mx-auto px-6 max-w-4xl">
@@ -85,7 +85,7 @@ export default function OurMethodPage() {
       {/* Steps */}
       <section className="py-14 sm:py-20 md:py-28 lg:py-32">
         <div className="container mx-auto px-6">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-4xl">
             <div className="relative flex flex-col gap-0">
               {/* Vertical line */}
               <div className="absolute left-[27px] top-8 bottom-8 w-px bg-border/60 hidden md:block" />

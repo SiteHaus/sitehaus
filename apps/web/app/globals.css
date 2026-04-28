@@ -1,71 +1,211 @@
 @import "tailwindcss";
 @import "@site-haus/ui/styles/default.css";
 
-/* Web app overrides — warm paper tone for light mode */
+/* ── Warm palette → shadcn / Tailwind semantic tokens ──────────── */
 :root {
-  --background: oklch(0.975 0.012 78);
-  --card: oklch(0.983 0.008 82);
-  /* Original primary kept — dark foreground meets WCAG AA (~6:1 contrast) */
-  --primary-foreground: oklch(0.18 0.05 58);
-  /* Darker border/input so outline buttons and cards are visible on warm background */
-  --border: oklch(0.86 0.008 58);
-  --input: oklch(0.86 0.008 58);
+  --background:              #FBF6EE;
+  --foreground:              #2A211C;
+  --card:                    #FFFDF8;
+  --card-foreground:         #2A211C;
+  --popover:                 #FFFDF8;
+  --popover-foreground:      #2A211C;
+  --primary:                 #C25E3A;
+  --primary-foreground:      #FBF6EE;
+  --secondary:               #E6D6C5;
+  --secondary-foreground:    #3A2A20;
+  --muted:                   #ECE2CF;
+  --muted-foreground:        #5C4233;
+  --accent:                  #F1D9D2;
+  --accent-foreground:       #3A2A20;
+  --destructive:             #B0432B;
+  --destructive-foreground:  #FBF6EE;
+  --border:                  rgba(60, 42, 32, 0.16);
+  --input:                   rgba(60, 42, 32, 0.16);
+  --ring:                    rgba(194, 94, 58, 0.35);
+  --radius:                  0.5rem;
+
+  /* ── Extended palette ──────────────────────────────────────────── */
+  --parchment-50:  #FBF6EE;
+  --parchment-100: #F5EEE0;
+  --parchment-200: #ECE2CF;
+  --parchment-300: #DFD2B8;
+
+  --terracotta-50:  #FBEAE0;
+  --terracotta-100: #F4CDB8;
+  --terracotta-300: #DD8A66;
+  --terracotta-500: #C25E3A;
+  --terracotta-600: #A84C2D;
+  --terracotta-700: #823A22;
+
+  --clay-100: #E6D6C5;
+  --clay-300: #B89A82;
+  --clay-500: #8C6A52;
+  --clay-700: #5C4233;
+  --clay-900: #3A2A20;
+
+  --rose-100: #F1D9D2;
+  --rose-300: #DDA9A0;
+  --rose-500: #C8847A;
+  --rose-700: #98564E;
+
+  --sage-100: #DDE2D2;
+  --sage-500: #8A9A77;
+  --sage-700: #566348;
+
+  --ink-900: #2A211C;
+  --ink-700: #4A3D36;
+  --ink-500: #7A6A60;
+  --ink-300: #B6A89E;
+
+  /* Semantic shorthands */
+  --bg-raised:  #FFFDF8;
+  --bg-inverse: var(--clay-900);
+  --fg-1:       var(--ink-900);
+  --fg-2:       var(--clay-700);
+  --fg-3:       var(--ink-500);
+
+  /* Lines */
+  --line-soft:   rgba(60, 42, 32, 0.08);
+  --line:        rgba(60, 42, 32, 0.16);
+  --line-strong: rgba(60, 42, 32, 0.32);
+
+  /* Shadows — warm clay-tinted, never blue-grey */
+  --shadow-xs: 0 1px 2px rgba(60, 42, 32, 0.06);
+  --shadow-sm: 0 2px 6px rgba(60, 42, 32, 0.08), 0 1px 2px rgba(60, 42, 32, 0.04);
+  --shadow-md: 0 8px 20px rgba(60, 42, 32, 0.10), 0 2px 4px rgba(60, 42, 32, 0.05);
+  --shadow-lg: 0 18px 40px rgba(60, 42, 32, 0.14), 0 4px 8px rgba(60, 42, 32, 0.06);
+
+  /* Motion */
+  --ease-out:  cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-fast:  140ms;
+  --dur-base:  220ms;
+  --dur-slow:  420ms;
 }
 
-.dark {
-  --background: oklch(0.147 0.004 49.25);
-  --card: oklch(0.216 0.006 56.043);
-}
-
-/**
- * Tailwind CSS official document:
- * https://tailwindcss.com/docs/detecting-classes-in-source-files
- *
- * if you ever need to explicitly add a source that's excluded by default, 
- * you can always add it with the @source directive.
- */
-@source '../node_modules/@site-haus/ui';
+/* ── Base ───────────────────────────────────────────────────────── */
 
 body {
-  font-family:
-    var(--font-body),
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: var(--font-body), -apple-system, "Helvetica Neue", sans-serif;
+  background: var(--parchment-50);
+  color: var(--ink-900);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-display), system-ui, sans-serif;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), Georgia, serif;
 }
-p {
-  font-family: var(--font-body), system-ui, sans-serif;
-}
+
+p { text-wrap: pretty; }
 
 .font-display {
-  font-family: var(--font-display), system-ui, sans-serif;
+  font-family: var(--font-display), Georgia, serif;
 }
 
-button {
-  font-weight: 700;
+/* ── Design-system type helpers ─────────────────────────────────── */
+
+/* Eyebrow — small-caps label in terracotta */
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--terracotta-500);
 }
+.eyebrow::before { content: "— "; }
+
+/* Display heading — Fraunces at optical-size 96, WONK on */
+.display-heading {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  color: var(--ink-900);
+}
+.display-heading em {
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 100, "WONK" 1;
+  color: var(--terracotta-600);
+  font-weight: 400;
+}
+
+/* Section h2 — Fraunces at optical-size 60 */
+.section-heading {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 60, "SOFT" 50, "WONK" 0;
+  font-weight: 450;
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--ink-900);
+}
+.section-heading em {
+  font-style: italic;
+  font-variation-settings: "opsz" 60, "SOFT" 100, "WONK" 1;
+  color: var(--terracotta-600);
+  font-weight: 400;
+}
+
+/* ── Component utilities ────────────────────────────────────────── */
+
+.feature-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  padding: 28px;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.feature-card:hover {
+  border-color: var(--line);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.contact-field {
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.contact-field:focus {
+  border-color: var(--terracotta-500);
+  box-shadow: 0 0 0 3px rgba(194, 94, 58, 0.15);
+}
+
+.cta-pill-link {
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.cta-pill-link:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Texture & background utilities ────────────────────────────── */
+
+.bg-dotted {
+  background-image: radial-gradient(circle at 1px 1px, rgba(140, 106, 82, 0.18) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+/* ── Nav responsive helpers ─────────────────────────────────────── */
+
+.nav-hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 768px) {
+  .nav-hamburger { display: none; }
+}
+
+/* ── Animations ─────────────────────────────────────────────────── */
 
 @keyframes float {
-  0%, 100% { transform: translate(0px, 0px); }
-  35% { transform: translate(4px, -10px); }
-  65% { transform: translate(-3px, -12px); }
+  0%, 100% { transform: translate(0, 0) rotate(var(--float-rotate, 0deg)); }
+  35%       { transform: translate(4px, -10px) rotate(var(--float-rotate, 0deg)); }
+  65%       { transform: translate(-3px, -12px) rotate(var(--float-rotate, 0deg)); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -76,20 +216,4 @@ button {
   }
 }
 
-@layer utilities {
-  .bg-hazy-dots {
-    background-image:
-      radial-gradient(
-        circle at 15% 15%,
-        rgba(147, 197, 253, 0.18) 0,
-        transparent 45%
-      ),
-      radial-gradient(
-        circle at 75% 85%,
-        rgba(251, 207, 144, 0.14) 0,
-        transparent 50%
-      );
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
-}
+@source '../node_modules/@site-haus/ui';

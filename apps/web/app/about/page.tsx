@@ -24,24 +24,24 @@ export const metadata: Metadata = {
 
 const founders = [
   {
-    initials: "P",
-    name: "Parker",
-    title: "Co-founder & Engineer",
-    location: "Ogden, UT",
-    bio: "Seven-plus years building software across the full stack. Parker brings production-hardened experience across web, mobile, and backend systems — and an obsession with getting the details right.",
-  },
-  {
     initials: "E",
     name: "Ethan",
     title: "Co-founder & Engineer",
     location: "St George, UT",
     bio: "CS degree and years of production experience across software engineering and QA. Ethan makes sure everything we ship is solid — from the architecture down to the last edge case.",
   },
+  {
+    initials: "P",
+    name: "Parker",
+    title: "Co-founder & Engineer",
+    location: "Ogden, UT",
+    bio: "Full-stack experience across web, mobile, and backend — from infrastructure to UI. Parker has shipped production software at every layer of the stack and cares about getting the details right.",
+  },
 ];
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen pt-16">
+    <main className="min-h-screen pt-24">
       <JsonLd
         data={[
           {

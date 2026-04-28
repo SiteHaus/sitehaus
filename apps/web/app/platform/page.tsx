@@ -88,7 +88,7 @@ const iamFeatures = [
 
 export default function PlatformPage() {
   return (
-    <main className="min-h-screen pt-16">
+    <main className="min-h-screen pt-24">
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="py-14 sm:py-20 md:py-28 border-b border-border/50">
         <div className="container mx-auto px-6">
