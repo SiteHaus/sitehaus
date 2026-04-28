@@ -13,7 +13,7 @@ const policyHtml: string =
 
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen pt-16">
+    <main className="min-h-screen pt-24">
       {/* Themed header */}
       <section className="py-14 sm:py-20 border-b border-border/50">
         <div className="container mx-auto px-6">

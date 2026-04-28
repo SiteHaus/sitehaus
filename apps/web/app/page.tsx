@@ -1,16 +1,14 @@
-"use client";
-
-import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
-  ArrowDown,
   FileText,
   KeyRound,
   LayoutDashboard,
+  Mail,
   MoveRight,
+  Paperclip,
   ScrollText,
   ShieldCheck,
-  ShipWheel,
+  ShoppingBag,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -30,10 +28,16 @@ const platform = [
       "Every project starts with a comprehensive spec. Scope, features, timeline, and cost — all agreed on before any code is written.",
   },
   {
+    icon: Paperclip,
+    title: "Asset Management",
+    description:
+      "Uploads, files, and shared deliverables — organized alongside your project. Everything in one place, always accessible.",
+  },
+  {
     icon: KeyRound,
     title: "OAuth2 & IAM",
     description:
-      "A full Identity and Access Management system with OAuth2 PKCE. Secure, standards-compliant authentication across every app.",
+      "A full Identity and Access Management system with OAuth2 PKCE. Secure, standards-compliant authentication across every app we build.",
   },
   {
     icon: ShieldCheck,
@@ -53,6 +57,18 @@ const platform = [
     description:
       "A full activity trail across your organization. Know what happened, when, and who did it.",
   },
+  {
+    icon: ShoppingBag,
+    title: "Commerce Platform",
+    description:
+      "A multi-tenant ecommerce API with Stripe Connect payments, inventory management, and a full admin interface. Launch stores without stitching together third-party services.",
+  },
+  {
+    icon: Mail,
+    title: "Transactional Email",
+    description:
+      "Branded email templates for every touchpoint — invites, receipts, notifications. Built with React Email and delivered reliably.",
+  },
 ];
 
 const values = [
@@ -62,7 +78,7 @@ const values = [
       "We will always treat Performance, Security, Reliability, and Maintainability as first-class concerns.",
     image: "/Responsible_Delivery_500p_Textured_V1.png",
     alt: "Sailor giving a thumbs up from a sailboat",
-    rotate: "-rotate-[3deg]",
+    rotate: "-5deg",
   },
   {
     title: "Modern Stack",
@@ -70,7 +86,7 @@ const values = [
       "We don't just ship features, we build maintainable systems. Modern tech stacks, security best practices, and infrastructure that scales with your needs.",
     image: "/Modern_Stack_500p_Textured_V1.png",
     alt: "Sailor at the helm of a modern yacht",
-    rotate: "rotate-[2deg]",
+    rotate: "4deg",
   },
   {
     title: "Clear Scope & Communication",
@@ -78,7 +94,7 @@ const values = [
       "We start every project with a comprehensive design document and milestone plan. You'll know exactly what you're getting, what it costs, and when to expect it before any code is written.",
     image: "/Clear_Scope_500p_Textured_V1.png",
     alt: "Sailor tying a letter to a seagull's foot",
-    rotate: "-rotate-[2deg]",
+    rotate: "-3deg",
   },
   {
     title: "Long-Term Partners",
@@ -86,209 +102,359 @@ const values = [
       "You own everything we build. Full source code, documentation, and deployment knowledge transfer. Whether you want to maintain it in-house or partner with us long-term, the choice is always yours.",
     image: "/Long-Term_Partners_Textured_500p_V1.png",
     alt: "Sailor embracing a lighthouse",
-    rotate: "rotate-[3deg]",
+    rotate: "5deg",
   },
 ];
 
-const ROMAN = ["I", "II", "III", "IV"];
-
-export default function App() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen">
+    <main>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="relative h-screen w-full overflow-hidden">
+        {/* Background image */}
         <Image
           src="/sitehaus-hero.png"
           alt="SiteHaus — coastal lighthouse illustration"
           fill
           loading="lazy"
-          className="object-cover -z-10 hidden sm:block brightness-[0.88] saturate-[0.85]"
+          className="object-cover -z-10 hidden sm:block"
+          style={{ filter: "brightness(0.9) saturate(0.88)" }}
         />
         <Image
           src="/sitehaus-hero-sm.png"
           alt="SiteHaus — coastal lighthouse illustration"
           fill
           priority
-          className="object-cover -z-10 sm:hidden brightness-[0.88] saturate-[0.85]"
+          className="object-cover -z-10 sm:hidden"
+          style={{ filter: "brightness(0.9) saturate(0.88)" }}
         />
 
-        {/* Left-side vignette to anchor the text */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/55 via-background/15 to-transparent dark:from-background/80 dark:via-background/30 dark:to-transparent" />
+        {/* Warm parchment vignette — anchors text on the left */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(to right, rgba(251,246,238,0.72) 0%, rgba(251,246,238,0.28) 55%, transparent 100%)",
+          }}
+        />
 
-        <div className="container mx-auto h-full flex items-center px-4 sm:px-6">
-          <div className="flex flex-col z-10 max-w-4xl">
-            <Badge
-              variant="default"
-              className="font-display inline-flex items-center gap-2 text-sm md:text-base mb-5 border shadow-md px-3 py-2 md:px-4 md:py-2.5 w-fit"
+        <div className="container mx-auto h-full flex items-center px-6 sm:px-8">
+          <div className="flex flex-col z-10 max-w-2xl">
+            <span className="eyebrow mb-5" style={{ display: "inline-block" }}>
+              Available for new projects
+            </span>
+
+            <h1
+              className="display-heading"
+              style={{
+                fontSize: "clamp(44px, 5.8vw, 82px)",
+                marginBottom: "24px",
+              }}
             >
-              We&apos;re available for new projects
-            </Badge>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-wide pb-4 md:pb-5 font-semibold leading-[1.05]">
-              Your <span className="italic font-bold">long-term</span>
+              Your <em>long-term</em>
               <br />
-              <span className="italic font-bold">partner</span> in software
+              <em>partner</em> in software
             </h1>
 
-            <p className="text-base sm:text-lg md:text-xl pt-2 text-foreground/75 leading-relaxed max-w-md">
+            <p
+              style={{
+                fontSize: "clamp(16px, 1.4vw, 19px)",
+                lineHeight: 1.65,
+                color: "var(--clay-700)",
+                maxWidth: "460px",
+                marginBottom: "36px",
+              }}
+            >
               We design and build web, mobile, and desktop software — with clear plans, shared
               milestones, and software built to be owned.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 mt-8 md:mt-10">
-              <Button size="lg" className="h-11 md:h-12 text-sm md:text-base shadow-sm" asChild>
+            <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+              <Button size="lg" className="h-11 text-sm shadow-sm" asChild>
                 <Link href="/contact">
-                  Start a project <MoveRight className="ml-1" />
+                  Start a project <MoveRight className="ml-1.5" />
                 </Link>
               </Button>
-              <Button
-                size="lg"
-                variant="secondary"
-                className="h-11 md:h-12 text-sm md:text-base"
-                asChild
-              >
+              <Button size="lg" variant="outline" className="h-11 text-sm" asChild>
                 <Link href="/our-method">How we work</Link>
               </Button>
             </div>
           </div>
         </div>
 
+        {/* Scroll indicator */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center"
         >
-          <div className="animate-bounce rounded-full border border-foreground/20 bg-background/30 backdrop-blur-sm px-3 py-2">
-            <ArrowDown className="h-4 w-4 text-foreground/50" />
+          <div
+            className="animate-bounce rounded-full px-3 py-2"
+            style={{
+              border: "1px solid var(--line)",
+              background: "rgba(251, 246, 238, 0.5)",
+              backdropFilter: "blur(8px)",
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--clay-500)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <polyline points="19 12 12 19 5 12" />
+            </svg>
           </div>
         </div>
       </section>
 
       {/* ── Values ───────────────────────────────────────────────────── */}
-      <section className="py-14 sm:py-20 md:py-28 lg:py-36 overflow-hidden">
-        <div className="container mx-auto px-6">
-          {/* Section header */}
-          <div className="mb-12 sm:mb-16 md:mb-24 lg:mb-28">
-            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-3">
-              Our commitments
-            </p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight max-w-lg leading-tight">
-              What we stand for
+      <section style={{ padding: "96px 0" }}>
+        <div className="container mx-auto px-8">
+          <div style={{ marginBottom: "64px" }}>
+            <span className="eyebrow">Our commitments</span>
+            <h2
+              className="section-heading"
+              style={{ fontSize: "clamp(32px, 3.5vw, 48px)", marginTop: "12px" }}
+            >
+              What we stand for.
             </h2>
           </div>
 
-          {/* Entries */}
-          <div className="flex flex-col">
-            {values.map((value, i) => {
-              const isEven = i % 2 === 0;
-              return (
-                <div key={value.title}>
-                  <div
-                    className={`flex flex-col-reverse gap-8 py-10 md:py-16 lg:py-20 ${
-                      isEven ? "md:flex-row" : "md:flex-row-reverse"
-                    } items-center md:gap-16 lg:gap-24`}
-                  >
-                    {/* Text side */}
-                    <div className="flex-1 min-w-0">
-                      {/* Ghost numeral */}
-                      <span
-                        className="font-display block leading-none text-[clamp(5rem,12vw,9rem)] font-bold text-foreground/[0.05] select-none -mb-4 md:-mb-6"
-                        aria-hidden
-                      >
-                        {ROMAN[i]}
-                      </span>
-
-                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-5 leading-tight">
-                        {value.title}
-                      </h3>
-                      <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-md">
-                        {value.description}
-                      </p>
-                    </div>
-
-                    {/* Image side — floats freely, no card */}
-                    <div className="flex-shrink-0 flex items-center justify-center w-full md:w-auto">
-                      <Image
-                        src={value.image}
-                        alt={value.alt}
-                        width={280}
-                        height={280}
-                        className={`
-                          w-[220px] md:w-[260px] lg:w-[300px] h-auto
-                          ${value.rotate}
-                          hover:rotate-0
-                          transition-transform duration-500 ease-out
-                          drop-shadow-[0_20px_40px_rgba(0,0,0,0.12)]
-                        `}
-                      />
-                    </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {values.map((value, i) => (
+              <div key={value.title}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: i % 2 === 0 ? "row" : "row-reverse",
+                    alignItems: "center",
+                    gap: "80px",
+                    padding: "56px 0",
+                  }}
+                  className="flex-col-reverse! md:flex-row! gap-10! md:gap-[80px]!"
+                >
+                  {/* Text */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span className="eyebrow" style={{ fontSize: "11px" }}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3
+                      className="section-heading"
+                      style={{
+                        fontSize: "clamp(24px, 2.5vw, 36px)",
+                        marginTop: "10px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      {value.title.charAt(0).toUpperCase() + value.title.slice(1)}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "17px",
+                        lineHeight: 1.7,
+                        color: "var(--clay-700)",
+                        maxWidth: "480px",
+                      }}
+                    >
+                      {value.description}
+                    </p>
                   </div>
 
-                  {/* Separator */}
-                  {i < values.length - 1 && (
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1 h-px bg-border/60" />
-                      <ShipWheel aria-hidden="true" className="text-primary/30" />
-                      <div className="flex-1 h-px bg-border/60" />
-                    </div>
-                  )}
+                  {/* Image */}
+                  <div style={{ flexShrink: 0 }}>
+                    <Image
+                      src={value.image}
+                      alt={value.alt}
+                      width={280}
+                      height={280}
+                      style={{
+                        width: "clamp(180px, 20vw, 260px)",
+                        height: "auto",
+                        rotate: value.rotate,
+                        filter: "drop-shadow(0 20px 40px rgba(60, 42, 32, 0.14))",
+                        transition: "rotate 400ms var(--ease-out)",
+                      }}
+                    />
+                  </div>
                 </div>
-              );
-            })}
+
+                {i < values.length - 1 && (
+                  <div
+                    aria-hidden="true"
+                    style={{ height: "1px", background: "var(--line-soft)", margin: 0 }}
+                  />
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Platform ──────────────────────────────────────────────────── */}
-      <section className="py-14 sm:py-20 md:py-28 lg:py-36 border-t border-border/50 bg-muted/30">
-        <div className="container mx-auto px-6">
-          {/* Header */}
-          <div className="max-w-2xl mb-14 sm:mb-16 md:mb-20">
-            <p className="text-xs font-semibold tracking-[0.25em] uppercase text-muted-foreground mb-4">
-              The SiteHaus platform
-            </p>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-5">
-              We built the tools <span className="italic text-foreground/50">we use.</span>
+      {/* ── Platform ─────────────────────────────────────────────────── */}
+      <section
+        className="bg-dotted"
+        style={{ padding: "96px 0", background: "var(--parchment-100)" }}
+      >
+        <div className="container mx-auto px-8">
+          <div style={{ maxWidth: "680px", marginBottom: "56px" }}>
+            <span className="eyebrow">The SiteHaus platform</span>
+            <h2
+              className="section-heading"
+              style={{
+                fontSize: "clamp(32px, 3.5vw, 48px)",
+                marginTop: "12px",
+                marginBottom: "16px",
+              }}
+            >
+              We built the tools <em>we use</em>.
             </h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p style={{ fontSize: "17px", lineHeight: 1.65, color: "var(--clay-700)" }}>
               Every client gets access to a platform we designed and built ourselves — not a
-              collection of third-party tools, but a unified system built to the same standard we
-              hold our client work to.
+              collection of third-party tools, but a unified system held to the same standard as our
+              client work.
             </p>
           </div>
 
-          {/* Feature grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-14 md:mb-16">
+          {/* Feature index */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "0 48px",
+              marginBottom: "56px",
+            }}
+            className="grid-cols-1! sm:grid-cols-2! lg:grid-cols-3!"
+          >
             {platform.map((feature) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={feature.title}
-                  className="flex flex-col gap-4 p-6 rounded-2xl border border-border/60 bg-background/60"
+                  style={{
+                    padding: "28px 0",
+                    borderTop: "1px dashed var(--line)",
+                  }}
                 >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Icon aria-hidden="true" className="h-5 w-5 text-primary/70" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base mb-1.5">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
+                  <Icon
+                    aria-hidden="true"
+                    style={{
+                      width: "17px",
+                      height: "17px",
+                      color: "var(--terracotta-500)",
+                      display: "block",
+                      marginBottom: "12px",
+                    }}
+                  />
+                  <h3
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontVariationSettings: "'opsz' 24, 'SOFT' 30, 'WONK' 0",
+                      fontSize: "17px",
+                      fontWeight: 500,
+                      color: "var(--ink-900)",
+                      marginBottom: "10px",
+                      letterSpacing: "-0.01em",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {feature.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: "14px",
+                      lineHeight: 1.7,
+                      color: "var(--clay-700)",
+                      margin: 0,
+                    }}
+                  >
+                    {feature.description}
+                  </p>
                 </div>
               );
             })}
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3">
-            <Button size="lg" className="h-12 text-base" asChild>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            <Button size="lg" className="h-11 text-sm" asChild>
               <Link href="/contact">
-                Start a project <MoveRight aria-hidden="true" className="ml-2" />
+                Start a project <MoveRight aria-hidden="true" className="ml-1.5" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-12 text-base" asChild>
+            <Button size="lg" variant="outline" className="h-11 text-sm" asChild>
               <Link href="/platform">Explore the platform</Link>
             </Button>
           </div>
+        </div>
+      </section>
+
+      {/* ── CTA block ────────────────────────────────────────────────── */}
+      <section
+        className="bg-dotted"
+        style={{
+          padding: "88px 0 96px",
+          backgroundColor: "var(--parchment-100)",
+          borderTop: "1px dashed var(--line-soft)",
+          textAlign: "center",
+        }}
+      >
+        <div style={{ maxWidth: "580px", margin: "0 auto", padding: "0 32px" }}>
+          <svg
+            width="80"
+            height="10"
+            viewBox="0 0 600 12"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+            style={{ display: "block", margin: "0 auto 28px", color: "var(--terracotta-500)" }}
+          >
+            <path
+              d="M0,6 Q15,0 30,6 T60,6 T90,6 T120,6 T150,6 T180,6 T210,6 T240,6 T270,6 T300,6 T330,6 T360,6 T390,6 T420,6 T450,6 T480,6 T510,6 T540,6 T570,6 T600,6"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              fill="none"
+              strokeLinecap="round"
+            />
+          </svg>
+          <h2
+            className="section-heading"
+            style={{ fontSize: "clamp(32px, 4vw, 52px)", marginBottom: "18px" }}
+          >
+            Got something you&rsquo;re trying to <em>build</em>?
+          </h2>
+          <p
+            style={{
+              fontSize: "17px",
+              lineHeight: 1.65,
+              color: "var(--clay-700)",
+              maxWidth: "440px",
+              margin: "0 auto 32px",
+            }}
+          >
+            We read every email. Tell us about your project — we&rsquo;ll write back within a day.
+          </p>
+          <Link
+            href="/contact"
+            className="cta-pill-link"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              fontFamily: "var(--font-body)",
+              fontSize: "15px",
+              fontWeight: 500,
+              padding: "12px 24px",
+              borderRadius: "999px",
+              background: "var(--terracotta-500)",
+              color: "var(--parchment-50)",
+              textDecoration: "none",
+            }}
+          >
+            Say hello →
+          </Link>
         </div>
       </section>
     </main>

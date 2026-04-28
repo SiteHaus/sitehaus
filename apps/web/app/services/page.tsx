@@ -69,7 +69,7 @@ const services = [
 
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen pt-16">
+    <main className="min-h-screen pt-24">
       <JsonLd
         data={[
           {
