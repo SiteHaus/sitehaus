@@ -63,6 +63,8 @@ services:
   web:
     image: ghcr.io/sitehaus/sitehaus-web:staging
     restart: always
+    env_file:
+      - ./apps/web/.env
     networks:
       - sitehaus-network
     deploy:
