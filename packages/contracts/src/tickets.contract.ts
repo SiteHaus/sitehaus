@@ -50,6 +50,18 @@ export const ticketListResponse = z.object({
   nextCursor: z.uuid().optional(),
 });
 
+export const ticketAttachment = z.object({
+  id: z.uuid(),
+  ticketId: z.uuid(),
+  uploadedBy: z.uuid(),
+  fileName: z.string(),
+  fileType: z.string(),
+  fileSize: z.number(),
+  storageKey: z.string(),
+  downloadUrl: z.string(),
+  createdAt: dateTime.nullable(),
+});
+
 export const ticketsRouter = c.router({
   list: {
     method: "GET",
@@ -123,8 +135,47 @@ export const ticketsRouter = c.router({
       404: apiErrorHttp,
     },
   },
+  listAttachments: {
+    method: "GET",
+    path: "/tickets/:ticketId/attachments",
+    pathParams: c.type<{ ticketId: string }>(),
+    responses: {
+      200: z.object({ attachments: z.array(ticketAttachment) }),
+      401: apiErrorHttp,
+      403: apiErrorHttp,
+      404: apiErrorHttp,
+    },
+  },
+  uploadAttachment: {
+    method: "POST",
+    path: "/tickets/:ticketId/attachments/upload",
+    pathParams: c.type<{ ticketId: string }>(),
+    contentType: "multipart/form-data",
+    body: c.type<{ file: File }>(),
+    responses: {
+      201: z.object({ attachment: ticketAttachment }),
+      400: apiErrorValidation,
+      401: apiErrorHttp,
+      403: apiErrorHttp,
+      404: apiErrorHttp,
+      500: apiErrorServer,
+    },
+  },
+  deleteAttachment: {
+    method: "DELETE",
+    path: "/tickets/:ticketId/attachments/:attachmentId",
+    pathParams: c.type<{ ticketId: string; attachmentId: string }>(),
+    body: c.noBody(),
+    responses: {
+      204: c.noBody(),
+      401: apiErrorHttp,
+      403: apiErrorHttp,
+      404: apiErrorHttp,
+    },
+  },
 });
 
 export type TicketItem = z.infer<typeof ticketItem>;
 export type TicketDetail = z.infer<typeof ticketDetail>;
 export type TicketListResponse = z.infer<typeof ticketListResponse>;
+export type TicketAttachment = z.infer<typeof ticketAttachment>;
