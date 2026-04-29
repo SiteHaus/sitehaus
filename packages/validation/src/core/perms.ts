@@ -33,6 +33,9 @@ export const MODULES = {
       products: ["read", "write", "delete"] as const,
       orders: ["read", "write", "cancel"] as const,
       payments: ["read", "process", "refund"] as const,
+      customers: ["read", "write"] as const,
+      returns: ["read", "write"] as const,
+      discounts: ["read", "write"] as const,
     },
   },
   media: {

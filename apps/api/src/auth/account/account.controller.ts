@@ -32,7 +32,7 @@ import { CryptoService } from 'src/crypto/crypto.service';
 import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from '../access/access.guard';
-import { clearRefreshCookie } from '../cookie/cookies';
+import { clearAllRefreshCookies } from '../cookie/cookies';
 import { OtpService } from '../otp/otp.service';
 import { TotpService } from '../totp/totp.service';
 
@@ -170,7 +170,7 @@ export class AccountController {
     if (!valid) throw new UnauthorizedException('Invalid password');
 
     await this.users.deleteUser(user.id);
-    clearRefreshCookie(res);
+    clearAllRefreshCookies(res, req.cookies as Record<string, string>);
     return res.send();
   }
 

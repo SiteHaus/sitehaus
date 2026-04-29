@@ -79,17 +79,16 @@ export class BillingService {
   async list(
     query: ListBillingQuery,
     requestingClientId: string,
-    isFirstParty: boolean,
+    _isFirstParty: boolean,
   ) {
     const conditions: ReturnType<typeof eq>[] = [];
 
-    if (!isFirstParty) {
-      conditions.push(
-        eq(schema.billingRecordsTable.clientId, requestingClientId),
-      );
-    } else if (query.clientId) {
-      conditions.push(eq(schema.billingRecordsTable.clientId, query.clientId));
-    }
+    // Always scope to the requesting client. For first-party admin acting on
+    // behalf of a client, ClientGuard already sets req.client.id to the target
+    // client's ID via the x-client-id header — so this is always correct.
+    conditions.push(
+      eq(schema.billingRecordsTable.clientId, requestingClientId),
+    );
 
     if (query.projectId) {
       conditions.push(

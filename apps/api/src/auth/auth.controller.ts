@@ -37,6 +37,7 @@ import { AuthService } from './auth.service';
 import { MfaOptional, MfaPending } from './mfa/mfa.decorator';
 import {
   clearRefreshCookie,
+  getRefreshCookieName,
   REFRESH_COOKIE,
   setRefreshCookie,
 } from './cookie/cookies';
@@ -85,7 +86,12 @@ export class AuthController {
 
     const { refreshToken, refreshTokenExpiresAt, userId, ...rest } = result;
 
-    setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
+    setRefreshCookie(
+      res,
+      refreshToken,
+      new Date(refreshTokenExpiresAt),
+      req.client!.key,
+    );
 
     const user = await this.users.findById(userId);
     let requiresEmailVerification = false;
@@ -154,7 +160,12 @@ export class AuthController {
 
     const { refreshToken, refreshTokenExpiresAt, ...rest } = result;
 
-    setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
+    setRefreshCookie(
+      res,
+      refreshToken,
+      new Date(refreshTokenExpiresAt),
+      req.client!.key,
+    );
     return res.json(rest);
   }
 
@@ -172,8 +183,12 @@ export class AuthController {
     @Req() req: ExpressRequest & ClientInRequest,
     @Res() res: ExpressResponse,
   ) {
+    // Prefer the per-client cookie; fall back to the legacy sh_refresh for
+    // backward compat with sessions created before per-client cookies shipped.
+    const clientKey = req.client!.key;
     const token =
-      req.cookies && (req.cookies[REFRESH_COOKIE] as string | undefined);
+      (req.cookies?.[getRefreshCookieName(clientKey)] as string | undefined) ??
+      (req.cookies?.[REFRESH_COOKIE] as string | undefined);
     if (!token) throw new BadRequestException('No refresh token');
 
     try {
@@ -186,10 +201,15 @@ export class AuthController {
 
       const { refreshToken, refreshTokenExpiresAt, ...rest } = result;
 
-      setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
+      setRefreshCookie(
+        res,
+        refreshToken,
+        new Date(refreshTokenExpiresAt),
+        clientKey,
+      );
       return res.json(rest);
     } catch (e) {
-      clearRefreshCookie(res);
+      clearRefreshCookie(res, clientKey);
       throw e;
     }
   }
@@ -247,7 +267,7 @@ export class AuthController {
         ua: req.headers['user-agent'] as string | undefined,
       });
     }
-    clearRefreshCookie(res);
+    clearRefreshCookie(res, req.client?.key);
     return res.send();
   }
 
@@ -377,7 +397,12 @@ export class AuthController {
 
     const { refreshToken, refreshTokenExpiresAt, ...rest } = tokens;
 
-    setRefreshCookie(res, refreshToken, new Date(refreshTokenExpiresAt));
+    setRefreshCookie(
+      res,
+      refreshToken,
+      new Date(refreshTokenExpiresAt),
+      req.client!.key,
+    );
 
     return res.json({
       ...rest,

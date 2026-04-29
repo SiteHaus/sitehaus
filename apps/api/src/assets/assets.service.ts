@@ -77,13 +77,19 @@ export class AssetsService {
     private readonly audit: AuditService,
   ) {}
 
-  /** Verify project belongs to clientId. */
-  async verifyProjectAccess(projectId: string, clientId: string) {
+  /** Verify project belongs to clientId. First-party callers can access any project. */
+  async verifyProjectAccess(
+    projectId: string,
+    clientId: string,
+    isFirstParty = false,
+  ) {
     return this.db.query.projectsTable.findFirst({
-      where: and(
-        eq(schema.projectsTable.id, projectId),
-        eq(schema.projectsTable.clientId, clientId),
-      ),
+      where: isFirstParty
+        ? eq(schema.projectsTable.id, projectId)
+        : and(
+            eq(schema.projectsTable.id, projectId),
+            eq(schema.projectsTable.clientId, clientId),
+          ),
       columns: { id: true },
     });
   }

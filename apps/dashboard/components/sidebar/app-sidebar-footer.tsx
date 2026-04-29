@@ -86,7 +86,7 @@ export const AppSideBarFooter = ({ isMobile }: AppSideBarFooterProps) => {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <a
-                    href={`${process.env.NEXT_PUBLIC_IAM_URL ?? "http://localhost:3002"}/account`}
+                    href={`${process.env.NEXT_PUBLIC_IAM_URL ?? "https://iam.localhost"}/account`}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

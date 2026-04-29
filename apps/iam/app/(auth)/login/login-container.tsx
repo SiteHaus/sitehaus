@@ -91,23 +91,23 @@ export default function LoginContainer() {
     const exp = Math.floor(Date.now() / 1000) + accessTokenExpiresIn;
     setAccess({ accessToken, accessExpiration: exp });
 
-    // Hydrate user/session/permissions
-    try {
-      await useAuthStore.getState().me();
-    } catch {
-      // Continue with redirect even if me() fails - user is authenticated
-    }
-
-    // Check if this is an OAuth flow — use sso-link form POST so the cookie
-    // lands in the first-party api.localhost jar (Firefox TCP fix).
+    // OAuth flow: navigate via sso-link BEFORE calling me() so the useEffect
+    // SSO shortcut (which fires when user becomes non-null) doesn't race with
+    // this handler and submit the form twice.
     if (oauthParams) {
       try {
-        clearAuth();
         navigateViaSSOLink(process.env.NEXT_PUBLIC_API_URL!, accessToken, oauthParams);
         return;
       } catch {
         // Fall through to normal redirect
       }
+    }
+
+    // Non-OAuth login: hydrate user profile then go to the requested page.
+    try {
+      await useAuthStore.getState().me();
+    } catch {
+      // Continue with redirect even if me() fails - user is authenticated
     }
 
     replace(next || "/");
