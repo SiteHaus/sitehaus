@@ -23,11 +23,12 @@ import {
   updateAssetSchema,
 } from '@site-haus/validation/forms/asset';
 import { AuthedRequest } from 'src/auth/access/access.guard';
+import { ClientInRequest } from 'src/clients/client.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import storageConfig from 'src/conf/storage.config';
 import { AssetsService } from './assets.service';
 
-type Req_ = AuthedRequest & { client?: { id: string } };
+type Req_ = AuthedRequest & ClientInRequest;
 
 @Controller('projects/:projectId/assets')
 export class AssetsController {
@@ -37,8 +38,16 @@ export class AssetsController {
     private readonly storageConf: ConfigType<typeof storageConfig>,
   ) {}
 
-  private async verifyAccess(projectId: string, clientId: string) {
-    const ok = await this.assets.verifyProjectAccess(projectId, clientId);
+  private async verifyAccess(
+    projectId: string,
+    clientId: string,
+    isFirstParty = false,
+  ) {
+    const ok = await this.assets.verifyProjectAccess(
+      projectId,
+      clientId,
+      isFirstParty,
+    );
     if (!ok) throw new ForbiddenException('Project not found or access denied');
   }
 
@@ -49,7 +58,7 @@ export class AssetsController {
     @Param('projectId') projectId: string,
     @Query() query: unknown,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const parsed = listAssetsQuerySchema.parse(query);
     return this.assets.list(projectId, parsed);
   }
@@ -61,7 +70,7 @@ export class AssetsController {
     @Param('projectId') projectId: string,
     @Param('assetId') assetId: string,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const asset = await this.assets.getById(assetId, projectId);
     if (!asset) throw new NotFoundException('Asset not found');
     return { asset };
@@ -77,7 +86,7 @@ export class AssetsController {
     @UploadedFile() file: Express.Multer.File,
     @Body('notes') notes?: string,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
 
     if (!file) {
       throw new NotFoundException('No file provided');
@@ -107,7 +116,7 @@ export class AssetsController {
     @Param('assetId') assetId: string,
     @Body() body: unknown,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const parsed = updateAssetSchema.parse(body);
     const asset = await this.assets.update(assetId, projectId, parsed, {
       userId: req.user!.userId,
@@ -127,7 +136,7 @@ export class AssetsController {
     @Param('projectId') projectId: string,
     @Param('assetId') assetId: string,
   ) {
-    await this.verifyAccess(projectId, req.client!.id);
+    await this.verifyAccess(projectId, req.client!.id, req.client!.firstParty);
     const deleted = await this.assets.remove(assetId, projectId, {
       userId: req.user!.userId,
       clientId: req.client!.id,

@@ -23,7 +23,7 @@ import { UsersService } from 'src/users/users.service';
 import { type AuthedRequest } from '../access/access.guard';
 import { AuthCodeService } from '../auth-code/auth-code.service';
 import { AuthService } from '../auth.service';
-import { setRefreshCookie } from '../cookie/cookies';
+import { findAnyRefreshCookie, setRefreshCookie } from '../cookie/cookies';
 import { TokenService } from '../token/token.service';
 import { TotpService } from '../totp/totp.service';
 import { VerifiedOptional } from '../verified/verified.guard';
@@ -111,6 +111,8 @@ export class OAuthController {
       // so there is no session leak from the login-time session.
       // Carry mfaVerifiedAt if the token indicates MFA was completed, so
       // the /auth/authorize 2FA re-check passes without bouncing to login.
+      const ssoClient = await this.clientsService.resolveById(payload.aud);
+
       const { refreshToken, refreshExpiresAt } =
         await this.sessionService.createSession({
           userId: payload.sub,
@@ -122,8 +124,8 @@ export class OAuthController {
           mfaVerifiedAt: new Date(),
         });
 
-      // Set cookie in the first-party api.localhost context.
-      setRefreshCookie(res, refreshToken, refreshExpiresAt);
+      // Set the per-client cookie so this app's session doesn't clobber others.
+      setRefreshCookie(res, refreshToken, refreshExpiresAt, ssoClient.key);
 
       // Decode oauth params and redirect to authorize.
       const params = JSON.parse(
@@ -217,11 +219,10 @@ export class OAuthController {
       }
     }
 
-    // Check if user is authenticated
-    // For browser-based OAuth, check for refresh token cookie in addition to req.user
-    const hasRefreshCookie = req.cookies && req.cookies['sh_refresh'];
+    // Check if user is authenticated — accept any sh_refresh* cookie (per-client or legacy)
+    const anyRefreshCookie = findAnyRefreshCookie(req.cookies);
 
-    if (!req.user && !hasRefreshCookie) {
+    if (!req.user && !anyRefreshCookie) {
       // User not logged in - redirect to login with oauth params
       const oauthParams = Buffer.from(JSON.stringify(query)).toString(
         'base64url',
@@ -244,7 +245,7 @@ export class OAuthController {
       userId = req.user.userId;
     } else {
       // Verify refresh token against the database
-      const refreshToken = req.cookies['sh_refresh'];
+      const refreshToken = anyRefreshCookie!;
 
       try {
         refreshSession =
@@ -355,12 +356,16 @@ export class OAuthController {
 
     // Resolve client by key or id
     let clientId: string;
+    let clientKey: string;
     try {
       if (body.client_key) {
         const client = await this.clientsService.resolveByKey(body.client_key);
         clientId = client.id;
+        clientKey = client.key;
       } else if (body.client_id) {
-        clientId = body.client_id;
+        const client = await this.clientsService.resolveById(body.client_id);
+        clientId = client.id;
+        clientKey = client.key;
       } else {
         throw new BadRequestException(
           'Either client_id or client_key is required',
@@ -385,8 +390,8 @@ export class OAuthController {
           ua: req.headers['user-agent'],
         });
 
-      // Set refresh token cookie for cross-origin session persistence
-      setRefreshCookie(res, refreshToken, refreshExpiresAt);
+      // Set per-client cookie so this app's session doesn't clobber other apps.
+      setRefreshCookie(res, refreshToken, refreshExpiresAt, clientKey);
 
       // Ensure user is a member of this client (auto-join with default role)
       await this.oauthService.ensureClientMembership(userId, clientId);
