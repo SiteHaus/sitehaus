@@ -161,8 +161,8 @@ export class TicketsController {
         req.client!.firstParty,
       );
       return { attachments };
-    } catch (e: any) {
-      if (e?.message === 'not_found')
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === 'not_found')
         throw new NotFoundException('Ticket not found');
       throw e;
     }
@@ -191,8 +191,8 @@ export class TicketsController {
         req.client!.firstParty,
       );
       return { attachment };
-    } catch (e: any) {
-      if (e?.message === 'not_found')
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === 'not_found')
         throw new NotFoundException('Ticket not found');
       throw e;
     }
@@ -219,8 +219,8 @@ export class TicketsController {
         req.client!.firstParty,
       );
       if (!deleted) throw new NotFoundException('Attachment not found');
-    } catch (e: any) {
-      if (e?.message === 'not_found')
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === 'not_found')
         throw new NotFoundException('Ticket not found');
       throw e;
     }
