@@ -24,6 +24,7 @@ const c = initContract();
 
 export const ticketItem = z.object({
   id: z.uuid(),
+  number: z.number(),
   projectId: z.uuid(),
   title: z.string(),
   description: z.string().nullable(),

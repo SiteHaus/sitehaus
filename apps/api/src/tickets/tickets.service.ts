@@ -206,17 +206,27 @@ export class TicketsService {
 
     if (!project) return { error: 'Project not found or access denied' };
 
-    const [ticket] = await this.db
-      .insert(schema.ticketsTable)
-      .values({
-        projectId: data.projectId,
-        title: data.title,
-        description: data.description ?? null,
-        type: data.type ?? 'request',
-        priority: data.priority ?? 'normal',
-        authorId: ctx.userId,
-      })
-      .returning();
+    const [ticket] = await this.db.transaction(async (tx) => {
+      const [maxRow] = await tx
+        .select({
+          max: sql<number>`coalesce(max(${schema.ticketsTable.number}), 0)`,
+        })
+        .from(schema.ticketsTable)
+        .where(eq(schema.ticketsTable.projectId, data.projectId));
+
+      return tx
+        .insert(schema.ticketsTable)
+        .values({
+          projectId: data.projectId,
+          number: (maxRow?.max ?? 0) + 1,
+          title: data.title,
+          description: data.description ?? null,
+          type: data.type ?? 'request',
+          priority: data.priority ?? 'normal',
+          authorId: ctx.userId,
+        })
+        .returning();
+    });
 
     await this.audit.log({
       clientId: ctx.clientId,

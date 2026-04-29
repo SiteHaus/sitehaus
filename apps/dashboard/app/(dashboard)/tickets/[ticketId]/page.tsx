@@ -166,6 +166,7 @@ export default function TicketDetailPage() {
 
         <div className="flex items-start justify-between gap-4">
           <div>
+            <p className="font-mono text-sm text-muted-foreground mb-1">#{ticket.number}</p>
             <h1 className="text-3xl font-bold">{ticket.title}</h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
