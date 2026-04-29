@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import { usersTable } from "../iam/users.js";
 import { commentsTable } from "./comments.js";
 import { projectsTable } from "./projects.js";
+import { ticketAttachmentsTable } from "./ticket-attachments.js";
 import { ticketsTable } from "./tickets.js";
 
 export const ticketsRelations = relations(ticketsTable, ({ one, many }) => ({
@@ -20,4 +21,5 @@ export const ticketsRelations = relations(ticketsTable, ({ one, many }) => ({
     relationName: "ticketAssignee",
   }),
   comments: many(commentsTable),
+  attachments: many(ticketAttachmentsTable),
 }));

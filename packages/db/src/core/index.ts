@@ -16,5 +16,7 @@ export * from "./milestones.js";
 export * from "./milestones.relations.js";
 export * from "./projects.js";
 export * from "./projects.relations.js";
+export * from "./ticket-attachments.js";
+export * from "./ticket-attachments.relations.js";
 export * from "./tickets.js";
 export * from "./tickets.relations.js";

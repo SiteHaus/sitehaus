@@ -35,7 +35,9 @@ import { Separator } from "@site-haus/ui/components/base/separator";
 import { CommentForm } from "@/components/comments/comment-form";
 import { useComments } from "@/hooks/use-comments";
 import { TicketAudienceBadge } from "../_components/TicketAudienceBadge";
+import { TicketAttachments } from "../_components/TicketAttachments";
 import { useIsEmployee } from "@/hooks/use-is-employee";
+import { useTicketAttachments } from "@/hooks/use-ticket-attachments";
 import { AuditLogItem } from "@site-haus/contracts";
 import { label } from "@site-haus/utils/core/format";
 
@@ -82,6 +84,13 @@ export default function TicketDetailPage() {
   } = useComments("ticket", ticket?.id ?? "");
 
   const isEmployee = useIsEmployee();
+  const {
+    attachments,
+    loading: attachmentsLoading,
+    uploading,
+    upload,
+    remove: removeAttachment,
+  } = useTicketAttachments(ticketId);
 
   const fetchTicket = useCallback(async () => {
     setLoading(true);
@@ -166,6 +175,7 @@ export default function TicketDetailPage() {
 
         <div className="flex items-start justify-between gap-4">
           <div>
+            <p className="font-mono text-sm text-muted-foreground mb-1">#{ticket.number}</p>
             <h1 className="text-3xl font-bold">{ticket.title}</h1>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -350,6 +360,20 @@ export default function TicketDetailPage() {
           </div>
         </CardContent>
       </Card>
+      {/* Attachments */}
+      <Card>
+        <CardContent className="pt-6">
+          <TicketAttachments
+            attachments={attachments}
+            loading={attachmentsLoading}
+            uploading={uploading}
+            canManage={canManage}
+            onUpload={upload}
+            onDelete={removeAttachment}
+          />
+        </CardContent>
+      </Card>
+
       {/* Comments */}
       <Card>
         <CardHeader>

@@ -3,7 +3,7 @@ import {
   ticketStatusValues,
   ticketTypeValues,
 } from "@site-haus/validation/core/enums";
-import { index, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, integer, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { usersTable } from "../iam/users.js";
 import { projectsTable } from "./projects.js";
 
@@ -15,6 +15,7 @@ export const ticketsTable = pgTable(
   "tickets",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    number: integer("number").notNull().default(0),
     projectId: uuid("project_id")
       .notNull()
       .references(() => projectsTable.id, { onDelete: "cascade" }),

@@ -1,0 +1,1 @@
+ALTER TABLE "tickets" ADD COLUMN "number" integer DEFAULT 0 NOT NULL;

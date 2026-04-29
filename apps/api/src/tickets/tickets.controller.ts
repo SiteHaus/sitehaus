@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   HttpCode,
@@ -12,7 +13,10 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   createTicketSchema,
   listTicketsQuerySchema,
@@ -23,13 +27,17 @@ import {
 import { AuthedRequest } from 'src/auth/access/access.guard';
 import { RequirePerms } from 'src/auth/permission/require-perms.decorator';
 import { ClientInRequest } from 'src/clients/client.guard';
+import { TicketAttachmentsService } from './ticket-attachments.service';
 import { TicketsService } from './tickets.service';
 
 type Req_ = AuthedRequest & ClientInRequest;
 
 @Controller('tickets')
 export class TicketsController {
-  constructor(private readonly tickets: TicketsService) {}
+  constructor(
+    private readonly tickets: TicketsService,
+    private readonly attachments: TicketAttachmentsService,
+  ) {}
 
   @RequirePerms('tickets:read')
   @Get()
@@ -141,5 +149,80 @@ export class TicketsController {
     if (!result) throw new NotFoundException('Ticket not found');
     if ('error' in result) throw new BadRequestException(result.error);
     return { ticket: result };
+  }
+
+  @RequirePerms('tickets:read')
+  @Get(':ticketId/attachments')
+  async listAttachments(@Req() req: Req_, @Param('ticketId') ticketId: string) {
+    try {
+      const attachments = await this.attachments.list(
+        ticketId,
+        req.client!.id,
+        req.client!.firstParty,
+      );
+      return { attachments };
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === 'not_found')
+        throw new NotFoundException('Ticket not found');
+      throw e;
+    }
+  }
+
+  @RequirePerms('tickets:create')
+  @Post(':ticketId/attachments/upload')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadAttachment(
+    @Req() req: Req_,
+    @Param('ticketId') ticketId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) throw new BadRequestException('No file provided');
+    try {
+      const attachment = await this.attachments.upload(
+        ticketId,
+        file,
+        {
+          userId: req.user!.userId,
+          clientId: req.client!.id,
+          ip: req.ip,
+          ua: req.headers['user-agent'] as string | undefined,
+        },
+        req.client!.firstParty,
+      );
+      return { attachment };
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === 'not_found')
+        throw new NotFoundException('Ticket not found');
+      throw e;
+    }
+  }
+
+  @RequirePerms('tickets:manage')
+  @Delete(':ticketId/attachments/:attachmentId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteAttachment(
+    @Req() req: Req_,
+    @Param('ticketId') ticketId: string,
+    @Param('attachmentId') attachmentId: string,
+  ) {
+    try {
+      const deleted = await this.attachments.remove(
+        attachmentId,
+        ticketId,
+        {
+          userId: req.user!.userId,
+          clientId: req.client!.id,
+          ip: req.ip,
+          ua: req.headers['user-agent'] as string | undefined,
+        },
+        req.client!.firstParty,
+      );
+      if (!deleted) throw new NotFoundException('Attachment not found');
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === 'not_found')
+        throw new NotFoundException('Ticket not found');
+      throw e;
+    }
   }
 }

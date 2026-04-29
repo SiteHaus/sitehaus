@@ -38,6 +38,7 @@ export function buildTicketListColumns({
     excludeColumns: ["description", "id", "authorId", "closedAt", "updatedAt"] as string[],
 
     defaultColumns: [
+      "number",
       "title",
       "projectId",
       "clientId",
@@ -49,6 +50,7 @@ export function buildTicketListColumns({
     ],
 
     columnLabels: {
+      number: "#",
       projectId: "Project",
       clientId: "Client",
       assigneeId: "Assignee",
@@ -59,6 +61,9 @@ export function buildTicketListColumns({
     },
 
     columnRenderers: {
+      number: (v: unknown) => (
+        <span className="font-mono text-muted-foreground text-xs">#{v as number}</span>
+      ),
       type: (v: unknown) => <TicketTypeBadge type={v as string} />,
       priority: (v: unknown) => (
         <div className="flex items-center gap-2">
