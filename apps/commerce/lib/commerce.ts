@@ -405,3 +405,22 @@ export const updateInventory = (
     method: "PATCH",
     body: JSON.stringify(body),
   });
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
+export type RevenuePeriod = { date: string; revenue: number; orderCount: number; aov: number };
+export type RevenueDashboard = { periods: RevenuePeriod[] };
+
+export type TopProductEntry = { productId: string; name: string; revenue: number };
+export type TopProductsDashboard = {
+  byRevenue: TopProductEntry[];
+  byViews: Array<{ productId: string | null; name: string | null; views: number }>;
+};
+
+export const getAnalyticsRevenue = (from: string, to: string, period: "day" | "week" | "month") =>
+  request<RevenueDashboard>(`/v1/admin/analytics/revenue?from=${from}&to=${to}&period=${period}`);
+
+export const getAnalyticsTopProducts = (from: string, to: string, limit = 5) =>
+  request<TopProductsDashboard>(
+    `/v1/admin/analytics/top-products?from=${from}&to=${to}&limit=${limit}`,
+  );

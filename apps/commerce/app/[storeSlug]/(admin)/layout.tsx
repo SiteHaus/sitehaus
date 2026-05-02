@@ -2,7 +2,11 @@
 
 import { RequireAuth } from "@/lib/require-auth";
 import { useAuthStore } from "@site-haus/stores/auth-store";
-import { SidebarInset, SidebarProvider } from "@site-haus/ui/components/base/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@site-haus/ui/components/base/sidebar";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -46,6 +50,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <SidebarProvider>
         <AppSideBar />
         <SidebarInset>
+          <header className="flex h-12 items-center px-4 border-b sticky top-0 z-10 bg-background">
+            <SidebarTrigger />
+          </header>
           <main>
             <div className="px-4 md:px-6 py-6">{children}</div>
           </main>

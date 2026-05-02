@@ -1,0 +1,106 @@
+"use client";
+
+import { listOrders, type AdminOrderSummary } from "@/lib/commerce";
+import { useStoreNav } from "@/lib/use-store-nav";
+import { Button } from "@site-haus/ui/components/base/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
+import { Skeleton } from "@site-haus/ui/components/base/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@site-haus/ui/components/base/table";
+import { useQuery } from "@tanstack/react-query";
+import { ShoppingCart } from "lucide-react";
+import { OrderStatusBadge } from "../orders/_components/order-status-badge";
+
+function formatCents(cents: number, currency: string) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(cents / 100);
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
+export function RecentOrders() {
+  const { push } = useStoreNav();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["orders-recent"],
+    queryFn: () => listOrders({ limit: 8, sort: "newest" }),
+  });
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base">Recent Orders</CardTitle>
+        <Button variant="ghost" size="sm" onClick={() => push("/orders")}>
+          View all
+        </Button>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Order</TableHead>
+              <TableHead>Customer</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-right">Total</TableHead>
+              <TableHead className="text-right">Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <TableCell key={j}>
+                      <Skeleton className="h-4 w-20" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : data?.items.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5}>
+                  <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                    <ShoppingCart className="size-8 mb-2 opacity-30" />
+                    <p className="text-sm">No orders yet</p>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              data?.items.map((order: AdminOrderSummary) => (
+                <TableRow
+                  key={order.id}
+                  className="cursor-pointer"
+                  onClick={() => push(`/orders/${order.id}`)}
+                >
+                  <TableCell className="font-mono text-xs font-medium">
+                    #{order.id.slice(0, 8).toUpperCase()}
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">{order.email}</TableCell>
+                  <TableCell>
+                    <OrderStatusBadge status={order.status} />
+                  </TableCell>
+                  <TableCell className="text-right text-sm font-medium">
+                    {formatCents(order.totalCents, order.currency)}
+                  </TableCell>
+                  <TableCell className="text-right text-sm text-muted-foreground">
+                    {formatDate(order.createdAt)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
