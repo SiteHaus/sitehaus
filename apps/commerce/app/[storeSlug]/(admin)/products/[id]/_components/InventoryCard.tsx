@@ -31,7 +31,7 @@ export function InventoryCard({
 
   return (
     <>
-      <Card className="mt-6">
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">Inventory</CardTitle>
         </CardHeader>

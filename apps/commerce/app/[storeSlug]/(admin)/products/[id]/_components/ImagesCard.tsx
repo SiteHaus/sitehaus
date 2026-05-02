@@ -127,7 +127,7 @@ export function ImagesCard({ productId }: { productId: string }) {
   }
 
   return (
-    <Card className="mt-6">
+    <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base">Images</CardTitle>
         <Button

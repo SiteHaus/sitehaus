@@ -10,11 +10,19 @@ import {
   type ChartConfig,
 } from "@site-haus/ui/components/base/chart";
 import { useQuery } from "@tanstack/react-query";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, Cell, XAxis, YAxis } from "recharts";
 import { type PeriodOption, periodToParams } from "./period-utils";
 
+const CHART_COLORS = [
+  "var(--color-chart-1)",
+  "var(--color-chart-2)",
+  "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-5)",
+];
+
 const chartConfig = {
-  revenue: { label: "Revenue", color: "hsl(var(--primary))" },
+  revenue: { label: "Revenue" },
 } satisfies ChartConfig;
 
 function formatCents(cents: number) {
@@ -81,7 +89,11 @@ export function TopProductsChart({ period }: { period: PeriodOption }) {
                   <ChartTooltipContent formatter={(value) => formatCents(value as number)} />
                 }
               />
-              <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
+                {chartData.map((_, i) => (
+                  <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                ))}
+              </Bar>
             </BarChart>
           </ChartContainer>
         )}

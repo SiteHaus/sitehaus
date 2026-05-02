@@ -89,6 +89,15 @@ export type ProductItem = {
   updatedAt: string;
 };
 
+export type OptionValue = { id: string; value: string; sortOrder: number };
+export type ProductOption = { id: string; name: string; sortOrder: number; values: OptionValue[] };
+export type VariantOptionValueRef = {
+  optionId: string;
+  optionName: string;
+  valueId: string;
+  value: string;
+};
+
 export type VariantAdmin = {
   id: string;
   name: string;
@@ -100,9 +109,13 @@ export type VariantAdmin = {
   stock: number;
   reserved: number;
   availability: "in_stock" | "low_stock" | "out_of_stock";
+  optionValues: VariantOptionValueRef[];
 };
 
-export type ProductDetail = ProductItem & { variants: VariantAdmin[] };
+export type ProductDetail = ProductItem & {
+  variants: VariantAdmin[];
+  options: ProductOption[];
+};
 
 export type ProductListResponse = { items: ProductItem[]; total: number };
 
@@ -172,6 +185,7 @@ export const createVariant = (
     compareAtCents?: number;
     isActive?: boolean;
     sortOrder?: number;
+    optionValueIds?: string[];
   },
 ) =>
   request<VariantItem>(`/v1/admin/products/${productId}/variants`, {
@@ -187,12 +201,45 @@ export const updateVariant = (
     sku?: string;
     compareAtCents?: number;
     isActive?: boolean;
+    optionValueIds?: string[];
   },
 ) =>
   request<VariantItem>(`/v1/admin/variants/${variantId}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
+
+// ─── Options ─────────────────────────────────────────────────────────────────
+
+export const createOption = (productId: string, body: { name: string }) =>
+  request<ProductOption>(`/v1/admin/products/${productId}/options`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateOption = (optionId: string, body: { name: string }) =>
+  request<ProductOption>(`/v1/admin/options/${optionId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteOption = (optionId: string) =>
+  request<{ message: string }>(`/v1/admin/options/${optionId}`, { method: "DELETE" });
+
+export const createOptionValue = (optionId: string, body: { value: string; sortOrder?: number }) =>
+  request<OptionValue>(`/v1/admin/options/${optionId}/values`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateOptionValue = (valueId: string, body: { value?: string; sortOrder?: number }) =>
+  request<OptionValue>(`/v1/admin/option-values/${valueId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteOptionValue = (valueId: string) =>
+  request<{ message: string }>(`/v1/admin/option-values/${valueId}`, { method: "DELETE" });
 
 export const deleteVariant = (variantId: string) =>
   request<{ message: string }>(`/v1/admin/variants/${variantId}`, {
