@@ -1,6 +1,6 @@
 "use client";
 
-import { getInventory, updateInventory, type VariantAdmin } from "@/lib/commerce";
+import { getInventory, updateInventory } from "@/lib/commerce";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -35,23 +35,23 @@ export function StockBadge({ available }: { available: number }) {
 }
 
 export function AdjustInventoryDialog({
-  variant,
+  variantId,
+  variantName,
   open,
   onClose,
-  productId,
 }: {
-  variant: VariantAdmin;
+  variantId: string;
+  variantName: string;
   open: boolean;
   onClose: () => void;
-  productId: string;
 }) {
   const qc = useQueryClient();
   const [stock, setStock] = useState("");
   const [allowBackorder, setAllowBackorder] = useState(false);
 
   const { data: inv, isLoading: invLoading } = useQuery({
-    queryKey: ["inventory", variant.id],
-    queryFn: () => getInventory(variant.id),
+    queryKey: ["inventory", variantId],
+    queryFn: () => getInventory(variantId),
     enabled: open,
   });
 
@@ -65,14 +65,14 @@ export function AdjustInventoryDialog({
   const mutation = useMutation({
     mutationFn: () => {
       const parsed = parseInt(stock, 10);
-      return updateInventory(variant.id, {
+      return updateInventory(variantId, {
         stock: isNaN(parsed) ? undefined : parsed,
         allowBackorder,
       });
     },
     onSuccess: (updated) => {
-      qc.setQueryData(["inventory", variant.id], updated);
-      qc.invalidateQueries({ queryKey: ["product", productId] });
+      qc.setQueryData(["inventory", variantId], updated);
+      qc.invalidateQueries({ queryKey: ["inventory", "list"] });
       toast.success("Inventory updated");
       onClose();
     },
@@ -87,7 +87,7 @@ export function AdjustInventoryDialog({
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Adjust Inventory — {variant.name}</DialogTitle>
+          <DialogTitle>Adjust Inventory — {variantName}</DialogTitle>
         </DialogHeader>
 
         {invLoading ? (

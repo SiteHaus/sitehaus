@@ -1,24 +1,24 @@
 import { Button } from "@site-haus/ui/components/base/button";
 import type { Metadata } from "next";
-import { Globe, Monitor, MoveRight, Smartphone } from "lucide-react";
+import { ArrowRight, Globe, Monitor, MoveRight, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Custom Software Development Services in Utah",
   description:
-    "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+    "Web, mobile, and desktop software development for Utah businesses. Serving Ogden, Salt Lake City, and St. George — custom-built with clear plans, no surprises.",
   alternates: { canonical: "/services" },
   openGraph: {
-    title: "Services | SiteHaus",
+    title: "Custom Software Development Services in Utah | SiteHaus",
     description:
-      "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+      "Web, mobile, and desktop software development for Utah businesses. Serving Ogden, Salt Lake City, and St. George — custom-built with clear plans, no surprises.",
     url: "/services",
   },
   twitter: {
-    title: "Services | SiteHaus",
+    title: "Custom Software Development Services in Utah | SiteHaus",
     description:
-      "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+      "Web, mobile, and desktop software development for Utah businesses. Serving Ogden, Salt Lake City, and St. George — custom-built with clear plans, no surprises.",
   },
 };
 
@@ -36,6 +36,7 @@ const services = [
       "E-commerce storefronts",
       "REST & GraphQL APIs",
     ],
+    learnMore: "/services/web-development",
   },
   {
     icon: Smartphone,
@@ -50,6 +51,7 @@ const services = [
       "Push notifications & real-time data",
       "App Store & Play Store submission",
     ],
+    learnMore: "/services/mobile-apps",
   },
   {
     icon: Monitor,
@@ -64,6 +66,7 @@ const services = [
       "Offline-first applications",
       "Cross-platform desktop (Tauri / Electron)",
     ],
+    learnMore: "/services/desktop-software",
   },
 ];
 
@@ -145,7 +148,7 @@ export default function ServicesPage() {
                     <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
                       {service.description}
                     </p>
-                    <ul className="flex flex-col gap-2">
+                    <ul className="flex flex-col gap-2 mb-6">
                       {service.examples.map((ex) => (
                         <li key={ex} className="flex items-center gap-3 text-sm text-foreground/70">
                           <span className="h-1 w-1 rounded-full bg-primary/60 flex-shrink-0" />
@@ -153,6 +156,12 @@ export default function ServicesPage() {
                         </li>
                       ))}
                     </ul>
+                    <Link
+                      href={service.learnMore}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+                    >
+                      Learn more <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
                 </div>
               );

@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: "%s | SiteHaus",
   },
   description:
-    "Your long-term partner in software. We design and build web, mobile, and desktop software with clear plans, shared milestones, and no surprises.",
+    "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George — with clear plans and no surprises.",
   metadataBase: new URL("https://sitehaus.dev"),
   alternates: { canonical: "/" },
   openGraph: {
@@ -41,14 +41,14 @@ export const metadata: Metadata = {
     url: "https://sitehaus.dev",
     title: "SiteHaus",
     description:
-      "Your long-term partner in software. We design and build web, mobile, and desktop software with clear plans, shared milestones, and no surprises.",
+      "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George — with clear plans and no surprises.",
     images: [{ url: "/og.png", width: 1200, height: 630, alt: "SiteHaus" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "SiteHaus",
     description:
-      "Your long-term partner in software. We design and build web, mobile, and desktop software with clear plans, shared milestones, and no surprises.",
+      "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George — with clear plans and no surprises.",
     images: ["/og.png"],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
@@ -91,6 +91,38 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               "@type": "WebSite",
               name: "SiteHaus",
               url: "https://sitehaus.dev",
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "ProfessionalService",
+              name: "SiteHaus",
+              url: "https://sitehaus.dev",
+              description:
+                "Custom software development studio serving Utah — web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
+              areaServed: [
+                {
+                  "@type": "City",
+                  name: "Ogden",
+                  containedInPlace: { "@type": "State", name: "Utah" },
+                },
+                {
+                  "@type": "City",
+                  name: "Salt Lake City",
+                  containedInPlace: { "@type": "State", name: "Utah" },
+                },
+                {
+                  "@type": "City",
+                  name: "St. George",
+                  containedInPlace: { "@type": "State", name: "Utah" },
+                },
+              ],
+              serviceType: [
+                "Web Development",
+                "Mobile App Development",
+                "Desktop Software Development",
+                "WordPress Migration",
+              ],
+              knowsAbout: ["Next.js", "React", "React Native", "Tauri", "TypeScript"],
             },
           ]}
         />
@@ -179,8 +211,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     fontSize: "14px",
                   }}
                 >
-                  A small consultancy that builds careful software. Clear plans, direct
-                  communication, no surprises.
+                  A small studio that builds web, mobile, and desktop software for businesses in
+                  Utah. Clear plans, direct communication, and no surprises.
                 </p>
               </div>
 
@@ -203,6 +235,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     ["Services", "/services"],
                     ["Our Method", "/our-method"],
                     ["Platform", "/platform"],
+                    ["Work", "/work"],
                     ["About", "/about"],
                     ["Contact", "/contact"],
                   ].map(([label, href]) => (
@@ -280,7 +313,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                   fontSize: "15px",
                 }}
               >
-                Carefully made, in Utah.
+                Built in Utah. Shipped everywhere.
               </span>
             </div>
           </div>

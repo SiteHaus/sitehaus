@@ -5,20 +5,20 @@ import Link from "next/link";
 import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About Us — Utah Software Development Studio",
   description:
-    "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+    "Two senior engineers based in Utah building software for businesses. Direct communication, no middlemen, no handoffs — you work with the people writing your code.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About | SiteHaus",
+    title: "About Us — Utah Software Development Studio | SiteHaus",
     description:
-      "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+      "Two senior engineers based in Utah building software for businesses. Direct communication, no middlemen, no handoffs.",
     url: "/about",
   },
   twitter: {
-    title: "About | SiteHaus",
+    title: "About Us — Utah Software Development Studio | SiteHaus",
     description:
-      "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+      "Two senior engineers based in Utah building software for businesses. Direct communication, no middlemen, no handoffs.",
   },
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { getProduct, listProducts, type ProductDetail, type VariantAdmin } from "@/lib/commerce";
+import { listInventory, type BulkInventoryItem } from "@/lib/commerce";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
@@ -12,19 +12,12 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Pencil, Warehouse } from "lucide-react";
 import { useState } from "react";
 import { AdjustInventoryDialog, StockBadge } from "./_components/adjust-inventory-dialog";
 
 type StockFilter = "all" | "low" | "out";
-
-type InventoryRow = {
-  productId: string;
-  productName: string;
-  variant: VariantAdmin;
-  available: number;
-};
 
 const FILTER_TABS: { label: string; value: StockFilter }[] = [
   { label: "All", value: "all" },
@@ -40,44 +33,21 @@ function matchesFilter(available: number, filter: StockFilter) {
 
 export default function InventoryPage() {
   const [filter, setFilter] = useState<StockFilter>("all");
-  const [adjusting, setAdjusting] = useState<{ variant: VariantAdmin; productId: string } | null>(
-    null,
-  );
+  const [adjusting, setAdjusting] = useState<BulkInventoryItem | null>(null);
 
-  const { data: productList, isLoading: listLoading } = useQuery({
-    queryKey: ["products-all"],
-    queryFn: () => listProducts({ limit: 200 }),
+  const { data, isLoading } = useQuery({
+    queryKey: ["inventory", "list"],
+    queryFn: () => listInventory({ limit: 500 }),
+    staleTime: 30_000,
   });
 
-  const products = productList?.items ?? [];
+  const items = data?.items ?? [];
+  const filtered = items.filter((r) => matchesFilter(r.available, filter));
 
-  const detailQueries = useQueries({
-    queries: products
-      .filter((p) => p.variantCount > 0)
-      .map((p) => ({
-        queryKey: ["product", p.id],
-        queryFn: () => getProduct(p.id),
-      })),
-  });
+  const lowCount = items.filter((r) => r.available > 0 && r.available <= 5).length;
+  const outCount = items.filter((r) => r.available <= 0).length;
 
-  const detailsLoading = detailQueries.some((q) => q.isLoading);
-  const isLoading = listLoading || detailsLoading;
-
-  const rows: InventoryRow[] = detailQueries.flatMap((q) => {
-    const detail = q.data as ProductDetail | undefined;
-    if (!detail) return [];
-    return detail.variants.map((v) => ({
-      productId: detail.id,
-      productName: detail.name,
-      variant: v,
-      available: v.stock - v.reserved,
-    }));
-  });
-
-  const filtered = rows.filter((r) => matchesFilter(r.available, filter));
-
-  const lowCount = rows.filter((r) => r.available > 0 && r.available <= 5).length;
-  const outCount = rows.filter((r) => r.available <= 0).length;
+  const productCount = new Set(items.map((r) => r.productId)).size;
 
   return (
     <div>
@@ -87,7 +57,7 @@ export default function InventoryPage() {
           <p className="text-muted-foreground text-sm mt-0.5">
             {isLoading
               ? "—"
-              : `${rows.length} variant${rows.length !== 1 ? "s" : ""} across ${detailQueries.filter((q) => q.data).length} product${detailQueries.filter((q) => q.data).length !== 1 ? "s" : ""}`}
+              : `${items.length} variant${items.length !== 1 ? "s" : ""} across ${productCount} product${productCount !== 1 ? "s" : ""}`}
           </p>
         </div>
       </div>
@@ -170,17 +140,15 @@ export default function InventoryPage() {
               filtered.map((row, i) => {
                 const showProduct = i === 0 || filtered[i - 1]?.productId !== row.productId;
                 return (
-                  <TableRow key={row.variant.id}>
+                  <TableRow key={row.variantId}>
                     <TableCell className="font-medium">
                       {showProduct ? row.productName : ""}
                     </TableCell>
-                    <TableCell>{row.variant.name}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {row.variant.sku ?? "—"}
-                    </TableCell>
-                    <TableCell className="text-right">{row.variant.stock}</TableCell>
+                    <TableCell>{row.variantName}</TableCell>
+                    <TableCell className="text-muted-foreground">{row.sku ?? "—"}</TableCell>
+                    <TableCell className="text-right">{row.stock}</TableCell>
                     <TableCell className="text-right text-muted-foreground">
-                      {row.variant.reserved}
+                      {row.reserved}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -193,9 +161,7 @@ export default function InventoryPage() {
                         variant="ghost"
                         size="icon"
                         className="size-8"
-                        onClick={() =>
-                          setAdjusting({ variant: row.variant, productId: row.productId })
-                        }
+                        onClick={() => setAdjusting(row)}
                       >
                         <Pencil className="size-3.5" />
                       </Button>
@@ -210,10 +176,10 @@ export default function InventoryPage() {
 
       {adjusting && (
         <AdjustInventoryDialog
-          variant={adjusting.variant}
+          variantId={adjusting.variantId}
+          variantName={adjusting.variantName}
           open={!!adjusting}
           onClose={() => setAdjusting(null)}
-          productId={adjusting.productId}
         />
       )}
     </div>

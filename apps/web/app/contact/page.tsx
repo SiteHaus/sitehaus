@@ -130,7 +130,7 @@ export default function ContactPage() {
 
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
               {[
-                { label: "Email", value: "hello@sitehaus.dev" },
+                { label: "Email", value: "sitehausdev@gmail.com" },
                 { label: "Location", value: "Utah, USA" },
               ].map(({ label, value }) => (
                 <div key={label} style={{ display: "flex", gap: "20px", alignItems: "center" }}>

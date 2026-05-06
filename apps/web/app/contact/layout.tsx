@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Start a Project",
   description:
-    "Start a conversation about your project. No commitment, no sales pitch — just a conversation about what you're building.",
+    "Ready to build something? Reach out — we're based in Utah and work with businesses across Ogden, Salt Lake City, and St. George. No commitment, no sales pitch.",
   alternates: { canonical: "/contact" },
   openGraph: {
-    title: "Contact | SiteHaus",
+    title: "Start a Project | SiteHaus",
     description:
-      "Start a conversation about your project. No commitment, no sales pitch — just a conversation about what you're building.",
+      "Ready to build something? Reach out — we're based in Utah and work with businesses across Ogden, Salt Lake City, and St. George.",
     url: "/contact",
   },
   twitter: {
-    title: "Contact | SiteHaus",
+    title: "Start a Project | SiteHaus",
     description:
-      "Start a conversation about your project. No commitment, no sales pitch — just a conversation about what you're building.",
+      "Ready to build something? Reach out — we're based in Utah and work with businesses across Ogden, Salt Lake City, and St. George.",
   },
 };
 

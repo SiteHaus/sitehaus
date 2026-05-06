@@ -5,6 +5,7 @@ import {
   getMyStore,
   getStripeStatus,
   updateStore,
+  type FulfillmentType,
   type StoreDetail,
   type StripeStatus,
 } from "@/lib/commerce";
@@ -60,6 +61,7 @@ export default function SettingsPage() {
   const [domain, setDomain] = useState("");
   const [currency, setCurrency] = useState("usd");
   const [reservationTtl, setReservationTtl] = useState(15);
+  const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("shipping");
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
@@ -68,6 +70,7 @@ export default function SettingsPage() {
     setDomain(store.domain ?? "");
     setCurrency(store.currency);
     setReservationTtl(store.reservationTtlMinutes);
+    setFulfillmentType(store.fulfillmentType);
   }, [store]);
 
   const saveMutation = useMutation({
@@ -77,6 +80,7 @@ export default function SettingsPage() {
         domain: domain || null,
         currency,
         reservationTtlMinutes: reservationTtl,
+        fulfillmentType,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["store"] });
@@ -186,6 +190,34 @@ export default function SettingsPage() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="fulfillment">Fulfillment Method</Label>
+            <Select
+              value={fulfillmentType}
+              onValueChange={(v) => {
+                setFulfillmentType(v as FulfillmentType);
+                markDirty();
+              }}
+            >
+              <SelectTrigger id="fulfillment">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="shipping">Shipping — ship orders to customers</SelectItem>
+                <SelectItem value="pickup">In-Person Pickup — customers collect locally</SelectItem>
+              </SelectContent>
+            </Select>
+            {fulfillmentType === "pickup" && (
+              <div className="flex items-start gap-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3 text-sm text-amber-800 dark:text-amber-300">
+                <AlertCircle className="size-4 mt-0.5 shrink-0" />
+                <span>
+                  Pickup mode disables shipping address collection and tracking numbers. Confirmed
+                  orders will show a "Ready for Pickup" action instead of "Mark Shipped."
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="space-y-1.5">

@@ -25,6 +25,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 
+export type FulfillmentType = "shipping" | "pickup";
+
 export type StoreDetail = {
   id: string;
   clientId: string;
@@ -36,6 +38,7 @@ export type StoreDetail = {
   stripePayoutsEnabled: boolean;
   stripeDetailsSubmitted: boolean;
   reservationTtlMinutes: number;
+  fulfillmentType: FulfillmentType;
 };
 
 export type StripeStatus = {
@@ -59,6 +62,7 @@ export const updateStore = (body: {
   currency?: string;
   timezone?: string;
   reservationTtlMinutes?: number;
+  fulfillmentType?: FulfillmentType;
 }) =>
   request<StoreDetail>("/v1/admin/stores", {
     method: "PATCH",
@@ -328,6 +332,12 @@ export const refundOrder = (orderId: string) =>
     body: JSON.stringify({}),
   });
 
+export const collectOrder = (orderId: string) =>
+  request<AdminOrderDetail>(`/v1/admin/orders/${orderId}/collect`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+
 // ─── Collections ─────────────────────────────────────────────────────────────
 
 export type CollectionItem = {
@@ -439,6 +449,37 @@ export type InventoryItem = {
   allowBackorder: boolean;
   reservationTtlMinutes: number;
   updatedAt: string;
+};
+
+export type BulkInventoryItem = {
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantName: string;
+  sku: string | null;
+  stock: number;
+  reserved: number;
+  available: number;
+  allowBackorder: boolean;
+};
+
+export type ListInventoryParams = {
+  limit?: number;
+  offset?: number;
+  stockFilter?: "all" | "low" | "out";
+  threshold?: number;
+};
+
+export const listInventory = (params: ListInventoryParams = {}) => {
+  const qs = new URLSearchParams();
+  if (params.limit !== undefined) qs.set("limit", String(params.limit));
+  if (params.offset !== undefined) qs.set("offset", String(params.offset));
+  if (params.stockFilter) qs.set("stockFilter", params.stockFilter);
+  if (params.threshold !== undefined) qs.set("threshold", String(params.threshold));
+  const query = qs.toString();
+  return request<{ items: BulkInventoryItem[]; total: number }>(
+    `/v1/admin/inventory${query ? `?${query}` : ""}`,
+  );
 };
 
 export const getInventory = (variantId: string) =>

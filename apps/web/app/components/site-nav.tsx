@@ -2,13 +2,21 @@
 
 import { MoveRight } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const navLinks = [
-  { text: "Services", href: "/services" },
   { text: "Our Method", href: "/our-method" },
   { text: "Platform", href: "/platform" },
+  { text: "Work", href: "/work" },
   { text: "About", href: "/about" },
+];
+
+const serviceLinks = [
+  { text: "Web Development", href: "/services/web-development" },
+  { text: "Mobile Apps", href: "/services/mobile-apps" },
+  { text: "Desktop Software", href: "/services/desktop-software" },
+  { text: "WordPress Migration", href: "/services/wordpress-migration" },
+  { text: "Custom Ecommerce", href: "/services/custom-ecommerce" },
 ];
 
 function SiteLogo({
@@ -38,6 +46,16 @@ function SiteLogo({
 
 export const SiteNav = () => {
   const [open, setOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
+  const servicesTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openServices = () => {
+    if (servicesTimeout.current) clearTimeout(servicesTimeout.current);
+    setServicesOpen(true);
+  };
+  const closeServices = () => {
+    servicesTimeout.current = setTimeout(() => setServicesOpen(false), 120);
+  };
 
   return (
     <>
@@ -89,7 +107,127 @@ export const SiteNav = () => {
           className="hidden md:block"
           style={{ width: "1px", height: "20px", background: "var(--line)" }}
         />
-        <div className="hidden md:flex" style={{ gap: "4px" }}>
+        <div className="hidden md:flex" style={{ gap: "4px", alignItems: "center" }}>
+          {/* Services dropdown */}
+          <div
+            style={{ position: "relative" }}
+            onMouseEnter={openServices}
+            onMouseLeave={closeServices}
+          >
+            <Link
+              href="/services"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "14px",
+                fontWeight: 500,
+                padding: "6px 13px",
+                borderRadius: "999px",
+                color: servicesOpen ? "var(--ink-900)" : "var(--clay-700)",
+                background: servicesOpen ? "var(--parchment-200)" : "transparent",
+                textDecoration: "none",
+                transition:
+                  "background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              Services
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                style={{
+                  transition: "transform var(--dur-fast) var(--ease-out)",
+                  transform: servicesOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </Link>
+
+            {servicesOpen && (
+              <div
+                onMouseEnter={openServices}
+                onMouseLeave={closeServices}
+                style={{
+                  position: "absolute",
+                  top: "calc(100% + 8px)",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "rgba(251, 246, 238, 0.96)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  border: "1px solid var(--line-soft)",
+                  borderRadius: "16px",
+                  boxShadow: "var(--shadow-sm)",
+                  padding: "8px",
+                  minWidth: "200px",
+                  zIndex: 101,
+                }}
+              >
+                {serviceLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setServicesOpen(false)}
+                    style={{
+                      display: "block",
+                      fontFamily: "var(--font-body)",
+                      fontSize: "13.5px",
+                      fontWeight: 500,
+                      padding: "8px 12px",
+                      borderRadius: "10px",
+                      color: "var(--clay-700)",
+                      textDecoration: "none",
+                      transition:
+                        "background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out)",
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "var(--parchment-200)";
+                      (e.currentTarget as HTMLElement).style.color = "var(--ink-900)";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "transparent";
+                      (e.currentTarget as HTMLElement).style.color = "var(--clay-700)";
+                    }}
+                  >
+                    {link.text}
+                  </Link>
+                ))}
+                <div style={{ height: "1px", background: "var(--line-soft)", margin: "6px 4px" }} />
+                <Link
+                  href="/services"
+                  onClick={() => setServicesOpen(false)}
+                  style={{
+                    display: "block",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "12px",
+                    fontWeight: 600,
+                    padding: "8px 12px",
+                    borderRadius: "10px",
+                    color: "var(--terracotta-500)",
+                    textDecoration: "none",
+                    letterSpacing: "0.02em",
+                    transition: "background var(--dur-fast) var(--ease-out)",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "var(--parchment-200)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = "transparent";
+                  }}
+                >
+                  View all services →
+                </Link>
+              </div>
+            )}
+          </div>
+
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -212,6 +350,53 @@ export const SiteNav = () => {
           }}
         >
           <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
+            {/* Services with sub-links */}
+            <Link
+              href="/services"
+              onClick={() => setOpen(false)}
+              style={{
+                fontFamily: "var(--font-display)",
+                fontVariationSettings: "'opsz' 48, 'SOFT' 50, 'WONK' 0",
+                fontSize: "32px",
+                fontWeight: 400,
+                color: "var(--ink-900)",
+                textDecoration: "none",
+                padding: "12px 0",
+                letterSpacing: "-0.01em",
+                borderBottom: "none",
+              }}
+            >
+              Services
+            </Link>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "2px",
+                paddingLeft: "16px",
+                paddingBottom: "12px",
+                borderBottom: "1px dashed var(--line-soft)",
+              }}
+            >
+              {serviceLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "15px",
+                    fontWeight: 500,
+                    color: "var(--clay-600)",
+                    textDecoration: "none",
+                    padding: "6px 0",
+                  }}
+                >
+                  {link.text}
+                </Link>
+              ))}
+            </div>
+
             {[...navLinks, { text: "Contact", href: "/contact" }].map((link) => (
               <Link
                 key={link.href}

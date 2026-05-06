@@ -15,18 +15,18 @@ import Link from "next/link";
 import { Screenshot } from "./screenshot";
 
 export const metadata: Metadata = {
-  title: "Platform",
+  title: "Client Portal & Project Platform",
   description:
     "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
   alternates: { canonical: "/platform" },
   openGraph: {
-    title: "Platform | SiteHaus",
+    title: "Client Portal & Project Platform | SiteHaus",
     description:
       "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
     url: "/platform",
   },
   twitter: {
-    title: "Platform | SiteHaus",
+    title: "Client Portal & Project Platform | SiteHaus",
     description:
       "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
   },

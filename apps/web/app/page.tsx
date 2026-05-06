@@ -1,4 +1,5 @@
 import { Button } from "@site-haus/ui/components/base/button";
+import type { Metadata } from "next";
 import {
   FileText,
   KeyRound,
@@ -13,6 +14,24 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "SiteHaus — Custom Software Development in Utah",
+  description:
+    "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "SiteHaus — Custom Software Development in Utah",
+    description:
+      "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
+    url: "/",
+  },
+  twitter: {
+    title: "SiteHaus — Custom Software Development in Utah",
+    description:
+      "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
+  },
+};
 
 const platform = [
   {
@@ -166,8 +185,8 @@ export default function HomePage() {
                 marginBottom: "36px",
               }}
             >
-              We design and build web, mobile, and desktop software — with clear plans, shared
-              milestones, and software built to be owned.
+              We design and build web, mobile, and desktop software for businesses in Utah — with
+              clear plans, shared milestones, and software built to be owned.
             </p>
 
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
