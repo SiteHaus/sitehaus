@@ -47,7 +47,6 @@ export default function LoginContainer() {
   const oauthParams = searchParams.get("oauth_params");
 
   const setAccess = useAuthStore((s) => s.setAccess);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
   const user = useAuthStore((s) => s.user);
   const bootstrapped = useAuthStore((s) => s.bootstrapped);
 
@@ -61,7 +60,10 @@ export default function LoginContainer() {
     try {
       const currentToken = useAuthStore.getState().accessToken;
       if (!currentToken) return;
-      clearAuth();
+      // Do NOT call clearAuth() here — if navigation fails the user would be
+      // left with a blank auth state and no way to recover. The form.submit()
+      // in navigateViaSSOLink causes a full page navigation, so the effect
+      // can't fire twice anyway.
       navigateViaSSOLink(process.env.NEXT_PUBLIC_API_URL!, currentToken, oauthParams);
     } catch {
       // Malformed oauth_params — fall through to login form

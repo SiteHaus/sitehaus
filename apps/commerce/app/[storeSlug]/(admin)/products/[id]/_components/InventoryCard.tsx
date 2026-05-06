@@ -18,20 +18,14 @@ import {
   StockBadge,
 } from "../../../inventory/_components/adjust-inventory-dialog";
 
-export function InventoryCard({
-  productId,
-  variants,
-}: {
-  productId: string;
-  variants: VariantAdmin[];
-}) {
+export function InventoryCard({ variants }: { variants: VariantAdmin[] }) {
   const [adjusting, setAdjusting] = useState<VariantAdmin | null>(null);
 
   if (variants.length === 0) return null;
 
   return (
     <>
-      <Card className="mt-6">
+      <Card>
         <CardHeader>
           <CardTitle className="text-base">Inventory</CardTitle>
         </CardHeader>
@@ -80,10 +74,10 @@ export function InventoryCard({
 
       {adjusting && (
         <AdjustInventoryDialog
-          variant={adjusting}
+          variantId={adjusting.id}
+          variantName={adjusting.name}
           open={!!adjusting}
           onClose={() => setAdjusting(null)}
-          productId={productId}
         />
       )}
     </>

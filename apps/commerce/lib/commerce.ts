@@ -25,6 +25,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 // ─── Store ───────────────────────────────────────────────────────────────────
 
+export type FulfillmentType = "shipping" | "pickup";
+
 export type StoreDetail = {
   id: string;
   clientId: string;
@@ -36,6 +38,7 @@ export type StoreDetail = {
   stripePayoutsEnabled: boolean;
   stripeDetailsSubmitted: boolean;
   reservationTtlMinutes: number;
+  fulfillmentType: FulfillmentType;
 };
 
 export type StripeStatus = {
@@ -59,6 +62,7 @@ export const updateStore = (body: {
   currency?: string;
   timezone?: string;
   reservationTtlMinutes?: number;
+  fulfillmentType?: FulfillmentType;
 }) =>
   request<StoreDetail>("/v1/admin/stores", {
     method: "PATCH",
@@ -89,6 +93,15 @@ export type ProductItem = {
   updatedAt: string;
 };
 
+export type OptionValue = { id: string; value: string; sortOrder: number };
+export type ProductOption = { id: string; name: string; sortOrder: number; values: OptionValue[] };
+export type VariantOptionValueRef = {
+  optionId: string;
+  optionName: string;
+  valueId: string;
+  value: string;
+};
+
 export type VariantAdmin = {
   id: string;
   name: string;
@@ -100,9 +113,13 @@ export type VariantAdmin = {
   stock: number;
   reserved: number;
   availability: "in_stock" | "low_stock" | "out_of_stock";
+  optionValues: VariantOptionValueRef[];
 };
 
-export type ProductDetail = ProductItem & { variants: VariantAdmin[] };
+export type ProductDetail = ProductItem & {
+  variants: VariantAdmin[];
+  options: ProductOption[];
+};
 
 export type ProductListResponse = { items: ProductItem[]; total: number };
 
@@ -172,6 +189,7 @@ export const createVariant = (
     compareAtCents?: number;
     isActive?: boolean;
     sortOrder?: number;
+    optionValueIds?: string[];
   },
 ) =>
   request<VariantItem>(`/v1/admin/products/${productId}/variants`, {
@@ -187,12 +205,45 @@ export const updateVariant = (
     sku?: string;
     compareAtCents?: number;
     isActive?: boolean;
+    optionValueIds?: string[];
   },
 ) =>
   request<VariantItem>(`/v1/admin/variants/${variantId}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
+
+// ─── Options ─────────────────────────────────────────────────────────────────
+
+export const createOption = (productId: string, body: { name: string }) =>
+  request<ProductOption>(`/v1/admin/products/${productId}/options`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateOption = (optionId: string, body: { name: string }) =>
+  request<ProductOption>(`/v1/admin/options/${optionId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteOption = (optionId: string) =>
+  request<{ message: string }>(`/v1/admin/options/${optionId}`, { method: "DELETE" });
+
+export const createOptionValue = (optionId: string, body: { value: string; sortOrder?: number }) =>
+  request<OptionValue>(`/v1/admin/options/${optionId}/values`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateOptionValue = (valueId: string, body: { value?: string; sortOrder?: number }) =>
+  request<OptionValue>(`/v1/admin/option-values/${valueId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteOptionValue = (valueId: string) =>
+  request<{ message: string }>(`/v1/admin/option-values/${valueId}`, { method: "DELETE" });
 
 export const deleteVariant = (variantId: string) =>
   request<{ message: string }>(`/v1/admin/variants/${variantId}`, {
@@ -277,6 +328,12 @@ export const shipOrder = (orderId: string, trackingNumber: string) =>
 
 export const refundOrder = (orderId: string) =>
   request<AdminOrderDetail>(`/v1/admin/orders/${orderId}/refund`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+
+export const collectOrder = (orderId: string) =>
+  request<AdminOrderDetail>(`/v1/admin/orders/${orderId}/collect`, {
     method: "POST",
     body: JSON.stringify({}),
   });
@@ -394,6 +451,37 @@ export type InventoryItem = {
   updatedAt: string;
 };
 
+export type BulkInventoryItem = {
+  variantId: string;
+  productId: string;
+  productName: string;
+  variantName: string;
+  sku: string | null;
+  stock: number;
+  reserved: number;
+  available: number;
+  allowBackorder: boolean;
+};
+
+export type ListInventoryParams = {
+  limit?: number;
+  offset?: number;
+  stockFilter?: "all" | "low" | "out";
+  threshold?: number;
+};
+
+export const listInventory = (params: ListInventoryParams = {}) => {
+  const qs = new URLSearchParams();
+  if (params.limit !== undefined) qs.set("limit", String(params.limit));
+  if (params.offset !== undefined) qs.set("offset", String(params.offset));
+  if (params.stockFilter) qs.set("stockFilter", params.stockFilter);
+  if (params.threshold !== undefined) qs.set("threshold", String(params.threshold));
+  const query = qs.toString();
+  return request<{ items: BulkInventoryItem[]; total: number }>(
+    `/v1/admin/inventory${query ? `?${query}` : ""}`,
+  );
+};
+
 export const getInventory = (variantId: string) =>
   request<InventoryItem>(`/v1/admin/inventory/${variantId}`);
 
@@ -405,3 +493,22 @@ export const updateInventory = (
     method: "PATCH",
     body: JSON.stringify(body),
   });
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
+export type RevenuePeriod = { date: string; revenue: number; orderCount: number; aov: number };
+export type RevenueDashboard = { periods: RevenuePeriod[] };
+
+export type TopProductEntry = { productId: string; name: string; revenue: number };
+export type TopProductsDashboard = {
+  byRevenue: TopProductEntry[];
+  byViews: Array<{ productId: string | null; name: string | null; views: number }>;
+};
+
+export const getAnalyticsRevenue = (from: string, to: string, period: "day" | "week" | "month") =>
+  request<RevenueDashboard>(`/v1/admin/analytics/revenue?from=${from}&to=${to}&period=${period}`);
+
+export const getAnalyticsTopProducts = (from: string, to: string, limit = 5) =>
+  request<TopProductsDashboard>(
+    `/v1/admin/analytics/top-products?from=${from}&to=${to}&limit=${limit}`,
+  );

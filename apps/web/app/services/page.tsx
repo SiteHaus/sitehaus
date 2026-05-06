@@ -1,24 +1,24 @@
 import { Button } from "@site-haus/ui/components/base/button";
 import type { Metadata } from "next";
-import { Globe, Monitor, MoveRight, Smartphone } from "lucide-react";
+import { ArrowRight, Globe, Monitor, MoveRight, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
-  title: "Services",
+  title: "Custom Software Development Services in Utah",
   description:
-    "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+    "Web, mobile, and desktop software development for Utah businesses. Serving Ogden, Salt Lake City, and St. George — custom-built with clear plans, no surprises.",
   alternates: { canonical: "/services" },
   openGraph: {
-    title: "Services | SiteHaus",
+    title: "Custom Software Development Services in Utah | SiteHaus",
     description:
-      "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+      "Web, mobile, and desktop software development for Utah businesses. Serving Ogden, Salt Lake City, and St. George — custom-built with clear plans, no surprises.",
     url: "/services",
   },
   twitter: {
-    title: "Services | SiteHaus",
+    title: "Custom Software Development Services in Utah | SiteHaus",
     description:
-      "We build web, mobile, and desktop software for any business. Custom software with clear plans, shared milestones, and no surprises.",
+      "Web, mobile, and desktop software development for Utah businesses. Serving Ogden, Salt Lake City, and St. George — custom-built with clear plans, no surprises.",
   },
 };
 
@@ -28,7 +28,7 @@ const services = [
     title: "Web",
     tagline: "Websites, web apps, and everything in between.",
     description:
-      "From marketing sites to full SaaS platforms — we build for the web at any scale. Custom dashboards, customer portals, e-commerce, APIs, internal tools. If your business runs on a browser, we can build it.",
+      "From a simple marketing site to a full SaaS product — we build for the web at any scale. Dashboards, customer portals, e-commerce storefronts, APIs. If it runs in a browser, we can build it.",
     examples: [
       "Marketing & landing pages",
       "Web applications & SaaS",
@@ -36,13 +36,14 @@ const services = [
       "E-commerce storefronts",
       "REST & GraphQL APIs",
     ],
+    learnMore: "/services/web-development",
   },
   {
     icon: Smartphone,
     title: "Mobile",
     tagline: "iOS and Android apps your customers will actually use.",
     description:
-      "We build native-quality mobile apps for both platforms. Whether you need a companion app for your existing product or a standalone mobile experience, we design for the device first.",
+      "Native-quality apps for iOS and Android. Whether it's a companion to something you've already built or a standalone product, we design for the device first — not the smallest shared denominator.",
     examples: [
       "iOS & Android apps",
       "Cross-platform (React Native)",
@@ -50,13 +51,14 @@ const services = [
       "Push notifications & real-time data",
       "App Store & Play Store submission",
     ],
+    learnMore: "/services/mobile-apps",
   },
   {
     icon: Monitor,
     title: "Desktop",
     tagline: "Windows, Mac, and Linux — when the browser isn't enough.",
     description:
-      "Some software needs to live on the machine. We build desktop apps for all major platforms — internal tools, installer-based software, apps that need hardware access or offline-first capabilities.",
+      "Some software needs to live on the machine. We build for Windows, Mac, and Linux — internal tools, hardware-integrated software, anything that needs system access or works without a connection.",
     examples: [
       "Windows, Mac & Linux apps",
       "Internal business tools",
@@ -64,6 +66,7 @@ const services = [
       "Offline-first applications",
       "Cross-platform desktop (Tauri / Electron)",
     ],
+    learnMore: "/services/desktop-software",
   },
 ];
 
@@ -107,8 +110,8 @@ export default function ServicesPage() {
             Any software. <span className="italic font-bold text-foreground/50">Any platform.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-            We don't specialize in one slice of the stack. If it runs on a screen, we can design and
-            build it — with clear plans and no surprises.
+            We don't specialize in one slice of the stack. Web, mobile, desktop — if it runs on a
+            screen, we can design and build it.
           </p>
         </div>
       </section>
@@ -145,7 +148,7 @@ export default function ServicesPage() {
                     <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-8">
                       {service.description}
                     </p>
-                    <ul className="flex flex-col gap-2">
+                    <ul className="flex flex-col gap-2 mb-6">
                       {service.examples.map((ex) => (
                         <li key={ex} className="flex items-center gap-3 text-sm text-foreground/70">
                           <span className="h-1 w-1 rounded-full bg-primary/60 flex-shrink-0" />
@@ -153,6 +156,12 @@ export default function ServicesPage() {
                         </li>
                       ))}
                     </ul>
+                    <Link
+                      href={service.learnMore}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+                    >
+                      Learn more <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
                 </div>
               );
@@ -171,8 +180,8 @@ export default function ServicesPage() {
             Every project starts with a conversation.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            No pricing tables. No packages. Every engagement is scoped to what you actually need.
-            Reach out and we'll talk through it.
+            No pricing tables, no packages. Tell us what you're building and we'll scope it to what
+            you actually need.
           </p>
           <Button size="lg" className="h-12 text-base" asChild>
             <Link href="/contact">

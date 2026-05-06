@@ -1,6 +1,6 @@
 "use client";
 
-import { getOrder, refundOrder, shipOrder } from "@/lib/commerce";
+import { collectOrder, getMyStore, getOrder, refundOrder, shipOrder } from "@/lib/commerce";
 import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
@@ -24,7 +24,7 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, RotateCcw, Truck } from "lucide-react";
+import { ArrowLeft, Loader2, Package, RotateCcw, Truck } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -53,6 +53,9 @@ export default function OrderDetailPage() {
   const { push } = useStoreNav();
   const qc = useQueryClient();
 
+  const { data: store } = useQuery({ queryKey: ["store"], queryFn: getMyStore });
+  const fulfillmentType = store?.fulfillmentType ?? "shipping";
+
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", id],
     queryFn: () => getOrder(id),
@@ -61,6 +64,7 @@ export default function OrderDetailPage() {
   const [shipDialogOpen, setShipDialogOpen] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState("");
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
+  const [collectDialogOpen, setCollectDialogOpen] = useState(false);
 
   const shipMutation = useMutation({
     mutationFn: () => shipOrder(id, trackingNumber),
@@ -72,6 +76,17 @@ export default function OrderDetailPage() {
       setTrackingNumber("");
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to ship order"),
+  });
+
+  const collectMutation = useMutation({
+    mutationFn: () => collectOrder(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["order", id] });
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      toast.success("Order marked as collected");
+      setCollectDialogOpen(false);
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to collect order"),
   });
 
   const refundMutation = useMutation({
@@ -97,7 +112,8 @@ export default function OrderDetailPage() {
 
   if (!order) return null;
 
-  const canShip = order.status === "confirmed";
+  const canShip = order.status === "confirmed" && fulfillmentType === "shipping";
+  const canCollect = order.status === "confirmed" && fulfillmentType === "pickup";
   const canRefund = order.status === "confirmed" || order.status === "shipped";
   const ref = order.id.slice(0, 8).toUpperCase();
 
@@ -122,6 +138,12 @@ export default function OrderDetailPage() {
             <Button size="sm" onClick={() => setShipDialogOpen(true)}>
               <Truck className="size-4" />
               Mark Shipped
+            </Button>
+          )}
+          {canCollect && (
+            <Button size="sm" onClick={() => setCollectDialogOpen(true)}>
+              <Package className="size-4" />
+              Mark Collected
             </Button>
           )}
           {canRefund && (
@@ -294,6 +316,27 @@ export default function OrderDetailPage() {
             >
               {refundMutation.isPending && <Loader2 className="size-4 animate-spin" />}
               Issue Refund
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Collect dialog */}
+      <Dialog open={collectDialogOpen} onOpenChange={(o) => !o && setCollectDialogOpen(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Mark as Collected?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground py-2">
+            Confirm that the customer has picked up order #{ref}.
+          </p>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCollectDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => collectMutation.mutate()} disabled={collectMutation.isPending}>
+              {collectMutation.isPending && <Loader2 className="size-4 animate-spin" />}
+              Confirm Pickup
             </Button>
           </DialogFooter>
         </DialogContent>

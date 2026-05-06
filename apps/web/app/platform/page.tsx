@@ -15,18 +15,18 @@ import Link from "next/link";
 import { Screenshot } from "./screenshot";
 
 export const metadata: Metadata = {
-  title: "Platform",
+  title: "Client Portal & Project Platform",
   description:
     "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
   alternates: { canonical: "/platform" },
   openGraph: {
-    title: "Platform | SiteHaus",
+    title: "Client Portal & Project Platform | SiteHaus",
     description:
       "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
     url: "/platform",
   },
   twitter: {
-    title: "Platform | SiteHaus",
+    title: "Client Portal & Project Platform | SiteHaus",
     description:
       "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
   },
@@ -101,9 +101,9 @@ export default function PlatformPage() {
               <span className="italic font-bold text-foreground/50">Yours to use.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-              Every SiteHaus client gets access to a platform we designed and built ourselves — not
-              a stitched-together collection of third-party tools, but a unified workspace built to
-              the same standard we hold our client work to.
+              Every client gets access to a platform we actually use ourselves — not a
+              stitched-together set of third-party tools, but something we built and are responsible
+              for maintaining to the same standard as our client work.
             </p>
           </div>
 
@@ -135,8 +135,7 @@ export default function PlatformPage() {
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
               A dedicated workspace for every project. Milestones, tickets, assets, and documents —
-              all in one place. Clients always know exactly where things stand without having to
-              ask.
+              all in one place. You'll never have to ask where things stand.
             </p>
           </div>
 
@@ -189,9 +188,9 @@ export default function PlatformPage() {
               Security that doesn&apos;t get in the way.
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              A full Identity and Access Management system — OAuth2 PKCE, TOTP two-factor auth,
-              role-based permissions, and session management. Enterprise-grade security built into
-              every account, managed directly by your team.
+              Full identity and access management — OAuth2 PKCE, TOTP two-factor, role-based
+              permissions. Enterprise-grade security baked into every account, managed by your team,
+              not ours.
             </p>
           </div>
 

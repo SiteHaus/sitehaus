@@ -2,9 +2,12 @@ import { Badge } from "@site-haus/ui/components/base/badge";
 import type { OrderStatus } from "@/lib/commerce";
 
 const config: Record<OrderStatus, { label: string; className: string }> = {
-  pending: { label: "Pending", className: "bg-muted text-muted-foreground" },
+  pending: {
+    label: "Awaiting Payment",
+    className: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+  },
   confirmed: {
-    label: "Confirmed",
+    label: "Paid",
     className: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
   },
   shipped: {
@@ -16,7 +19,7 @@ const config: Record<OrderStatus, { label: string; className: string }> = {
     className: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
   },
   failed: {
-    label: "Failed",
+    label: "Payment Failed",
     className: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
   },
   refunded: {

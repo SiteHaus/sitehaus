@@ -1,4 +1,5 @@
 import { Button } from "@site-haus/ui/components/base/button";
+import type { Metadata } from "next";
 import {
   FileText,
   KeyRound,
@@ -13,6 +14,24 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "SiteHaus — Custom Software Development in Utah",
+  description:
+    "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "SiteHaus — Custom Software Development in Utah",
+    description:
+      "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
+    url: "/",
+  },
+  twitter: {
+    title: "SiteHaus — Custom Software Development in Utah",
+    description:
+      "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
+  },
+};
 
 const platform = [
   {
@@ -75,7 +94,7 @@ const values = [
   {
     title: "Responsible Delivery",
     description:
-      "We will always treat Performance, Security, Reliability, and Maintainability as first-class concerns.",
+      "Performance, security, reliability, maintainability. Not bullet points on a pitch deck — the baseline we hold every project to.",
     image: "/Responsible_Delivery_500p_Textured_V1.png",
     alt: "Sailor giving a thumbs up from a sailboat",
     rotate: "-5deg",
@@ -83,7 +102,7 @@ const values = [
   {
     title: "Modern Stack",
     description:
-      "We don't just ship features, we build maintainable systems. Modern tech stacks, security best practices, and infrastructure that scales with your needs.",
+      "We're opinionated about the tools we use. The right stack isn't about trends — it's about what holds up when someone else has to touch it two years from now.",
     image: "/Modern_Stack_500p_Textured_V1.png",
     alt: "Sailor at the helm of a modern yacht",
     rotate: "4deg",
@@ -91,7 +110,7 @@ const values = [
   {
     title: "Clear Scope & Communication",
     description:
-      "We start every project with a comprehensive design document and milestone plan. You'll know exactly what you're getting, what it costs, and when to expect it before any code is written.",
+      "Before any code gets written, we produce a document that covers exactly what we're building, what it costs, and when you'll have it. You approve it first. We revise until it's right.",
     image: "/Clear_Scope_500p_Textured_V1.png",
     alt: "Sailor tying a letter to a seagull's foot",
     rotate: "-3deg",
@@ -99,7 +118,7 @@ const values = [
   {
     title: "Long-Term Partners",
     description:
-      "You own everything we build. Full source code, documentation, and deployment knowledge transfer. Whether you want to maintain it in-house or partner with us long-term, the choice is always yours.",
+      "When we're done, you own everything — source code, deployment setup, the whole thing. Whether you take it in-house or keep working with us is your call. We'll still be here.",
     image: "/Long-Term_Partners_Textured_500p_V1.png",
     alt: "Sailor embracing a lighthouse",
     rotate: "5deg",
@@ -166,8 +185,8 @@ export default function HomePage() {
                 marginBottom: "36px",
               }}
             >
-              We design and build web, mobile, and desktop software — with clear plans, shared
-              milestones, and software built to be owned.
+              We build software for businesses in Utah — web, mobile, and desktop. You get a clear
+              plan up front, and you own what we ship.
             </p>
 
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
@@ -314,9 +333,9 @@ export default function HomePage() {
               We built the tools <em>we use</em>.
             </h2>
             <p style={{ fontSize: "17px", lineHeight: 1.65, color: "var(--clay-700)" }}>
-              Every client gets access to a platform we designed and built ourselves — not a
-              collection of third-party tools, but a unified system held to the same standard as our
-              client work.
+              Every client gets access to a platform we actually use ourselves — not a
+              stitched-together set of third-party tools, but something we built and are responsible
+              for.
             </p>
           </div>
 

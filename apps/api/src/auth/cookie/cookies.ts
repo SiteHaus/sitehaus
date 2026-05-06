@@ -88,11 +88,13 @@ export const findAnyRefreshCookie = (
   cookies: Record<string, string> | undefined,
 ): string | undefined => {
   if (!cookies) return undefined;
-  // Prefer the legacy sh_refresh for backward compat, then any per-client cookie.
-  return (
-    cookies[REFRESH_COOKIE] ??
-    Object.entries(cookies).find(([name]) =>
-      name.startsWith(`${REFRESH_COOKIE}_`),
-    )?.[1]
-  );
+  // Prefer per-client cookies — they're more recent and specific. The legacy
+  // sh_refresh session may have been revoked when a per-client cookie was issued
+  // (createSession revokes existing sessions for the same user/client/device),
+  // so preferring it would cause authorize to see a revoked token and loop back
+  // to login even when sh_refresh_<key> is valid.
+  const perClient = Object.entries(cookies).find(([name]) =>
+    name.startsWith(`${REFRESH_COOKIE}_`),
+  )?.[1];
+  return perClient ?? cookies[REFRESH_COOKIE];
 };

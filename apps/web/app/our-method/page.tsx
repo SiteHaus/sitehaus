@@ -2,20 +2,21 @@ import { Button } from "@site-haus/ui/components/base/button";
 import type { Metadata } from "next";
 import { MoveRight } from "lucide-react";
 import Link from "next/link";
+import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
-  title: "Our Method",
+  title: "Our Development Process",
   description:
     "Document-driven development. Fully transparent. You will never have to ask what we're working on — every decision, milestone, and update is visible from day one.",
   alternates: { canonical: "/our-method" },
   openGraph: {
-    title: "Our Method | SiteHaus",
+    title: "Our Development Process | SiteHaus",
     description:
       "Document-driven development. Fully transparent. You will never have to ask what we're working on — every decision, milestone, and update is visible from day one.",
     url: "/our-method",
   },
   twitter: {
-    title: "Our Method | SiteHaus",
+    title: "Our Development Process | SiteHaus",
     description:
       "Document-driven development. Fully transparent. You will never have to ask what we're working on — every decision, milestone, and update is visible from day one.",
   },
@@ -65,6 +66,35 @@ const steps = [
 export default function OurMethodPage() {
   return (
     <main className="min-h-screen pt-24">
+      <JsonLd
+        data={[
+          {
+            "@context": "https://schema.org",
+            "@type": "HowTo",
+            name: "How SiteHaus Works",
+            description:
+              "Document-driven software development process — from discovery to delivery.",
+            step: steps.map((s) => ({
+              "@type": "HowToStep",
+              name: s.title,
+              text: s.description,
+            })),
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://sitehaus.dev" },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Our Method",
+                item: "https://sitehaus.dev/our-method",
+              },
+            ],
+          },
+        ]}
+      />
       {/* Hero */}
       <section className="py-14 sm:py-20 md:py-28 lg:py-36 border-b border-border/50">
         <div className="container mx-auto px-6 max-w-4xl">
@@ -76,8 +106,8 @@ export default function OurMethodPage() {
             <span className="italic font-bold text-foreground/50">Fully transparent.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-            You will never have to ask what we're working on. Every decision, every milestone, every
-            line of progress is visible to you before we start and throughout the entire build.
+            You will never have to send a "what's the status?" message. Everything is documented and
+            visible — before we start and throughout the whole build.
           </p>
         </div>
       </section>
@@ -129,9 +159,9 @@ export default function OurMethodPage() {
             Your project lives in one place.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            Our client dashboard gives you a real-time view of everything — your design document,
-            active milestones, completed work, uploaded assets, and open tickets. No email threads,
-            no status meetings, no guessing.
+            Our client dashboard gives you a live view of everything — design document, milestones,
+            completed work, uploaded assets, open tickets. No status meetings. No hunting through
+            email threads.
           </p>
           <Button size="lg" variant="outline" className="h-12 text-base" asChild>
             <Link href="/contact">

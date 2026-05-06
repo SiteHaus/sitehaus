@@ -5,20 +5,20 @@ import Link from "next/link";
 import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About Us — Utah Software Development Studio",
   description:
-    "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+    "Two senior engineers based in Utah building software for businesses. Direct communication, no middlemen, no handoffs — you work with the people writing your code.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About | SiteHaus",
+    title: "About Us — Utah Software Development Studio | SiteHaus",
     description:
-      "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+      "Two senior engineers based in Utah building software for businesses. Direct communication, no middlemen, no handoffs.",
     url: "/about",
   },
   twitter: {
-    title: "About | SiteHaus",
+    title: "About Us — Utah Software Development Studio | SiteHaus",
     description:
-      "Two senior engineers. No account managers, no handoffs, no middlemen. When you work with SiteHaus, you work directly with the people building your software.",
+      "Two senior engineers based in Utah building software for businesses. Direct communication, no middlemen, no handoffs.",
   },
 };
 
@@ -78,9 +78,8 @@ export default function AboutPage() {
             <span className="italic font-bold text-foreground/50">No middlemen.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-            When you work with SiteHaus, you work directly with the people writing your code — from
-            the first conversation to the final handoff. No account managers, no handoffs to junior
-            devs, no one between you and the engineers.
+            When you email us, one of us writes back. When we're on a call, you're talking to the
+            person writing the code. No account managers, no handoffs.
           </p>
         </div>
       </section>
@@ -99,20 +98,18 @@ export default function AboutPage() {
             </div>
             <div className="flex flex-col gap-5 text-muted-foreground leading-relaxed">
               <p>
-                We've seen what happens when software projects go through too many layers — scope
-                gets lost in translation, timelines slip, and the final product doesn't match what
-                was discussed in the first meeting.
+                We've both seen what happens when software projects go through too many layers.
+                Scope drifts. Timelines slip. By the time it ships, nobody's quite sure it matches
+                what was agreed on.
               </p>
               <p>
-                SiteHaus exists because we believe software clients deserve better. A clear document
-                before a line of code is written. A real-time view of everything happening on their
-                project. And direct access to the engineers who know the system inside and out.
+                SiteHaus exists because we think clients deserve to know exactly what they're paying
+                for before work starts — and to talk directly to the people doing it.
               </p>
               <p>
-                We work fully remote and have built our entire workflow around it — async
-                communication, documented decisions, and a client dashboard that keeps everyone on
-                the same page without requiring anyone to be in the same room. It works because the
-                process is built to work, not because we're physically present.
+                We work fully remote and built our entire process around it. Async by default,
+                everything documented, progress always visible. You don't need us in the room to
+                know what's happening.
               </p>
             </div>
           </div>
