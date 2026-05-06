@@ -185,8 +185,8 @@ export default function OneHealthCaseStudy() {
               fontVariationSettings: "'opsz' 36, 'SOFT' 80, 'WONK' 1",
             }}
           >
-            From a slow WordPress site to a fully custom web presence, ecommerce platform, and
-            13,000+ monthly search impressions.
+            They came to us on a slow WordPress install with a WooCommerce store that wasn't cutting
+            it and almost no local search visibility. We rebuilt everything.
           </p>
 
           {/* Stat row */}
@@ -499,13 +499,13 @@ export default function OneHealthCaseStudy() {
             Results
           </p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight leading-tight mb-6 max-w-2xl">
-            A practice that can actually be found, and now sell.
+            A practice patients can actually find — and that can sell.
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-2xl mb-8">
-            OneHealth went from a slow WordPress site with no ecommerce and poor local search
-            visibility to a fully modern web presence — fast, maintainable, sellable, and crawlable.
-            The new service pages, physician schemas, and geo-targeted titles take 4–8 weeks to
-            fully index. We'll update this page with ranking data as it comes in.
+            OneHealth went from a slow WordPress site with a broken WooCommerce store to a fully
+            custom web presence. The SEO changes — new service pages, physician schemas,
+            geo-targeted titles — take 4–8 weeks to fully index. We'll update this page with ranking
+            data as it comes in.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {[
@@ -567,8 +567,7 @@ export default function OneHealthCaseStudy() {
             Want us to do this for your site?
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            Whether you need a migration, a storefront, an SEO audit, or all three — tell us where
-            you are and we'll tell you exactly what we'd do.
+            Tell us where you are and we'll be straight about what we'd do.
           </p>
           <Link
             href="/contact"

@@ -28,7 +28,7 @@ const services = [
     title: "Web",
     tagline: "Websites, web apps, and everything in between.",
     description:
-      "From marketing sites to full SaaS platforms — we build for the web at any scale. Custom dashboards, customer portals, e-commerce, APIs, internal tools. If your business runs on a browser, we can build it.",
+      "From a simple marketing site to a full SaaS product — we build for the web at any scale. Dashboards, customer portals, e-commerce storefronts, APIs. If it runs in a browser, we can build it.",
     examples: [
       "Marketing & landing pages",
       "Web applications & SaaS",
@@ -43,7 +43,7 @@ const services = [
     title: "Mobile",
     tagline: "iOS and Android apps your customers will actually use.",
     description:
-      "We build native-quality mobile apps for both platforms. Whether you need a companion app for your existing product or a standalone mobile experience, we design for the device first.",
+      "Native-quality apps for iOS and Android. Whether it's a companion to something you've already built or a standalone product, we design for the device first — not the smallest shared denominator.",
     examples: [
       "iOS & Android apps",
       "Cross-platform (React Native)",
@@ -58,7 +58,7 @@ const services = [
     title: "Desktop",
     tagline: "Windows, Mac, and Linux — when the browser isn't enough.",
     description:
-      "Some software needs to live on the machine. We build desktop apps for all major platforms — internal tools, installer-based software, apps that need hardware access or offline-first capabilities.",
+      "Some software needs to live on the machine. We build for Windows, Mac, and Linux — internal tools, hardware-integrated software, anything that needs system access or works without a connection.",
     examples: [
       "Windows, Mac & Linux apps",
       "Internal business tools",
@@ -110,8 +110,8 @@ export default function ServicesPage() {
             Any software. <span className="italic font-bold text-foreground/50">Any platform.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
-            We don't specialize in one slice of the stack. If it runs on a screen, we can design and
-            build it — with clear plans and no surprises.
+            We don't specialize in one slice of the stack. Web, mobile, desktop — if it runs on a
+            screen, we can design and build it.
           </p>
         </div>
       </section>
@@ -180,8 +180,8 @@ export default function ServicesPage() {
             Every project starts with a conversation.
           </h2>
           <p className="text-lg text-muted-foreground leading-relaxed mb-10">
-            No pricing tables. No packages. Every engagement is scoped to what you actually need.
-            Reach out and we'll talk through it.
+            No pricing tables, no packages. Tell us what you're building and we'll scope it to what
+            you actually need.
           </p>
           <Button size="lg" className="h-12 text-base" asChild>
             <Link href="/contact">

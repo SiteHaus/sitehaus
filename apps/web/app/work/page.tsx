@@ -89,8 +89,8 @@ export default function WorkPage() {
             <span className="italic font-bold text-foreground/40">Real results.</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-            We don't do spec work or mock portfolios. Every case study here is a live client,
-            shipped code, and measurable outcomes.
+            No spec work, no mock portfolios. Every case study here is a live client and shipped
+            code.
           </p>
         </div>
       </section>

@@ -211,8 +211,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                     fontSize: "14px",
                   }}
                 >
-                  A small studio that builds web, mobile, and desktop software for businesses in
-                  Utah. Clear plans, direct communication, and no surprises.
+                  A small studio in Utah. We build software you own — web, mobile, or desktop — and
+                  we're straightforward about what it costs and when it ships.
                 </p>
               </div>
 
