@@ -4,16 +4,28 @@ import { MoveRight, Lock } from "lucide-react";
 import { JsonLd } from "../components/json-ld";
 
 export const metadata: Metadata = {
-  title: "Work",
+  title: "Client Work & Case Studies",
   description:
     "Case studies from SiteHaus — real projects, real results. See how we approach migrations, ecommerce, SEO, and software for clients who need more than a vendor.",
   alternates: { canonical: "/work" },
   openGraph: {
-    title: "Work | SiteHaus",
+    title: "Client Work & Case Studies | SiteHaus",
     description:
       "Case studies from SiteHaus — real projects, real results. See how we approach migrations, ecommerce, SEO, and software for clients who need more than a vendor.",
     url: "/work",
   },
+  twitter: {
+    title: "Client Work & Case Studies | SiteHaus",
+    description:
+      "Case studies from SiteHaus — real projects, real results. See how we approach migrations, ecommerce, SEO, and software for clients who need more than a vendor.",
+    images: ["/og.png"],
+  },
+  keywords: [
+    "software case studies",
+    "web development portfolio Utah",
+    "client projects SiteHaus",
+    "custom software results",
+  ],
 };
 
 const caseStudies = [

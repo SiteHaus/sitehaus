@@ -19,6 +19,12 @@ export const metadata: Metadata = {
     description:
       "Migrate off WordPress to a fast, maintainable Next.js site. We handle the full migration — content, SEO equity, redirects, and design.",
   },
+  keywords: [
+    "WordPress to Next.js migration",
+    "WordPress migration service Utah",
+    "headless CMS Utah",
+    "migrate from WordPress",
+  ],
 };
 
 export default function WordPressMigrationPage() {

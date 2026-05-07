@@ -14,6 +14,18 @@ export const metadata: Metadata = {
       "WordPress migration, full site buildout, white-label ecommerce platform, and 13,000+ monthly impressions. A complete digital transformation for a Southern Utah primary care clinic.",
     url: "/work/onehealth",
   },
+  twitter: {
+    title: "OneHealth Clinics Case Study | SiteHaus",
+    description:
+      "WordPress migration, full site buildout, white-label ecommerce platform, and 13,000+ monthly impressions. A complete digital transformation for a Southern Utah primary care clinic.",
+    images: ["/og.png"],
+  },
+  keywords: [
+    "WordPress migration case study",
+    "healthcare website development Utah",
+    "SEO improvement results",
+    "ecommerce medical clinic",
+  ],
 };
 
 const migrationItems = [

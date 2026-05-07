@@ -19,6 +19,12 @@ export const metadata: Metadata = {
     description:
       "Custom ecommerce development for Utah businesses. No Shopify fees, no platform lock-in — fully owned storefronts with Stripe payments.",
   },
+  keywords: [
+    "custom ecommerce development Utah",
+    "ecommerce website Utah",
+    "online store development",
+    "no platform fees ecommerce",
+  ],
 };
 
 export default function CustomEcommercePage() {

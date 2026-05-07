@@ -31,6 +31,13 @@ export const metadata: Metadata = {
     description:
       "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George.",
   },
+  keywords: [
+    "custom software development Utah",
+    "web development Utah",
+    "software agency Utah",
+    "Ogden web developer",
+    "Salt Lake City software company",
+  ],
 };
 
 const platform = [
