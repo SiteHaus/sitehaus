@@ -14,6 +14,18 @@ export const metadata: Metadata = {
       "WordPress migration, full site buildout, white-label ecommerce platform, and 13,000+ monthly impressions. A complete digital transformation for a Southern Utah primary care clinic.",
     url: "/work/onehealth",
   },
+  twitter: {
+    title: "OneHealth Clinics Case Study | SiteHaus",
+    description:
+      "WordPress migration, full site buildout, white-label ecommerce platform, and 13,000+ monthly impressions. A complete digital transformation for a Southern Utah primary care clinic.",
+    images: ["/og.png"],
+  },
+  keywords: [
+    "WordPress migration case study",
+    "healthcare website development Utah",
+    "SEO improvement results",
+    "ecommerce medical clinic",
+  ],
 };
 
 const migrationItems = [
@@ -275,7 +287,7 @@ export default function OneHealthCaseStudy() {
               },
               {
                 title: "WooCommerce wasn't cutting it",
-                body: "They had a WooCommerce store, but it was slow, hard to use, and gave them no visibility into the data that actually mattered — sales trends, inventory, order status. It was there, but it wasn't working.",
+                body: "They had a WooCommerce store, but it was slow, hard to use, and gave them no visibility into the data that actually mattered — sales trends, inventory, order status. It was there, but it wasn't working for them.",
               },
               {
                 title: "Invisible to local search",
@@ -315,8 +327,8 @@ export default function OneHealthCaseStudy() {
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-2xl mb-10">
             We rebuilt the entire site from scratch on Next.js 15 with Tailwind CSS and shadcn/ui —
-            a stack the OneHealth team can understand and maintain. Every page was designed with
-            their brand, their patients, and their search rankings in mind.
+            a stack built to last — maintainable, extensible, and fully in SiteHaus's hands. Every
+            page was designed with their brand, their patients, and their search rankings in mind.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {migrationItems.map(({ label, detail }) => (
@@ -502,10 +514,10 @@ export default function OneHealthCaseStudy() {
             A practice patients can actually find — and that can sell.
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-2xl mb-8">
-            OneHealth went from a slow WordPress site with a broken WooCommerce store to a fully
-            custom web presence. The SEO changes — new service pages, physician schemas,
-            geo-targeted titles — take 4–8 weeks to fully index. We'll update this page with ranking
-            data as it comes in.
+            OneHealth went from a slow WordPress site and a WooCommerce store that wasn't working
+            for them to a fully custom web presence. The SEO changes — new service pages, physician
+            schemas, geo-targeted titles — take 4–8 weeks to fully index. We'll update this page
+            with ranking data as it comes in.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {[

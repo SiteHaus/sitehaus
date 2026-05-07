@@ -51,6 +51,7 @@ export const metadata: Metadata = {
       "Custom software development studio in Utah. We build web, mobile, and desktop software for businesses in Ogden, Salt Lake City, and St. George — with clear plans and no surprises.",
     images: ["/og.png"],
   },
+  keywords: ["web development", "software development", "Utah", "custom software", "Next.js"],
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
   manifest: "/site.webmanifest",
 };
@@ -123,6 +124,21 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 "WordPress Migration",
               ],
               knowsAbout: ["Next.js", "React", "React Native", "Tauri", "TypeScript"],
+            },
+            {
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              name: "SiteHaus",
+              url: "https://sitehaus.dev",
+              telephone: "+14357730328",
+              email: "sitehausdev@gmail.com",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Ogden",
+                addressRegion: "UT",
+                addressCountry: "US",
+              },
+              areaServed: ["Ogden, UT", "Salt Lake City, UT", "St. George, UT"],
             },
           ]}
         />

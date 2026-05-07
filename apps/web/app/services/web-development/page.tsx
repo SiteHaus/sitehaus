@@ -19,6 +19,13 @@ export const metadata: Metadata = {
     description:
       "Custom web development for Utah businesses — from marketing sites to full SaaS platforms. Serving Ogden, Salt Lake City, and St. George.",
   },
+  keywords: [
+    "web development Utah",
+    "Next.js agency",
+    "web developer Ogden",
+    "React development Utah",
+    "custom website development",
+  ],
 };
 
 export default function WebDevelopmentPage() {

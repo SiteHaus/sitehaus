@@ -20,6 +20,13 @@ export const metadata: Metadata = {
     description:
       "Two senior engineers based in Utah building software for businesses. Direct communication, no middlemen, no handoffs.",
   },
+  keywords: [
+    "Utah software agency",
+    "indie software studio",
+    "SiteHaus team",
+    "software engineers Utah",
+    "custom software founders",
+  ],
 };
 
 const founders = [

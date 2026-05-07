@@ -20,6 +20,13 @@ export const metadata: Metadata = {
     description:
       "Web, mobile, and desktop software development for Utah businesses. Serving Ogden, Salt Lake City, and St. George — custom-built with clear plans, no surprises.",
   },
+  keywords: [
+    "software development services Utah",
+    "web development services",
+    "mobile app development Utah",
+    "custom software Utah",
+    "desktop software development",
+  ],
 };
 
 const services = [

@@ -19,6 +19,12 @@ export const metadata: Metadata = {
     description:
       "Custom desktop software for Windows, Mac, and Linux. Internal tools, hardware-integrated apps, and offline-first software built with Tauri.",
   },
+  keywords: [
+    "desktop software development Utah",
+    "Tauri development",
+    "desktop app developer Utah",
+    "Windows app development",
+  ],
 };
 
 export default function DesktopSoftwarePage() {

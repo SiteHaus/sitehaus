@@ -20,6 +20,12 @@ export const metadata: Metadata = {
     description:
       "Document-driven development. Fully transparent. You will never have to ask what we're working on — every decision, milestone, and update is visible from day one.",
   },
+  keywords: [
+    "software development process",
+    "transparent software development",
+    "document-driven development",
+    "agile development Utah",
+  ],
 };
 
 const steps = [

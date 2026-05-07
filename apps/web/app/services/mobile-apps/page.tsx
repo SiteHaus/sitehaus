@@ -19,6 +19,12 @@ export const metadata: Metadata = {
     description:
       "iOS and Android app development for Utah businesses. Native-quality mobile apps built with React Native.",
   },
+  keywords: [
+    "mobile app development Utah",
+    "React Native developer Utah",
+    "iOS app development Utah",
+    "Android app development",
+  ],
 };
 
 export default function MobileAppsPage() {

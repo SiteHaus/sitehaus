@@ -30,6 +30,12 @@ export const metadata: Metadata = {
     description:
       "Every SiteHaus client gets access to a workspace we built ourselves — a unified platform for project management, identity, and access control.",
   },
+  keywords: [
+    "client portal software",
+    "project management platform",
+    "client dashboard",
+    "project tracking tool",
+  ],
 };
 
 const dashboardFeatures = [
