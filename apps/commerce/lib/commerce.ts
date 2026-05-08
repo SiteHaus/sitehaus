@@ -513,3 +513,36 @@ export const getAnalyticsTopProducts = (from: string, to: string, limit = 5) =>
   request<TopProductsDashboard>(
     `/v1/admin/analytics/top-products?from=${from}&to=${to}&limit=${limit}`,
   );
+
+export type FunnelStage = {
+  stage: "product_viewed" | "add_to_cart" | "checkout_started" | "order_completed";
+  count: number;
+  conversionRate: number | null;
+};
+export type FunnelResponse = { stages: FunnelStage[] };
+
+export type AbandonedCartsResponse = {
+  totalCartsWithItems: number;
+  abandoned: number;
+  abandonedRate: number;
+};
+
+export const getAnalyticsFunnel = (from: string, to: string) =>
+  request<FunnelResponse>(`/v1/admin/analytics/funnel?from=${from}&to=${to}`);
+
+export const getAnalyticsAbandonedCarts = (from: string, to: string) =>
+  request<AbandonedCartsResponse>(`/v1/admin/analytics/abandoned-carts?from=${from}&to=${to}`);
+
+export type AbandonedCartRow = {
+  cartId: string;
+  itemCount: number;
+  estimatedValueCents: number;
+  createdAt: string;
+  lastActivityAt: string;
+  isAnonymous: boolean;
+};
+
+export const getAnalyticsAbandonedCartsList = (from: string, to: string, limit = 20, offset = 0) =>
+  request<{ items: AbandonedCartRow[]; total: number }>(
+    `/v1/admin/analytics/abandoned-carts/list?from=${from}&to=${to}&limit=${limit}&offset=${offset}`,
+  );

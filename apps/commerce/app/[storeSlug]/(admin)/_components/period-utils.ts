@@ -1,4 +1,4 @@
-export type PeriodOption = "7d" | "30d" | "90d";
+export type PeriodOption = "7d" | "30d" | "90d" | "12m";
 
 export function periodToParams(period: PeriodOption): {
   from: string;
@@ -14,8 +14,11 @@ export function periodToParams(period: PeriodOption): {
   } else if (period === "30d") {
     from.setDate(from.getDate() - 30);
     return { from: isoDate(from), to: isoDate(to), granularity: "week" };
-  } else {
+  } else if (period === "90d") {
     from.setDate(from.getDate() - 90);
+    return { from: isoDate(from), to: isoDate(to), granularity: "month" };
+  } else {
+    from.setFullYear(from.getFullYear() - 1);
     return { from: isoDate(from), to: isoDate(to), granularity: "month" };
   }
 }
