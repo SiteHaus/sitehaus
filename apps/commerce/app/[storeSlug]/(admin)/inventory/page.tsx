@@ -13,11 +13,13 @@ import {
 } from "@site-haus/ui/components/base/table";
 import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { Pencil, Warehouse } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Warehouse } from "lucide-react";
 import { useState } from "react";
 import { AdjustInventoryDialog, StockBadge } from "./_components/adjust-inventory-dialog";
 
 type StockFilter = "all" | "low" | "out";
+
+const PAGE_SIZE = 50;
 
 const FILTER_TABS: { label: string; value: StockFilter }[] = [
   { label: "All", value: "all" },
@@ -25,29 +27,40 @@ const FILTER_TABS: { label: string; value: StockFilter }[] = [
   { label: "Out of Stock", value: "out" },
 ];
 
-function matchesFilter(available: number, filter: StockFilter) {
-  if (filter === "low") return available > 0 && available <= 5;
-  if (filter === "out") return available <= 0;
-  return true;
-}
-
 export default function InventoryPage() {
   const [filter, setFilter] = useState<StockFilter>("all");
+  const [page, setPage] = useState(0);
   const [adjusting, setAdjusting] = useState<BulkInventoryItem | null>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["inventory", "list"],
-    queryFn: () => listInventory({ limit: 500 }),
+    queryKey: ["inventory", "list", filter, page],
+    queryFn: () =>
+      listInventory({ limit: PAGE_SIZE, offset: page * PAGE_SIZE, stockFilter: filter }),
+    staleTime: 30_000,
+  });
+
+  const { data: lowData } = useQuery({
+    queryKey: ["inventory", "count", "low"],
+    queryFn: () => listInventory({ limit: 1, stockFilter: "low" }),
+    staleTime: 30_000,
+  });
+
+  const { data: outData } = useQuery({
+    queryKey: ["inventory", "count", "out"],
+    queryFn: () => listInventory({ limit: 1, stockFilter: "out" }),
     staleTime: 30_000,
   });
 
   const items = data?.items ?? [];
-  const filtered = items.filter((r) => matchesFilter(r.available, filter));
+  const total = data?.total ?? 0;
+  const pageCount = Math.ceil(total / PAGE_SIZE);
+  const lowCount = lowData?.total ?? 0;
+  const outCount = outData?.total ?? 0;
 
-  const lowCount = items.filter((r) => r.available > 0 && r.available <= 5).length;
-  const outCount = items.filter((r) => r.available <= 0).length;
-
-  const productCount = new Set(items.map((r) => r.productId)).size;
+  function handleFilterChange(value: StockFilter) {
+    setFilter(value);
+    setPage(0);
+  }
 
   return (
     <div>
@@ -55,14 +68,16 @@ export default function InventoryPage() {
         <div>
           <h1 className="text-2xl font-bold">Inventory</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            {isLoading
-              ? "—"
-              : `${items.length} variant${items.length !== 1 ? "s" : ""} across ${productCount} product${productCount !== 1 ? "s" : ""}`}
+            {isLoading ? "—" : `${total} variant${total !== 1 ? "s" : ""}`}
           </p>
         </div>
       </div>
 
-      <Tabs value={filter} onValueChange={(v) => setFilter(v as StockFilter)} className="mb-4">
+      <Tabs
+        value={filter}
+        onValueChange={(v) => handleFilterChange(v as StockFilter)}
+        className="mb-4"
+      >
         <TabsList>
           {FILTER_TABS.map((t) => (
             <TabsTrigger key={t.value} value={t.value}>
@@ -120,7 +135,7 @@ export default function InventoryPage() {
                   <TableCell></TableCell>
                 </TableRow>
               ))
-            ) : filtered.length === 0 ? (
+            ) : items.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7}>
                   <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
@@ -137,8 +152,8 @@ export default function InventoryPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((row, i) => {
-                const showProduct = i === 0 || filtered[i - 1]?.productId !== row.productId;
+              items.map((row, i) => {
+                const showProduct = i === 0 || items[i - 1]?.productId !== row.productId;
                 return (
                   <TableRow key={row.variantId}>
                     <TableCell className="font-medium">
@@ -174,10 +189,37 @@ export default function InventoryPage() {
         </Table>
       </div>
 
+      {pageCount > 1 && (
+        <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+          <span>
+            Page {page + 1} of {pageCount}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p - 1)}
+              disabled={page === 0}
+            >
+              <ChevronLeft className="size-4" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => p + 1)}
+              disabled={page >= pageCount - 1}
+            >
+              Next
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {adjusting && (
         <AdjustInventoryDialog
-          variantId={adjusting.variantId}
-          variantName={adjusting.variantName}
+          item={adjusting}
           open={!!adjusting}
           onClose={() => setAdjusting(null)}
         />

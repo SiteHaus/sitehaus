@@ -238,19 +238,12 @@ Caddy provides HTTPS via auto-provisioned TLS for `.localhost` domains, enabling
 
 - [`docs/architecture/auth-flow.md`](docs/architecture/auth-flow.md) — End-to-end OAuth PKCE + JWT + session auth flow
 
-## React/Next Standards (Dashboard)
+## App-Level Standards
 
-Full spec: [`docs/standards/react.md`](docs/standards/react.md)
+Each app has its own `CLAUDE.md` with app-specific patterns and rules. See:
 
-**Key rules:**
-
-- One component per file — no exceptions
-- `page.tsx` files are thin shells (role dispatch only, ≤15 lines); all view components in `_components/`
-- All dashboard pages are `"use client"` (auth dependency)
-- Data fetching: React Query (`@tanstack/react-query`) — all queries via hooks, all keys via `@/lib/query-keys`
-- Format helpers: `formatDate`, `formatCents`, `label` from `@site-haus/utils/core/format`
-- Badge variants: `statusVariant`, `billingVariant`, etc. from `@/lib/variants`
-- No inline format or variant functions — extract on third use, never before
-- Mutations: `toast.success/error` in `onSuccess/onError`; initial loads throw
-- Forms: react-hook-form + zod resolver; schemas always from `@site-haus/validation`
-- Types: from `@site-haus/contracts`; no `any`
+- `apps/dashboard/CLAUDE.md` — React/Next standards, React Query, component organization
+- `apps/api/CLAUDE.md` — NestJS guards, ts-rest controller pattern, service rules
+- `apps/web/CLAUDE.md` — Marketing site, server components, SEO
+- `apps/iam/CLAUDE.md` — IAM portal (feature-complete)
+- `apps/commerce/CLAUDE.md` — Commerce admin UI, store context, commerce API

@@ -163,7 +163,11 @@ export default function ProductDetailPage() {
         <div className="space-y-6">
           <StatusCard productId={id} status={product.status} />
           <ImagesCard productId={id} />
-          <InventoryCard variants={product.variants} />
+          <InventoryCard
+            productId={product.id}
+            productName={product.name}
+            variants={product.variants}
+          />
         </div>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { type VariantAdmin } from "@/lib/commerce";
+import { type BulkInventoryItem, type VariantAdmin } from "@/lib/commerce";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import {
@@ -18,10 +18,33 @@ import {
   StockBadge,
 } from "../../../inventory/_components/adjust-inventory-dialog";
 
-export function InventoryCard({ variants }: { variants: VariantAdmin[] }) {
-  const [adjusting, setAdjusting] = useState<VariantAdmin | null>(null);
+export function InventoryCard({
+  productId,
+  productName,
+  variants,
+}: {
+  productId: string;
+  productName: string;
+  variants: VariantAdmin[];
+}) {
+  const [adjusting, setAdjusting] = useState<BulkInventoryItem | null>(null);
 
   if (variants.length === 0) return null;
+
+  function toInventoryItem(v: VariantAdmin): BulkInventoryItem {
+    const available = v.stock - v.reserved;
+    return {
+      variantId: v.id,
+      productId,
+      productName,
+      variantName: v.name,
+      sku: v.sku,
+      stock: v.stock,
+      reserved: v.reserved,
+      available,
+      allowBackorder: v.allowBackorder,
+    };
+  }
 
   return (
     <>
@@ -59,7 +82,7 @@ export function InventoryCard({ variants }: { variants: VariantAdmin[] }) {
                         variant="ghost"
                         size="icon"
                         className="size-8"
-                        onClick={() => setAdjusting(v)}
+                        onClick={() => setAdjusting(toInventoryItem(v))}
                       >
                         <Pencil className="size-3.5" />
                       </Button>
@@ -74,8 +97,7 @@ export function InventoryCard({ variants }: { variants: VariantAdmin[] }) {
 
       {adjusting && (
         <AdjustInventoryDialog
-          variantId={adjusting.id}
-          variantName={adjusting.name}
+          item={adjusting}
           open={!!adjusting}
           onClose={() => setAdjusting(null)}
         />

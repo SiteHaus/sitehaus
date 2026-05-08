@@ -112,6 +112,7 @@ export type VariantAdmin = {
   sortOrder: number;
   stock: number;
   reserved: number;
+  allowBackorder: boolean;
   availability: "in_stock" | "low_stock" | "out_of_stock";
   optionValues: VariantOptionValueRef[];
 };
@@ -487,7 +488,7 @@ export const getInventory = (variantId: string) =>
 
 export const updateInventory = (
   variantId: string,
-  body: { stock?: number; allowBackorder?: boolean },
+  body: { stock?: number; allowBackorder?: boolean; reason?: string },
 ) =>
   request<InventoryItem>(`/v1/admin/inventory/${variantId}`, {
     method: "PATCH",
