@@ -609,3 +609,62 @@ export const deleteShippingRate = (zoneId: string, rateId: string) =>
   request<ShippingRate>(`/v1/admin/shipping/zones/${zoneId}/rates/${rateId}`, {
     method: "DELETE",
   });
+
+// Webhooks
+export type WebhookEvent =
+  | "order.confirmed"
+  | "order.shipped"
+  | "order.delivered"
+  | "order.refunded"
+  | "return.requested"
+  | "return.approved"
+  | "return.refunded"
+  | "inventory.low"
+  | "product.published";
+
+export type WebhookEndpoint = {
+  id: string;
+  url: string;
+  events: WebhookEvent[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WebhookEndpointWithSecret = WebhookEndpoint & { secret: string };
+
+export type WebhookDeliveryStatus = "pending" | "delivered" | "failed";
+
+export type WebhookDelivery = {
+  id: string;
+  endpointId: string;
+  event: string;
+  status: WebhookDeliveryStatus;
+  attemptCount: number;
+  lastAttemptAt: string | null;
+  responseStatus: number | null;
+  createdAt: string;
+};
+
+export const listWebhookEndpoints = () => request<WebhookEndpoint[]>("/v1/admin/webhooks");
+
+export const createWebhookEndpoint = (body: { url: string; events: WebhookEvent[] }) =>
+  request<WebhookEndpointWithSecret>("/v1/admin/webhooks", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateWebhookEndpoint = (
+  endpointId: string,
+  body: { url?: string; events?: WebhookEvent[]; isActive?: boolean },
+) =>
+  request<WebhookEndpoint>(`/v1/admin/webhooks/${endpointId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteWebhookEndpoint = (endpointId: string) =>
+  request<{}>(`/v1/admin/webhooks/${endpointId}`, { method: "DELETE" });
+
+export const listWebhookDeliveries = (endpointId: string) =>
+  request<WebhookDelivery[]>(`/v1/admin/webhooks/${endpointId}/deliveries`);
