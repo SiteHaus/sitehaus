@@ -6,6 +6,7 @@ import {
   Package,
   Settings,
   ShoppingCart,
+  Truck,
   Warehouse,
 } from "lucide-react";
 
@@ -45,6 +46,11 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     title: "Analytics",
     url: "/analytics",
     icon: BarChart3,
+  },
+  {
+    title: "Shipping",
+    url: "/shipping",
+    icon: Truck,
   },
   {
     title: "Settings",

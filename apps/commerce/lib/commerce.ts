@@ -546,3 +546,66 @@ export const getAnalyticsAbandonedCartsList = (from: string, to: string, limit =
   request<{ items: AbandonedCartRow[]; total: number }>(
     `/v1/admin/analytics/abandoned-carts/list?from=${from}&to=${to}&limit=${limit}&offset=${offset}`,
   );
+
+// Shipping
+export type ShippingRate = {
+  id: string;
+  name: string;
+  rateCents: number;
+  minOrderCents?: number;
+  estimatedDays?: number;
+};
+
+export type ShippingZone = {
+  id: string;
+  name: string;
+  countries: string[];
+  sortOrder: number;
+  rates: ShippingRate[];
+};
+
+export const listShippingZones = () =>
+  request<{ items: ShippingZone[] }>("/v1/admin/shipping/zones");
+
+export const createShippingZone = (body: {
+  name: string;
+  countries: string[];
+  sortOrder?: number;
+}) =>
+  request<ShippingZone>("/v1/admin/shipping/zones", { method: "POST", body: JSON.stringify(body) });
+
+export const updateShippingZone = (
+  zoneId: string,
+  body: { name?: string; countries?: string[]; sortOrder?: number },
+) =>
+  request<ShippingZone>(`/v1/admin/shipping/zones/${zoneId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteShippingZone = (zoneId: string) =>
+  request<{ message: string }>(`/v1/admin/shipping/zones/${zoneId}`, { method: "DELETE" });
+
+export const createShippingRate = (
+  zoneId: string,
+  body: { name: string; rateCents: number; minOrderCents?: number; estimatedDays?: number },
+) =>
+  request<ShippingRate>(`/v1/admin/shipping/zones/${zoneId}/rates`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateShippingRate = (
+  zoneId: string,
+  rateId: string,
+  body: { name?: string; rateCents?: number; minOrderCents?: number; estimatedDays?: number },
+) =>
+  request<ShippingRate>(`/v1/admin/shipping/zones/${zoneId}/rates/${rateId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteShippingRate = (zoneId: string, rateId: string) =>
+  request<ShippingRate>(`/v1/admin/shipping/zones/${zoneId}/rates/${rateId}`, {
+    method: "DELETE",
+  });
