@@ -180,9 +180,11 @@ git commit -m ":sparkles: Scaffold apps/docs Starlight app"
 
 ### Task 2: Caddy + CLAUDE.md wiring
 
+> **Execution note (2026-06-12):** `infra/Caddyfile.dev` and `CLAUDE.md` do not exist on `main` (this branch's base) — they were added on `release/commerce-flagship` and are not yet merged. Resolution: this branch carries a copy of the canonical Caddyfile plus the `docs.localhost` block (commit 8e495b4; expect a trivial both-added merge conflict later). The CLAUDE.md edits (Steps 2) are **deferred to merge time** — apply the two rows below to the release branch's CLAUDE.md when `docs/discovery` merges.
+
 **Files:**
 - Modify: `infra/Caddyfile.dev` (append after the `commerce.localhost` block)
-- Modify: `CLAUDE.md` (port table + Caddy table)
+- Modify: `CLAUDE.md` (port table + Caddy table) — **deferred, see note above**
 
 - [ ] **Step 1: Add Caddy entry**
 
