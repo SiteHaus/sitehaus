@@ -101,7 +101,7 @@ export default defineConfig({
 });
 ```
 
-Note: Starlight fails the build on broken internal links by default — that is our link check, leave it on.
+Note (corrected during execution): Starlight does NOT validate links natively; the `starlight-links-validator` plugin was added in commit 046f191 and fails the build on broken internal links — that is our link check, leave it on. `index.mdx`'s links to `/architecture/ecosystem-map/` and `/findings/` were temporarily de-linked until Task 4 creates those pages; Task 10 restores all index links.
 
 - [ ] **Step 3: Create `apps/docs/tsconfig.json`**
 
