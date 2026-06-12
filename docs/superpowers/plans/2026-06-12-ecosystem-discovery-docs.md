@@ -227,6 +227,8 @@ git commit -m ":wrench: Wire docs app into Caddy and port tables"
 
 ### Task 3: Migrate existing docs with pointer stubs
 
+> **Execution note (2026-06-12):** none of the source docs exist on `main` (this branch's base) — they all live on `release/commerce-flagship`. Source each file's content with `git show release/commerce-flagship:docs/<path>`. **Step 2 (pointer stubs) is deferred to merge time**: when `docs/discovery` and the release branch are both on `main`, replace the six originals with stubs in one follow-up commit. This branch must not create `docs/architecture|standards|troubleshooting|clients` paths at all.
+
 **Files:**
 - Create: `apps/docs/src/content/docs/architecture/auth.md` (from `docs/architecture/auth-flow.md`)
 - Create: `apps/docs/src/content/docs/standards/api.md`, `standards/evolution.md`, `standards/react.md` (from `docs/standards/`)
