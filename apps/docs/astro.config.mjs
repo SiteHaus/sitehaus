@@ -1,11 +1,13 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import starlightLinksValidator from "starlight-links-validator";
 
 export default defineConfig({
   site: "https://docs.sitehaus.io",
   integrations: [
     starlight({
       title: "SiteHaus Docs",
+      plugins: [starlightLinksValidator()],
       sidebar: [
         { label: "Architecture", autogenerate: { directory: "architecture" } },
         { label: "Identity & Auth", autogenerate: { directory: "domains/identity" } },
