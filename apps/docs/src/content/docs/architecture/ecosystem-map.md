@@ -74,6 +74,29 @@ description: Every repo, app, package, and port in the SiteHaus platform, and wh
 - `gateway → IAM POST /auth/introspect` — token validation (see Identity sweep;
   not repeated).
 
+### Agency / Dashboard (Task 7)
+
+All arrows from `dashboard` (sitehaus :3001) to the IAM API (`apps/api`, :3003),
+via `@site-haus/stores` `getApi()` (typed by `@site-haus/contracts`). Auth flow
+itself is in the Identity sweep; only feature data calls are listed here.
+
+- `dashboard → api GET/POST /projects`, `GET/PATCH/DELETE /projects/:id`, `PATCH /projects/:id/status` — projects CRUD + lifecycle.
+- `dashboard → api GET /milestones/upcoming`, `GET/POST /projects/:id/milestones`, `PATCH/DELETE /milestones/:id`, `POST /milestones/:id/sign-off`, `POST /milestones/reorder` — milestones.
+- `dashboard → api GET/POST /tickets`, `GET/PATCH /tickets/:id`, `PATCH /tickets/:id/status` + `/assign`, attachments `GET/POST/DELETE /tickets/:id/attachments` — tickets.
+- `dashboard → api GET/POST /projects/:id/assets`, upload, `PATCH/DELETE .../:assetId` — assets (storage via R2).
+- `dashboard → api GET/POST/PATCH /projects/:id/design-document`, `/publish`, `/status`, `/versions`, `/versions/:version` — design documents + versions.
+- `dashboard → api GET /billing`, `GET /billing/portal`, `GET /billing/admin`, `POST /billing/subscriptions`, `POST /billing/one-time` — billing (client + admin).
+- `dashboard → api GET /business-profiles/me`, `GET /business-profiles/:clientId`, `POST /business-profiles`, `PATCH /business-profiles/me` — business profiles.
+- `dashboard → api GET/POST /comments`, `PATCH/DELETE /comments/:id` — polymorphic comments (ticket / design-doc / project).
+- `dashboard → api GET /clients/me/clients`, `/current`, `/me/members` — clients directory + context.
+- `dashboard → api GET /audit` — filterable audit log.
+- `api billing → Stripe` — `getOrCreateCustomer`, `subscriptions.create` (send_invoice, 30-day), one-time invoices, `billingPortal.sessions.create`.
+- `Stripe → api POST` (webhook, `stripe-webhook.controller.ts`) — `customer.subscription.updated/deleted` synced into `core/billing-records`.
+- `api notifications → BullMQ` — `NotificationsService.enqueue` adds jobs to the `notifications` queue (retry/backoff); processed by `notifications.processor.ts`.
+- API controllers are plain NestJS (`@Controller('billing')` etc.) that manually
+  parse against `@site-haus/validation`; the contracts are **not** enforced
+  server-side (same pattern as the auth domain, F-002).
+
 _Remaining domains (Agency, etc.) filled in during Tasks 7–9._
 
 ## Packages
@@ -100,5 +123,17 @@ _Remaining domains (Agency, etc.) filled in during Tasks 7–9._
 | `@sitehaus-ecom/auth` | sitehaus-commerce `packages/auth` | Small NestJS package — `StoreOwnerGuard` + store/user context types (see Identity sweep). |
 | `@sitehaus/client-sdk` | published npm | `/nestjs` AccessGuard/PermissionGuard/IntrospectionService used by the gateway; `/frontend` used by storefronts. (Identity sweep.) |
 | admin UI libs | sitehaus `apps/commerce/lib/commerce.ts` | Hand-written fetch client + hand-maintained types for the :3004 admin (not generated from contracts). |
+
+### Agency / Dashboard (Task 7)
+
+| Package | Repo / location | Role in dashboard |
+| ------- | --------------- | ----------------- |
+| `@site-haus/ui` | sitehaus `packages/ui` | shadcn/ui components + `ThemeProvider`, `PageHero`, sidebar primitives used across every page. |
+| `@site-haus/utils` | sitehaus `packages/utils` | `core/format` — `formatDate`, `formatCents`, `label` (canonical formatters; some pages still inline their own, F-016). |
+| `@site-haus/validation` | sitehaus `packages/validation` | Zod form schemas (react-hook-form resolvers); also parsed server-side by the API controllers. |
+| `@site-haus/contracts` | sitehaus `packages/contracts` | ts-rest route/type definitions for projects, milestones, tickets, assets, billing, business-profiles, design-documents, comments, clients, audit — types the `getApi()` client (not enforced server-side). |
+| `@site-haus/stores` | sitehaus `packages/stores` | `auth-store` (token, `hasPerm`, `clients`, `managedClientId`) + `getApi()`/`initStoresSdk` fetcher. |
+| `@site-haus/sdk` | sitehaus `packages/sdk` | PKCE helpers (`generatePKCE`) used by `RequireAuth`. |
+| dashboard libs (local) | sitehaus `apps/dashboard/lib` + `hooks` | `query-keys.ts` (key factories), `variants.ts` (badge variant helpers), `require-auth.tsx`; `hooks/use-*` React Query wrappers (billing, milestones, assets, comments, clients, design-doc, breadcrumbs) and the `use-is-employee` / `use-client-context` Zustand selectors. |
 
 _Remaining packages filled in during Tasks 7–9._
