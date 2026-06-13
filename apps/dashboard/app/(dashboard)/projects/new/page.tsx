@@ -12,6 +12,8 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { InviteClientDialog } from "../../../../components/invite-client-dialog";
 import type { ProjectItem } from "@site-haus/contracts";
+import { FolderPlus } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -88,10 +90,11 @@ export default function NewProjectPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">New Project</h1>
-        <p className="text-muted-foreground mt-1">Create a new web project for a client.</p>
-      </div>
+      <PageHero
+        icon={FolderPlus}
+        title="New Project"
+        subtitle="Create a new web project for a client."
+      />
       <CreateProjectForm
         clients={clientOptions}
         onSubmit={handleSubmit}

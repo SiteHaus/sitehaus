@@ -29,7 +29,8 @@ import {
 } from "@site-haus/ui/components/base/select";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, CheckCircle, ExternalLink, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle, ExternalLink, Loader2, Settings2 } from "lucide-react";
+import { PageHero } from "@/components/page-hero";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -112,12 +113,11 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage your store configuration and integrations.
-        </p>
-      </div>
+      <PageHero
+        icon={Settings2}
+        title="Settings"
+        subtitle="Manage your store configuration and integrations."
+      />
 
       {/* Store Details */}
       <Card>

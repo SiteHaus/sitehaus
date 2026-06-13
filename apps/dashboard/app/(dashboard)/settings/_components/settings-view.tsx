@@ -1,17 +1,15 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
-import { Building2, Users } from "lucide-react";
+import { Building2, Settings2, Users } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import { CompanyTab } from "./company-tab";
 import { TeamTab } from "./team-tab";
 
 export function SettingsView() {
   return (
-    <div className="space-y-6 pt-6">
-      <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-muted-foreground mt-1 text-sm">Manage your workspace and team.</p>
-      </div>
+    <div className="space-y-6">
+      <PageHero icon={Settings2} title="Settings" subtitle="Manage your workspace and team." />
 
       <Tabs defaultValue="company">
         <TabsList>

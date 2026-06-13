@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@site-haus/ui/components/base/button";
+import { LayoutDashboard } from "lucide-react";
 import { useState } from "react";
+import { PageHero } from "@/components/page-hero";
 import { LowStockAlerts } from "./low-stock-alerts";
 import { RecentOrders } from "./recent-orders";
 import { RevenueChart } from "./revenue-chart";
@@ -20,13 +22,13 @@ export function DashboardView({ firstName }: { firstName: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Welcome back, {firstName}</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            Here's what's happening in your store.
-          </p>
-        </div>
+      <PageHero
+        icon={LayoutDashboard}
+        title={`Welcome back, ${firstName}`}
+        subtitle="Here's what's happening in your store."
+        size="lg"
+        className="py-14 bg-gradient-to-br from-primary/[0.08] via-sidebar to-sidebar"
+      >
         <div className="flex items-center gap-1 border rounded-lg p-1">
           {PERIODS.map((p) => (
             <Button
@@ -40,7 +42,7 @@ export function DashboardView({ firstName }: { firstName: string }) {
             </Button>
           ))}
         </div>
-      </div>
+      </PageHero>
 
       <StatCards period={period} />
 

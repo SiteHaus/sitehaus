@@ -1,6 +1,7 @@
 "use client";
 
 import { listInventory, type BulkInventoryItem } from "@/lib/commerce";
+import { PageHero } from "@/components/page-hero";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
@@ -13,7 +14,7 @@ import {
 } from "@site-haus/ui/components/base/table";
 import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Pencil, Warehouse } from "lucide-react";
+import { Boxes, ChevronLeft, ChevronRight, Pencil, Warehouse } from "lucide-react";
 import { useState } from "react";
 import { AdjustInventoryDialog, StockBadge } from "./_components/adjust-inventory-dialog";
 
@@ -64,14 +65,11 @@ export default function InventoryPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Inventory</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {isLoading ? "—" : `${total} variant${total !== 1 ? "s" : ""}`}
-          </p>
-        </div>
-      </div>
+      <PageHero
+        icon={Boxes}
+        title="Inventory"
+        subtitle={isLoading ? "—" : `${total} variant${total !== 1 ? "s" : ""}`}
+      />
 
       <Tabs
         value={filter}

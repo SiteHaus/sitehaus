@@ -7,6 +7,7 @@ import {
   type CollectionItem,
 } from "@/lib/commerce";
 import { useStoreNav } from "@/lib/use-store-nav";
+import { PageHero } from "@/components/page-hero";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Dialog,
@@ -55,18 +56,16 @@ export default function CollectionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Collections</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Group products into curated collections for your storefront.
-          </p>
-        </div>
+      <PageHero
+        icon={Layers}
+        title="Collections"
+        subtitle="Group products into curated collections for your storefront."
+      >
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="size-4 mr-2" />
           New Collection
         </Button>
-      </div>
+      </PageHero>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-24">

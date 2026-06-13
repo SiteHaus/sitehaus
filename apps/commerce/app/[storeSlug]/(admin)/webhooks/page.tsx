@@ -27,7 +27,17 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, Loader2, Pencil, Plus, Trash2, Webhook } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Loader2,
+  Pencil,
+  Plus,
+  Trash2,
+  Webhook,
+  Zap,
+} from "lucide-react";
+import { PageHero } from "@/components/page-hero";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DeliveryLog } from "./_components/delivery-log";
@@ -191,18 +201,16 @@ export default function WebhooksPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Webhooks</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Send real-time event notifications to your own endpoints.
-          </p>
-        </div>
+      <PageHero
+        icon={Zap}
+        title="Webhooks"
+        subtitle="Send real-time event notifications to your own endpoints."
+      >
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="size-4 mr-2" />
           Add Endpoint
         </Button>
-      </div>
+      </PageHero>
 
       {isLoading ? (
         <div className="border rounded-lg overflow-hidden">

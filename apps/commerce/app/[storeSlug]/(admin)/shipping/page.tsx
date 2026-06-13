@@ -1,6 +1,7 @@
 "use client";
 
 import { listShippingZones } from "@/lib/commerce";
+import { PageHero } from "@/components/page-hero";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -22,18 +23,16 @@ export default function ShippingPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Shipping</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Configure which countries you ship to and what rates apply.
-          </p>
-        </div>
+      <PageHero
+        icon={Truck}
+        title="Shipping"
+        subtitle="Configure which countries you ship to and what rates apply."
+      >
         <Button onClick={() => setAddOpen(true)}>
           <Plus className="size-4 mr-2" />
           Add Zone
         </Button>
-      </div>
+      </PageHero>
 
       {isLoading ? (
         <div className="space-y-4">

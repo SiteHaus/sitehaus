@@ -31,13 +31,14 @@ import {
   updateTicketSchema,
 } from "@site-haus/validation/forms/ticket";
 import { format } from "date-fns";
-import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, CalendarIcon, FilePen, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { SubmitTicketForm } from "../../_components/SubmitTicketForm";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 const typeOptions = ticketTypeEnum.options.map((v) => ({
   label: v.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()),
@@ -139,16 +140,23 @@ export default function EditProjectPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-6 space-y-6">
-      <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-2 mb-2">
-          <Link href={`/tickets/${ticketId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+    <div className="space-y-6">
+      <PageHero
+        icon={FilePen}
+        title={`Edit ${ticket.title}`}
+        subtitle="Update ticket details below."
+        back={
+          <Link
+            href={`/tickets/${ticketId}`}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" />
             Back to Ticket
           </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">Edit {ticket.title}</h1>
-        <p className="text-muted-foreground mt-1 mb-4">Update ticket details below.</p>
+        }
+      />
+
+      <div className="mx-auto max-w-2xl">
         <SubmitTicketForm
           ticketId={ticketId}
           defaultValues={{

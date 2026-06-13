@@ -7,13 +7,22 @@ import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import { ArrowLeft, ArrowRight, BadgeCheck, Building2, FolderKanban, UserCog } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BadgeCheck,
+  Building2,
+  Contact,
+  FolderKanban,
+  UserCog,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useClients } from "@/hooks/use-clients";
 import { queryKeys } from "@/lib/query-keys";
 import { useQuery } from "@tanstack/react-query";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 interface ClientDetailViewProps {
   clientId: string;
@@ -76,8 +85,7 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
   }
 
   return (
-    <div className="space-y-6 pt-6">
-      {/* Back */}
+    <div className="space-y-6">
       <Button variant="ghost" size="sm" className="-ml-2" asChild>
         <Link href="/clients/all">
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -85,17 +93,7 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
         </Link>
       </Button>
 
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted font-bold text-lg">
-            {client.name.slice(0, 2).toUpperCase()}
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold leading-tight">{client.name}</h1>
-            <p className="text-xs text-muted-foreground font-mono mt-0.5">{client.key}</p>
-          </div>
-        </div>
+      <PageHero icon={Contact} title={client.name} subtitle={client.key}>
         <Button onClick={handleManageAsClient} disabled={enteringContext} size="sm">
           {enteringContext ? (
             <Spinner className="size-3.5 mr-2" />
@@ -104,9 +102,7 @@ export function ClientDetailView({ clientId }: ClientDetailViewProps) {
           )}
           Manage as Client
         </Button>
-      </div>
-
-      <Separator />
+      </PageHero>
 
       {/* Business Profile */}
       <div>

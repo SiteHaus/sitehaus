@@ -5,7 +5,7 @@ const TicketsLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  return <div className="py-6">{children}</div>;
+  return <div className="pb-6">{children}</div>;
 };
 
 export default TicketsLayout;

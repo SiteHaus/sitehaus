@@ -12,6 +12,7 @@ import {
 } from "@site-haus/ui/components/base/card";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import { formatCents, formatDate } from "@site-haus/utils/core/format";
 import { AlertTriangle, Calendar, CreditCard, ExternalLink } from "lucide-react";
 import { useState } from "react";
@@ -44,13 +45,11 @@ export function ClientBillingView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Billing</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Your invoices and subscription details.
-          </p>
-        </div>
+      <PageHero
+        icon={CreditCard}
+        title="Billing"
+        subtitle="Your invoices and subscription details."
+      >
         <Button variant="outline" size="sm" onClick={handleOpenPortal} disabled={openingPortal}>
           {openingPortal ? (
             <Spinner className="size-4 mr-2" />
@@ -59,7 +58,7 @@ export function ClientBillingView() {
           )}
           Manage Payment Method
         </Button>
-      </div>
+      </PageHero>
 
       {overdueRecords.length > 0 && (
         <Alert variant="destructive">

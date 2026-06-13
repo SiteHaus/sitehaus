@@ -2,6 +2,7 @@
 
 import { listProducts, type ProductItem, type ProductStatus } from "@/lib/commerce";
 import { useStoreNav } from "@/lib/use-store-nav";
+import { PageHero } from "@/components/page-hero";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
@@ -62,18 +63,16 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {isLoading ? "—" : `${total} product${total !== 1 ? "s" : ""}`}
-          </p>
-        </div>
+      <PageHero
+        icon={Package}
+        title="Products"
+        subtitle={isLoading ? "—" : `${total} product${total !== 1 ? "s" : ""}`}
+      >
         <Button onClick={() => push("/products/new")}>
           <Plus className="size-4" />
           New Product
         </Button>
-      </div>
+      </PageHero>
 
       <Tabs value={status} onValueChange={handleStatusChange} className="mb-4">
         <TabsList>

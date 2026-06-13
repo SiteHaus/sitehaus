@@ -12,6 +12,8 @@ import { useAssets } from "@/hooks/use-assets";
 import { AssetCard } from "./_components/asset-card";
 import { AssetSheet } from "./_components/asset-sheet";
 import { UploadZone } from "./_components/upload-zone";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
+import { Paperclip } from "lucide-react";
 
 export default function AssetsPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -25,20 +27,20 @@ export default function AssetsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <Button asChild variant="ghost" size="sm" className="mb-2">
-          <Link href={`/projects/${projectId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+      <PageHero
+        icon={Paperclip}
+        title="Assets"
+        subtitle="Files uploaded for this project."
+        back={
+          <Link
+            href={`/projects/${projectId}`}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" />
             Back to Project
           </Link>
-        </Button>
-
-        <div className="flex items-center gap-2">
-          <FolderOpen className="h-5 w-5 text-muted-foreground" />
-          <h1 className="text-2xl font-bold">Assets</h1>
-        </div>
-        <p className="text-muted-foreground text-sm mt-1">Files uploaded for this project.</p>
-      </div>
+        }
+      />
 
       {canUpload && (
         <UploadZone

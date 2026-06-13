@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { AlertTriangle, DollarSign, Plus, Receipt, TrendingUp, Users } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import { useState } from "react";
 import { formatCents, formatDate } from "@site-haus/utils/core/format";
 import { BillingRecordCard } from "./billing-record-card";
@@ -41,18 +42,16 @@ export function AdminBillingView() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Billing</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Revenue overview and billing management.
-          </p>
-        </div>
+      <PageHero
+        icon={TrendingUp}
+        title="Billing"
+        subtitle="Revenue overview and billing management."
+      >
         <Button size="sm" onClick={() => setSheetOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Create Billing
         </Button>
-      </div>
+      </PageHero>
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

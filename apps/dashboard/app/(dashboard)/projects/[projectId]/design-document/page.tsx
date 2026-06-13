@@ -11,6 +11,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CommentForm } from "@/components/comments/comment-form";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import { CommentList } from "@/components/comments/comment-list";
 import { DesignDocStatusBadge } from "@/components/design-document/status-badge";
 import { PublishDialog } from "@/components/design-document/publish-dialog";
@@ -149,20 +150,21 @@ export default function DesignDocumentPage() {
 
   return (
     <div className="space-y-6">
-      <Button asChild variant="ghost" size="sm">
-        <Link href={`/projects/${projectId}`}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Project
-        </Link>
-      </Button>
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold">Design Document</h1>
+      <PageHero
+        icon={FileText}
+        title="Design Document"
+        back={
+          <Link
+            href={`/projects/${projectId}`}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Back to Project
+          </Link>
+        }
+      >
+        <div className="flex items-center gap-2">
           <DesignDocStatusBadge status={doc.status} />
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
           {isEditable && (
             <>
               <span className="text-xs text-muted-foreground">
@@ -178,7 +180,6 @@ export default function DesignDocumentPage() {
               </Button>
               <PublishDialog
                 onPublish={async (note) => {
-                  // Save first, then publish
                   if (latestContentRef.current) {
                     await updateContent(latestContentRef.current);
                   }
@@ -191,7 +192,7 @@ export default function DesignDocumentPage() {
           )}
           <StatusActions status={doc.status} onTransition={transitionStatus} />
         </div>
-      </div>
+      </PageHero>
 
       {/* Editor */}
       <Card>

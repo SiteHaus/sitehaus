@@ -5,13 +5,13 @@ import { getApi } from "@site-haus/stores/api";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
-import { Separator } from "@site-haus/ui/components/base/separator";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import { ExternalLink, ArrowLeft } from "lucide-react";
+import { ExternalLink, ArrowLeft, Building2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useIsEmployee } from "@/hooks/use-is-employee";
 import { formatDate } from "@site-haus/utils/core/format";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 function computeCompleteness(profile: BusinessProfileItem) {
   const cp = (profile.currentPresence as Record<string, unknown> | null) ?? {};
@@ -199,53 +199,40 @@ export default function BusinessProfileReviewPage() {
   ].filter((e) => e.value);
 
   return (
-    <div className="py-6 space-y-6">
-      {/* Header */}
-      <div>
-        <Button variant="ghost" size="sm" className="-ml-2 mb-3" onClick={() => router.back()}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">{profile.businessName}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Business Profile
-              {profile.updatedAt && (
-                <>
-                  {" "}
-                  · Last updated{" "}
-                  {formatDate(profile.updatedAt, {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </>
-              )}
-            </p>
-          </div>
-          {profile.industry && (
-            <Badge variant="secondary" className="shrink-0 mt-1">
-              {profile.industry}
-            </Badge>
-          )}
-        </div>
+    <div className="space-y-6">
+      <Button variant="ghost" size="sm" className="-ml-2" onClick={() => router.back()}>
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back
+      </Button>
 
-        {/* Completeness */}
-        <div className="mt-4 flex items-center gap-3">
-          <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-            <div
-              className="h-full rounded-full bg-primary transition-all"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground shrink-0">
-            {filled} of {total} sections complete
-          </p>
+      <PageHero
+        icon={Building2}
+        title={profile.businessName}
+        subtitle={
+          profile.updatedAt
+            ? `Last updated ${formatDate(profile.updatedAt, { month: "long", day: "numeric", year: "numeric" })}`
+            : "Business Profile"
+        }
+      >
+        {profile.industry && (
+          <Badge variant="secondary" className="shrink-0">
+            {profile.industry}
+          </Badge>
+        )}
+      </PageHero>
+
+      {/* Completeness */}
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+          <div
+            className="h-full rounded-full bg-primary transition-all"
+            style={{ width: `${pct}%` }}
+          />
         </div>
+        <p className="text-xs text-muted-foreground shrink-0">
+          {filled} of {total} sections complete
+        </p>
       </div>
-
-      <Separator />
 
       {/* About */}
       <ProfileSection title="About">

@@ -9,6 +9,7 @@ import {
   type OrderStatus,
 } from "@/lib/commerce";
 import { useStoreNav } from "@/lib/use-store-nav";
+import { PageHero } from "@/components/page-hero";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Dialog,
@@ -136,39 +137,37 @@ export default function OrdersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Orders</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {isLoading ? "—" : `${total} order${total !== 1 ? "s" : ""}`}
-          </p>
-        </div>
-        <form onSubmit={handleEmailSearch} className="flex gap-2">
-          <Input
-            placeholder="Search by email..."
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-56"
-          />
-          <Button type="submit" variant="outline" size="sm">
-            Search
+      <PageHero
+        icon={ShoppingCart}
+        title="Orders"
+        subtitle={isLoading ? "—" : `${total} order${total !== 1 ? "s" : ""}`}
+      />
+
+      <form onSubmit={handleEmailSearch} className="flex gap-2 mb-6">
+        <Input
+          placeholder="Search by email..."
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-56"
+        />
+        <Button type="submit" variant="outline" size="sm">
+          Search
+        </Button>
+        {emailSearch && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setEmail("");
+              setEmailSearch("");
+              setOffset(0);
+            }}
+          >
+            Clear
           </Button>
-          {emailSearch && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setEmail("");
-                setEmailSearch("");
-                setOffset(0);
-              }}
-            >
-              Clear
-            </Button>
-          )}
-        </form>
-      </div>
+        )}
+      </form>
 
       {/* Action queue */}
       <div className="border rounded-lg mb-6">

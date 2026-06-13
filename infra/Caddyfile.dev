@@ -27,6 +27,10 @@ commerce.localhost {
 	reverse_proxy localhost:3004
 }
 
+docs.localhost {
+	reverse_proxy localhost:3005
+}
+
 commerce-api.localhost {
 	reverse_proxy localhost:7020
 }
