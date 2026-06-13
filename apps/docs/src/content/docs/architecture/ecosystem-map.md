@@ -120,7 +120,29 @@ Each client site is a standalone Next.js 16 repo deployed on Vercel, not part of
   Cloudflare Turnstile.
 - `onehealthclinics → Google Places API` — live reviews widget.
 
-_Remaining domain: infrastructure & ops (Task 9, `sitehaus-cli` + Docker/Caddy)._
+### Infrastructure & Ops (Task 9)
+
+Build/ship/operate arrows. See [Infrastructure & Deployment](/architecture/deployment/)
+for the full pipeline.
+
+- `GitHub Actions (cd.yml) → GHCR` — both repos build app images on push to
+  `main` and push `:staging`/`:latest` + `:<sha>` to `ghcr.io/sitehaus/*`.
+- `GitHub Actions → staging/prod hosts (SSH)` — `appleboy/ssh-action` runs
+  `git sync → docker compose pull → up -d` on the Vultr hosts (`deploy` user).
+  A `staging` GitHub Environment gates promotion to production.
+- `GitHub Actions (publish-client-sdk.yml) → npm` — publishes
+  `@sitehaus/client-sdk` from `sitehaus/packages/client-sdk` on `client-sdk-v*`
+  tags (consumed by the commerce gateway; vendored by client sites, F-020).
+- `sitehaus-cli → hosts (SSH)` — the `sitehaus` Rust binary wraps Docker Compose
+  over SSH (`logs`, `ps`, `restart`, `deploy`, `db migrate/seed/studio/provision`,
+  `env check/set`, `store check`, `health`). Config at `~/.sitehaus/config.yml`;
+  server `type` (ecom/platform) selects container names + compose file.
+- `Caddy → app containers` — per-stack reverse proxy + TLS on each host
+  (`sitehaus-network` / `sitehaus-commerce-network` bridges).
+- `sitehaus-cli store check → ecom DB + IAM (platform) + live HTTP` — validates a
+  store's resolution chain end to end across both stacks.
+
+_All five sweeps complete: Identity, Commerce, Agency, Client Sites, Infra/Ops._
 
 ## Packages
 
@@ -169,4 +191,28 @@ _Remaining domain: infrastructure & ops (Task 9, `sitehaus-cli` + Docker/Caddy).
 | `resend`, `@marsidev/react-turnstile` | npm | Contact-form email + bot protection (nayadnara, onehealthclinics). |
 | `pagefind` | npm, onehealthclinics | Static site search built post-`next build`. |
 
-_All five domains documented. Task 9 (infrastructure: `sitehaus-cli`, Docker, Caddy) remains._
+### Infrastructure & shared config (Task 9)
+
+Completeness pass — the remaining packages and tooling not covered by the domain
+sweeps above, so every app and package in both monorepos appears in this map.
+
+| Package | Repo / location | Role |
+| ------- | --------------- | ---- |
+| `@site-haus/db` | sitehaus `packages/db` | Drizzle schema + `createDb`/`Db` for the platform API (IAM + core domains). Migrations run on the host via `pnpm --filter @site-haus/db db:migrate` (the CLI `db migrate`). |
+| `@site-haus/transactional` | sitehaus `packages/transactional` | React Email templates for the platform (auth/OTP/invite/notification emails); preview server on :6969. Sent via Resend from the API. |
+| `@site-haus/client-sdk` | sitehaus `packages/client-sdk` | **Source** of the published `@sitehaus/client-sdk` npm package (built + published by `publish-client-sdk.yml`). `/nestjs` + `/frontend` entrypoints (see Identity sweep, F-020 for distribution). |
+| `@site-haus/eslint-config` | sitehaus `packages/eslint-config` | Shared ESLint config across the platform workspaces. |
+| `@site-haus/typescript-config` | sitehaus `packages/typescript-config` | Shared `tsconfig` bases. |
+| `@sitehaus-ecom/typescript-config` | sitehaus-commerce `packages/typescript-config` | Shared `tsconfig` bases for the commerce workspaces. |
+
+**Deployable hosts (not packages):** the `sitehaus` (platform) and
+`sitehaus-commerce` (ecom) stacks each run as Docker Compose on a Vultr host
+behind Caddy; the `sitehaus` CLI binary (`sitehaus-cli` repo) operates them over
+SSH. Image build/CD details live in
+[Infrastructure & Deployment](/architecture/deployment/).
+
+> **Coverage:** every `apps/*` in both monorepos appears in *Apps & ports*
+> (platform: api, web, dashboard, iam, commerce, docs; ecom: gateway, commerce,
+> payments, worker). Every `packages/*` appears across the Identity, Commerce,
+> Agency, Client-Sites, and this Infra subsection. Client sites and the CLI are in
+> *Repos*.
