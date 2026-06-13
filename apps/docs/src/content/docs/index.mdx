@@ -4,7 +4,8 @@ description: Ecosystem-wide documentation for the SiteHaus platform — six repo
 ---
 
 Documentation for the entire SiteHaus ecosystem. Start with the
-ecosystem map (coming soon) for the who-calls-what view.
+[Ecosystem Map](/architecture/ecosystem-map/) for the who-calls-what view, or jump
+to a domain below.
 
 ## Repos covered
 
@@ -17,4 +18,23 @@ ecosystem map (coming soon) for the who-calls-what view.
 | `camo-web`           | Client site (commerce storefront)                   |
 | `nayadnara`          | Client site (commerce storefront)                   |
 
-Issues discovered during documentation live in the findings register.
+## Start here
+
+- **[Ecosystem Map](/architecture/ecosystem-map/)** — every repo, app, package, and
+  port, plus who-calls-what across all six repos.
+- **[Auth Flow](/architecture/auth/)** — OAuth2 PKCE + JWT + session model.
+- **[Infrastructure & Deployment](/architecture/deployment/)** — Docker Compose,
+  GitHub Actions CD, Caddy, and the `sitehaus` CLI.
+
+## Domains
+
+- **[Identity & Auth](/domains/identity/)** — IAM provider, OAuth, the client SDK.
+- **[Agency / Dashboard](/domains/agency/)** — projects, tickets, billing, design docs.
+- **[Commerce](/domains/commerce/)** — gateway, services, admin UI, Stripe, R2.
+- **[Client Sites](/domains/client-sites/)** — the storefront integration pattern.
+
+## Standards & findings
+
+- **[Standards](/standards/api/)** — API, evolution, and React conventions.
+- **[Findings Register](/findings/)** — every issue discovered during discovery,
+  with stable IDs for the follow-on audit workstreams.
