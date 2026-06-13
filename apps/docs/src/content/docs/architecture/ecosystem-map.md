@@ -32,8 +32,32 @@ description: Every repo, app, package, and port in the SiteHaus platform, and wh
 
 ## Who calls what
 
-_Filled in domain-by-domain during the discovery sweeps (Tasks 5–9)._
+### Identity & Auth (Task 5)
+
+- `iam → api POST /auth/login` — email/password login (returns access token, `requires2FA?`)
+- `iam → api POST /auth/sso-link` — form-POST bridge: seeds first-party `sh_refresh_<key>` cookie, then redirects to `/auth/authorize`
+- `dashboard → api GET /auth/authorize` — OAuth2 authorize (client_key `dashboard`)
+- `dashboard → api POST /auth/token` — PKCE code exchange (via `@site-haus/sdk` `exchangeCodeForTokens`)
+- `dashboard → api POST /auth/refresh` — silent refresh from `sh_refresh_dashboard` cookie (via `@site-haus/stores` bootstrap)
+- `dashboard → api GET /auth/me` — load user + session + permissions
+- `commerce (admin) → api GET /auth/authorize`, `POST /auth/token`, `POST /auth/refresh`, `GET /auth/me` — same OAuth flow, client_key `sitehaus-commerce-admin`
+- `camo-web → api GET /auth/authorize` + `POST /auth/token` — PKCE flow via `@sitehaus/client-sdk/frontend`
+- `nayadnara → api GET /auth/authorize` + `POST /auth/token` — identical to camo-web
+- `commerce gateway → iam POST /auth/introspect` — server-side token validation (via `@sitehaus/client-sdk/nestjs` `IntrospectionService`, `x-client-key`, ~5s cache). No local JWT verification.
+- `onehealthclinics` — no auth arrow; consumes the commerce API anonymously, no IAM integration.
+
+_Remaining domains (Commerce, Agency, Payments, etc.) filled in during Tasks 6–9._
 
 ## Packages
 
-_Filled in domain-by-domain during the discovery sweeps (Tasks 5–9)._
+### Identity & Auth (Task 5)
+
+| Package | Repo / location | Role in auth |
+| ------- | --------------- | ------------ |
+| `@site-haus/sdk` | sitehaus `packages/sdk` | Typed API client + PKCE helpers (`oauth.ts`), token-attach fetcher, refresh + single-refresh lock |
+| `@site-haus/contracts` | sitehaus `packages/contracts` | ts-rest route/schema definitions (auth, session, device, role, password, invite, client) — typed clients; **not** enforced server-side |
+| `@site-haus/stores` | sitehaus `packages/stores` | Zustand `auth-store.ts` — in-memory access token, `bootstrap`/`me`/`login`/`logout` |
+| `@sitehaus-ecom/auth` | sitehaus-commerce `packages/auth` | Small NestJS package — exports only `StoreOwnerGuard` + store/user context types |
+| `@sitehaus/client-sdk` | **published npm package** (v0.3.0), installed from registry into sitehaus-commerce + client sites; not vendored or workspace-linked | `/nestjs` exports `SiteHausAuthModule`, `AccessGuard`, `PermissionGuard`, `Public`, `IntrospectionService` (calls `/auth/introspect`); `/frontend` exports `useAuthStore`, `generatePKCE`, `buildAuthorizationUrl`, `exchangeCodeForTokens` |
+
+_Remaining packages filled in during Tasks 6–9._
