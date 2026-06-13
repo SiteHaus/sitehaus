@@ -97,7 +97,30 @@ itself is in the Identity sweep; only feature data calls are listed here.
   parse against `@site-haus/validation`; the contracts are **not** enforced
   server-side (same pattern as the auth domain, F-002).
 
-_Remaining domains (Agency, etc.) filled in during Tasks 7–9._
+### Client Sites (Task 8)
+
+Each client site is a standalone Next.js 16 repo deployed on Vercel, not part of the
+`sitehaus` monorepo. See [Client Sites — Integration Pattern](/domains/client-sites/).
+
+- `camo-web → gateway /v1/catalog/*` — public catalog via `publicFetch` (server
+  components), `x-store-slug: camo`.
+- `camo-web → gateway /v1/cart*`, `/v1/checkout/intent`, `/v1/orders/*` — authed via
+  `commerceFetch` (Bearer IAM token + `credentials: include`); 401 → `/login`.
+  Checkout redirects to the Stripe `checkoutUrl`.
+- `camo-web → api GET /auth/authorize` + `POST /auth/token` — OAuth PKCE via
+  `@sitehaus/client-sdk/frontend` (client_key `camo`); `bootstrap()` silent-refresh
+  from `sh_refresh_camo`.
+- `nayadnara → gateway /v1/*` and `→ api /auth/*` — same as camo-web (it is a fork);
+  client_key `nayadnara`, slug `nayadnara`.
+- `onehealthclinics → /api/ecom/* → gateway /v1/*` — **anonymous**. Browser calls go
+  through the same-origin Next rewrite `/api/ecom/:path*` → `NEXT_PUBLIC_ECOM_API_URL`
+  (ITP cookie workaround); SSR/RSC calls hit the gateway directly. `x-store-slug:
+  onehealthclinics`, no `Authorization`. No IAM arrow.
+- `nayadnara / onehealthclinics → Resend` — server-action contact form, gated by
+  Cloudflare Turnstile.
+- `onehealthclinics → Google Places API` — live reviews widget.
+
+_Remaining domain: infrastructure & ops (Task 9, `sitehaus-cli` + Docker/Caddy)._
 
 ## Packages
 
@@ -136,4 +159,14 @@ _Remaining domains (Agency, etc.) filled in during Tasks 7–9._
 | `@site-haus/sdk` | sitehaus `packages/sdk` | PKCE helpers (`generatePKCE`) used by `RequireAuth`. |
 | dashboard libs (local) | sitehaus `apps/dashboard/lib` + `hooks` | `query-keys.ts` (key factories), `variants.ts` (badge variant helpers), `require-auth.tsx`; `hooks/use-*` React Query wrappers (billing, milestones, assets, comments, clients, design-doc, breadcrumbs) and the `use-is-employee` / `use-client-context` Zustand selectors. |
 
-_Remaining packages filled in during Tasks 7–9._
+### Client Sites (Task 8)
+
+| Package | Repo / location | Role in client sites |
+| ------- | --------------- | -------------------- |
+| `@sitehaus/client-sdk` | camo-web/nayadnara: **vendored** `vendor/sitehaus-client-sdk-0.4.0.tgz` (local file dep, byte-identical across both); onehealthclinics does not use it | `/frontend` `useAuthStore`, `initStoresSdk`, `generatePKCE`, `generateState`, `buildAuthorizationUrl`, `exchangeCodeForTokens` — the entire OAuth/token layer for the authed storefronts. (The Identity-sweep row calls this "published npm, not vendored"; the client sites actually pin a vendored v0.4.0 tarball — see Findings F-020.) |
+| storefront commerce libs (local) | camo-web/nayadnara `src/lib/commerce.ts` + `src/types/commerce.ts`; onehealthclinics `lib/ecom/client.ts` + `lib/ecom/types.ts` | Hand-written commerce fetch clients + DTO types, duplicated across sites (Findings F-008, F-018). No shared/published storefront SDK exists. |
+| `@tanstack/react-query` | npm, camo-web + nayadnara | Provider configured in `providers.tsx`; little actual query usage beyond auth. |
+| `resend`, `@marsidev/react-turnstile` | npm | Contact-form email + bot protection (nayadnara, onehealthclinics). |
+| `pagefind` | npm, onehealthclinics | Static site search built post-`next build`. |
+
+_All five domains documented. Task 9 (infrastructure: `sitehaus-cli`, Docker, Caddy) remains._
