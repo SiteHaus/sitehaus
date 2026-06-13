@@ -27,8 +27,9 @@ implementation** of the authed storefront pattern — `nayadnara` is a fork of i
 
 ## Site-specific notes
 
-- **Vercel artifacts:** the only site with a committed `.vercel/` project link and a
-  `vercel.json` (`installCommand: pnpm install --ignore-scripts`).
+- **Vercel artifacts:** the only site with a committed `vercel.json`
+  (`installCommand: pnpm install --ignore-scripts`); a `.vercel/` project link
+  exists locally but is gitignored (not committed).
 - **Vendored SDK:** `@sitehaus/client-sdk` is installed from
   `vendor/sitehaus-client-sdk-0.4.0.tgz` (a local file, not the npm registry — see
   Findings F-020). The tarball is byte-identical to nayadnara's.

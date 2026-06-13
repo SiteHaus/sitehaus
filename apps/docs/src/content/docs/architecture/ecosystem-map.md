@@ -132,7 +132,7 @@ _Remaining domain: infrastructure & ops (Task 9, `sitehaus-cli` + Docker/Caddy).
 | `@site-haus/contracts` | sitehaus `packages/contracts` | ts-rest route/schema definitions (auth, session, device, role, password, invite, client) — typed clients; **not** enforced server-side |
 | `@site-haus/stores` | sitehaus `packages/stores` | Zustand `auth-store.ts` — in-memory access token, `bootstrap`/`me`/`login`/`logout` |
 | `@sitehaus-ecom/auth` | sitehaus-commerce `packages/auth` | Small NestJS package — exports only `StoreOwnerGuard` + store/user context types |
-| `@sitehaus/client-sdk` | **published npm package** (v0.3.0), installed from registry into sitehaus-commerce + client sites; not vendored or workspace-linked | `/nestjs` exports `SiteHausAuthModule`, `AccessGuard`, `PermissionGuard`, `Public`, `IntrospectionService` (calls `/auth/introspect`); `/frontend` exports `useAuthStore`, `generatePKCE`, `buildAuthorizationUrl`, `exchangeCodeForTokens` |
+| `@sitehaus/client-sdk` | **published npm package** (v0.3.0), installed from registry into the **sitehaus-commerce gateway**; the **client sites instead vendor a v0.4.0 tarball** (`file:./vendor/sitehaus-client-sdk-0.4.0.tgz`) — see the Client Sites packages row and F-020 for the version/distribution skew | `/nestjs` exports `SiteHausAuthModule`, `AccessGuard`, `PermissionGuard`, `Public`, `IntrospectionService` (calls `/auth/introspect`); `/frontend` exports `useAuthStore`, `generatePKCE`, `buildAuthorizationUrl`, `exchangeCodeForTokens` |
 
 ### Commerce (Task 6)
 

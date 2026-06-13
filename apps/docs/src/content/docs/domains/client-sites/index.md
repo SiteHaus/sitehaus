@@ -104,8 +104,10 @@ proxy; on the server it calls the gateway directly. See
 
 ### Hosting / deploy
 
-All three deploy on **Vercel** (verified from `create-next-app` READMEs and, for
-camo-web, a committed `.vercel/` project link + `vercel.json`). Per-site config:
+All three deploy on **Vercel** — confirmed for camo-web via its committed
+`vercel.json` (its `.vercel/` project link exists locally but is gitignored);
+inferred for nayadnara and onehealthclinics from `create-next-app` READMEs and
+Next.js conventions (no committed Vercel config). Per-site config:
 
 - **camo-web** — `vercel.json` sets `installCommand: pnpm install --ignore-scripts`;
   `next.config.ts` allow-lists R2 (`*.r2.dev`, `*.r2.cloudflarestorage.com`) and
@@ -128,5 +130,5 @@ camo-web, a committed `.vercel/` project link + `vercel.json`). Per-site config:
 | Commerce base var | `NEXT_PUBLIC_COMMERCE_URL` | `NEXT_PUBLIC_COMMERCE_URL` | `NEXT_PUBLIC_ECOM_API_URL` |
 | Client SDK | vendored `vendor/sitehaus-client-sdk-0.4.0.tgz` | vendored (byte-identical tgz) | none |
 | Framework | Next 16.2.4, React 19.2.4 | Next 16.2.4, React 19.2.4, React Compiler | Next 16.1.6, React 19.2.3 |
-| Notable extras | `.vercel/`, `vercel.json`, Spotify embed | Contact form (Resend + Turnstile), `safe-next` | `middleware.ts` (www→apex 301), Pagefind search, Turnstile, Google Reviews, MDX, heavy SEO |
-| Hosting | Vercel (`.vercel/` + `vercel.json`) | Vercel | Vercel |
+| Notable extras | `vercel.json`, Spotify embed | Contact form (Resend + Turnstile), `safe-next` | `middleware.ts` (www→apex 301), Pagefind search, Turnstile, Google Reviews, MDX, heavy SEO |
+| Hosting | Vercel (committed `vercel.json`) | Vercel (inferred) | Vercel (inferred) |
