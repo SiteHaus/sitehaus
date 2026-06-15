@@ -78,6 +78,59 @@ _Executive summary added in synthesis (Task 5)._
 
 ## Sweep B — Standards conformance: sitehaus dashboard + IAM
 
+> **Documented standard (audited against):** `apps/dashboard/CLAUDE.md` — "all async data via React Query, never fetch in components directly"; "`page.tsx` is role-dispatch only (≤15 lines); all view components in `_components/`". `apps/api/CLAUDE.md` — "Controllers bind to ts-rest contracts." These are *written* standards, so violations are scored (not "candidate to ratify").
+
+### F-014 · 10 dashboard pages fetch in `useEffect` instead of React Query
+- **Category:** standards · **Severity:** Medium · **Scope-size:** **10** `page.tsx` use `useEffect`; **9** call `getApi()`/`fetch()` directly inside it
+- **Currency:** present (exactly 10 at HEAD; matches WS1's list — **no hidden extras**, the grep set equals the WS1 set)
+- **Affected:** `tickets/[ticketId]/edit`, `profile`, `projects`, `tickets/new`, `clients/[clientId]/business-profile`, `projects/[projectId]`, `tickets`, `tickets/[ticketId]`, `projects/[projectId]/edit` (+ `projects/new` uses `useEffect` non-fetch) under `sitehaus:apps/dashboard/app/(dashboard)/`
+- **Why it matters:** Bypasses React Query's cache/retry and the `lib/query-keys` factories — the single worst standards drift in the dashboard (the colocated `hooks/use-*.ts` already show the correct pattern; these pages just don't use them).
+- **Deepened instances:** None beyond the WS1 ten — the dashboard-wide grep for `useEffect`+`getApi/fetch` in `page.tsx` returns exactly this set. Scope is bounded.
+- **Recommended remediation:** Migrate each page's inline fetch to a colocated `use-*.ts` React Query hook keyed via `lib/query-keys` (the pattern already exists). WS3-fixable but per-page (10×S).
+- **Effort:** M (10 small migrations) · **Regression risk:** Low-Medium (loading/error states change) · **Disposition:** WS3-fixable.
+- **Related:** F-015 (the same fat pages), F-024 (no test gate to catch regressions).
+
+### F-015 · Fat `page.tsx` files — view layer not extracted (worse than WS1 reported)
+- **Category:** standards · **Severity:** Medium · **Scope-size:** **11 of 21** dashboard `page.tsx` are >100 lines; only **6** are compliant-thin (≤15)
+- **Currency:** present — **deepened: WS1 listed 7, the true count is 11.**
+- **Affected (line counts at HEAD):** `projects/[projectId]/edit` (431), `design` (411, also dead — F-017), `tickets/[ticketId]` (409), `projects/[projectId]` (367), `clients/[clientId]/business-profile` (322), `tickets` (252), `projects/[projectId]/design-document` (244), `tickets/[ticketId]/edit` (172), `projects` (160), `projects/new` (117), `projects/[projectId]/design-document/versions/[version]` (101)
+- **Why it matters:** The standard (`CLAUDE.md:8`, "role-dispatch only ≤15 lines; views in `_components/`") is violated by the **majority** of non-trivial pages — 240–431-line files of inline JSX/logic with no extracted view component.
+- **Deepened instances:** +4 beyond WS1: `design-document` (244), `tickets/[ticketId]/edit` (172), `projects` (160), `projects/new` (117), `versions/[version]` (101).
+- **Recommended remediation:** Extract each fat page's view into `_components/`, leaving `page.tsx` as role dispatch. Pairs naturally with the F-014 migration (the same pages). WS3-fixable, per-page.
+- **Effort:** L (11 extractions) · **Regression risk:** Low · **Disposition:** WS3-fixable.
+- **Related:** F-014, F-017 (`design` is both fat *and* dead).
+
+### F-002 · IAM API does not bind ts-rest contracts (doc/standard vs reality)
+- **Category:** standards · **Severity:** Low · **Scope-size:** **0** of all `apps/api/src` controllers use `@TsRestHandler` (ecosystem-wide miss)
+- **Currency:** present — confirmed 0 ts-rest bindings in the entire IAM API at HEAD.
+- **Affected:** `sitehaus:apps/api/CLAUDE.md` (the claim), `sitehaus:apps/api/src/auth/**` (plain NestJS controllers that hand-`schema.parse`)
+- **Why it matters:** `apps/api/CLAUDE.md` states "Controllers bind to ts-rest contracts," but no controller does — contracts only type the SDK, never enforced server-side. This is the same gap WS2 flagged (no global `ValidationPipe` → the zod contract is dead at runtime, root of WS2 F-030/F-031/F-035).
+- **Recommended remediation:** Either (a) adopt the commerce pattern (`tsRestHandler`, see F-009) across auth controllers, or (b) add a global `ValidationPipe` and correct the CLAUDE.md claim. Option (a) also closes the WS2 contract-unenforced root.
+- **Effort:** L (controller-by-controller) or S (ValidationPipe + doc fix) · **Regression risk:** Medium · **Disposition:** WS3-fixable (doc fix) / → larger refactor (full binding).
+- **Related:** F-003, F-009 (the positive pattern), WS2 F-030/F-031.
+
+### F-003 · OAuth contract drift (`client_id` uuid vs controller `client_key`)
+- **Category:** standards · **Severity:** Medium · **Scope-size:** 2 endpoints (`authorize`, `token`)
+- **Currency:** present — **already independently confirmed by WS2 as F-031** (which proved the security impact: client confusion + unenforced contract).
+- **Affected:** `sitehaus:packages/contracts/src/auth.contract.ts:190`, `sitehaus:apps/api/src/auth/oauth/oauth.controller.ts:161`
+- **Why it matters:** The typed contract (`client_id: z.uuid()`, form-encoded) does not match the implemented surface (accepts `client_key` or `client_id`, JSON or form). Standards drift *and* the WS2 security finding F-031 are the same fix.
+- **Recommended remediation:** Reconcile contract↔controller (pick one client identifier, enforce it). **Cross-reference WS2 F-031** — fix once, satisfies both.
+- **Effort:** M · **Regression risk:** Medium (clients send `client_key` today) · **Disposition:** WS3-flagged, fix tracked jointly with WS2 F-031.
+- **Related:** WS2 F-031, F-002.
+
+### F-024 · Platform CI has no test gate — and ≈no tests to run
+- **Category:** standards · **Severity:** Medium · **Scope-size:** CI runs `check-types lint build`, **0** test step; whole `sitehaus` tree has **1** spec/test file
+- **Currency:** present — **deepened: not just "tests not run" — the platform has essentially no test suite** (1 `*.spec/test.ts` in all of `apps/` + `packages/`), unlike `sitehaus-commerce` which runs `pnpm test` in CI.
+- **Affected:** `sitehaus:.github/workflows/ci.yml:50` (`pnpm turbo run check-types lint build`, no `test`)
+- **Why it matters:** The production deploy path has no automated test gate, and there is almost nothing to gate — every WS3-fixable migration (F-014/F-015) would land with zero test coverage to catch regressions. This is the structural risk multiplier for the whole cleanup.
+- **Recommended remediation:** Add a `test` task to the platform CI **and** seed a baseline test suite (at least for the auth API and the dashboard data hooks) before the F-014/F-015 mass migrations. Sequencing dependency: tests before refactors.
+- **Effort:** L (build the suite) · **Regression risk:** Low (additive) · **Disposition:** WS3-fixable (CI step) + → larger (test suite).
+
+### Sweep B assurances
+- ✓ **F-004 already fixed (assurance, not a finding)** — the architecture-doc token-storage claim was *corrected during the WS1 sweep* (`apps/docs/.../architecture/auth.md` now states in-memory-only Zustand, hardcoded `MFA_PENDING_TTL_SEC`, per-client `sh_refresh_<key>`). Confirmed at HEAD; no residual drift. Logged closed.
+- ✓ **F-014 scope is bounded** — the dashboard-wide grep confirms exactly the WS1 ten pages fetch outside React Query; no additional offenders hiding.
+- ✓ **The standards audited here are *written*** — both the React-Query rule and the ≤15-line page rule are quoted from `apps/dashboard/CLAUDE.md`; these are scored violations, not "candidate standards."
+
 ## Sweep C — Standards & naming: commerce + storefronts
 
 ## Sweep D — Dead code
