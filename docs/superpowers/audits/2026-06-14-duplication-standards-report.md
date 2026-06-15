@@ -171,3 +171,36 @@ _Executive summary added in synthesis (Task 5)._
 - ✓ **F-012 rename is low-risk** — the typo'd module has exactly one importer (the package barrel), so the rename cannot silently break a distant consumer.
 
 ## Sweep D — Dead code
+
+> Each deletion recommendation is backed by a proof-of-no-references grep (recorded below).
+
+### F-006 · Dead `mfa: 'complete'` literal in `AccessPayload`
+- **Category:** dead-code · **Severity:** Low · **Scope-size:** 1 unused type-union member (2 declarations)
+- **Currency:** present — `mfa?: 'pending' | 'complete'` at `access.guard.ts:22` and `:31`; **zero runtime comparison** to `'complete'` anywhere in `apps/api/src` (grep `mfa === 'complete'` → none).
+- **Affected:** `sitehaus:apps/api/src/auth/access/access.guard.ts:22,31`
+- **Why it matters:** Pure dead code. Full tokens are minted with `mfa` undefined and `MfaGuard`/`introspect` only branch on `'pending'` — **WS2 S2 assurance already proved `'complete'` has no auth-relevant effect** (a forged `mfa:'complete'` still needs a valid signature and is treated as "no mfa"). The literal is misleading (implies a state that never exists).
+- **Recommended remediation:** Drop `'complete'` from the union (`mfa?: 'pending'`). Trivial; cross-reference WS2 S2 assurance.
+- **Effort:** S · **Regression risk:** Low · **Disposition:** WS3-fixable.
+- **Related:** WS2 F-006 ruling (S2 assurances).
+
+### F-017 · `/design` showcase page shipped into the authenticated bundle
+- **Category:** dead-code · **Severity:** Low · **Scope-size:** 1 route (411 lines — also the F-015 fattest page)
+- **Currency:** present — `app/(dashboard)/design/page.tsx` is **not** in `components/sidebar/sidebar-links.tsx` and is imported by no source file; the only references are generated `.next/` client-reference artifacts (which confirm it *is* compiled into the dashboard bundle — i.e. the finding).
+- **Affected:** `sitehaus:apps/dashboard/app/(dashboard)/design/page.tsx`
+- **Why it matters:** A 411-line dev-only design-token/component gallery (zero data fetching) reachable only by typing `/design`, shipped into the authed app bundle. Dead weight + minor surface.
+- **Deepened instances:** No other sidebar-unlinked showcase/demo pages found under `(dashboard)`.
+- **Recommended remediation:** Delete the route (or move it to a Storybook/dev-only target outside the app bundle). Removing it also clears the single largest F-015 offender.
+- **Effort:** S · **Regression risk:** Low (unreferenced) · **Disposition:** WS3-fixable.
+- **Related:** F-015.
+
+### F-027 · Orphan `create_network.sh` provisioning script
+- **Category:** dead-code · **Severity:** Low · **Scope-size:** 1 orphan script
+- **Currency:** present — `infra/create_network.sh` creates `sitehaus-prod-network`, but **no compose/script references `sitehaus-prod-network`** (grep across `*.yml`/`*.yaml`/`*.sh` → only the script's own definition). Every compose file declares its own bridge (`sitehaus-network` / `sitehaus-commerce-network`).
+- **Affected:** `sitehaus:infra/create_network.sh`
+- **Why it matters:** Orphan provisioning — either a missing wire-up (compose should reference an external `sitehaus-prod-network`) or leftover. Misleads ops about the network topology.
+- **Recommended remediation:** Either wire the prod compose to an `external: sitehaus-prod-network` or delete the script. (Borderline infra-workstream, but WS1 categorized it dead-code.) WS3-fixable.
+- **Effort:** S · **Regression risk:** Low · **Disposition:** WS3-fixable (confirm with the infra/deploy owner first).
+
+### Sweep D assurances
+- ✓ **All three deletions are reference-proven** — F-006 (no runtime `'complete'` branch), F-017 (no sidebar link, no source import), F-027 (no compose reference to the network) each have a recorded zero-reference grep, so removal cannot silently break a consumer.
+- ✓ **F-006 corroborated by WS2** — the security sweep independently verified the literal is a harmless no-op; WS3 only adds the "delete the dead union member" hygiene recommendation.
