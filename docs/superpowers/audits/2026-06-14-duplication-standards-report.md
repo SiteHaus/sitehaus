@@ -133,4 +133,41 @@ _Executive summary added in synthesis (Task 5)._
 
 ## Sweep C — Standards & naming: commerce + storefronts
 
+### F-009 · Commerce gateway binds ts-rest contracts (positive contrast to F-002)
+- **Category:** standards (positive) · **Severity:** Low (informational) · **Scope-size:** **18** gateway controllers use `@TsRestHandler`/`tsRestHandler`
+- **Currency:** present — confirmed 18 ts-rest-bound controllers in `sitehaus-commerce:apps/gateway/src/` at HEAD.
+- **Affected:** `sitehaus-commerce:apps/gateway/src/**`, `sitehaus-commerce:packages/contracts/src/`
+- **Why it matters:** This is the **target pattern**: the commerce gateway validates against `@sitehaus-ecom/contracts` server-side, the opposite of the IAM API (F-002, 0 bindings). The "two repos both have contracts" claim means different things — commerce *enforces*, IAM only *types*.
+- **Recommended remediation:** No fix needed here. Use as the reference implementation when remediating F-002. **Links Sweep B↔C.**
+- **Effort:** — · **Disposition:** reference (no action) · **Related:** F-002, F-013, F-059.
+
+### F-010 · Email-template export/file-name mismatch (`ReturnRequested` ← `refund-requested.tsx`)
+- **Category:** naming · **Severity:** Low · **Scope-size:** 1 mismatched export among 3 return/refund templates
+- **Currency:** present — `packages/email-templates/src/index.ts:7` exports `ReturnRequested` from `./emails/refund-requested`; **no `return-requested.tsx` file exists** (templates present: `refund-issued.tsx`, `refund-requested.tsx`, `return-refunded.tsx`). Line 6 (`ReturnRefunded` ← `return-refunded`) is correct.
+- **Affected:** `sitehaus-commerce:packages/email-templates/src/index.ts:7`, `packages/email-templates/src/emails/refund-requested.tsx`, `apps/worker/src/processors/handlers/return-requested.handler.ts`
+- **Why it matters:** The `ReturnRequested` symbol (a *return*-requested email) resolves to a `refund-requested.tsx` file (a *refund*-requested email) — return ≠ refund. The worker's `handleReturnRequested` renders whatever `ReturnRequested` points at, so a "return requested" event may send refund-worded copy. Easy to wire the wrong template; fragile naming.
+- **Deepened instances:** No other export/file mismatch in the barrel; `refund-issued.tsx` is exported elsewhere correctly. Verify the worker's intended copy for the return-requested event before renaming.
+- **Recommended remediation:** Decide the intended template; either rename `refund-requested.tsx` → `return-requested.tsx` (and fix the export) or repoint `ReturnRequested` to the correct file. WS3-fixable (mechanical, single package).
+- **Effort:** S · **Regression risk:** Low (verify the rendered email first) · **Disposition:** WS3-fixable.
+
+### F-012 · Filename typo `shipping.shemas.ts`
+- **Category:** naming · **Severity:** Low · **Scope-size:** 1 file + **1 importer**
+- **Currency:** present — `packages/validation/src/shipping.shemas.ts` (missing `c`); every sibling is `*.schemas.ts`.
+- **Affected:** `sitehaus-commerce:packages/validation/src/shipping.shemas.ts`, importer `packages/validation/src/index.ts:16` (`export * from "./shipping.shemas.js"`)
+- **Why it matters:** Cosmetic inconsistency, but trivially fixable; the rename touches exactly 2 places (the file + the one barrel re-export — confirmed the *only* importer).
+- **Recommended remediation:** `git mv shipping.shemas.ts shipping.schemas.ts` + update the one `index.ts` line. WS3-fixable.
+- **Effort:** S · **Regression risk:** Low (single importer) · **Disposition:** WS3-fixable.
+
+### F-019 · Styling-token drift in the forked storefront auth pages
+- **Category:** standards · **Severity:** Low · **Scope-size:** login + callback pages across camo/naya
+- **Currency:** present — camo login uses **theme tokens** (`bg-primary`, `font-heading`, `text-primary`, `text-muted-foreground`); naya login uses **raw Tailwind** (`bg-black`, `text-black`). Confirmed at HEAD.
+- **Affected:** `camo-web:src/app/{login,callback}/page.tsx`, `nayadnara:src/app/{login,callback}/page.tsx`
+- **Why it matters:** Same component, two un-reconciled styling conventions — confirms F-018's "fork that drifts," and means the `@sitehaus/storefront-kit` extraction (WS4) must **abstract theming out** (tokens, not hardcoded colors) so each site themes the shared auth pages.
+- **Recommended remediation:** Not a standalone fix — folds into the WS4 storefront-kit design as a theming requirement. Tag → WS4.
+- **Effort:** — (WS4) · **Disposition:** → **WS4** · **Related:** F-018, F-008.
+
+### Sweep C assurances
+- ✓ **F-009 is a true positive** — 18 contract-bound controllers confirm the commerce side enforces its contracts; this is the reference pattern for F-002, not a defect.
+- ✓ **F-012 rename is low-risk** — the typo'd module has exactly one importer (the package barrel), so the rename cannot silently break a distant consumer.
+
 ## Sweep D — Dead code
