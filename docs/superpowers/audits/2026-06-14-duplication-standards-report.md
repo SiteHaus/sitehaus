@@ -3,7 +3,49 @@
 Workstream 3. Committable (code-quality, not exploit detail). Continues the F-### register; net-new at F-059+.
 Spec: `docs/superpowers/specs/2026-06-14-duplication-standards-audit-design.md` · Plan: `docs/superpowers/plans/2026-06-14-duplication-standards-audit.md`
 
-_Executive summary added in synthesis (Task 5)._
+## Executive summary
+
+19 findings across four sweeps: the 18 WS1 seed findings (all re-confirmed current at HEAD) plus one net-new synthesis finding (**F-059**, the cross-repo package-distribution gap). One seed (**F-004**) was already fixed during WS1 and is logged as a closed assurance. Findings are committable (code-quality, not exploit detail).
+
+### Counts
+
+| Severity | Count | Findings |
+| --- | --- | --- |
+| **High** | 2 | F-008, F-018 |
+| **Medium** | 8 | F-001, F-003, F-013, F-014, F-015, F-020, F-024, F-059 |
+| **Low** | 9 | F-002, F-006, F-009, F-010, F-012, F-016, F-017, F-019, F-027 |
+
+| Category | Count |
+| --- | --- |
+| duplication | 7 (F-001, F-008, F-013, F-016, F-018, F-020, F-059) |
+| standards | 7 (F-002, F-003, F-009, F-014, F-015, F-019, F-024) |
+| naming | 2 (F-010, F-012) |
+| dead-code | 3 (F-006, F-017, F-027) |
+
+| Disposition | Count | Findings |
+| --- | --- | --- |
+| **WS3-fixable** (mechanical, single-repo) | 8 | F-006, F-010, F-012, F-014, F-015, F-016, F-017, F-027 |
+| **→ WS4** (structural / cross-repo) | 6 | F-001, F-008, F-013, F-018, F-019, F-020 (all unblocked by **F-059**) |
+| **flagged / reference / closed** | 5 | F-002 (doc-fix + larger), F-003 (joint w/ WS2 F-031), F-009 (reference), F-024 (CI + suite), F-004 (closed) |
+
+### Highest-leverage cleanups (plain language)
+
+1. **Stand up cross-repo package distribution (F-059) — the keystone.** Neither the commerce contracts (`@sitehaus-ecom/contracts`) nor the client-SDK (`@sitehaus/client-sdk`) is published as a consumable package, which *forces* the admin UI to hand-redeclare 94 contract decls (F-013) and the storefronts to vendor a byte-identical tarball (F-020). One publishing pipeline dissolves both and gives the storefront-kit a real channel. **Do this first in WS4.**
+2. **Extract `@sitehaus/storefront-kit` (F-008/F-018/F-001/F-019).** The camo-web↔nayadnara auth+commerce core is near-identical (`commerce.ts` 1-line diff, `types` 6, cart-store 25, login 27, callback 25, providers 36); the content layer (page/layout/marketing, 100–230-line diffs) is genuinely per-site and stays. Extract the core, reconcile onehealthclinics' structurally-different variant, and abstract theming (F-019). Largest single dedup.
+3. **Dashboard standards mass-fix (F-014 + F-015) — but gated on tests (F-024).** The same ~11 pages both fetch outside React Query *and* exceed the ≤15-line page rule; fix them together (inline fetch → `use-*` hook, inline view → `_components/`). First build a baseline test suite, because today the platform has **≈1 test file** and CI has **no test step** — every refactor would land uncovered.
+4. **Bundle the trivial wins (F-016, F-010, F-012, F-006, F-017, F-027).** One extracted label helper, one template-name fix, one filename rename, three reference-proven deletions — all single-repo, low-risk hygiene.
+
+### Posture assessment
+
+The platform is **well-documented but weakly-enforced**: the dashboard violates its *own written* standards (the ≤15-line page rule, the React-Query rule) in the majority of non-trivial pages, and the IAM API's CLAUDE.md claims a ts-rest binding it never does — while the commerce gateway proves the pattern is achievable (F-009, 18 bound controllers). The duplication is **concentrated and structural**, not scattered: a single root cause (no cross-repo distribution, F-059) drives the contract/SDK copies, and a single fork (camo→nayadnara) drives the storefront triplication — both WS4-shaped, both now sized. The cross-cutting risk multiplier is **F-024**: with essentially no test suite, the otherwise-safe WS3-fixable migrations carry more regression risk than their size suggests, so a test baseline should precede the dashboard mass-fix. Every sweep carries an assurance block documenting coverage (and F-004's already-fixed closure).
+
+### If you only do three things
+
+1. **F-059** — publish the commerce contracts + client-SDK (unblocks the most downstream cleanup).
+2. **F-024** — add a CI `test` step and seed a baseline suite *before* the dashboard refactors.
+3. **F-016 + F-006 + F-012 + F-017** — land the trivial WS3-fixable wins now (one helper, one rename, two deletes) for immediate, zero-risk hygiene.
+
+---
 
 ## Sweep A — Cross-repo duplication & fork divergence
 
