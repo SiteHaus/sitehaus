@@ -23,7 +23,7 @@ export function RecentOrders() {
   const { push } = useStoreNav();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["orders-recent"],
+    queryKey: ["orders", "recent"],
     queryFn: () => listOrders({ status: REAL_ORDER_STATUSES, limit: 8, sort: "newest" }),
   });
 

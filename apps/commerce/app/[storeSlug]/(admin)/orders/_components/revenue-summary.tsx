@@ -25,8 +25,7 @@ export function RevenueSummary() {
   });
 
   const periods = data?.periods ?? [];
-  // NOTE: verify the unit of `revenue` against a known order. If it is already
-  // in dollars (not cents), drop the `/ 100` below.
+  // Analytics `revenue` is summed from `totalCents` server-side, so it is in cents.
   const totalCents = periods.reduce((sum, p) => sum + p.revenue, 0);
   const formatted = new Intl.NumberFormat("en-US", {
     style: "currency",
