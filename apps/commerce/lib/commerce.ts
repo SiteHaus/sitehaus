@@ -303,14 +303,17 @@ export type AdminOrderDetail = AdminOrderSummary & {
 export type OrderListResponse = { items: AdminOrderSummary[]; total: number };
 
 export const listOrders = (params?: {
-  status?: OrderStatus;
+  status?: OrderStatus | OrderStatus[];
   email?: string;
   limit?: number;
   offset?: number;
   sort?: "newest" | "oldest";
 }) => {
   const qs = new URLSearchParams();
-  if (params?.status) qs.set("status", params.status);
+  if (params?.status) {
+    const statuses = Array.isArray(params.status) ? params.status : [params.status];
+    statuses.forEach((s) => qs.append("status", s));
+  }
   if (params?.email) qs.set("email", params.email);
   if (params?.limit) qs.set("limit", String(params.limit));
   if (params?.offset) qs.set("offset", String(params.offset));
