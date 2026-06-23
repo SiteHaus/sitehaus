@@ -1,6 +1,8 @@
 "use client";
 
 import { listOrders, type AdminOrderSummary } from "@/lib/commerce";
+import { REAL_ORDER_STATUSES } from "@/lib/order-display";
+import { formatCents, formatDate } from "@/lib/format";
 import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
@@ -17,23 +19,12 @@ import { useQuery } from "@tanstack/react-query";
 import { ShoppingCart } from "lucide-react";
 import { OrderStatusBadge } from "../orders/_components/order-status-badge";
 
-function formatCents(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(cents / 100);
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
 export function RecentOrders() {
   const { push } = useStoreNav();
 
   const { data, isLoading } = useQuery({
     queryKey: ["orders-recent"],
-    queryFn: () => listOrders({ limit: 8, sort: "newest" }),
+    queryFn: () => listOrders({ status: REAL_ORDER_STATUSES, limit: 8, sort: "newest" }),
   });
 
   return (
