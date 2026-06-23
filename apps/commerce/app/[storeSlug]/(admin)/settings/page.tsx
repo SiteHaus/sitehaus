@@ -112,7 +112,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="space-y-6">
       <PageHero
         icon={Settings2}
         title="Settings"
