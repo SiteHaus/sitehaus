@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { OrderStatusBadge } from "./_components/order-status-badge";
 import { OrderFilterCards, type OrderFilterKey } from "./_components/order-filter-cards";
 import { AbandonedDrawer } from "./_components/abandoned-drawer";
+import { RevenueSummary } from "./_components/revenue-summary";
 
 const LIMIT = 20;
 
@@ -156,7 +157,7 @@ export default function OrdersPage() {
               : `${allCount.data} order${allCount.data !== 1 ? "s" : ""}`}
           </p>
         </div>
-        {/* Revenue block added in Task 11 */}
+        <RevenueSummary />
       </div>
 
       <OrderFilterCards active={filter} onSelect={handleSelect} counts={counts} />
