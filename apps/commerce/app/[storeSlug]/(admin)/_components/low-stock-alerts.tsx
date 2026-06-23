@@ -22,7 +22,7 @@ export function LowStockAlerts() {
 
   const { data: productList, isLoading: listLoading } = useQuery({
     queryKey: ["products-all"],
-    queryFn: () => listProducts({ limit: 200 }),
+    queryFn: () => listProducts({ limit: 100 }),
   });
 
   const products = productList?.items ?? [];
