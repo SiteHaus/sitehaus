@@ -57,7 +57,7 @@ order.
 
 1. **Header row.** Eyebrow "Store" + Fraunces "Orders" title + subtitle
    (`{n} active · {n} delivered this month`). Right-aligned **Revenue** block:
-   eyebrow + sparkline + Fraunces figure + sage trend %.
+   eyebrow + shadcn-chart sparkline (recharts) + Fraunces figure + sage trend %.
 2. **Filter stat cards** (replaces the tab strip). A responsive row:
    - `Needs action` (terracotta, alert styling) — paid orders awaiting fulfilment
      (shipping stores: `confirmed`; pickup stores: `confirmed`). Active by default.
@@ -111,16 +111,33 @@ tokens instead of hardcoded Tailwind:
 | `refunded`  | Refunded       | clay                         |
 | `cancelled` | Cancelled      | muted                        |
 
-### New shared primitives (in `@site-haus/ui`)
+### Components — reuse shadcn/ui first
 
-Built generically so dashboard/IAM can adopt later:
+`@site-haus/ui` already ships the relevant shadcn base components (`card`,
+`badge`, `avatar`, `chart`, `collapsible`, `dialog`, `table`, `tabs`) and
+`recharts@2.15.4` is already a dependency in both `packages/ui` and
+`apps/commerce`. **Compose these rather than hand-roll.** Map of needs → existing
+component:
 
-- **`StatCard`** — `{ label, value, dotColor?, active?, alert?, onClick? }`.
-  Renders the filter/metric card (warm card, hover lift, active terracotta state,
-  Fraunces value). Token-driven; no hardcoded hex.
-- **`Sparkline`** — `{ points: number[], stroke? }`. Tiny inline SVG trend line.
-- **`StatusPill`** — `{ tone, label }` where `tone` maps to a brand token set
-  (gold/rose/sage/clay/muted/destructive). Replaces the ad-hoc badge config.
+| Need                      | Use                                                                                                       |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Customer avatar           | existing `base/avatar.tsx`                                                                                |
+| Status pill               | existing `base/badge.tsx` (`variant="outline"` + brand-tone class)                                        |
+| Revenue sparkline / trend | existing `base/chart.tsx` (shadcn `ChartContainer` + recharts `Area`/`Line`); colours from `--chart-1..5` |
+| Abandoned drawer          | existing `base/collapsible.tsx`                                                                           |
+| Ship confirm              | existing `base/dialog.tsx` (already in use)                                                               |
+
+Only **one genuinely new shared piece** — built generically in `@site-haus/ui`
+so dashboard/IAM can adopt later:
+
+- **`StatCard`** — thin composition over `base/card.tsx`:
+  `{ label, value, dotColor?, active?, alert?, onClick? }`. Warm card, hover lift,
+  active terracotta state, Fraunces value. Token-driven; no hardcoded hex.
+
+`StatusPill` is **not** a new component — it is a small set of brand-tone classes
+applied to the existing `Badge` (replacing the hardcoded amber/blue/purple config
+in `order-status-badge.tsx`). The revenue sparkline uses the shadcn chart, not a
+custom SVG.
 
 ### Fonts
 
@@ -212,7 +229,8 @@ Admin Orders page:
 
 **`packages/ui`**
 
-- `StatCard`, `Sparkline`, `StatusPill` components + exports
+- new `StatCard` component (composition over existing `card.tsx`) + export
+- reuse existing `avatar`, `badge`, `chart`, `collapsible`, `dialog` — no new files
 
 **`sitehaus-commerce`**
 
