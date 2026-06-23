@@ -132,3 +132,18 @@
   --table-control-text:   oklch(0.760 0.015 60);
   --table-shadow:         oklch(0 0 0 / 0.50);
 }
+
+/* ── Brand fonts ────────────────────────────────────────────────── */
+body {
+  font-family:
+    var(--font-body),
+    -apple-system,
+    "Helvetica Neue",
+    sans-serif;
+}
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+}
+.font-numeric-id {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
