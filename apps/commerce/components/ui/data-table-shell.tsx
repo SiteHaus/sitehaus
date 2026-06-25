@@ -27,6 +27,7 @@ export function DataTableShell<T>({
   totalPages,
   onPageChange,
   onRowClick,
+  isRowClickable,
   className,
 }: {
   columns: Column[];
@@ -39,6 +40,7 @@ export function DataTableShell<T>({
   totalPages?: number;
   onPageChange?: (page: number) => void;
   onRowClick?: (row: T) => void;
+  isRowClickable?: (row: T) => boolean;
   className?: string;
 }) {
   const showPager = !!totalPages && totalPages > 1 && page != null && !!onPageChange;
@@ -79,15 +81,19 @@ export function DataTableShell<T>({
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((row) => (
-                <TableRow
-                  key={getRowKey(row)}
-                  className={onRowClick ? "cursor-pointer" : undefined}
-                  onClick={onRowClick ? () => onRowClick(row) : undefined}
-                >
-                  {renderRow(row)}
-                </TableRow>
-              ))
+              rows.map((row) => {
+                const clickable =
+                  !!onRowClick && (isRowClickable === undefined || isRowClickable(row));
+                return (
+                  <TableRow
+                    key={getRowKey(row)}
+                    className={clickable ? "cursor-pointer" : undefined}
+                    onClick={clickable ? () => onRowClick!(row) : undefined}
+                  >
+                    {renderRow(row)}
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>

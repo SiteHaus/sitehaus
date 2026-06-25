@@ -80,9 +80,8 @@ export function TopProductsTable({ period }: { period: PeriodOption }) {
           rows={viewsRows}
           getRowKey={(p) => p.productId ?? `view-${p.rank}`}
           isLoading={isLoading}
-          onRowClick={(p) => {
-            if (p.productId) push(`/products/${p.productId}`);
-          }}
+          onRowClick={(p) => push(`/products/${p.productId!}`)}
+          isRowClickable={(p) => !!p.productId}
           empty={{ icon: TrendingUp, title: "No view data yet" }}
           renderRow={(p) => (
             <>
