@@ -1,6 +1,6 @@
 "use client";
 
-import { StatCard } from "@site-haus/ui/components/base/stat-card";
+import { FilterCards, type FilterItem } from "@/components/ui/filter-cards";
 
 export type OrderFilterKey =
   | "all"
@@ -10,13 +10,13 @@ export type OrderFilterKey =
   | "refunded"
   | "cancelled";
 
-const CARDS: { key: OrderFilterKey; label: string; dot?: string; alert?: boolean }[] = [
+const ITEMS: FilterItem<OrderFilterKey>[] = [
   { key: "all", label: "All orders" },
-  { key: "confirmed", label: "Needs action", dot: "var(--chart-1)", alert: true },
-  { key: "shipped", label: "Shipped", dot: "var(--chart-4)" },
-  { key: "delivered", label: "Delivered", dot: "var(--chart-2)" },
-  { key: "refunded", label: "Refunded", dot: "var(--chart-3)" },
-  { key: "cancelled", label: "Cancelled", dot: "var(--muted-foreground)" },
+  { key: "confirmed", label: "Needs action", tone: "active", alert: true },
+  { key: "shipped", label: "Shipped", tone: "info" },
+  { key: "delivered", label: "Delivered", tone: "success" },
+  { key: "refunded", label: "Refunded", tone: "warning" },
+  { key: "cancelled", label: "Cancelled", tone: "neutral" },
 ];
 
 export function OrderFilterCards({
@@ -28,19 +28,6 @@ export function OrderFilterCards({
   onSelect: (key: OrderFilterKey) => void;
   counts: Record<OrderFilterKey, number | undefined>;
 }) {
-  return (
-    <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
-      {CARDS.map((c) => (
-        <StatCard
-          key={c.key}
-          label={c.label}
-          value={counts[c.key] ?? "—"}
-          dotColor={c.dot}
-          alert={c.alert}
-          active={active === c.key}
-          onClick={() => onSelect(c.key)}
-        />
-      ))}
-    </div>
-  );
+  const items = ITEMS.map((it) => ({ ...it, count: counts[it.key] }));
+  return <FilterCards items={items} active={active} onSelect={onSelect} />;
 }
