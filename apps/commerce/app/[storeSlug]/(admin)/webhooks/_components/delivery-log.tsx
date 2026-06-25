@@ -1,7 +1,12 @@
 "use client";
 
-import { listWebhookDeliveries, type WebhookDelivery } from "@/lib/commerce";
-import { Badge } from "@site-haus/ui/components/base/badge";
+import {
+  listWebhookDeliveries,
+  type WebhookDelivery,
+  type WebhookDeliveryStatus,
+} from "@/lib/commerce";
+import { StatusBadge } from "@/components/ui/status-badge";
+import type { Tone } from "@/components/ui/status-tone";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
   Table,
@@ -14,10 +19,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-function statusVariant(status: WebhookDelivery["status"]) {
-  if (status === "delivered") return "default";
-  if (status === "failed") return "destructive";
-  return "secondary";
+function deliveryTone(status: WebhookDeliveryStatus): Tone {
+  if (status === "delivered") return "success";
+  if (status === "failed") return "danger";
+  return "warning";
 }
 
 function formatDate(iso: string) {
@@ -96,9 +101,7 @@ export function DeliveryLog({ endpointId }: Props) {
           <TableRow key={d.id}>
             <TableCell className="font-mono text-xs">{d.event}</TableCell>
             <TableCell>
-              <Badge variant={statusVariant(d.status)} className="capitalize text-xs">
-                {d.status}
-              </Badge>
+              <StatusBadge tone={deliveryTone(d.status)} label={d.status} />
             </TableCell>
             <TableCell className="text-sm">
               <ResponseBody delivery={d} />
