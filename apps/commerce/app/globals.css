@@ -147,3 +147,64 @@ body {
 .font-numeric-id {
   font-family: var(--font-mono), ui-monospace, monospace;
 }
+
+/* ── Motion tokens ──────────────────────────────────────────────── */
+:root {
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes sh-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.sh-fade-in {
+  animation: sh-fade-in var(--motion-base) var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-fade-in {
+    animation: none;
+  }
+}
+.sh-lift {
+  transition:
+    transform var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out);
+}
+.sh-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px oklch(0.4 0.04 50 / 0.1);
+}
+
+/* ── Status tones ───────────────────────────────────────────────── */
+.tone-active {
+  --tone: var(--chart-1);
+}
+.tone-success {
+  --tone: var(--chart-2);
+}
+.tone-info {
+  --tone: var(--chart-3);
+}
+.tone-warning {
+  --tone: var(--chart-5);
+}
+.tone-danger {
+  --tone: var(--chart-4);
+}
+.tone-neutral {
+  --tone: var(--muted-foreground);
+}
+
+.status-badge {
+  background: color-mix(in oklch, var(--tone) 12%, transparent);
+  color: color-mix(in oklch, var(--tone) 72%, var(--foreground));
+  border-color: color-mix(in oklch, var(--tone) 30%, transparent);
+}
