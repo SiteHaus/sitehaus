@@ -7,7 +7,9 @@ import {
   type CollectionItem,
 } from "@/lib/commerce";
 import { useStoreNav } from "@/lib/use-store-nav";
-import { PageHero } from "@/components/page-hero";
+import { PageHeader } from "@/components/ui/page-header";
+import { DataTableShell } from "@/components/ui/data-table-shell";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Dialog,
@@ -18,14 +20,7 @@ import {
 } from "@site-haus/ui/components/base/dialog";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@site-haus/ui/components/base/table";
+import { TableCell } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Layers, Loader2, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -55,85 +50,73 @@ export default function CollectionsPage() {
   });
 
   return (
-    <div className="space-y-6">
-      <PageHero
-        icon={Layers}
+    <div>
+      <PageHeader
         title="Collections"
-        subtitle="Group products into curated collections for your storefront."
-      >
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4 mr-2" />
-          New Collection
-        </Button>
-      </PageHero>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-24">
-          <Loader2 className="size-5 animate-spin text-muted-foreground" />
-        </div>
-      ) : collections.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center border rounded-lg bg-card">
-          <Layers className="size-10 text-muted-foreground/40 mb-4" />
-          <p className="font-medium">No collections yet</p>
-          <p className="text-sm text-muted-foreground mt-1 mb-4">
-            Create your first collection to group products together.
-          </p>
+        subtitle={
+          isLoading ? "—" : `${collections.length} collection${collections.length !== 1 ? "s" : ""}`
+        }
+        actions={
           <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4 mr-2" />
+            <Plus className="size-4" />
             New Collection
           </Button>
-        </div>
-      ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Products</TableHead>
-                <TableHead>Scheduled</TableHead>
-                <TableHead className="w-12" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {collections.map((col) => (
-                <TableRow
-                  key={col.id}
-                  className="cursor-pointer"
-                  onClick={() => push(`/collections/${col.id}`)}
-                >
-                  <TableCell className="font-medium">{col.name}</TableCell>
-                  <TableCell className="text-muted-foreground font-mono text-sm">
-                    {col.slug}
-                  </TableCell>
-                  <TableCell>{col.productCount}</TableCell>
-                  <TableCell>
-                    {col.scheduled ? (
-                      <span className="text-xs text-amber-600 dark:text-amber-400">
-                        {col.goesLiveAt
-                          ? new Date(col.goesLiveAt).toLocaleDateString()
-                          : "Scheduled"}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => setDeletingId(col.id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+        }
+      />
+
+      <DataTableShell
+        columns={[
+          { header: "Name" },
+          { header: "Slug" },
+          { header: "Products" },
+          { header: "Status" },
+          { header: "", className: "w-12" },
+        ]}
+        rows={collections}
+        getRowKey={(col) => col.id}
+        isLoading={isLoading}
+        onRowClick={(col) => push(`/collections/${col.id}`)}
+        empty={{
+          icon: Layers,
+          title: "No collections yet",
+          description: "Create your first collection to group products together.",
+          action: (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="size-4" />
+              New Collection
+            </Button>
+          ),
+        }}
+        renderRow={(col) => (
+          <>
+            <TableCell className="font-medium">{col.name}</TableCell>
+            <TableCell className="text-muted-foreground font-mono text-sm">{col.slug}</TableCell>
+            <TableCell>{col.productCount}</TableCell>
+            <TableCell>
+              {col.scheduled ? (
+                <StatusBadge
+                  tone="info"
+                  label={
+                    col.goesLiveAt ? new Date(col.goesLiveAt).toLocaleDateString() : "Scheduled"
+                  }
+                />
+              ) : (
+                <StatusBadge tone="success" label="Active" />
+              )}
+            </TableCell>
+            <TableCell onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 text-muted-foreground hover:text-destructive"
+                onClick={() => setDeletingId(col.id)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </TableCell>
+          </>
+        )}
+      />
 
       <CreateCollectionDialog
         open={createOpen}
