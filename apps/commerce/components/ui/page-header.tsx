@@ -3,6 +3,7 @@ import { cn } from "@site-haus/ui/lib/utils";
 export function PageHeader({
   eyebrow = "Store",
   title,
+  titleClassName,
   subtitle,
   actions,
   aside,
@@ -10,6 +11,7 @@ export function PageHeader({
 }: {
   eyebrow?: string;
   title: string;
+  titleClassName?: string;
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
   aside?: React.ReactNode;
@@ -21,7 +23,14 @@ export function PageHeader({
         <p className="text-[11px] font-semibold tracking-[0.14em] text-primary uppercase">
           {eyebrow}
         </p>
-        <h1 className="font-display mt-0.5 text-3xl font-medium tracking-tight">{title}</h1>
+        <h1
+          className={cn(
+            "mt-0.5 text-3xl font-medium tracking-tight",
+            titleClassName ?? "font-display",
+          )}
+        >
+          {title}
+        </h1>
         {subtitle && <div className="mt-1 text-sm text-muted-foreground">{subtitle}</div>}
       </div>
       {(aside || actions) && (

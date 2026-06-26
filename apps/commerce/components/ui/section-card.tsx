@@ -16,6 +16,7 @@ export function SectionCard({
   footer,
   children,
   className,
+  contentClassName,
 }: {
   title?: string;
   description?: string;
@@ -23,6 +24,7 @@ export function SectionCard({
   footer?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  contentClassName?: string;
 }) {
   return (
     <Card className={cn("rounded-xl", className)}>
@@ -33,7 +35,7 @@ export function SectionCard({
           {actions && <CardAction>{actions}</CardAction>}
         </CardHeader>
       )}
-      <CardContent>{children}</CardContent>
+      <CardContent className={contentClassName}>{children}</CardContent>
       {footer && <CardFooter>{footer}</CardFooter>}
     </Card>
   );
