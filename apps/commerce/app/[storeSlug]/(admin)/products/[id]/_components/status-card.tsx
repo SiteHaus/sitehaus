@@ -1,7 +1,7 @@
 "use client";
 
 import { updateProduct, type ProductStatus } from "@/lib/commerce";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
+import { SectionCard } from "@/components/ui/section-card";
 import {
   Select,
   SelectContent,
@@ -48,11 +48,8 @@ export function StatusCard({ productId, status: initialStatus }: Props) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Status</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
+    <SectionCard title="Status">
+      <div className="space-y-2">
         <Select value={status} onValueChange={handleChange} disabled={mutation.isPending}>
           <SelectTrigger>
             <SelectValue />
@@ -64,7 +61,7 @@ export function StatusCard({ productId, status: initialStatus }: Props) {
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground">{STATUS_LABELS[status].description}</p>
-      </CardContent>
-    </Card>
+      </div>
+    </SectionCard>
   );
 }

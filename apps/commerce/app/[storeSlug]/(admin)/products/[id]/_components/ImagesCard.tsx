@@ -8,8 +8,8 @@ import {
   reorderProductImages,
   type ProductImage,
 } from "@/lib/commerce";
+import { SectionCard } from "@/components/ui/section-card";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { GripVertical, ImageIcon, Loader2, Plus, Star, Trash2, X } from "lucide-react";
 import { useRef, useState } from "react";
@@ -127,9 +127,9 @@ export function ImagesCard({ productId }: { productId: string }) {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-base">Images</CardTitle>
+    <SectionCard
+      title="Images"
+      actions={
         <Button
           size="sm"
           variant="outline"
@@ -139,54 +139,53 @@ export function ImagesCard({ productId }: { productId: string }) {
           {uploading ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />}
           Add Image
         </Button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={ACCEPTED.join(",")}
-          multiple
-          className="hidden"
-          onChange={handleFileChange}
-        />
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="size-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : images.length === 0 ? (
-          <div
-            className="flex flex-col items-center justify-center py-10 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary/50 transition-colors"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <ImageIcon className="size-8 text-muted-foreground/40 mb-3" />
-            <p className="text-sm text-muted-foreground">Click to upload images</p>
-            <p className="text-xs text-muted-foreground/70 mt-1">JPEG, PNG, WebP or GIF</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-            {images.map((img, idx) => (
-              <ImageTile
-                key={img.id}
-                image={img}
-                isPrimary={idx === 0}
-                isDragging={draggingId === img.id}
-                isDragOver={dragOverId === img.id}
-                onDelete={() => deleteMutation.mutate(img.id)}
-                onDragStart={() => handleDragStart(img.id)}
-                onDragOver={(e) => handleDragOver(e, img.id)}
-                onDrop={(e) => handleDrop(e, img.id)}
-                onDragEnd={handleDragEnd}
-              />
-            ))}
-          </div>
-        )}
-        {images.length > 0 && (
-          <p className="text-xs text-muted-foreground mt-3">
-            Drag to reorder · First image is the primary image
-          </p>
-        )}
-      </CardContent>
-    </Card>
+      }
+    >
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={ACCEPTED.join(",")}
+        multiple
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      {isLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="size-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : images.length === 0 ? (
+        <div
+          className="flex flex-col items-center justify-center py-10 border-2 border-dashed rounded-lg text-center cursor-pointer hover:border-primary/50 transition-colors"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <ImageIcon className="size-8 text-muted-foreground/40 mb-3" />
+          <p className="text-sm text-muted-foreground">Click to upload images</p>
+          <p className="text-xs text-muted-foreground/70 mt-1">JPEG, PNG, WebP or GIF</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+          {images.map((img, idx) => (
+            <ImageTile
+              key={img.id}
+              image={img}
+              isPrimary={idx === 0}
+              isDragging={draggingId === img.id}
+              isDragOver={dragOverId === img.id}
+              onDelete={() => deleteMutation.mutate(img.id)}
+              onDragStart={() => handleDragStart(img.id)}
+              onDragOver={(e) => handleDragOver(e, img.id)}
+              onDrop={(e) => handleDrop(e, img.id)}
+              onDragEnd={handleDragEnd}
+            />
+          ))}
+        </div>
+      )}
+      {images.length > 0 && (
+        <p className="text-xs text-muted-foreground mt-3">
+          Drag to reorder · First image is the primary image
+        </p>
+      )}
+    </SectionCard>
   );
 }
 

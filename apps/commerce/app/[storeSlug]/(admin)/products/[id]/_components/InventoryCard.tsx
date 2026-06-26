@@ -1,8 +1,8 @@
 "use client";
 
 import { type BulkInventoryItem, type VariantAdmin } from "@/lib/commerce";
+import { SectionCard } from "@/components/ui/section-card";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import {
   Table,
   TableBody,
@@ -48,19 +48,16 @@ export function InventoryCard({
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Inventory</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
+      <SectionCard title="Inventory">
+        <div className="-mx-6 -mb-6">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Variant</TableHead>
+                <TableHead className="pl-6">Variant</TableHead>
                 <TableHead className="text-right">Stock</TableHead>
                 <TableHead className="text-right">Reserved</TableHead>
                 <TableHead className="text-right">Available</TableHead>
-                <TableHead className="w-16"></TableHead>
+                <TableHead className="w-16 pr-6"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -68,7 +65,7 @@ export function InventoryCard({
                 const available = v.stock - v.reserved;
                 return (
                   <TableRow key={v.id}>
-                    <TableCell className="font-medium">{v.name}</TableCell>
+                    <TableCell className="pl-6 font-medium">{v.name}</TableCell>
                     <TableCell className="text-right">{v.stock}</TableCell>
                     <TableCell className="text-right text-muted-foreground">{v.reserved}</TableCell>
                     <TableCell className="text-right">
@@ -77,7 +74,7 @@ export function InventoryCard({
                         <span>{available}</span>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="pr-6">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -92,8 +89,8 @@ export function InventoryCard({
               })}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </div>
+      </SectionCard>
 
       {adjusting && (
         <AdjustInventoryDialog

@@ -10,8 +10,8 @@ import {
   type ProductOption,
   type VariantAdmin,
 } from "@/lib/commerce";
+import { SectionCard } from "@/components/ui/section-card";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Separator } from "@site-haus/ui/components/base/separator";
 import {
@@ -331,10 +331,10 @@ export function VariantsCard({ productId, variants, options }: Props) {
 
   return (
     <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Variants</CardTitle>
-          {(hasVariants || hasOptions) && (
+      <SectionCard
+        title="Variants"
+        actions={
+          hasVariants || hasOptions ? (
             <Button
               size="sm"
               variant="outline"
@@ -342,138 +342,136 @@ export function VariantsCard({ productId, variants, options }: Props) {
             >
               <Plus className="size-4" /> Add Variant
             </Button>
-          )}
-        </CardHeader>
+          ) : undefined
+        }
+      >
+        {/* ── Empty state ── */}
+        {!hasVariants && !hasOptions && (
+          <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
+            <Package className="size-8 text-muted-foreground/30" />
+            <p className="font-medium text-sm">No variants yet</p>
+            <Button onClick={() => setVariantDialog({ open: true, state: { mode: "create" } })}>
+              <Plus className="size-4" /> Add Variant
+            </Button>
+            <button
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mt-1"
+              onClick={() => setOptionDialog({ open: true })}
+            >
+              <Tag className="size-3" />
+              Add options first if this product comes in sizes, colors, etc.
+            </button>
+          </div>
+        )}
 
-        <CardContent>
-          {/* ── Empty state ── */}
-          {!hasVariants && !hasOptions && (
-            <div className="flex flex-col items-center justify-center py-10 text-center gap-3">
-              <Package className="size-8 text-muted-foreground/30" />
-              <p className="font-medium text-sm">No variants yet</p>
-              <Button onClick={() => setVariantDialog({ open: true, state: { mode: "create" } })}>
-                <Plus className="size-4" /> Add Variant
-              </Button>
-              <button
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mt-1"
+        {/* ── Options section ── */}
+        {hasOptions && (
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Options
+              </p>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 text-xs"
                 onClick={() => setOptionDialog({ open: true })}
               >
-                <Tag className="size-3" />
-                Add options first if this product comes in sizes, colors, etc.
-              </button>
+                <Plus className="size-3" /> Add option
+              </Button>
             </div>
-          )}
-
-          {/* ── Options section ── */}
-          {hasOptions && (
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Options
-                </p>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="h-7 text-xs"
-                  onClick={() => setOptionDialog({ open: true })}
-                >
-                  <Plus className="size-3" /> Add option
-                </Button>
-              </div>
-              <div className="divide-y">
-                {sortedOptions.map((option) => (
-                  <OptionSection
-                    key={option.id}
-                    option={option}
-                    productId={productId}
-                    onEdit={(o) => setOptionDialog({ open: true, editing: o })}
-                  />
-                ))}
-              </div>
-              <Separator className="mt-4 mb-4" />
+            <div className="divide-y">
+              {sortedOptions.map((option) => (
+                <OptionSection
+                  key={option.id}
+                  option={option}
+                  productId={productId}
+                  onEdit={(o) => setOptionDialog({ open: true, editing: o })}
+                />
+              ))}
             </div>
-          )}
+            <Separator className="mt-4 mb-4" />
+          </div>
+        )}
 
-          {/* ── Variants table ── */}
-          {hasVariants && (
-            <div className="-mx-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="pl-6">Name</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Stock</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-16 pr-6" />
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {variants.map((v) => (
-                    <TableRow key={v.id}>
-                      <TableCell className="pl-6 font-medium">{v.name}</TableCell>
-                      <TableCell className="text-muted-foreground">{v.sku ?? "—"}</TableCell>
-                      <TableCell>${formatCents(v.priceCents)}</TableCell>
-                      <TableCell>{v.stock - v.reserved}</TableCell>
-                      <TableCell>
-                        <span
-                          className={
-                            v.isActive
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-muted-foreground"
+        {/* ── Variants table ── */}
+        {hasVariants && (
+          <div className="-mx-6">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="pl-6">Name</TableHead>
+                  <TableHead>SKU</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Stock</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="w-16 pr-6" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {variants.map((v) => (
+                  <TableRow key={v.id}>
+                    <TableCell className="pl-6 font-medium">{v.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{v.sku ?? "—"}</TableCell>
+                    <TableCell>${formatCents(v.priceCents)}</TableCell>
+                    <TableCell>{v.stock - v.reserved}</TableCell>
+                    <TableCell>
+                      <span
+                        className={
+                          v.isActive
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-muted-foreground"
+                        }
+                      >
+                        {v.isActive ? "Active" : "Inactive"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="pr-6">
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8"
+                          onClick={() =>
+                            setVariantDialog({ open: true, state: { mode: "edit", variant: v } })
                           }
                         >
-                          {v.isActive ? "Active" : "Inactive"}
-                        </span>
-                      </TableCell>
-                      <TableCell className="pr-6">
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                            onClick={() =>
-                              setVariantDialog({ open: true, state: { mode: "edit", variant: v } })
-                            }
-                          >
-                            <Pencil className="size-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-destructive hover:text-destructive"
-                            onClick={() => deleteVariantMutation.mutate(v.id)}
-                            disabled={deleteVariantMutation.isPending}
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+                          <Pencil className="size-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8 text-destructive hover:text-destructive"
+                          onClick={() => deleteVariantMutation.mutate(v.id)}
+                          disabled={deleteVariantMutation.isPending}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
 
-          {/* ── "Add options" hint when variants exist but none defined ── */}
-          {hasVariants && !hasOptions && (
-            <div className="flex items-start gap-2 mt-4 p-3 rounded-lg bg-muted/50 text-muted-foreground">
-              <Lightbulb className="size-3.5 mt-0.5 shrink-0" />
-              <p className="text-xs">
-                Does this product come in different sizes, colors, or styles?{" "}
-                <button
-                  className="underline underline-offset-2 hover:text-foreground transition-colors"
-                  onClick={() => setOptionDialog({ open: true })}
-                >
-                  Add options
-                </button>{" "}
-                to organize your variants.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {/* ── "Add options" hint when variants exist but none defined ── */}
+        {hasVariants && !hasOptions && (
+          <div className="flex items-start gap-2 mt-4 p-3 rounded-lg bg-muted/50 text-muted-foreground">
+            <Lightbulb className="size-3.5 mt-0.5 shrink-0" />
+            <p className="text-xs">
+              Does this product come in different sizes, colors, or styles?{" "}
+              <button
+                className="underline underline-offset-2 hover:text-foreground transition-colors"
+                onClick={() => setOptionDialog({ open: true })}
+              >
+                Add options
+              </button>{" "}
+              to organize your variants.
+            </p>
+          </div>
+        )}
+      </SectionCard>
 
       <VariantDialog
         open={variantDialog.open}

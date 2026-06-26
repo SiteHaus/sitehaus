@@ -8,9 +8,9 @@ import {
   type OptionValue,
   type ProductOption,
 } from "@/lib/commerce";
+import { SectionCard } from "@/components/ui/section-card";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -300,36 +300,36 @@ export function OptionsCard({ productId, options }: Props) {
 
   return (
     <>
-      <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Options</CardTitle>
+      <SectionCard
+        className="mb-6"
+        title="Options"
+        actions={
           <Button size="sm" variant="outline" onClick={openCreate}>
             <Plus className="size-4" />
             Add Option
           </Button>
-        </CardHeader>
-        <CardContent>
-          {sorted.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 text-center gap-2 text-muted-foreground">
-              <Layers className="size-6 opacity-30" />
-              <p className="text-sm">
-                No options yet — add one to start building variants like Color or Size.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y">
-              {sorted.map((option) => (
-                <OptionSection
-                  key={option.id}
-                  option={option}
-                  productId={productId}
-                  onEdit={openEdit}
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        }
+      >
+        {sorted.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-6 text-center gap-2 text-muted-foreground">
+            <Layers className="size-6 opacity-30" />
+            <p className="text-sm">
+              No options yet — add one to start building variants like Color or Size.
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y">
+            {sorted.map((option) => (
+              <OptionSection
+                key={option.id}
+                option={option}
+                productId={productId}
+                onEdit={openEdit}
+              />
+            ))}
+          </div>
+        )}
+      </SectionCard>
 
       <OptionDialog
         open={dialogOpen}
