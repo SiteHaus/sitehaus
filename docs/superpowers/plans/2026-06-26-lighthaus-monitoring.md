@@ -91,6 +91,7 @@ docker-compose.prod.yml                    MODIFY (+lighthaus service)
 ### Task 1: Scaffold the `@site-haus/monitoring` package
 
 **Files:**
+
 - Create: `packages/monitoring/package.json`
 - Create: `packages/monitoring/tsconfig.json`
 - Create: `packages/monitoring/jest.config.cjs`
@@ -99,6 +100,7 @@ docker-compose.prod.yml                    MODIFY (+lighthaus service)
 - Create: `packages/monitoring/src/index.ts`
 
 **Interfaces:**
+
 - Produces: `CheckStatus`, `CheckResult`, `MonitorType` types consumed by every later task.
 
 - [ ] **Step 1: Create `package.json`**
@@ -213,10 +215,12 @@ git commit -m ":package: lighthaus — scaffold @site-haus/monitoring core packa
 ### Task 2: `checkHttp`
 
 **Files:**
+
 - Create: `packages/monitoring/src/checks/http.ts`
 - Test: `packages/monitoring/src/checks/http.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `CheckResult` from `../types.js`.
 - Produces: `checkHttp(url: string, opts?: HttpCheckOptions): Promise<CheckResult>` where `HttpCheckOptions = { timeoutMs?: number; fetchFn?: typeof fetch; now?: () => number }`.
 
@@ -243,7 +247,9 @@ describe("checkHttp", () => {
   });
 
   it("returns down on network throw/timeout", async () => {
-    const boom = async () => { throw new Error("ECONNREFUSED"); };
+    const boom = async () => {
+      throw new Error("ECONNREFUSED");
+    };
     const r = await checkHttp("https://x.test", { fetchFn: boom });
     expect(r.status).toBe("down");
     expect(String(r.detail.error)).toContain("ECONNREFUSED");
@@ -306,10 +312,12 @@ git commit -m ":white_check_mark: lighthaus — checkHttp uptime+latency"
 ### Task 3: `checkDns` — the onehealthclinics regression (SERVFAIL/REFUSED → down)
 
 **Files:**
+
 - Create: `packages/monitoring/src/checks/dns.ts`
 - Test: `packages/monitoring/src/checks/dns.spec.ts`
 
 **Interfaces:**
+
 - Produces: `checkDns(host: string, resolver?: DnsResolver): Promise<CheckResult>`; `DnsResolver = { resolve4(host: string): Promise<string[]> }`.
 
 - [ ] **Step 1: Write the failing test**
@@ -318,7 +326,11 @@ git commit -m ":white_check_mark: lighthaus — checkHttp uptime+latency"
 import { checkDns } from "./dns.js";
 
 const resolverThrowing = (code: string) => ({
-  resolve4: async () => { const e: NodeJS.ErrnoException = new Error(code); e.code = code; throw e; },
+  resolve4: async () => {
+    const e: NodeJS.ErrnoException = new Error(code);
+    e.code = code;
+    throw e;
+  },
 });
 
 describe("checkDns", () => {
@@ -365,7 +377,10 @@ export interface DnsResolver {
 
 const defaultResolver: DnsResolver = new Resolver();
 
-export async function checkDns(host: string, resolver: DnsResolver = defaultResolver): Promise<CheckResult> {
+export async function checkDns(
+  host: string,
+  resolver: DnsResolver = defaultResolver,
+): Promise<CheckResult> {
   try {
     const addresses = await resolver.resolve4(host);
     if (!addresses || addresses.length === 0) {
@@ -375,7 +390,10 @@ export async function checkDns(host: string, resolver: DnsResolver = defaultReso
   } catch (err) {
     const code = (err as NodeJS.ErrnoException).code ?? "UNKNOWN";
     // SERVFAIL / REFUSED / ENOTFOUND / ENODATA all mean the name does not usably resolve.
-    return { status: "down", detail: { code, message: err instanceof Error ? err.message : String(err) } };
+    return {
+      status: "down",
+      detail: { code, message: err instanceof Error ? err.message : String(err) },
+    };
   }
 }
 ```
@@ -397,10 +415,12 @@ git commit -m ":white_check_mark: lighthaus — checkDns (SERVFAIL/REFUSED/no-an
 ### Task 4: `checkSsl`
 
 **Files:**
+
 - Create: `packages/monitoring/src/checks/ssl.ts`
 - Test: `packages/monitoring/src/checks/ssl.spec.ts`
 
 **Interfaces:**
+
 - Produces: `checkSsl(host, opts?): Promise<CheckResult>`; `SslOptions = { warnDays?: number; probe?: SslProbe; now?: () => Date }`; `SslProbe = (host: string, port?: number) => Promise<{ validTo: Date; valid: boolean }>`.
 
 - [ ] **Step 1: Write the failing test**
@@ -413,24 +433,37 @@ const inDays = (d: number) => new Date(now.getTime() + d * 86_400_000);
 
 describe("checkSsl", () => {
   it("up when valid and far from expiry", async () => {
-    const r = await checkSsl("x.test", { now: () => now, probe: async () => ({ validTo: inDays(90), valid: true }) });
+    const r = await checkSsl("x.test", {
+      now: () => now,
+      probe: async () => ({ validTo: inDays(90), valid: true }),
+    });
     expect(r.status).toBe("up");
     expect(r.detail.daysLeft).toBe(90);
   });
 
   it("degraded when valid but < warnDays (14) away", async () => {
-    const r = await checkSsl("x.test", { warnDays: 14, now: () => now, probe: async () => ({ validTo: inDays(10), valid: true }) });
+    const r = await checkSsl("x.test", {
+      warnDays: 14,
+      now: () => now,
+      probe: async () => ({ validTo: inDays(10), valid: true }),
+    });
     expect(r.status).toBe("degraded");
     expect(r.detail.daysLeft).toBe(10);
   });
 
   it("down when expired", async () => {
-    const r = await checkSsl("x.test", { now: () => now, probe: async () => ({ validTo: inDays(-1), valid: true }) });
+    const r = await checkSsl("x.test", {
+      now: () => now,
+      probe: async () => ({ validTo: inDays(-1), valid: true }),
+    });
     expect(r.status).toBe("down");
   });
 
   it("down when probe reports invalid", async () => {
-    const r = await checkSsl("x.test", { now: () => now, probe: async () => ({ validTo: inDays(90), valid: false }) });
+    const r = await checkSsl("x.test", {
+      now: () => now,
+      probe: async () => ({ validTo: inDays(90), valid: false }),
+    });
     expect(r.status).toBe("down");
   });
 });
@@ -465,7 +498,10 @@ const defaultProbe: SslProbe = (host, port = 443) =>
       resolve({ validTo: new Date(cert.valid_to), valid });
     });
     socket.on("error", reject);
-    socket.on("timeout", () => { socket.destroy(); reject(new Error("tls-timeout")); });
+    socket.on("timeout", () => {
+      socket.destroy();
+      reject(new Error("tls-timeout"));
+    });
   });
 
 export async function checkSsl(host: string, opts: SslOptions = {}): Promise<CheckResult> {
@@ -502,10 +538,12 @@ git commit -m ":white_check_mark: lighthaus — checkSsl (degraded <14d, down ex
 ### Task 5: `checkDomainExpiry` (RDAP)
 
 **Files:**
+
 - Create: `packages/monitoring/src/checks/domain.ts`
 - Test: `packages/monitoring/src/checks/domain.spec.ts`
 
 **Interfaces:**
+
 - Produces: `checkDomainExpiry(domain, opts?): Promise<CheckResult>`; `DomainOptions = { warnDays?: number; fetchRdap?: RdapFetch; now?: () => Date }`; `RdapFetch = (domain: string) => Promise<{ expiration: Date | null }>`.
 
 - [ ] **Step 1: Write the failing test**
@@ -518,23 +556,36 @@ const inDays = (d: number) => new Date(now.getTime() + d * 86_400_000);
 
 describe("checkDomainExpiry", () => {
   it("up when expiry far away", async () => {
-    const r = await checkDomainExpiry("x.test", { now: () => now, fetchRdap: async () => ({ expiration: inDays(200) }) });
+    const r = await checkDomainExpiry("x.test", {
+      now: () => now,
+      fetchRdap: async () => ({ expiration: inDays(200) }),
+    });
     expect(r.status).toBe("up");
   });
 
   it("degraded when < warnDays (30)", async () => {
-    const r = await checkDomainExpiry("x.test", { warnDays: 30, now: () => now, fetchRdap: async () => ({ expiration: inDays(20) }) });
+    const r = await checkDomainExpiry("x.test", {
+      warnDays: 30,
+      now: () => now,
+      fetchRdap: async () => ({ expiration: inDays(20) }),
+    });
     expect(r.status).toBe("degraded");
     expect(r.detail.daysLeft).toBe(20);
   });
 
   it("down when already expired", async () => {
-    const r = await checkDomainExpiry("x.test", { now: () => now, fetchRdap: async () => ({ expiration: inDays(-2) }) });
+    const r = await checkDomainExpiry("x.test", {
+      now: () => now,
+      fetchRdap: async () => ({ expiration: inDays(-2) }),
+    });
     expect(r.status).toBe("down");
   });
 
   it("degraded when RDAP has no expiration data", async () => {
-    const r = await checkDomainExpiry("x.test", { now: () => now, fetchRdap: async () => ({ expiration: null }) });
+    const r = await checkDomainExpiry("x.test", {
+      now: () => now,
+      fetchRdap: async () => ({ expiration: null }),
+    });
     expect(r.status).toBe("degraded");
     expect(r.detail.reason).toBe("no-expiration-data");
   });
@@ -569,7 +620,10 @@ const defaultFetchRdap: RdapFetch = async (domain) => {
   return { expiration: event ? new Date(event.eventDate) : null };
 };
 
-export async function checkDomainExpiry(domain: string, opts: DomainOptions = {}): Promise<CheckResult> {
+export async function checkDomainExpiry(
+  domain: string,
+  opts: DomainOptions = {},
+): Promise<CheckResult> {
   const fetchRdap = opts.fetchRdap ?? defaultFetchRdap;
   const now = (opts.now ?? (() => new Date()))();
   const warnDays = opts.warnDays ?? 30;
@@ -581,7 +635,10 @@ export async function checkDomainExpiry(domain: string, opts: DomainOptions = {}
     if (daysLeft < warnDays) return { status: "degraded", detail: { daysLeft } };
     return { status: "up", detail: { daysLeft } };
   } catch (err) {
-    return { status: "degraded", detail: { reason: "rdap-error", error: err instanceof Error ? err.message : String(err) } };
+    return {
+      status: "degraded",
+      detail: { reason: "rdap-error", error: err instanceof Error ? err.message : String(err) },
+    };
   }
 }
 ```
@@ -603,10 +660,12 @@ git commit -m ":white_check_mark: lighthaus — checkDomainExpiry via RDAP (degr
 ### Task 6: `checkEmailDns` (MX + SPF + DKIM)
 
 **Files:**
+
 - Create: `packages/monitoring/src/checks/email-dns.ts`
 - Test: `packages/monitoring/src/checks/email-dns.spec.ts`
 
 **Interfaces:**
+
 - Produces: `checkEmailDns(domain, opts?): Promise<CheckResult>`; `EmailDnsOptions = { dkimSelector?: string; resolver?: EmailDnsResolver }`; `EmailDnsResolver = { resolveMx(d): Promise<{exchange:string;priority:number}[]>; resolveTxt(n): Promise<string[][]> }`.
 
 - [ ] **Step 1: Write the failing test**
@@ -617,7 +676,9 @@ import { checkEmailDns } from "./email-dns.js";
 const healthy = {
   resolveMx: async () => [{ exchange: "aspmx.l.google.com", priority: 1 }],
   resolveTxt: async (name: string) =>
-    name.startsWith("google._domainkey") ? [["v=DKIM1; k=rsa; p=ABC"]] : [["v=spf1 include:_spf.google.com ~all"]],
+    name.startsWith("google._domainkey")
+      ? [["v=DKIM1; k=rsa; p=ABC"]]
+      : [["v=spf1 include:_spf.google.com ~all"]],
 };
 
 describe("checkEmailDns", () => {
@@ -627,7 +688,10 @@ describe("checkEmailDns", () => {
   });
 
   it("down when MX missing", async () => {
-    const r = await checkEmailDns("x.test", { dkimSelector: "google", resolver: { ...healthy, resolveMx: async () => [] } });
+    const r = await checkEmailDns("x.test", {
+      dkimSelector: "google",
+      resolver: { ...healthy, resolveMx: async () => [] },
+    });
     expect(r.status).toBe("down");
     expect(r.detail.mx).toBe(false);
   });
@@ -635,7 +699,11 @@ describe("checkEmailDns", () => {
   it("degraded when SPF missing", async () => {
     const r = await checkEmailDns("x.test", {
       dkimSelector: "google",
-      resolver: { ...healthy, resolveTxt: async (n: string) => (n.startsWith("google._domainkey") ? [["v=DKIM1; p=ABC"]] : [["unrelated"]]) },
+      resolver: {
+        ...healthy,
+        resolveTxt: async (n: string) =>
+          n.startsWith("google._domainkey") ? [["v=DKIM1; p=ABC"]] : [["unrelated"]],
+      },
     });
     expect(r.status).toBe("degraded");
     expect(r.detail.spf).toBe(false);
@@ -644,7 +712,11 @@ describe("checkEmailDns", () => {
   it("degraded when DKIM missing", async () => {
     const r = await checkEmailDns("x.test", {
       dkimSelector: "google",
-      resolver: { ...healthy, resolveTxt: async (n: string) => (n.startsWith("google._domainkey") ? [] : [["v=spf1 ~all"]]) },
+      resolver: {
+        ...healthy,
+        resolveTxt: async (n: string) =>
+          n.startsWith("google._domainkey") ? [] : [["v=spf1 ~all"]],
+      },
     });
     expect(r.status).toBe("degraded");
     expect(r.detail.dkim).toBe(false);
@@ -677,7 +749,10 @@ export interface EmailDnsOptions {
 
 const flatten = (txt: string[][]) => txt.map((parts) => parts.join("")).map((s) => s.toLowerCase());
 
-export async function checkEmailDns(domain: string, opts: EmailDnsOptions = {}): Promise<CheckResult> {
+export async function checkEmailDns(
+  domain: string,
+  opts: EmailDnsOptions = {},
+): Promise<CheckResult> {
   const resolver = opts.resolver ?? defaultResolver;
   const selector = opts.dkimSelector ?? "google";
   const safe = async <T>(p: Promise<T>, fallback: T): Promise<T> => p.catch(() => fallback);
@@ -716,18 +791,21 @@ git commit -m ":white_check_mark: lighthaus — checkEmailDns (MX down / SPF+DKI
 ### Task 7: `checkServiceHealth` + `evaluateHeartbeat`
 
 **Files:**
+
 - Create: `packages/monitoring/src/checks/service-health.ts`
 - Create: `packages/monitoring/src/checks/heartbeat.ts`
 - Test: `packages/monitoring/src/checks/service-health.spec.ts`
 - Test: `packages/monitoring/src/checks/heartbeat.spec.ts`
 
 **Interfaces:**
+
 - Produces: `checkServiceHealth(url, opts?): Promise<CheckResult>` where `opts = { fetchFn?: typeof fetch; timeoutMs?: number; now?: () => number }`.
 - Produces: `evaluateHeartbeat(lastSeenAt: Date | null, now: Date, maxSilenceMs: number): CheckResult` (synchronous).
 
 - [ ] **Step 1: Write the failing tests**
 
 `service-health.spec.ts`:
+
 ```ts
 import { checkServiceHealth } from "./service-health.js";
 
@@ -748,7 +826,9 @@ describe("checkServiceHealth", () => {
 
   it("down on throw", async () => {
     const r = await checkServiceHealth("https://svc.test/health", {
-      fetchFn: async () => { throw new Error("ETIMEDOUT"); },
+      fetchFn: async () => {
+        throw new Error("ETIMEDOUT");
+      },
     });
     expect(r.status).toBe("down");
   });
@@ -756,6 +836,7 @@ describe("checkServiceHealth", () => {
 ```
 
 `heartbeat.spec.ts`:
+
 ```ts
 import { evaluateHeartbeat } from "./heartbeat.js";
 
@@ -788,6 +869,7 @@ Expected: FAIL — modules not found.
 - [ ] **Step 3: Write minimal implementations**
 
 `service-health.ts`:
+
 ```ts
 import type { CheckResult } from "../types.js";
 
@@ -797,7 +879,10 @@ export interface ServiceHealthOptions {
   now?: () => number;
 }
 
-export async function checkServiceHealth(url: string, opts: ServiceHealthOptions = {}): Promise<CheckResult> {
+export async function checkServiceHealth(
+  url: string,
+  opts: ServiceHealthOptions = {},
+): Promise<CheckResult> {
   const fetchFn = opts.fetchFn ?? fetch;
   const now = opts.now ?? (() => Date.now());
   const controller = new AbortController();
@@ -806,7 +891,8 @@ export async function checkServiceHealth(url: string, opts: ServiceHealthOptions
   try {
     const res = await fetchFn(url, { signal: controller.signal });
     const latencyMs = now() - start;
-    if (res.status !== 200) return { status: "down", latencyMs, detail: { httpStatus: res.status } };
+    if (res.status !== 200)
+      return { status: "down", latencyMs, detail: { httpStatus: res.status } };
     const body = (await res.json().catch(() => ({}))) as { status?: string };
     if (body.status && body.status !== "ok") {
       return { status: "degraded", latencyMs, detail: { reported: body.status } };
@@ -821,10 +907,15 @@ export async function checkServiceHealth(url: string, opts: ServiceHealthOptions
 ```
 
 `heartbeat.ts`:
+
 ```ts
 import type { CheckResult } from "../types.js";
 
-export function evaluateHeartbeat(lastSeenAt: Date | null, now: Date, maxSilenceMs: number): CheckResult {
+export function evaluateHeartbeat(
+  lastSeenAt: Date | null,
+  now: Date,
+  maxSilenceMs: number,
+): CheckResult {
   if (!lastSeenAt) return { status: "down", detail: { reason: "never-seen" } };
   const ageMs = now.getTime() - lastSeenAt.getTime();
   if (ageMs > maxSilenceMs) return { status: "down", detail: { ageMs, reason: "stale" } };
@@ -849,12 +940,14 @@ git commit -m ":white_check_mark: lighthaus — checkServiceHealth + evaluateHea
 ### Task 8: Incident state machine + checks barrel + package barrel
 
 **Files:**
+
 - Create: `packages/monitoring/src/incident.ts`
 - Test: `packages/monitoring/src/incident.spec.ts`
 - Create: `packages/monitoring/src/checks/index.ts`
 - Modify: `packages/monitoring/src/index.ts`
 
 **Interfaces:**
+
 - Produces: `IncidentState = { consecutiveFailures: number; open: boolean }`; `Transition = { kind: "none" } | { kind: "open" } | { kind: "resolve" }`; `reduceIncident(state, result, opts?: { failureThreshold?: number }): { state: IncidentState; transition: Transition }`.
 
 - [ ] **Step 1: Write the failing test**
@@ -997,21 +1090,25 @@ git commit -m ":white_check_mark: lighthaus — incident state machine + barrels
 ### Task 9: `monitoring` db domain (tables + relations + schema merge + migration)
 
 **Files:**
+
 - Create: `packages/db/src/monitoring/monitors.ts`
 - Create: `packages/db/src/monitoring/check-results.ts`
 - Create: `packages/db/src/monitoring/incidents.ts`
+- Create: `packages/db/src/monitoring/monitors.relations.ts`
 - Create: `packages/db/src/monitoring/check-results.relations.ts`
 - Create: `packages/db/src/monitoring/incidents.relations.ts`
 - Create: `packages/db/src/monitoring/index.ts`
 - Modify: `packages/db/src/schema.ts`
 
 **Interfaces:**
-- Produces (consumed by `apps/lighthaus` and dashboard): `monitorsTable`, `checkResultsTable`, `incidentsTable` and inferred types `Monitor`, `NewMonitor`, `CheckResult` (DB row), `NewCheckResult`, `Incident`, `NewIncident`.
 
-- [ ] **Step 1: Create `monitors.ts`**
+- Produces: `monitorsTable` (incl. `clientId` nullable FK → `clientsTable`), `checkResultsTable`, `incidentsTable`; inferred types `Monitor`, `NewMonitor`, `CheckResultRow`, `NewCheckResult`, `Incident`, `NewIncident`.
+
+- [ ] **Step 1: `monitors.ts`** — note the `clientId` column (Revision v2 per-tenant scoping):
 
 ```ts
 import { boolean, index, jsonb, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { clientsTable } from "../iam/clients.js";
 
 export const monitorsTable = pgTable(
   "monitors",
@@ -1021,19 +1118,27 @@ export const monitorsTable = pgTable(
     type: varchar("type", { length: 32 }).notNull(),
     target: varchar("target", { length: 256 }).notNull(),
     group: varchar("group", { length: 32 }).notNull(),
+    // Revision v2: null = staff-only (service/infra); set = client-site, scoped to a tenant
+    clientId: uuid("client_id").references(() => clientsTable.id, { onDelete: "cascade" }),
     thresholds: jsonb("thresholds"),
     enabled: boolean("enabled").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("monitors_group_idx").on(t.group), index("monitors_enabled_idx").on(t.enabled)],
+  (t) => [
+    index("monitors_group_idx").on(t.group),
+    index("monitors_client_idx").on(t.clientId),
+    index("monitors_enabled_idx").on(t.enabled),
+  ],
 );
 
 export type Monitor = typeof monitorsTable.$inferSelect;
 export type NewMonitor = typeof monitorsTable.$inferInsert;
 ```
 
-- [ ] **Step 2: Create `check-results.ts`**
+> Confirm `../iam/clients.js` exports `clientsTable` (it does — used across the iam domain). Use that exact import.
+
+- [ ] **Step 2: `check-results.ts`**
 
 ```ts
 import { index, integer, jsonb, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
@@ -1058,9 +1163,9 @@ export type CheckResultRow = typeof checkResultsTable.$inferSelect;
 export type NewCheckResult = typeof checkResultsTable.$inferInsert;
 ```
 
-> Named `CheckResultRow` to avoid colliding with the core `CheckResult` shape when both are imported.
+> `CheckResultRow` (not `CheckResult`) avoids colliding with the core `CheckResult` shape.
 
-- [ ] **Step 3: Create `incidents.ts`**
+- [ ] **Step 3: `incidents.ts`**
 
 ```ts
 import { boolean, index, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
@@ -1079,108 +1184,127 @@ export const incidentsTable = pgTable(
     notifiedOpen: boolean("notified_open").notNull().default(false),
     notifiedResolved: boolean("notified_resolved").notNull().default(false),
   },
-  (t) => [index("incidents_monitor_idx").on(t.monitorId), index("incidents_open_idx").on(t.resolvedAt)],
+  (t) => [
+    index("incidents_monitor_idx").on(t.monitorId),
+    index("incidents_open_idx").on(t.resolvedAt),
+  ],
 );
 
 export type Incident = typeof incidentsTable.$inferSelect;
 export type NewIncident = typeof incidentsTable.$inferInsert;
 ```
 
-- [ ] **Step 4: Create the relations files**
+- [ ] **Step 4: relations files**
+
+`monitors.relations.ts`:
+
+```ts
+import { relations } from "drizzle-orm";
+import { clientsTable } from "../iam/clients.js";
+import { monitorsTable } from "./monitors.js";
+import { checkResultsTable } from "./check-results.js";
+import { incidentsTable } from "./incidents.js";
+
+export const monitorsRelations = relations(monitorsTable, ({ one, many }) => ({
+  client: one(clientsTable, { fields: [monitorsTable.clientId], references: [clientsTable.id] }),
+  results: many(checkResultsTable),
+  incidents: many(incidentsTable),
+}));
+```
 
 `check-results.relations.ts`:
+
 ```ts
 import { relations } from "drizzle-orm";
 import { checkResultsTable } from "./check-results.js";
 import { monitorsTable } from "./monitors.js";
 
 export const checkResultsRelations = relations(checkResultsTable, ({ one }) => ({
-  monitor: one(monitorsTable, { fields: [checkResultsTable.monitorId], references: [monitorsTable.id] }),
+  monitor: one(monitorsTable, {
+    fields: [checkResultsTable.monitorId],
+    references: [monitorsTable.id],
+  }),
 }));
 ```
 
 `incidents.relations.ts`:
+
 ```ts
 import { relations } from "drizzle-orm";
 import { incidentsTable } from "./incidents.js";
 import { monitorsTable } from "./monitors.js";
 
 export const incidentsRelations = relations(incidentsTable, ({ one }) => ({
-  monitor: one(monitorsTable, { fields: [incidentsTable.monitorId], references: [monitorsTable.id] }),
+  monitor: one(monitorsTable, {
+    fields: [incidentsTable.monitorId],
+    references: [monitorsTable.id],
+  }),
 }));
 ```
 
-- [ ] **Step 5: Create `monitoring/index.ts`**
+- [ ] **Step 5: `monitoring/index.ts`**
 
 ```ts
 export * from "./monitors.js";
+export * from "./monitors.relations.js";
 export * from "./check-results.js";
 export * from "./check-results.relations.js";
 export * from "./incidents.js";
 export * from "./incidents.relations.js";
 ```
 
-- [ ] **Step 6: Merge into `schema.ts`**
-
-Modify `packages/db/src/schema.ts` to add the monitoring namespace:
+- [ ] **Step 6: merge into `schema.ts`** — add the monitoring namespace alongside iam/core:
 
 ```ts
 export * from "./core/index.js";
 export * from "./iam/index.js";
 export * from "./monitoring/index.js";
-
-import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
-import * as core from "./core/index.js";
-import * as iam from "./iam/index.js";
+// ...
 import * as monitoring from "./monitoring/index.js";
-// ... keep existing drizzle-orm operator re-exports ...
-
-export const schema = {
-  ...iam,
-  ...core,
-  ...monitoring,
-} as const;
+// ...
+export const schema = { ...iam, ...core, ...monitoring } as const;
 ```
 
-- [ ] **Step 7: Build, generate, and inspect the migration**
+- [ ] **Step 7: build + generate + inspect migration**
 
-Run:
 ```bash
 pnpm --filter @site-haus/db build
 cd packages/db && pnpm db:gen
 ```
-Expected: a new SQL migration appears in `packages/db/migrations/` creating `monitors`, `check_results`, `incidents` with the indexes above. **Read the SQL** to confirm snake_case columns and the composite `check_results (monitor_id, checked_at)` index.
 
-- [ ] **Step 8: Commit**
+Read the generated SQL: confirm `monitors.client_id` FK → `clients(id)` ON DELETE CASCADE, the three tables, and the composite `check_results (monitor_id, checked_at)` index.
+
+- [ ] **Step 8: commit**
 
 ```bash
 git add packages/db/src/monitoring packages/db/src/schema.ts packages/db/migrations
-git commit -m ":card_file_box: lighthaus — monitors/check_results/incidents tables + migration"
+git commit -m ":card_file_box: lighthaus — monitors(+client_id)/check_results/incidents tables + migration"
 ```
 
-> Migration is applied against the live DB with `pnpm db:migrate` during deploy (Phase 8), not here.
+> Migration is applied via `pnpm db:migrate` at deploy (Task 26), not here.
 
 ---
 
-## Phase 3 — `apps/lighthaus` NestJS app (scheduler, persistence, config)
+## Phase 3 — `apps/lighthaus-api` (collector + auth + scoped read API + snapshot)
 
-### Task 10: Scaffold `apps/lighthaus` Nest app + config + db module
+### Task 10: Scaffold `apps/lighthaus-api` Nest app + config + db module
 
 **Files:**
-- Create: `apps/lighthaus/package.json`, `tsconfig.json`, `tsconfig.build.json`, `nest-cli.json`, `eslint.config.mjs`
-- Create: `apps/lighthaus/src/main.ts`, `app.module.ts`
-- Create: `apps/lighthaus/src/config/lighthaus.config.ts`
-- Create: `apps/lighthaus/src/db/tokens.ts`, `src/db/db.module.ts`
+
+- Create: `apps/lighthaus-api/package.json`, `tsconfig.json`, `tsconfig.build.json`, `nest-cli.json`, `eslint.config.mjs`
+- Create: `apps/lighthaus-api/src/main.ts`, `app.module.ts`
+- Create: `apps/lighthaus-api/src/config/lighthaus.config.ts`
+- Create: `apps/lighthaus-api/src/db/tokens.ts`, `src/db/db.module.ts`
 
 **Interfaces:**
-- Produces: `LIGHTHAUS_DB` injection token → `Db`; `lighthausConfig` (ConfigService namespace `lighthaus`) with `{ databaseUrl, redisUrl, resendApiKey, emailFrom, opsRecipients: string[], healthchecksUrl, dashboardUrl, heartbeatPort }`.
 
-- [ ] **Step 1: Create `package.json`** (mirrors commerce `worker`, plus deps)
+- Produces: `LIGHTHAUS_DB` token → `Db`; `lighthaus` config namespace `{ databaseUrl, redisUrl, resendApiKey, emailFrom, opsRecipients: string[], healthchecksUrl, lighthausUrl, port, jwtSecret, r2: { accountId, accessKeyId, secretAccessKey, bucket, publicBaseUrl } }`.
+
+- [ ] **Step 1: `package.json`** (app name `lighthaus-api`; mirrors commerce `worker` + the deps below):
 
 ```json
 {
-  "name": "lighthaus",
+  "name": "lighthaus-api",
   "private": true,
   "version": "0.0.1",
   "scripts": {
@@ -1193,10 +1317,12 @@ git commit -m ":card_file_box: lighthaus — monitors/check_results/incidents ta
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.700.0",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.1.6",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.1.6",
+    "@nestjs/jwt": "^11.0.0",
     "@nestjs/platform-express": "^11.1.6",
     "@nestjs/schedule": "^6.0.0",
     "@site-haus/db": "workspace:*",
@@ -1227,20 +1353,9 @@ git commit -m ":card_file_box: lighthaus — monitors/check_results/incidents ta
 }
 ```
 
-- [ ] **Step 2: Create `nest-cli.json`, `tsconfig.json`, `tsconfig.build.json`**
+- [ ] **Step 2: `nest-cli.json`, `tsconfig.json`, `tsconfig.build.json`, `eslint.config.mjs`** — copy from `apps/api` verbatim (`nest-cli.json` with `"sourceRoot": "src"`; `tsconfig.json` the CommonJS Nest config with decorators; `tsconfig.build.json` excluding specs; `eslint.config.mjs` the nest config).
 
-`nest-cli.json`:
-```json
-{ "$schema": "https://json.schemastore.org/nest-cli", "collection": "@nestjs/schematics", "sourceRoot": "src", "compilerOptions": { "deleteOutDir": true } }
-```
-`tsconfig.json` — copy `apps/api/tsconfig.json` verbatim (CommonJS Nest settings, `experimentalDecorators`, `emitDecoratorMetadata`).
-`tsconfig.build.json`:
-```json
-{ "extends": "./tsconfig.json", "exclude": ["node_modules", "dist", "**/*.spec.ts"] }
-```
-`eslint.config.mjs` — copy `apps/api/eslint.config.mjs`.
-
-- [ ] **Step 3: Create `config/lighthaus.config.ts`**
+- [ ] **Step 3: `config/lighthaus.config.ts`**
 
 ```ts
 import { registerAs } from "@nestjs/config";
@@ -1250,20 +1365,37 @@ export default registerAs("lighthaus", () => ({
   redisUrl: process.env.REDIS_URL ?? "redis://redis:6379",
   resendApiKey: process.env.RESEND_API_KEY!,
   emailFrom: process.env.EMAIL_FROM ?? "Lighthaus <alerts@sitehaus.co>",
-  opsRecipients: (process.env.OPS_RECIPIENTS ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+  opsRecipients: (process.env.OPS_RECIPIENTS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
   healthchecksUrl: process.env.HEALTHCHECKS_URL ?? "",
-  dashboardUrl: process.env.DASHBOARD_URL ?? "https://dashboard.sitehaus.co",
-  heartbeatPort: Number(process.env.LIGHTHAUS_PORT ?? 3006),
+  lighthausUrl: process.env.LIGHTHAUS_URL ?? "https://status.sitehaus.co",
+  port: Number(process.env.LIGHTHAUS_PORT ?? 3007),
+  // Same secret apps/api signs IAM access tokens with — lets us validate them here.
+  jwtSecret: process.env.JWT_SECRET ?? process.env.JWT_SECRET_B64URL ?? "",
+  r2: {
+    accountId: process.env.R2_ACCOUNT_ID ?? "",
+    accessKeyId: process.env.R2_ACCESS_KEY_ID ?? "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? "",
+    bucket: process.env.R2_STATUS_BUCKET ?? "lighthaus-status",
+    publicBaseUrl: process.env.R2_STATUS_PUBLIC_URL ?? "",
+  },
 }));
 ```
 
-- [ ] **Step 4: Create `db/tokens.ts` and `db/db.module.ts`**
+> Confirm how `apps/api` reads the JWT secret (`apps/api/src/conf/*` / auth module) and mirror the exact env var + encoding so tokens validate identically. Adjust `jwtSecret` here to match.
+
+- [ ] **Step 4: `db/tokens.ts` + `db/db.module.ts`** — identical pattern to the collector DB wiring:
 
 `tokens.ts`:
+
 ```ts
 export const LIGHTHAUS_DB = Symbol("LIGHTHAUS_DB");
 ```
+
 `db.module.ts`:
+
 ```ts
 import { Global, Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -1277,7 +1409,8 @@ import { LIGHTHAUS_DB } from "./tokens.js";
     {
       provide: LIGHTHAUS_DB,
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => createDb(new Pool({ connectionString: config.get<string>("lighthaus.databaseUrl") })),
+      useFactory: (config: ConfigService) =>
+        createDb(new Pool({ connectionString: config.get<string>("lighthaus.databaseUrl") })),
     },
   ],
   exports: [LIGHTHAUS_DB],
@@ -1285,9 +1418,10 @@ import { LIGHTHAUS_DB } from "./tokens.js";
 export class DbModule {}
 ```
 
-- [ ] **Step 5: Create `main.ts` and `app.module.ts`**
+- [ ] **Step 5: `app.module.ts` + `main.ts`**
 
 `app.module.ts`:
+
 ```ts
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
@@ -1304,7 +1438,9 @@ import { DbModule } from "./db/db.module.js";
 })
 export class AppModule {}
 ```
+
 `main.ts`:
+
 ```ts
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
@@ -1314,40 +1450,48 @@ import { AppModule } from "./app.module.js";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: [process.env.LIGHTHAUS_UI_ORIGIN ?? "https://status.sitehaus.co"],
+    credentials: true,
+  });
   const config = app.get(ConfigService);
-  const port = config.get<number>("lighthaus.heartbeatPort")!;
-  await app.listen(port);
-  Logger.log(`Lighthaus listening on :${port}`, "Bootstrap");
+  await app.listen(config.get<number>("lighthaus.port")!);
+  Logger.log(`lighthaus-api listening on :${config.get<number>("lighthaus.port")}`, "Bootstrap");
 }
 bootstrap();
 ```
 
-- [ ] **Step 6: Install + build**
-
-Run: `pnpm install && pnpm --filter lighthaus build`
-Expected: builds; `apps/lighthaus/dist/main.js` exists.
-
-- [ ] **Step 7: Commit**
+- [ ] **Step 6: install + build**
 
 ```bash
-git add apps/lighthaus pnpm-lock.yaml
-git commit -m ":sparkles: lighthaus — scaffold NestJS app shell + config + db module"
+pnpm install && pnpm --filter lighthaus-api build
+```
+
+Expected: `apps/lighthaus-api/dist/main.js` exists.
+
+- [ ] **Step 7: commit**
+
+```bash
+git add apps/lighthaus-api pnpm-lock.yaml
+git commit -m ":sparkles: lighthaus-api — scaffold NestJS app shell + config + db module"
 ```
 
 ---
 
-### Task 11: Persistence repository (config sync + write results + incident rows)
+### Task 11: `monitors.config.ts` + `MonitorRepository` (sync, results, incidents, uptime, heartbeat, scoped reads)
 
 **Files:**
-- Create: `apps/lighthaus/src/monitors.config.ts`
-- Create: `apps/lighthaus/src/persistence/monitor.repository.ts`
-- Test: `apps/lighthaus/src/persistence/monitor.repository.spec.ts`
+
+- Create: `apps/lighthaus-api/src/monitors.config.ts`
+- Create: `apps/lighthaus-api/src/persistence/monitor.repository.ts`
+- Test: `apps/lighthaus-api/src/persistence/monitor.repository.spec.ts`
 
 **Interfaces:**
-- Consumes: `LIGHTHAUS_DB`, `monitorsTable`, `checkResultsTable`, `incidentsTable` from `@site-haus/db`; `MonitorType` from `@site-haus/monitoring`.
-- Produces: `MonitorConfig` type; `monitors: MonitorConfig[]`; `MonitorRepository` with `syncFromConfig(configs): Promise<void>`, `listEnabled(): Promise<Monitor[]>`, `recordResult(monitorId, result): Promise<void>`, `getOpenIncident(monitorId): Promise<Incident | null>`, `openIncident(monitorId, status): Promise<Incident>`, `resolveIncident(incidentId): Promise<void>`, `getLastHeartbeat(target): Promise<Date | null>`, `uptime24h(monitorId): Promise<number>`.
 
-- [ ] **Step 1: Create `monitors.config.ts`**
+- Consumes: `LIGHTHAUS_DB`, `schema` (monitors/check_results/incidents, `userRolesTable`), `MonitorType` from `@site-haus/monitoring`.
+- Produces: `MonitorConfig` (+ optional `clientId`); `monitors: MonitorConfig[]`; `computeUptimePct(rows)`; `MonitorRepository` with `syncFromConfig`, `listEnabled`, `recordResult`, `recordHeartbeat`, `getOpenIncident`, `openIncident`, `resolveIncident`, `getLastHeartbeat`, `uptime`, and **scoped reads** `clientIdsForUser(userId)` + `listForViewer({ isStaff, clientIds })`.
+
+- [ ] **Step 1: `monitors.config.ts`** (note optional `clientId` per group):
 
 ```ts
 import type { MonitorType } from "@site-haus/monitoring";
@@ -1363,6 +1507,7 @@ export interface MonitorCheck {
 export interface MonitorConfig {
   name: string;
   group: MonitorGroup;
+  clientId?: string; // Revision v2: set for client-site monitors → tenant scoping
   checks: MonitorCheck[];
 }
 
@@ -1370,6 +1515,7 @@ export const monitors: MonitorConfig[] = [
   {
     name: "onehealthclinics.com",
     group: "client-site",
+    clientId: process.env.ONEHEALTH_CLIENT_ID, // confirm real client id at deploy (§ spec open items)
     checks: [
       { type: "http", target: "https://onehealthclinics.com" },
       { type: "dns", target: "onehealthclinics.com" },
@@ -1386,46 +1532,53 @@ export const monitors: MonitorConfig[] = [
   {
     name: "commerce-worker",
     group: "commerce-service",
-    checks: [{ type: "heartbeat", target: "commerce-worker", thresholds: { maxSilenceMs: 180000 } }],
+    checks: [
+      { type: "heartbeat", target: "commerce-worker", thresholds: { maxSilenceMs: 180000 } },
+    ],
   },
 ];
 ```
 
-> Confirm production hostnames against spec §12 before deploy; placeholders here are structurally correct.
-
-- [ ] **Step 2: Write the failing test** (uptime calc is the pure-enough unit to pin)
+- [ ] **Step 2: failing test** for `computeUptimePct` + a scoped-filter helper:
 
 ```ts
-import { computeUptimePct } from "./monitor.repository.js";
+import { computeUptimePct, filterByViewer } from "./monitor.repository.js";
 
 describe("computeUptimePct", () => {
-  it("100% when all up", () => {
-    expect(computeUptimePct([{ status: "up" }, { status: "up" }])).toBe(100);
-  });
-  it("50% when half down", () => {
-    expect(computeUptimePct([{ status: "up" }, { status: "down" }])).toBe(50);
-  });
-  it("degraded counts as up for availability", () => {
-    expect(computeUptimePct([{ status: "degraded" }, { status: "up" }])).toBe(100);
-  });
-  it("returns 100 when no samples", () => {
-    expect(computeUptimePct([])).toBe(100);
-  });
+  it("100% all up", () => expect(computeUptimePct([{ status: "up" }, { status: "up" }])).toBe(100));
+  it("50% half down", () =>
+    expect(computeUptimePct([{ status: "up" }, { status: "down" }])).toBe(50));
+  it("degraded counts as available", () =>
+    expect(computeUptimePct([{ status: "degraded" }])).toBe(100));
+  it("100% when empty", () => expect(computeUptimePct([])).toBe(100));
+});
+
+describe("filterByViewer", () => {
+  const mons = [
+    { id: "a", clientId: null },
+    { id: "b", clientId: "c1" },
+    { id: "c", clientId: "c2" },
+  ];
+  it("staff see all", () =>
+    expect(filterByViewer(mons, { isStaff: true, clientIds: [] }).map((m) => m.id)).toEqual([
+      "a",
+      "b",
+      "c",
+    ]));
+  it("client sees only own (never null/staff-only)", () =>
+    expect(filterByViewer(mons, { isStaff: false, clientIds: ["c1"] }).map((m) => m.id)).toEqual([
+      "b",
+    ]));
 });
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [ ] **Step 3: run test → fails** (`pnpm --filter lighthaus-api test src/persistence/monitor.repository.spec.ts`).
 
-Run: `pnpm --filter lighthaus test src/persistence/monitor.repository.spec.ts`
-Expected: FAIL — `computeUptimePct` not exported.
-
-- [ ] **Step 4: Implement `monitor.repository.ts`**
+- [ ] **Step 4: implement `monitor.repository.ts`**. Pure helpers first (exported for tests), then the injectable class. Key parts:
 
 ```ts
 import { Inject, Injectable } from "@nestjs/common";
-import {
-  and, desc, eq, gte, isNull, schema, sql, type Db,
-} from "@site-haus/db";
+import { and, desc, eq, gte, inArray, isNull, schema, type Db } from "@site-haus/db";
 import type { CheckResult } from "@site-haus/monitoring";
 import { LIGHTHAUS_DB } from "../db/tokens.js";
 import type { MonitorConfig } from "../monitors.config.js";
@@ -1435,8 +1588,15 @@ type Incident = typeof schema.incidentsTable.$inferSelect;
 
 export function computeUptimePct(rows: { status: string }[]): number {
   if (rows.length === 0) return 100;
-  const upish = rows.filter((r) => r.status !== "down").length;
-  return Math.round((upish / rows.length) * 100);
+  return Math.round((rows.filter((r) => r.status !== "down").length / rows.length) * 100);
+}
+
+export function filterByViewer<T extends { clientId: string | null }>(
+  mons: T[],
+  viewer: { isStaff: boolean; clientIds: string[] },
+): T[] {
+  if (viewer.isStaff) return mons;
+  return mons.filter((m) => m.clientId !== null && viewer.clientIds.includes(m.clientId));
 }
 
 @Injectable()
@@ -1453,16 +1613,20 @@ export class MonitorRepository {
             eq(schema.monitorsTable.target, check.target),
           ),
         });
+        const values = {
+          group: cfg.group,
+          clientId: cfg.clientId ?? null,
+          thresholds: check.thresholds ?? null,
+        };
         if (existing) {
           await this.db
             .update(schema.monitorsTable)
-            .set({ group: cfg.group, thresholds: check.thresholds ?? null, updatedAt: new Date() })
+            .set({ ...values, updatedAt: new Date() })
             .where(eq(schema.monitorsTable.id, existing.id));
         } else {
-          await this.db.insert(schema.monitorsTable).values({
-            name: cfg.name, type: check.type, target: check.target,
-            group: cfg.group, thresholds: check.thresholds ?? null,
-          });
+          await this.db
+            .insert(schema.monitorsTable)
+            .values({ name: cfg.name, type: check.type, target: check.target, ...values });
         }
       }
     }
@@ -1474,17 +1638,51 @@ export class MonitorRepository {
 
   async recordResult(monitorId: string, result: CheckResult): Promise<void> {
     await this.db.insert(schema.checkResultsTable).values({
-      monitorId, status: result.status, latencyMs: result.latencyMs ?? null, detail: result.detail,
+      monitorId,
+      status: result.status,
+      latencyMs: result.latencyMs ?? null,
+      detail: result.detail,
     });
+  }
+
+  async recordHeartbeat(target: string): Promise<void> {
+    const m = await this.db.query.monitorsTable.findFirst({
+      where: and(
+        eq(schema.monitorsTable.type, "heartbeat"),
+        eq(schema.monitorsTable.target, target),
+      ),
+    });
+    if (m) await this.recordResult(m.id, { status: "up", detail: { source: "heartbeat-ingest" } });
+  }
+
+  async getLastHeartbeat(target: string): Promise<Date | null> {
+    const m = await this.db.query.monitorsTable.findFirst({
+      where: and(
+        eq(schema.monitorsTable.type, "heartbeat"),
+        eq(schema.monitorsTable.target, target),
+      ),
+    });
+    if (!m) return null;
+    const last = await this.db.query.checkResultsTable.findFirst({
+      where: and(
+        eq(schema.checkResultsTable.monitorId, m.id),
+        eq(schema.checkResultsTable.status, "up"),
+      ),
+      orderBy: desc(schema.checkResultsTable.checkedAt),
+    });
+    return last?.checkedAt ?? null;
   }
 
   async getOpenIncident(monitorId: string): Promise<Incident | null> {
-    const row = await this.db.query.incidentsTable.findFirst({
-      where: and(eq(schema.incidentsTable.monitorId, monitorId), isNull(schema.incidentsTable.resolvedAt)),
-    });
-    return row ?? null;
+    return (
+      (await this.db.query.incidentsTable.findFirst({
+        where: and(
+          eq(schema.incidentsTable.monitorId, monitorId),
+          isNull(schema.incidentsTable.resolvedAt),
+        ),
+      })) ?? null
+    );
   }
-
   async openIncident(monitorId: string, lastStatus: string): Promise<Incident> {
     const [row] = await this.db
       .insert(schema.incidentsTable)
@@ -1492,49 +1690,48 @@ export class MonitorRepository {
       .returning();
     return row;
   }
-
-  async resolveIncident(incidentId: string): Promise<void> {
+  async resolveIncident(id: string): Promise<void> {
     await this.db
       .update(schema.incidentsTable)
       .set({ resolvedAt: new Date(), notifiedResolved: true, lastStatus: "up" })
-      .where(eq(schema.incidentsTable.id, incidentId));
+      .where(eq(schema.incidentsTable.id, id));
   }
 
-  async getLastHeartbeat(target: string): Promise<Date | null> {
-    const monitor = await this.db.query.monitorsTable.findFirst({
-      where: and(eq(schema.monitorsTable.type, "heartbeat"), eq(schema.monitorsTable.target, target)),
-    });
-    if (!monitor) return null;
-    const last = await this.db.query.checkResultsTable.findFirst({
-      where: and(eq(schema.checkResultsTable.monitorId, monitor.id), eq(schema.checkResultsTable.status, "up")),
-      orderBy: desc(schema.checkResultsTable.checkedAt),
-    });
-    return last?.checkedAt ?? null;
-  }
-
-  async uptime24h(monitorId: string): Promise<number> {
-    const since = new Date(Date.now() - 24 * 3_600_000);
+  async uptime(monitorId: string, sinceMs: number): Promise<number> {
+    const since = new Date(Date.now() - sinceMs);
     const rows = await this.db.query.checkResultsTable.findMany({
-      where: and(eq(schema.checkResultsTable.monitorId, monitorId), gte(schema.checkResultsTable.checkedAt, since)),
+      where: and(
+        eq(schema.checkResultsTable.monitorId, monitorId),
+        gte(schema.checkResultsTable.checkedAt, since),
+      ),
       columns: { status: true },
     });
     return computeUptimePct(rows);
   }
+
+  // ── Revision v2 scoped reads (consumed by the read API, Task 16) ──
+  async clientIdsForUser(userId: string): Promise<string[]> {
+    const rows = await this.db.query.userRolesTable.findMany({
+      where: eq(schema.userRolesTable.userId, userId),
+      columns: { clientId: true },
+    });
+    return [...new Set(rows.map((r) => r.clientId).filter((c): c is string => !!c))];
+  }
+
+  async listForViewer(viewer: { isStaff: boolean; clientIds: string[] }): Promise<Monitor[]> {
+    const all = await this.listEnabled();
+    return filterByViewer(all, viewer);
+  }
 }
 ```
 
-> `getLastHeartbeat` reads the latest `up` check_result for a heartbeat monitor; the heartbeat ingest (Task 14) writes an `up` result on each POST. This keeps heartbeat state in `check_results` — no extra table.
+> Confirm `userRolesTable` shape (`userId`, `clientId`) — it's the table `apps/api`'s notifications processor reads for client-user lookups. Match its column names exactly.
 
-- [ ] **Step 5: Run test to verify it passes**
-
-Run: `pnpm --filter lighthaus test src/persistence/monitor.repository.spec.ts`
-Expected: PASS (4 tests).
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: run test → passes** (6 tests). **Step 6: commit**
 
 ```bash
-git add apps/lighthaus/src/monitors.config.ts apps/lighthaus/src/persistence
-git commit -m ":sparkles: lighthaus — monitors.config + MonitorRepository (sync/results/incidents/uptime)"
+git add apps/lighthaus-api/src/monitors.config.ts apps/lighthaus-api/src/persistence
+git commit -m ":sparkles: lighthaus-api — monitors.config(+clientId) + MonitorRepository (incl. scoped reads)"
 ```
 
 ---
@@ -1542,892 +1739,173 @@ git commit -m ":sparkles: lighthaus — monitors.config + MonitorRepository (syn
 ### Task 12: Dispatcher — enqueue `lighthaus.*` with Resend failsafe
 
 **Files:**
-- Create: `apps/lighthaus/src/dispatcher/queue.module.ts`
-- Create: `apps/lighthaus/src/dispatcher/dispatcher.service.ts`
-- Test: `apps/lighthaus/src/dispatcher/dispatcher.service.spec.ts`
+
+- Create: `apps/lighthaus-api/src/dispatcher/queue.module.ts`, `dispatcher/dispatcher.service.ts`
+- Test: `apps/lighthaus-api/src/dispatcher/dispatcher.service.spec.ts`
 
 **Interfaces:**
-- Consumes: `lighthausConfig` (opsRecipients, resendApiKey, emailFrom, dashboardUrl), BullMQ queue named `"notifications"`.
-- Produces: `LighthausJob` union (mirrors api `notifications.types.ts` additions in Task 15); `DispatcherService.dispatch(job: LighthausJob): Promise<void>` — tries `queue.add(job.type, job, {...})`; on throw, renders + Resend-sends directly to ops.
 
-- [ ] **Step 1: Write the failing test (Redis-down → Resend failsafe)**
+- Produces: `LighthausJob` union (matches the `NotificationJobData` additions in Task 17 **exactly**); `DispatcherService.dispatch(job)` — `queue.add(job.type, job, {...})`; on throw → direct Resend send to `lighthaus.opsRecipients`.
 
-```ts
-import { Test } from "@nestjs/testing";
-import { ConfigModule } from "@nestjs/config";
-import { getQueueToken } from "@nestjs/bullmq";
-import { DispatcherService, RESEND_CLIENT, type LighthausJob } from "./dispatcher.service.js";
+This task is **unchanged from the original collector design** except the app path is `apps/lighthaus-api`. Implement:
 
-const job: LighthausJob = {
-  type: "lighthaus.incident_opened",
-  monitorId: "m1", monitorName: "onehealthclinics.com", group: "client-site",
-  status: "down", detail: { code: "SERVFAIL" }, openedAt: new Date().toISOString(),
-};
+- `LighthausJob` = the three-member union: `lighthaus.incident_opened { monitorId, monitorName, group, status, detail, openedAt }`, `lighthaus.incident_resolved { monitorId, monitorName, group, openedAt, resolvedAt, downtimeMs }`, `lighthaus.daily_digest { date, summary: {monitorName,group,uptime24h,status}[], openIncidents: {monitorName,openedAt}[] }`.
+- `RESEND_CLIENT` symbol provider (`new Resend(config.get("lighthaus.resendApiKey"))`).
+- `QueueModule` registers BullMQ root (connection `lighthaus.redisUrl`) + queue `"notifications"`, provides `DispatcherService` + `RESEND_CLIENT`.
+- `dispatch()` wraps `queue.add(job.type, job, { attempts: 3, backoff: { type: "exponential", delay: 5000 }, removeOnComplete: 100, removeOnFail: 200 })` in try/catch; catch → `failsafeSend` (Resend `emails.send` to opsRecipients with a plain-text subject+JSON body).
 
-describe("DispatcherService", () => {
-  it("enqueues onto the notifications queue when Redis is healthy", async () => {
-    const add = jest.fn().mockResolvedValue(undefined);
-    const send = jest.fn();
-    const mod = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true, load: [() => ({ lighthaus: { opsRecipients: ["ops@x.test"], emailFrom: "a@x.test", dashboardUrl: "https://d.test" } })] })],
-      providers: [
-        DispatcherService,
-        { provide: getQueueToken("notifications"), useValue: { add } },
-        { provide: RESEND_CLIENT, useValue: { emails: { send } } },
-      ],
-    }).compile();
-    await mod.get(DispatcherService).dispatch(job);
-    expect(add).toHaveBeenCalledWith("lighthaus.incident_opened", job, expect.any(Object));
-    expect(send).not.toHaveBeenCalled();
-  });
-
-  it("falls back to direct Resend send when enqueue throws", async () => {
-    const add = jest.fn().mockRejectedValue(new Error("Redis down"));
-    const send = jest.fn().mockResolvedValue({ data: { id: "x" } });
-    const mod = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true, load: [() => ({ lighthaus: { opsRecipients: ["ops@x.test"], emailFrom: "a@x.test", dashboardUrl: "https://d.test" } })] })],
-      providers: [
-        DispatcherService,
-        { provide: getQueueToken("notifications"), useValue: { add } },
-        { provide: RESEND_CLIENT, useValue: { emails: { send } } },
-      ],
-    }).compile();
-    await mod.get(DispatcherService).dispatch(job);
-    expect(send).toHaveBeenCalledTimes(1);
-    expect(send.mock.calls[0][0].to).toEqual(["ops@x.test"]);
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm --filter lighthaus test src/dispatcher/dispatcher.service.spec.ts`
-Expected: FAIL — module not found.
-
-- [ ] **Step 3: Implement `queue.module.ts` + `dispatcher.service.ts`**
-
-`queue.module.ts`:
-```ts
-import { Module } from "@nestjs/common";
-import { BullModule } from "@nestjs/bullmq";
-import { ConfigService } from "@nestjs/config";
-import { Resend } from "resend";
-import { DispatcherService, RESEND_CLIENT } from "./dispatcher.service.js";
-
-@Module({
-  imports: [
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({ connection: { url: config.get<string>("lighthaus.redisUrl") } }),
-    }),
-    BullModule.registerQueue({ name: "notifications" }),
-  ],
-  providers: [
-    DispatcherService,
-    { provide: RESEND_CLIENT, inject: [ConfigService], useFactory: (c: ConfigService) => new Resend(c.get<string>("lighthaus.resendApiKey")) },
-  ],
-  exports: [DispatcherService],
-})
-export class QueueModule {}
-```
-
-`dispatcher.service.ts`:
-```ts
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { InjectQueue } from "@nestjs/bullmq";
-import { ConfigService } from "@nestjs/config";
-import { Queue } from "bullmq";
-import type { Resend } from "resend";
-
-export const RESEND_CLIENT = Symbol("RESEND_CLIENT");
-
-export type LighthausJob =
-  | { type: "lighthaus.incident_opened"; monitorId: string; monitorName: string; group: string; status: string; detail: Record<string, unknown>; openedAt: string }
-  | { type: "lighthaus.incident_resolved"; monitorId: string; monitorName: string; group: string; openedAt: string; resolvedAt: string; downtimeMs: number }
-  | { type: "lighthaus.daily_digest"; date: string; summary: { monitorName: string; group: string; uptime24h: number; status: string }[]; openIncidents: { monitorName: string; openedAt: string }[] };
-
-@Injectable()
-export class DispatcherService {
-  private readonly logger = new Logger(DispatcherService.name);
-
-  constructor(
-    @InjectQueue("notifications") private readonly queue: Queue,
-    @Inject(RESEND_CLIENT) private readonly resend: Resend,
-    private readonly config: ConfigService,
-  ) {}
-
-  async dispatch(job: LighthausJob): Promise<void> {
-    try {
-      await this.queue.add(job.type, job, {
-        attempts: 3,
-        backoff: { type: "exponential", delay: 5_000 },
-        removeOnComplete: 100,
-        removeOnFail: 200,
-      });
-    } catch (err) {
-      this.logger.error(`Enqueue failed (${job.type}); using Resend failsafe`, err as Error);
-      await this.failsafeSend(job);
-    }
-  }
-
-  private async failsafeSend(job: LighthausJob): Promise<void> {
-    const to = this.config.get<string[]>("lighthaus.opsRecipients") ?? [];
-    if (to.length === 0) return;
-    const subject = this.subjectFor(job);
-    await this.resend.emails.send({
-      from: this.config.get<string>("lighthaus.emailFrom")!,
-      to,
-      subject,
-      text: `${subject}\n\nLighthaus could not reach Redis; this is a direct failsafe alert.\n\n${JSON.stringify(job, null, 2)}`,
-    });
-  }
-
-  private subjectFor(job: LighthausJob): string {
-    switch (job.type) {
-      case "lighthaus.incident_opened": return `🔴 DOWN: ${job.monitorName}`;
-      case "lighthaus.incident_resolved": return `🟢 RECOVERED: ${job.monitorName}`;
-      case "lighthaus.daily_digest": return `Lighthaus daily digest — ${job.date}`;
-    }
-  }
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm --filter lighthaus test src/dispatcher/dispatcher.service.spec.ts`
-Expected: PASS (2 tests).
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add apps/lighthaus/src/dispatcher
-git commit -m ":sparkles: lighthaus — dispatcher (enqueue lighthaus.* + Resend failsafe)"
-```
+- [ ] **Step 1: failing test** — two cases, mirroring the original:
+  1. Redis healthy: `add` mock called with `("lighthaus.incident_opened", job, {...})`, Resend `send` NOT called.
+  2. Redis down (`add` rejects): Resend `send` called once with `to === lighthaus.opsRecipients`.
+     Wire via `Test.createTestingModule` with `ConfigModule` providing `{ lighthaus: { opsRecipients: ["ops@x.test"], emailFrom: "a@x.test", lighthausUrl: "https://s.test" } }`, `getQueueToken("notifications")` → `{ add }`, `RESEND_CLIENT` → `{ emails: { send } }`.
+- [ ] **Step 2: run → fails. Step 3: implement** `queue.module.ts` + `dispatcher.service.ts` per above. **Step 4: run → passes (2).**
+- [ ] **Step 5: commit** `:sparkles: lighthaus-api — dispatcher (enqueue lighthaus.* + Resend failsafe)`
 
 ---
 
 ### Task 13: Scheduler — run due checks, drive incidents, dispatch, deadman, digest
 
 **Files:**
-- Create: `apps/lighthaus/src/scheduler/check-runner.ts`
-- Create: `apps/lighthaus/src/scheduler/scheduler.service.ts`
-- Create: `apps/lighthaus/src/deadman/deadman.service.ts`
-- Test: `apps/lighthaus/src/scheduler/check-runner.spec.ts`
-- Modify: `apps/lighthaus/src/app.module.ts` (register QueueModule + providers)
+
+- Create: `apps/lighthaus-api/src/scheduler/check-runner.ts`, `scheduler/scheduler.service.ts`, `deadman/deadman.service.ts`
+- Test: `apps/lighthaus-api/src/scheduler/check-runner.spec.ts`
+- Modify: `apps/lighthaus-api/src/app.module.ts` (register `QueueModule`, providers)
 
 **Interfaces:**
-- Consumes: all `@site-haus/monitoring` checks, `MonitorRepository`, `DispatcherService`, `reduceIncident`.
-- Produces: `runCheck(monitor, deps): Promise<CheckResult>` (pure dispatch by `monitor.type`); `SchedulerService` with `@Interval` fast loop (120s) + `@Cron` daily (slow checks) + `@Cron` 08:00 digest.
 
-- [ ] **Step 1: Write the failing test for `runCheck` dispatch**
+- Produces: `runCheck(monitor, deps): Promise<CheckResult>` (pure dispatch by `monitor.type`; unknown type → down); `SchedulerService` (`@Interval(120_000)` fast cycle + deadman ping; `@Cron("0 6 * * *")` slow cycle; `@Cron("0 8 * * *")` digest; `onModuleInit` runs `syncFromConfig(monitors)`); `DeadmanService.ping()`.
 
-```ts
-import { runCheck } from "./check-runner.js";
+Implement exactly as the collector design (unchanged except `apps/lighthaus-api` paths):
 
-const monitor = (type: string, target = "x.test") => ({ id: "m", name: "n", type, target, group: "sh-service", thresholds: {}, enabled: true } as never);
+- `check-runner.ts`: `realDeps` bundles the seven core check fns; `runCheck` switches on `monitor.type` routing to `deps.checkHttp/checkDns/checkSsl(...,{warnDays})/checkDomainExpiry(...,{warnDays})/checkEmailDns(...,{dkimSelector})/checkServiceHealth`; `heartbeat` → `deps.evaluateHeartbeat(await deps.getLastHeartbeat(target), new Date(), maxSilenceMs)`; default → `{ status: "down", detail: { reason: "unknown-type", type } }`.
+- `scheduler.service.ts`: holds an in-process `Map<monitorId, IncidentState>`; `runGroup(predicate)` iterates `repo.listEnabled()` filtered by type, runs the check, `repo.recordResult`, then `evaluateIncident` which calls `reduceIncident(prev, result)` and on `open`→`repo.openIncident`+`dispatcher.dispatch(incident_opened)`, on `resolve`→`repo.getOpenIncident`+`repo.resolveIncident`+`dispatcher.dispatch(incident_resolved)` (downtimeMs from openedAt). Fast cycle covers non-slow types + `deadman.ping()`; slow cycle covers `ssl|domain|email_dns`. `dailyDigest` builds `summary` from `repo.uptime(id, 24h)` + open incidents and dispatches `daily_digest`.
+- `deadman.service.ts`: `ping()` GETs `lighthaus.healthchecksUrl` (no-op if empty; warn on failure).
+- `email ctaUrl`/dispatch payloads reference the status UI via `lighthaus.lighthausUrl` (set in Task 17's processor, not here).
 
-describe("runCheck", () => {
-  it("routes http monitors to checkHttp", async () => {
-    const r = await runCheck(monitor("http", "https://x.test"), {
-      checkHttp: async () => ({ status: "up", detail: {} }),
-    } as never);
-    expect(r.status).toBe("up");
-  });
-
-  it("routes heartbeat monitors through evaluateHeartbeat with last-seen", async () => {
-    const r = await runCheck(monitor("heartbeat", "svc"), {
-      getLastHeartbeat: async () => new Date(),
-      evaluateHeartbeat: () => ({ status: "up", detail: {} }),
-    } as never);
-    expect(r.status).toBe("up");
-  });
-
-  it("returns down for an unknown monitor type", async () => {
-    const r = await runCheck(monitor("bogus"), {} as never);
-    expect(r.status).toBe("down");
-    expect(r.detail.reason).toBe("unknown-type");
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm --filter lighthaus test src/scheduler/check-runner.spec.ts`
-Expected: FAIL — module not found.
-
-- [ ] **Step 3: Implement `check-runner.ts`**
-
-```ts
-import {
-  checkDns, checkDomainExpiry, checkEmailDns, checkHttp, checkServiceHealth, checkSsl, evaluateHeartbeat,
-  type CheckResult,
-} from "@site-haus/monitoring";
-
-type Monitor = { id: string; type: string; target: string; thresholds: Record<string, number | string> | null };
-
-export interface CheckDeps {
-  checkHttp: typeof checkHttp;
-  checkDns: typeof checkDns;
-  checkSsl: typeof checkSsl;
-  checkDomainExpiry: typeof checkDomainExpiry;
-  checkEmailDns: typeof checkEmailDns;
-  checkServiceHealth: typeof checkServiceHealth;
-  evaluateHeartbeat: typeof evaluateHeartbeat;
-  getLastHeartbeat: (target: string) => Promise<Date | null>;
-}
-
-export const realDeps: Omit<CheckDeps, "getLastHeartbeat"> = {
-  checkHttp, checkDns, checkSsl, checkDomainExpiry, checkEmailDns, checkServiceHealth, evaluateHeartbeat,
-};
-
-export async function runCheck(monitor: Monitor, deps: Partial<CheckDeps>): Promise<CheckResult> {
-  const t = monitor.thresholds ?? {};
-  switch (monitor.type) {
-    case "http": return deps.checkHttp!(monitor.target);
-    case "dns": return deps.checkDns!(monitor.target);
-    case "ssl": return deps.checkSsl!(monitor.target, { warnDays: Number(t.sslWarnDays ?? 14) });
-    case "domain": return deps.checkDomainExpiry!(monitor.target, { warnDays: Number(t.domainWarnDays ?? 30) });
-    case "email_dns": return deps.checkEmailDns!(monitor.target, { dkimSelector: String(t.dkimSelector ?? "google") });
-    case "service_health": return deps.checkServiceHealth!(monitor.target);
-    case "heartbeat": {
-      const lastSeen = await deps.getLastHeartbeat!(monitor.target);
-      return deps.evaluateHeartbeat!(lastSeen, new Date(), Number(t.maxSilenceMs ?? 180_000));
-    }
-    default: return { status: "down", detail: { reason: "unknown-type", type: monitor.type } };
-  }
-}
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm --filter lighthaus test src/scheduler/check-runner.spec.ts`
-Expected: PASS (3 tests).
-
-- [ ] **Step 5: Implement `deadman.service.ts`**
-
-```ts
-import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-
-@Injectable()
-export class DeadmanService {
-  private readonly logger = new Logger(DeadmanService.name);
-  constructor(private readonly config: ConfigService) {}
-
-  async ping(): Promise<void> {
-    const url = this.config.get<string>("lighthaus.healthchecksUrl");
-    if (!url) return;
-    try {
-      await fetch(url, { method: "GET" });
-    } catch (err) {
-      this.logger.warn(`healthchecks.io ping failed: ${(err as Error).message}`);
-    }
-  }
-}
-```
-
-- [ ] **Step 6: Implement `scheduler.service.ts`**
-
-```ts
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
-import { Cron, Interval } from "@nestjs/schedule";
-import { reduceIncident, type CheckResult, type IncidentState } from "@site-haus/monitoring";
-import { MonitorRepository } from "../persistence/monitor.repository.js";
-import { DispatcherService } from "../dispatcher/dispatcher.service.js";
-import { DeadmanService } from "../deadman/deadman.service.js";
-import { monitors as monitorConfig } from "../monitors.config.js";
-import { realDeps, runCheck, type CheckDeps } from "./check-runner.js";
-
-const SLOW_TYPES = new Set(["ssl", "domain", "email_dns"]);
-
-@Injectable()
-export class SchedulerService implements OnModuleInit {
-  private readonly logger = new Logger(SchedulerService.name);
-  private readonly states = new Map<string, IncidentState>();
-
-  constructor(
-    private readonly repo: MonitorRepository,
-    private readonly dispatcher: DispatcherService,
-    private readonly deadman: DeadmanService,
-  ) {}
-
-  async onModuleInit(): Promise<void> {
-    await this.repo.syncFromConfig(monitorConfig);
-  }
-
-  private deps(): Partial<CheckDeps> {
-    return { ...realDeps, getLastHeartbeat: (target) => this.repo.getLastHeartbeat(target) };
-  }
-
-  @Interval(120_000)
-  async fastCycle(): Promise<void> {
-    await this.runGroup((type) => !SLOW_TYPES.has(type));
-    await this.deadman.ping();
-  }
-
-  @Cron("0 6 * * *") // daily 06:00 — slow checks
-  async slowCycle(): Promise<void> {
-    await this.runGroup((type) => SLOW_TYPES.has(type));
-  }
-
-  private async runGroup(predicate: (type: string) => boolean): Promise<void> {
-    const all = await this.repo.listEnabled();
-    for (const monitor of all.filter((m) => predicate(m.type))) {
-      try {
-        const result = await runCheck(monitor, this.deps());
-        await this.repo.recordResult(monitor.id, result);
-        await this.evaluateIncident(monitor, result);
-      } catch (err) {
-        this.logger.error(`Check failed for ${monitor.name}/${monitor.type}`, err as Error);
-      }
-    }
-  }
-
-  private async evaluateIncident(
-    monitor: Awaited<ReturnType<MonitorRepository["listEnabled"]>>[number],
-    result: CheckResult,
-  ): Promise<void> {
-    const prev = this.states.get(monitor.id) ?? { consecutiveFailures: 0, open: false };
-    const { state, transition } = reduceIncident(prev, result);
-    this.states.set(monitor.id, state);
-
-    if (transition.kind === "open") {
-      const incident = await this.repo.openIncident(monitor.id, result.status);
-      await this.dispatcher.dispatch({
-        type: "lighthaus.incident_opened",
-        monitorId: monitor.id, monitorName: monitor.name, group: monitor.group,
-        status: result.status, detail: result.detail, openedAt: incident.openedAt.toISOString(),
-      });
-    } else if (transition.kind === "resolve") {
-      const open = await this.repo.getOpenIncident(monitor.id);
-      if (open) {
-        await this.repo.resolveIncident(open.id);
-        await this.dispatcher.dispatch({
-          type: "lighthaus.incident_resolved",
-          monitorId: monitor.id, monitorName: monitor.name, group: monitor.group,
-          openedAt: open.openedAt.toISOString(), resolvedAt: new Date().toISOString(),
-          downtimeMs: Date.now() - open.openedAt.getTime(),
-        });
-      }
-    }
-  }
-
-  @Cron("0 8 * * *") // daily 08:00 digest
-  async dailyDigest(): Promise<void> {
-    const all = await this.repo.listEnabled();
-    const summary = await Promise.all(
-      all.map(async (m) => ({ monitorName: m.name, group: m.group, uptime24h: await this.repo.uptime24h(m.id), status: "up" })),
-    );
-    const openIncidents: { monitorName: string; openedAt: string }[] = [];
-    for (const m of all) {
-      const open = await this.repo.getOpenIncident(m.id);
-      if (open) openIncidents.push({ monitorName: m.name, openedAt: open.openedAt.toISOString() });
-    }
-    await this.dispatcher.dispatch({ type: "lighthaus.daily_digest", date: new Date().toISOString().slice(0, 10), summary, openIncidents });
-  }
-}
-```
-
-> Incident state is rehydrated lazily per-process; on restart, `getOpenIncident` still prevents duplicate open rows because `openIncident` is only called on the `open` transition and the resolve path checks for an existing open incident. Persisted incidents are the source of truth for the UI.
-
-- [ ] **Step 7: Wire providers into `app.module.ts`**
-
-Add to `app.module.ts` imports `QueueModule` and to a new providers array `MonitorRepository, SchedulerService, DeadmanService`:
-```ts
-import { QueueModule } from "./dispatcher/queue.module.js";
-import { MonitorRepository } from "./persistence/monitor.repository.js";
-import { SchedulerService } from "./scheduler/scheduler.service.js";
-import { DeadmanService } from "./deadman/deadman.service.js";
-// imports: [...existing, QueueModule]
-// providers: [MonitorRepository, SchedulerService, DeadmanService]
-```
-
-- [ ] **Step 8: Build the app**
-
-Run: `pnpm --filter lighthaus build`
-Expected: compiles clean.
-
-- [ ] **Step 9: Commit**
-
-```bash
-git add apps/lighthaus/src
-git commit -m ":sparkles: lighthaus — scheduler (fast/slow cycles, incidents, digest, deadman)"
-```
+- [ ] **Step 1: failing test** for `runCheck`: routes `http`→checkHttp (up); `heartbeat`→getLastHeartbeat+evaluateHeartbeat (up); unknown type→down (`detail.reason==="unknown-type"`). Inject fakes via the `deps` param.
+- [ ] **Step 2: run → fails. Step 3: implement check-runner. Step 4: run → passes (3).**
+- [ ] **Step 5: implement deadman + scheduler; register in app.module.ts. Step 6: build.**
+- [ ] **Step 7: commit** `:sparkles: lighthaus-api — scheduler (fast/slow cycles, incidents, digest, deadman)`
 
 ---
 
-### Task 14: Heartbeat ingest + lighthaus self-health endpoints
+### Task 14: Heartbeat ingest + lighthaus-api self-health
 
 **Files:**
-- Create: `apps/lighthaus/src/heartbeat/heartbeat.controller.ts`
-- Create: `apps/lighthaus/src/health/health.controller.ts`
-- Test: `apps/lighthaus/src/heartbeat/heartbeat.controller.spec.ts`
-- Modify: `apps/lighthaus/src/app.module.ts` (register controllers)
+
+- Create: `apps/lighthaus-api/src/heartbeat/heartbeat.controller.ts`, `health/health.controller.ts`
+- Test: `apps/lighthaus-api/src/heartbeat/heartbeat.controller.spec.ts`
+- Modify: `app.module.ts` (register controllers)
 
 **Interfaces:**
-- Consumes: `MonitorRepository.recordResult` + a heartbeat monitor row (created by config sync; ensure config includes the heartbeat target).
-- Produces: `POST /heartbeat { service: string }` → records an `up` check_result for that heartbeat monitor; `GET /health` → `{ status, uptime, version }`.
 
-- [ ] **Step 1: Write the failing test**
+- Produces: `POST /heartbeat { service: string }` → `repo.recordHeartbeat(service)` → `{ ok: true }`; `GET /health` → `{ status, uptime, version }`.
 
-```ts
-import { Test } from "@nestjs/testing";
-import { HeartbeatController } from "./heartbeat.controller.js";
-import { MonitorRepository } from "../persistence/monitor.repository.js";
-
-describe("HeartbeatController", () => {
-  it("records an up result for the named service heartbeat monitor", async () => {
-    const recordHeartbeat = jest.fn().mockResolvedValue(undefined);
-    const mod = await Test.createTestingModule({
-      controllers: [HeartbeatController],
-      providers: [{ provide: MonitorRepository, useValue: { recordHeartbeat } }],
-    }).compile();
-    const res = await mod.get(HeartbeatController).ingest({ service: "commerce-worker" });
-    expect(res).toEqual({ ok: true });
-    expect(recordHeartbeat).toHaveBeenCalledWith("commerce-worker");
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm --filter lighthaus test src/heartbeat/heartbeat.controller.spec.ts`
-Expected: FAIL — controller + `recordHeartbeat` missing.
-
-- [ ] **Step 3: Add `recordHeartbeat` to `MonitorRepository`**
-
-Append to `monitor.repository.ts`:
-```ts
-  async recordHeartbeat(target: string): Promise<void> {
-    const monitor = await this.db.query.monitorsTable.findFirst({
-      where: and(eq(schema.monitorsTable.type, "heartbeat"), eq(schema.monitorsTable.target, target)),
-    });
-    if (!monitor) return;
-    await this.recordResult(monitor.id, { status: "up", detail: { source: "heartbeat-ingest" } });
-  }
-```
-
-- [ ] **Step 4: Implement the controllers**
-
-`heartbeat.controller.ts`:
-```ts
-import { Body, Controller, Post } from "@nestjs/common";
-import { MonitorRepository } from "../persistence/monitor.repository.js";
-
-@Controller("heartbeat")
-export class HeartbeatController {
-  constructor(private readonly repo: MonitorRepository) {}
-
-  @Post()
-  async ingest(@Body() body: { service: string }): Promise<{ ok: true }> {
-    await this.repo.recordHeartbeat(body.service);
-    return { ok: true };
-  }
-}
-```
-`health.controller.ts`:
-```ts
-import { Controller, Get } from "@nestjs/common";
-
-const startedAt = Date.now();
-
-@Controller("health")
-export class HealthController {
-  @Get()
-  check() {
-    return { status: "ok", uptime: Math.floor((Date.now() - startedAt) / 1000), version: process.env.APP_VERSION ?? "dev" };
-  }
-}
-```
-
-- [ ] **Step 5: Register controllers in `app.module.ts`**
-
-Add `controllers: [HeartbeatController, HealthController]` to the `@Module`.
-
-- [ ] **Step 6: Run test + build**
-
-Run: `pnpm --filter lighthaus test src/heartbeat/heartbeat.controller.spec.ts && pnpm --filter lighthaus build`
-Expected: PASS + clean build.
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add apps/lighthaus/src
-git commit -m ":sparkles: lighthaus — heartbeat ingest + self-health endpoint"
-```
+- [ ] **Step 1: failing test** — `HeartbeatController.ingest({ service: "commerce-worker" })` calls `repo.recordHeartbeat("commerce-worker")` and returns `{ ok: true }` (mock `MonitorRepository`).
+- [ ] **Step 2: run → fails. Step 3: implement** both controllers (`recordHeartbeat` already exists on the repo from Task 11). `health.controller.ts` returns `{ status: "ok", uptime: Math.floor((Date.now()-startedAt)/1000), version: process.env.APP_VERSION ?? "dev" }`. Register both in `app.module.ts`. **Step 4: run → passes. Step 5: build.**
+- [ ] **Step 6: commit** `:sparkles: lighthaus-api — heartbeat ingest + self-health endpoint`
 
 ---
 
-## Phase 4 — `api` integration (job types, processor, ops recipients, health upgrade)
-
-### Task 15: Extend `NotificationJobData` + ops config
+### Task 15: R2 availability snapshot publisher
 
 **Files:**
-- Modify: `apps/api/src/notifications/notifications.types.ts`
-- Create: `apps/api/src/notifications/ops.config.ts`
+
+- Create: `apps/lighthaus-api/src/snapshot/snapshot.service.ts`
+- Test: `apps/lighthaus-api/src/snapshot/snapshot.service.spec.ts`
+- Modify: `apps/lighthaus-api/src/scheduler/scheduler.service.ts` (call publisher each fast cycle)
 
 **Interfaces:**
-- Produces: three new members on `NotificationJobData` matching `LighthausJob` from Task 12 **exactly** (same property names/types); `opsConfig` (namespace `ops`) with `recipients: string[]`.
 
-- [ ] **Step 1: Append to `notifications.types.ts`**
+- Consumes: `MonitorRepository`, `lighthaus.r2` config, an injected S3 client.
+- Produces: `buildSnapshot(monitors, lastResults, openIncidents, now): StatusSnapshot` (pure); `SnapshotService.publish()` → uploads `status.json` to R2. `StatusSnapshot = { generatedAt: string; groups: { group: string; monitors: { name; type; status; lastCheckedAt; uptime24h }[] }[]; openIncidents: { monitorName; openedAt }[] }`.
 
-```ts
-  | {
-      type: 'lighthaus.incident_opened';
-      monitorId: string;
-      monitorName: string;
-      group: string;
-      status: string;
-      detail: Record<string, unknown>;
-      openedAt: string;
-    }
-  | {
-      type: 'lighthaus.incident_resolved';
-      monitorId: string;
-      monitorName: string;
-      group: string;
-      openedAt: string;
-      resolvedAt: string;
-      downtimeMs: number;
-    }
-  | {
-      type: 'lighthaus.daily_digest';
-      date: string;
-      summary: { monitorName: string; group: string; uptime24h: number; status: string }[];
-      openIncidents: { monitorName: string; openedAt: string }[];
-    };
-```
-(Insert before the final `;` of the union — i.e. continue the `|` chain.)
+> The snapshot is the **failure-domain-independent** view. It deliberately does **not** include per-client detail or client names beyond what a staff war-room needs; it is served behind Cloudflare Access (Task 24).
 
-- [ ] **Step 2: Create `ops.config.ts`**
-
-```ts
-import { registerAs } from '@nestjs/config';
-
-export default registerAs('ops', () => ({
-  recipients: (process.env.OPS_RECIPIENTS ?? '')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean),
-}));
-```
-
-- [ ] **Step 3: Register `opsConfig`** in the api config loader (wherever `ConfigModule.forRoot({ load: [...] })` lists configs — typically `app.module.ts`). Add `opsConfig` to the `load` array.
-
-- [ ] **Step 4: Type-check**
-
-Run: `pnpm --filter api check-types`
-Expected: passes (no consumers yet beyond the union).
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add apps/api/src/notifications/notifications.types.ts apps/api/src/notifications/ops.config.ts apps/api/src/app.module.ts
-git commit -m ":sparkles: api — lighthaus.* notification job types + ops recipients config"
-```
+- [ ] **Step 1: failing test** for the pure `buildSnapshot`: groups monitors by `group`, maps each to `{ name, type, status, lastCheckedAt, uptime24h }`, and lists open incidents. Assert shape + grouping with a small fixture.
+- [ ] **Step 2: run → fails. Step 3: implement** `buildSnapshot` (pure) + `SnapshotService` (injects an `@aws-sdk/client-s3` `S3Client` configured for R2 endpoint `https://<accountId>.r2.cloudflarestorage.com`; `publish()` gathers data via the repo, builds the snapshot, `PutObjectCommand` to `bucket/status.json` with `contentType: application/json`, short cache-control). Provide the `S3Client` via a `R2_CLIENT` symbol so the test injects a fake with a spied `send`.
+- [ ] **Step 4: run → passes. Step 5:** call `await this.snapshot.publish()` at the end of `SchedulerService.fastCycle()` (after deadman ping), guarded by try/catch + logger.warn so a snapshot failure never breaks the cycle. Build.
+- [ ] **Step 6: commit** `:sparkles: lighthaus-api — R2 availability snapshot publisher`
 
 ---
 
-### Task 16: Transactional render fns for lighthaus emails
+### Task 16: JWT `AccessGuard` + per-tenant scoped read API
 
 **Files:**
-- Create: `packages/transactional/src/render/lighthaus.tsx`
+
+- Create: `apps/lighthaus-api/src/auth/access.guard.ts`, `auth/current-user.decorator.ts`, `auth/auth.module.ts`
+- Create: `apps/lighthaus-api/src/status/status.controller.ts`, `status/status.service.ts`
+- Test: `apps/lighthaus-api/src/status/status.service.spec.ts`
+- Modify: `app.module.ts`
 
 **Interfaces:**
-- Produces: `renderIncidentOpenedEmail`, `renderIncidentResolvedEmail`, `renderDailyDigestEmail` — each `(props) => Promise<{ subject; html; text }>`, reusing the existing `NotificationEmail` component.
 
-- [ ] **Step 1: Create `render/lighthaus.tsx`**
+- Consumes: `lighthaus.jwtSecret`, `MonitorRepository` (scoped reads + per-monitor history/incidents).
+- Produces: `AccessGuard` (validates IAM access token → `req.user = { id, isEmployee, ... }`); `GET /status` → viewer-scoped board; `GET /status/:monitorId` → history + incidents (403 if monitor not in viewer scope).
 
-```tsx
-import * as React from "react";
-import NotificationEmail from "../emails/NotificationEmail.js";
-import { renderHtml, renderText } from "./index.js";
-
-async function render(node: React.ReactElement) {
-  const [html, text] = await Promise.all([renderHtml(node), renderText(node)]);
-  return { html, text };
-}
-
-export type IncidentOpenedEmailProps = {
-  monitorName: string;
-  group: string;
-  status: string;
-  detailLines: { label: string; value: string }[];
-  ctaUrl: string;
-};
-
-export async function renderIncidentOpenedEmail(props: IncidentOpenedEmailProps) {
-  const subject = `🔴 DOWN: ${props.monitorName}`;
-  const { html, text } = await render(
-    <NotificationEmail
-      previewText={subject}
-      title={`${props.monitorName} is DOWN`}
-      body={`Lighthaus detected ${props.monitorName} (${props.group}) failing health checks. Status: ${props.status}.`}
-      context={[{ label: "Monitor", value: props.monitorName }, { label: "Group", value: props.group }, ...props.detailLines]}
-      ctaText="View status board"
-      ctaUrl={props.ctaUrl}
-    />,
-  );
-  return { subject, html, text };
-}
-
-export type IncidentResolvedEmailProps = {
-  monitorName: string;
-  group: string;
-  downtimeFormatted: string;
-  ctaUrl: string;
-};
-
-export async function renderIncidentResolvedEmail(props: IncidentResolvedEmailProps) {
-  const subject = `🟢 RECOVERED: ${props.monitorName}`;
-  const { html, text } = await render(
-    <NotificationEmail
-      previewText={subject}
-      title={`${props.monitorName} has recovered`}
-      body={`${props.monitorName} (${props.group}) is back up. Total downtime: ${props.downtimeFormatted}.`}
-      context={[{ label: "Monitor", value: props.monitorName }, { label: "Downtime", value: props.downtimeFormatted }]}
-      ctaText="View status board"
-      ctaUrl={props.ctaUrl}
-    />,
-  );
-  return { subject, html, text };
-}
-
-export type DailyDigestEmailProps = {
-  date: string;
-  rows: { monitorName: string; group: string; uptime24h: number; status: string }[];
-  openIncidents: { monitorName: string; openedAt: string }[];
-  ctaUrl: string;
-};
-
-export async function renderDailyDigestEmail(props: DailyDigestEmailProps) {
-  const subject = `Lighthaus daily digest — ${props.date}`;
-  const body =
-    props.openIncidents.length === 0
-      ? "All systems operational over the last 24 hours."
-      : `${props.openIncidents.length} open incident(s) need attention.`;
-  const { html, text } = await render(
-    <NotificationEmail
-      previewText={subject}
-      title={`Daily status digest — ${props.date}`}
-      body={body}
-      context={props.rows.map((r) => ({ label: `${r.monitorName} (${r.group})`, value: `${r.uptime24h}% / ${r.status}` }))}
-      ctaText="View status board"
-      ctaUrl={props.ctaUrl}
-    />,
-  );
-  return { subject, html, text };
-}
-```
-
-- [ ] **Step 2: Build transactional**
-
-Run: `pnpm --filter @site-haus/transactional build`
-Expected: emits `dist/render/lighthaus.js` + `.d.ts` (importable as `@site-haus/transactional/render/lighthaus`).
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add packages/transactional/src/render/lighthaus.tsx
-git commit -m ":sparkles: transactional — lighthaus incident/recovery/digest email renders"
-```
+- [ ] **Step 1: study `apps/api`'s auth** — read `apps/api/src/auth/access.guard.ts` and how `req.user` is shaped (`isEmployee`/role flags, where the token comes from — cookie vs `Authorization` header). **Mirror it**: same JWT verification (same secret), same `req.user` shape. The status UI will send the IAM access token the same way dashboard does.
+- [ ] **Step 2: failing test** for `StatusService.boardFor(user)`:
+  - staff user → repo.listForViewer called with `{ isStaff: true }`; returns all groups.
+  - client user → `clientIdsForUser` resolves their clients; `listForViewer({ isStaff: false, clientIds })`; only their monitors returned, grouped.
+    Mock `MonitorRepository`. Assert grouping + scoping.
+- [ ] **Step 3: run → fails. Step 4: implement**:
+  - `access.guard.ts` + `current-user.decorator.ts` + `auth.module.ts` (JwtModule with `lighthaus.jwtSecret`) mirroring `apps/api`.
+  - `status.service.ts`: `boardFor(user)` → derive `{ isStaff: user.isEmployee, clientIds: user.isEmployee ? [] : await repo.clientIdsForUser(user.id) }`, `repo.listForViewer(viewer)`, enrich each monitor with last result + `uptime(id, 90d)` + open incident, group by `group`. `monitorDetailFor(user, monitorId)` → verify the monitor is in the viewer's scoped set (else `null` → controller 403), return recent `check_results` + incidents.
+  - `status.controller.ts`: `@UseGuards(AccessGuard)` on `GET /status` and `GET /status/:monitorId`, `@CurrentUser()` param.
+  - register `AuthModule`, `StatusController`, `StatusService` in `app.module.ts`.
+- [ ] **Step 5: run → passes. Step 6: build. Step 7: commit** `:sparkles: lighthaus-api — JWT guard + per-tenant scoped /status read API`
 
 ---
 
-### Task 17: Processor branches → ops emails
+## Phase 4 — `api` integration (job types, transactional, processor, health)
 
-**Files:**
-- Modify: `apps/api/src/notifications/notifications.processor.ts`
+### Task 17: Extend `NotificationJobData` + ops config
 
-**Interfaces:**
-- Consumes: the new `NotificationJobData` members; `opsConfig.recipients`; the three render fns from Task 16.
+**Files:** Modify `apps/api/src/notifications/notifications.types.ts`; create `apps/api/src/notifications/ops.config.ts`; register `opsConfig` in the api config loader.
 
-- [ ] **Step 1: Write the failing test**
-
-Create `apps/api/src/notifications/notifications.processor.lighthaus.spec.ts`:
-```ts
-import { ConfigService } from '@nestjs/config';
-import { NotificationsProcessor } from './notifications.processor';
-import type { Job } from 'bullmq';
-import type { NotificationJobData } from './notifications.types';
-
-describe('NotificationsProcessor lighthaus branches', () => {
-  it('sends incident_opened to ops recipients', async () => {
-    const send = jest.fn().mockResolvedValue({ messageId: 'x' });
-    const config = { get: (k: string) => (k === 'ops.recipients' ? ['ops@x.test'] : 'https://d.test') } as unknown as ConfigService;
-    const proc = new NotificationsProcessor({} as never, { send } as never, config);
-    const job = { data: { type: 'lighthaus.incident_opened', monitorId: 'm', monitorName: 'onehealth', group: 'client-site', status: 'down', detail: { code: 'SERVFAIL' }, openedAt: new Date().toISOString() } } as Job<NotificationJobData>;
-    await proc.process(job);
-    expect(send).toHaveBeenCalledTimes(1);
-    expect(send.mock.calls[0][0].to).toEqual(['ops@x.test']);
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pnpm --filter api test notifications.processor.lighthaus.spec.ts`
-Expected: FAIL — no handler; `send` not called.
-
-- [ ] **Step 3: Add imports, ops recipients, switch cases, and handlers**
-
-In `notifications.processor.ts`:
-
-Add to imports:
-```ts
-import {
-  renderIncidentOpenedEmail,
-  renderIncidentResolvedEmail,
-  renderDailyDigestEmail,
-} from '@site-haus/transactional/render/lighthaus';
-```
-
-Add a private field set in the constructor:
-```ts
-  private readonly opsRecipients: string[];
-  // in constructor body:
-  this.opsRecipients = config.get<string[]>('ops.recipients') ?? [];
-```
-
-Add cases in the `switch (job.data.type)`:
-```ts
-      case 'lighthaus.incident_opened':
-        await this.handleIncidentOpened(job.data);
-        break;
-      case 'lighthaus.incident_resolved':
-        await this.handleIncidentResolved(job.data);
-        break;
-      case 'lighthaus.daily_digest':
-        await this.handleDailyDigest(job.data);
-        break;
-```
-
-Add the handler methods:
-```ts
-  private async handleIncidentOpened(
-    data: Extract<NotificationJobData, { type: 'lighthaus.incident_opened' }>,
-  ) {
-    if (this.opsRecipients.length === 0) return;
-    const detailLines = Object.entries(data.detail).map(([label, value]) => ({ label, value: String(value) }));
-    const { subject, html, text } = await renderIncidentOpenedEmail({
-      monitorName: data.monitorName, group: data.group, status: data.status,
-      detailLines, ctaUrl: `${this.dashboardUrl}/status`,
-    });
-    await this.email.send({ to: this.opsRecipients, subject, html, text, tags: { type: data.type } });
-  }
-
-  private async handleIncidentResolved(
-    data: Extract<NotificationJobData, { type: 'lighthaus.incident_resolved' }>,
-  ) {
-    if (this.opsRecipients.length === 0) return;
-    const mins = Math.round(data.downtimeMs / 60_000);
-    const { subject, html, text } = await renderIncidentResolvedEmail({
-      monitorName: data.monitorName, group: data.group,
-      downtimeFormatted: `${mins} min`, ctaUrl: `${this.dashboardUrl}/status`,
-    });
-    await this.email.send({ to: this.opsRecipients, subject, html, text, tags: { type: data.type } });
-  }
-
-  private async handleDailyDigest(
-    data: Extract<NotificationJobData, { type: 'lighthaus.daily_digest' }>,
-  ) {
-    if (this.opsRecipients.length === 0) return;
-    const { subject, html, text } = await renderDailyDigestEmail({
-      date: data.date, rows: data.summary, openIncidents: data.openIncidents,
-      ctaUrl: `${this.dashboardUrl}/status`,
-    });
-    await this.email.send({ to: this.opsRecipients, subject, html, text, tags: { type: data.type } });
-  }
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pnpm --filter api test notifications.processor.lighthaus.spec.ts`
-Expected: PASS.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add apps/api/src/notifications/notifications.processor.ts apps/api/src/notifications/notifications.processor.lighthaus.spec.ts
-git commit -m ":sparkles: api — processor branches route lighthaus.* to ops recipients"
-```
+- [ ] Append the three `lighthaus.*` members to `NotificationJobData` (identical fields to `LighthausJob` in Task 12). Create `ops.config.ts` (`registerAs('ops', () => ({ recipients: (process.env.OPS_RECIPIENTS ?? '').split(',').map(s=>s.trim()).filter(Boolean) }))`). Add to `ConfigModule.forRoot({ load: [...] })`. `pnpm --filter api check-types`. Commit `:sparkles: api — lighthaus.* job types + ops recipients config`.
 
 ---
 
-### Task 18: Upgrade api `/health` payload
+### Task 18: Transactional render fns for lighthaus emails
 
-**Files:**
-- Modify: `apps/api/src/health/health.controller.ts`
+**Files:** Create `packages/transactional/src/render/lighthaus.tsx`.
 
-- [ ] **Step 1: Write the failing test**
+- [ ] Implement `renderIncidentOpenedEmail`, `renderIncidentResolvedEmail`, `renderDailyDigestEmail` reusing the existing `NotificationEmail` component (title/body/context/cta), each returning `{ subject, html, text }`. `ctaUrl` → the status UI. Build transactional (emits `dist/render/lighthaus.js`). Commit `:sparkles: transactional — lighthaus incident/recovery/digest email renders`.
 
-Create `apps/api/src/health/health.controller.spec.ts`:
-```ts
-import { HealthController } from './health.controller';
+(Identical content to the original Task 16 — incident-opened/resolved/digest renders.)
 
-describe('HealthController', () => {
-  it('returns status, uptime, version', () => {
-    const c = new HealthController({} as never);
-    const r = c.checkApi();
-    expect(r.status).toBe('ok');
-    expect(typeof r.uptime).toBe('number');
-    expect('version' in r).toBe(true);
-  });
-});
-```
+---
 
-- [ ] **Step 2: Run test to verify it fails**
+### Task 19: Processor branches → ops emails
 
-Run: `pnpm --filter api test health.controller.spec.ts`
-Expected: FAIL — `uptime`/`version` missing.
+**Files:** Modify `apps/api/src/notifications/notifications.processor.ts`; test `notifications.processor.lighthaus.spec.ts`.
 
-- [ ] **Step 3: Modify `checkApi()`**
+**Interfaces:** consumes the new job types, `ops.recipients`, the Task 18 renders, and a status-UI base URL.
 
-```ts
-  @Get()
-  checkApi() {
-    return {
-      status: 'ok',
-      uptime: Math.floor(process.uptime()),
-      version: process.env.APP_VERSION ?? 'dev',
-    };
-  }
-```
+- [ ] **Step 1: failing test** — construct `NotificationsProcessor` with a mock `EmailService.send` and a `ConfigService` returning `ops.recipients=['ops@x.test']` and the status URL; process a `lighthaus.incident_opened` job; assert `send` called once with `to=['ops@x.test']`.
+- [ ] **Step 2: run → fails. Step 3: implement**: import the three renders; add `this.opsRecipients = config.get('ops.recipients') ?? []` and a status-UI base url (`config.get('lighthaus.url')` or reuse an env) in the constructor; add three `switch` cases + `handleIncidentOpened/Resolved/DailyDigest` that render and `email.send({ to: this.opsRecipients, ... , tags:{type} })`, returning early if `opsRecipients` empty. `ctaUrl` → `${statusUrl}` (the lighthaus UI; for incidents link to `/` or `/m/${monitorId}`). **Step 4: run → passes. Step 5: commit** `:sparkles: api — processor branches route lighthaus.* to ops recipients`.
 
-- [ ] **Step 4: Run test to verify it passes**
+---
 
-Run: `pnpm --filter api test health.controller.spec.ts`
-Expected: PASS.
+### Task 20: Upgrade api `/health` payload
 
-- [ ] **Step 5: Commit**
+**Files:** Modify `apps/api/src/health/health.controller.ts`; test `health.controller.spec.ts`.
 
-```bash
-git add apps/api/src/health/health.controller.ts apps/api/src/health/health.controller.spec.ts
-git commit -m ":sparkles: api — /health returns status+uptime+version"
-```
+- [ ] TDD: `checkApi()` returns `{ status:'ok', uptime: Math.floor(process.uptime()), version: process.env.APP_VERSION ?? 'dev' }` (keep `/health/db`). Commit `:sparkles: api — /health returns status+uptime+version`.
 
 ---
 
 ## Phase 5 — `/api/health` across remaining apps
 
-### Task 19: Health endpoints for the Next apps
+### Task 21: Health endpoints for the Next apps
 
-**Files:**
-- Create: `apps/web/app/api/health/route.ts`
-- Create: `apps/iam/app/api/health/route.ts`
-- Create: `apps/docs/...` health (see note)
-- Create: `apps/commerce/app/api/health/route.ts`
-- Create: `apps/dashboard/app/api/health/route.ts`
+**Files:** Create `app/api/health/route.ts` in `web`, `iam`, `commerce`, `dashboard`; Astro endpoint or `public/health.json` for `docs`.
 
-**Interfaces:**
-- Produces: `GET /api/health` → `200 { status, uptime, version }` per app.
+- [ ] Each Next route:
 
-- [ ] **Step 1: Create the shared route body** (identical per app; repeated in full because each app is independent)
-
-For each of `web`, `iam`, `commerce`, `dashboard`, create `app/api/health/route.ts`:
 ```ts
 const startedAt = Date.now();
-
 export function GET() {
   return Response.json({
     status: "ok",
@@ -2437,404 +1915,108 @@ export function GET() {
 }
 ```
 
-- [ ] **Step 2: Docs app** — `apps/docs` is Astro Starlight, not Next App Router. Create `apps/docs/public/health.json` containing `{"status":"ok"}` as a static fallback, **or** an Astro endpoint `apps/docs/src/pages/api/health.json.ts`:
-```ts
-import type { APIRoute } from "astro";
-export const GET: APIRoute = () => new Response(JSON.stringify({ status: "ok", version: process.env.APP_VERSION ?? "dev" }), { headers: { "content-type": "application/json" } });
-```
-(Confirm Astro `output` mode supports endpoints; if fully static, use the `public/health.json` fallback.)
-
-- [ ] **Step 3: Smoke-test one app locally**
-
-Run: `cd apps/dashboard && pnpm dev` then `curl -s localhost:3001/api/health`
-Expected: `{"status":"ok","uptime":<n>,"version":"dev"}`.
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add apps/web/app/api/health apps/iam/app/api/health apps/commerce/app/api/health apps/dashboard/app/api/health apps/docs
-git commit -m ":sparkles: apps — /api/health endpoints (status+uptime+version)"
-```
-
-> commerce `gateway` and `payments` live in `sitehaus-commerce` (separate repo). Add equivalent NestJS `/health` controllers there as a follow-up tracked in spec §12; they are reached over HTTP by Lighthaus regardless.
+- [ ] Docs (Astro): `src/pages/api/health.json.ts` endpoint or static `public/health.json`. Smoke-test one (`curl localhost:3001/api/health`). Commit `:sparkles: apps — /api/health endpoints`.
+  > commerce `gateway`/`payments` (separate repo) get equivalent NestJS `/health` as a follow-up; Lighthaus reaches them over HTTP regardless.
 
 ---
 
-## Phase 6 — Dashboard `/status` UI
+## Phase 6 — `apps/lighthaus` status UI (Next.js, OAuth PKCE)
 
-### Task 20: Status data layer + page + components
+### Task 22: Scaffold `apps/lighthaus` Next app + OAuth PKCE auth
 
 **Files:**
-- Create: `apps/dashboard/lib/status-data.ts`
-- Create: `apps/dashboard/app/(dashboard)/status/page.tsx`
-- Create: `apps/dashboard/app/(dashboard)/status/_components/status-board.tsx`
-- Create: `apps/dashboard/app/(dashboard)/status/_components/group-card.tsx`
-- Create: `apps/dashboard/app/(dashboard)/status/_components/monitor-row.tsx`
-- Create: `apps/dashboard/app/(dashboard)/status/_components/uptime-bar.tsx`
-- Create: `apps/dashboard/app/(dashboard)/status/_components/incident-timeline.tsx`
 
-**Interfaces:**
-- Consumes: `@site-haus/db` (`schema`, `createDb`/shared `db`), `use-is-employee` gate.
-- Produces: `getStatusBoard(): Promise<StatusGroup[]>` server fn; `StatusGroup = { group: string; monitors: StatusMonitor[] }`; `StatusMonitor = { id; name; type; lastStatus; lastLatencyMs; lastCheckedAt; uptime90d; openIncidentSince }`.
+- Create: `apps/lighthaus/` Next.js App Router app (`package.json`, `next.config`, `tsconfig.json`, `app/layout.tsx`, `app/providers.tsx`, env).
+- Create: auth wiring mirroring **dashboard/commerce** (`@site-haus/sdk` OAuth PKCE + `@site-haus/contracts`), login route + callback, and the access-token forwarding to `lighthaus-api`.
 
-- [ ] **Step 1: Implement `lib/status-data.ts`** (server-only DB read; mirror how dashboard already constructs `db` — reuse the existing dashboard db helper if present, else `createDb`)
+**Interfaces:** Produces a logged-in app shell where a server util / client hook can call `lighthaus-api`'s `/status` with the IAM access token. Mirrors the existing dashboard auth exactly.
 
-```ts
-import "server-only";
-import { and, desc, eq, gte, isNull, schema, type Db } from "@site-haus/db";
-import { Pool } from "pg";
-import { createDb } from "@site-haus/db";
+- [ ] **Step 1: study dashboard auth** — read `apps/dashboard/app/login`, `app/callback`, `app/providers`, and how it obtains/stores the IAM access token and attaches it to API calls (cookies vs header). **Replicate that pattern** (same `@site-haus/sdk` client config, same OAuth PKCE redirect URIs, new client registration for `status.sitehaus.co`).
+- [ ] **Step 2: scaffold** the Next app (copy dashboard's `package.json`/`next.config`/`tsconfig` shape; TanStack Query provider; Tailwind v4 + `@site-haus/ui`). Set `LIGHTHAUS_API_URL` env. Add an API client helper that points at `lighthaus-api` and forwards the access token.
+- [ ] **Step 3: verify** `pnpm --filter lighthaus dev` boots, login redirects through IAM, callback lands authenticated. Commit `:sparkles: lighthaus — scaffold status UI app + OAuth PKCE auth`.
 
-const db: Db = createDb(new Pool({ connectionString: process.env.DATABASE_URL! }));
-
-export interface StatusMonitor {
-  id: string;
-  name: string;
-  type: string;
-  group: string;
-  lastStatus: string;
-  lastLatencyMs: number | null;
-  lastCheckedAt: string | null;
-  uptime90d: number;
-  openIncidentSince: string | null;
-}
-
-export interface StatusGroup {
-  group: string;
-  monitors: StatusMonitor[];
-}
-
-export async function getStatusBoard(): Promise<StatusGroup[]> {
-  const monitors = await db.query.monitorsTable.findMany({ where: eq(schema.monitorsTable.enabled, true) });
-  const since90 = new Date(Date.now() - 90 * 86_400_000);
-
-  const built: StatusMonitor[] = await Promise.all(
-    monitors.map(async (m) => {
-      const last = await db.query.checkResultsTable.findFirst({
-        where: eq(schema.checkResultsTable.monitorId, m.id),
-        orderBy: desc(schema.checkResultsTable.checkedAt),
-      });
-      const window = await db.query.checkResultsTable.findMany({
-        where: and(eq(schema.checkResultsTable.monitorId, m.id), gte(schema.checkResultsTable.checkedAt, since90)),
-        columns: { status: true },
-      });
-      const open = await db.query.incidentsTable.findFirst({
-        where: and(eq(schema.incidentsTable.monitorId, m.id), isNull(schema.incidentsTable.resolvedAt)),
-      });
-      const upish = window.filter((r) => r.status !== "down").length;
-      return {
-        id: m.id, name: m.name, type: m.type, group: m.group,
-        lastStatus: last?.status ?? "unknown",
-        lastLatencyMs: last?.latencyMs ?? null,
-        lastCheckedAt: last?.checkedAt?.toISOString() ?? null,
-        uptime90d: window.length === 0 ? 100 : Math.round((upish / window.length) * 100),
-        openIncidentSince: open?.openedAt.toISOString() ?? null,
-      };
-    }),
-  );
-
-  const groups = new Map<string, StatusMonitor[]>();
-  for (const m of built) groups.set(m.group, [...(groups.get(m.group) ?? []), m]);
-  return [...groups.entries()].map(([group, mons]) => ({ group, monitors: mons }));
-}
-```
-
-- [ ] **Step 2: Implement `page.tsx`** (thin; employee gate; server component fetch)
-
-```tsx
-import { getStatusBoard } from "@/lib/status-data";
-import { StatusBoard } from "./_components/status-board";
-
-export const dynamic = "force-dynamic";
-
-export default async function StatusPage() {
-  const groups = await getStatusBoard();
-  return <StatusBoard groups={groups} />;
-}
-```
-
-> Employee gating: this route sits in the `(dashboard)` group, already auth-gated. Add the employee check the way other employee-only dashboard pages do (the `use-is-employee` hook for client components, or the server equivalent used elsewhere). If the dashboard has a server-side role check util, call it here and `notFound()` for non-employees.
-
-- [ ] **Step 3: Implement `_components/status-board.tsx`**
-
-```tsx
-import { GroupCard } from "./group-card";
-import type { StatusGroup } from "@/lib/status-data";
-
-const GROUP_LABELS: Record<string, string> = {
-  "client-site": "Client Sites",
-  "sh-service": "SiteHaus Services",
-  "commerce-service": "Commerce Services",
-};
-
-export function StatusBoard({ groups }: { groups: StatusGroup[] }) {
-  return (
-    <div className="space-y-8 p-6">
-      <h1 className="text-2xl font-semibold">System Status</h1>
-      {groups.map((g) => (
-        <GroupCard key={g.group} label={GROUP_LABELS[g.group] ?? g.group} monitors={g.monitors} />
-      ))}
-    </div>
-  );
-}
-```
-
-- [ ] **Step 4: Implement `_components/group-card.tsx`, `monitor-row.tsx`, `uptime-bar.tsx`, `incident-timeline.tsx`**
-
-`group-card.tsx`:
-```tsx
-import { MonitorRow } from "./monitor-row";
-import type { StatusMonitor } from "@/lib/status-data";
-
-export function GroupCard({ label, monitors }: { label: string; monitors: StatusMonitor[] }) {
-  return (
-    <section className="rounded-lg border">
-      <header className="border-b px-4 py-3 font-medium">{label}</header>
-      <ul className="divide-y">
-        {monitors.map((m) => (
-          <MonitorRow key={m.id} monitor={m} />
-        ))}
-      </ul>
-    </section>
-  );
-}
-```
-
-`monitor-row.tsx`:
-```tsx
-import { UptimeBar } from "./uptime-bar";
-import type { StatusMonitor } from "@/lib/status-data";
-
-const DOT: Record<string, string> = { up: "bg-green-500", degraded: "bg-amber-500", down: "bg-red-500", unknown: "bg-gray-300" };
-
-export function MonitorRow({ monitor }: { monitor: StatusMonitor }) {
-  return (
-    <li className="flex items-center justify-between gap-4 px-4 py-3">
-      <div className="flex items-center gap-3">
-        <span className={`h-2.5 w-2.5 rounded-full ${DOT[monitor.lastStatus] ?? DOT.unknown}`} />
-        <div>
-          <div className="font-medium">{monitor.name}</div>
-          <div className="text-xs text-muted-foreground">
-            {monitor.type}
-            {monitor.lastLatencyMs != null ? ` · ${monitor.lastLatencyMs}ms` : ""}
-            {monitor.lastCheckedAt ? ` · ${new Date(monitor.lastCheckedAt).toLocaleString()}` : " · never"}
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <UptimeBar pct={monitor.uptime90d} />
-        {monitor.openIncidentSince && <span className="text-xs text-red-600">down since {new Date(monitor.openIncidentSince).toLocaleString()}</span>}
-      </div>
-    </li>
-  );
-}
-```
-
-`uptime-bar.tsx`:
-```tsx
-export function UptimeBar({ pct }: { pct: number }) {
-  const color = pct >= 99 ? "bg-green-500" : pct >= 95 ? "bg-amber-500" : "bg-red-500";
-  return (
-    <div className="flex items-center gap-2">
-      <div className="h-2 w-24 overflow-hidden rounded bg-gray-200">
-        <div className={`h-full ${color}`} style={{ width: `${pct}%` }} />
-      </div>
-      <span className="text-xs tabular-nums text-muted-foreground">{pct}%</span>
-    </div>
-  );
-}
-```
-
-`incident-timeline.tsx` (used when a monitor is expanded; minimal v1 renders open incident line):
-```tsx
-export function IncidentTimeline({ openedAt }: { openedAt: string | null }) {
-  if (!openedAt) return null;
-  return <p className="text-xs text-red-600">Open incident since {new Date(openedAt).toLocaleString()}</p>;
-}
-```
-
-- [ ] **Step 5: Verify build + lint**
-
-Run: `pnpm --filter dashboard build`
-Expected: `/status` route compiles. Fix import-alias (`@/`) to match dashboard's tsconfig `paths` if it differs.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add apps/dashboard/lib/status-data.ts "apps/dashboard/app/(dashboard)/status"
-git commit -m ":sparkles: dashboard — /status board (groups, rows, uptime, incidents)"
-```
-
-> Add a nav entry to `/status` in the dashboard's employee navigation, following the existing nav pattern (audit-logs is an employee-only precedent). Include it in this commit if the nav is a simple array edit.
+> No DB access from this app. All data via `lighthaus-api`. This is the only new piece with real integration nuance — if the auth pattern is unclear after reading dashboard, escalate rather than guess.
 
 ---
 
-## Phase 7 — Docker + compose + deploy wiring
-
-### Task 21: Lighthaus Dockerfile
+### Task 23: Status board UI (staff + client views)
 
 **Files:**
-- Create: `apps/lighthaus/Dockerfile`
 
-- [ ] **Step 1: Create `Dockerfile`** (mirror `apps/api/Dockerfile`, swap filter to `lighthaus`)
+- Create: `apps/lighthaus/app/page.tsx` (board), `app/_components/{status-board,group-card,monitor-row,uptime-bar,incident-timeline}.tsx`
+- Create: `apps/lighthaus/lib/status-client.ts` (TanStack Query hooks calling `lighthaus-api`)
+- Create: `apps/lighthaus/app/m/[monitorId]/page.tsx` (detail: history + incidents)
 
-```dockerfile
-FROM node:20-alpine AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN apk add --no-cache libc6-compat && \
-    corepack enable && \
-    corepack prepare pnpm@10.14.0 --activate && \
-    pnpm add -g turbo@^2
+**Interfaces:** Consumes `lighthaus-api` `GET /status` and `GET /status/:monitorId`. The API already scopes by viewer, so the UI renders whatever it gets — **staff get all groups, clients get only their own monitors, with no client-side filtering needed.**
 
-FROM base AS prune
-WORKDIR /app
-COPY . .
-RUN --mount=type=cache,target=/root/.cache/turbo turbo prune lighthaus --docker
-
-FROM base AS installer
-WORKDIR /app
-COPY --from=prune /app/out/json/ .
-COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=prune /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
-RUN --mount=type=cache,target=/pnpm/store pnpm fetch
-COPY --from=prune /app/out/full/ ./
-COPY turbo.json turbo.json
-RUN --mount=type=cache,target=/pnpm/store pnpm install -r
-
-FROM base AS build
-WORKDIR /app
-COPY --from=installer /app ./
-RUN --mount=type=cache,target=/root/.cache/turbo turbo run build --filter=lighthaus...
-RUN --mount=type=cache,target=/pnpm/store pnpm --filter=lighthaus deploy --prod --legacy /app/deploy
-
-FROM node:20-alpine AS runner
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=build /app/deploy ./
-COPY --from=build /app/apps/lighthaus/dist ./dist
-EXPOSE 3006
-CMD ["node", "dist/main.js"]
-```
-
-- [ ] **Step 2: Build the image locally to validate**
-
-Run: `docker build -f apps/lighthaus/Dockerfile -t lighthaus:test .`
-Expected: image builds; final stage has `dist/main.js`.
-
-- [ ] **Step 3: Commit**
-
-```bash
-git add apps/lighthaus/Dockerfile
-git commit -m ":whale: lighthaus — production Dockerfile"
-```
+- [ ] **Step 1: `lib/status-client.ts`** — TanStack Query hooks (`useStatusBoard`, `useMonitorDetail`) hitting `LIGHTHAUS_API_URL` with the forwarded token; query keys centralized.
+- [ ] **Step 2: components** (one per file, dashboard standards): `StatusBoard` → group cards; `MonitorRow` → green/amber/red dot + latency + last-checked; `UptimeBar` → 90-day %; `IncidentTimeline` on the detail page. Client-friendly copy (these screens may be seen by non-technical clients).
+- [ ] **Step 3: detail page** `app/m/[monitorId]` → `useMonitorDetail` (handles 403 gracefully → not-found).
+- [ ] **Step 4: build** `pnpm --filter lighthaus build`. Commit `:sparkles: lighthaus — status board (staff/client scoped views) + monitor detail`.
 
 ---
 
-### Task 22: Compose service + env wiring + migrate-on-deploy
+### Task 24: Availability snapshot page (Cloudflare, no SiteHaus IAM)
 
 **Files:**
-- Modify: `docker-compose.prod.yml`
-- Modify: `.env.example` (document new vars)
 
-- [ ] **Step 1: Add the `lighthaus` service** to `docker-compose.prod.yml` (on `sitehaus-network`, depends on postgres + redis):
+- Create: `apps/lighthaus-snapshot/` — a minimal static page (plain HTML+JS or a tiny statically-exported Next route) that fetches `status.json` from the R2 public/Cloudflare URL and renders the board.
+- Create: deploy config for Cloudflare Pages + Cloudflare Access (notes/README; actual CF config is done in the dashboard, not code).
 
-```yaml
-  lighthaus:
-    image: ghcr.io/sitehaus/sitehaus-lighthaus:latest
-    restart: always
-    env_file:
-      - ./apps/lighthaus/.env
-    networks:
-      - sitehaus-network
-    ports:
-      - "3006:3006"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-```
+**Interfaces:** Reads the `StatusSnapshot` JSON shape from Task 15. **Depends on nothing SiteHaus-hosted** — no platform DB, no IAM. Behind Cloudflare Access (staff).
 
-- [ ] **Step 2: Document env vars** in `.env.example` and create `apps/lighthaus/.env.example`:
+- [ ] **Step 1:** build the static page: fetch `${R2_STATUS_PUBLIC_URL}/status.json`, render groups/rows + `generatedAt` timestamp prominently (stale timestamp = signal). Show a clear banner if the snapshot is older than ~5 min.
+- [ ] **Step 2:** document the Cloudflare Pages project + Cloudflare Access policy (staff emails) in a README; this is the war-room view that survives a full platform outage.
+- [ ] **Step 3:** commit `:sparkles: lighthaus — independent availability snapshot page (Cloudflare)`.
 
-```
-DATABASE_URL=postgres://...           # same Postgres as the api
-REDIS_URL=redis://redis:6379          # same Redis as the api notifications queue
-RESEND_API_KEY=re_...
-EMAIL_FROM=Lighthaus <alerts@sitehaus.co>
-OPS_RECIPIENTS=ops@sitehaus.co,parker@sitehaus.co
-HEALTHCHECKS_URL=https://hc-ping.com/<uuid>
-DASHBOARD_URL=https://dashboard.sitehaus.co
-LIGHTHAUS_PORT=3006
-APP_VERSION=dev
-```
+> Keep this deliberately tiny and dependency-free. Its entire value is surviving when everything else is down.
 
-Also add `OPS_RECIPIENTS` to `apps/api/.env.example`.
+---
 
-- [ ] **Step 3: Migration on deploy** — ensure the deploy runs `pnpm --filter @site-haus/db db:migrate` (or the existing migrate step) so the `monitors`/`check_results`/`incidents` tables exist before lighthaus boots. Add to the deploy script / CD workflow where db migration already happens (check `.github/workflows/cd.yml`).
+## Phase 7 — Docker + deploy wiring
 
-- [ ] **Step 4: Commit**
+### Task 25: `lighthaus-api` Dockerfile
 
-```bash
-git add docker-compose.prod.yml .env.example apps/lighthaus/.env.example apps/api/.env.example
-git commit -m ":whale: lighthaus — compose service + env wiring"
-```
+**Files:** Create `apps/lighthaus-api/Dockerfile`.
 
-- [ ] **Step 5: Commerce worker heartbeat (cross-repo follow-up)** — in `sitehaus-commerce/apps/worker`, add a repeatable job (or interval) that POSTs `{ service: "commerce-worker" }` to the Lighthaus heartbeat URL (`http://<vps>:3006/heartbeat` or a Caddy route). Tracked as a separate PR in the commerce repo; the ingest endpoint is ready from Task 14.
+- [ ] Mirror `apps/api/Dockerfile`, swapping the turbo filter and deploy filter to `lighthaus-api`, and `EXPOSE 3007`, `CMD ["node","dist/main.js"]`. Build locally: `docker build -f apps/lighthaus-api/Dockerfile -t lighthaus-api:test .`. Commit `:whale: lighthaus-api — production Dockerfile`.
+
+---
+
+### Task 26: Compose service + env + Vercel/Cloudflare + migrate-on-deploy
+
+**Files:** Modify `docker-compose.prod.yml`; create `apps/lighthaus-api/.env.example`, `apps/lighthaus/.env.example`; update `.env.example` + `apps/api/.env.example`; note Vercel + Cloudflare deploys.
+
+- [ ] **Step 1:** add the `lighthaus-api` service to `docker-compose.prod.yml` on `sitehaus-network`, `depends_on: [postgres, redis]`, `ports: ["3007:3007"]`, image `ghcr.io/sitehaus/sitehaus-lighthaus-api:latest`, `env_file: ./apps/lighthaus-api/.env`.
+- [ ] **Step 2:** env docs — `lighthaus-api`: `DATABASE_URL`, `REDIS_URL`, `RESEND_API_KEY`, `EMAIL_FROM`, `OPS_RECIPIENTS`, `HEALTHCHECKS_URL`, `LIGHTHAUS_URL`, `LIGHTHAUS_PORT`, `JWT_SECRET` (match apps/api), `R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_STATUS_BUCKET`/`R2_STATUS_PUBLIC_URL`, `LIGHTHAUS_UI_ORIGIN`, `ONEHEALTH_CLIENT_ID`, `APP_VERSION`. `apps/lighthaus` (Vercel): `LIGHTHAUS_API_URL`, OAuth client id/redirect, `@site-haus/sdk` config. Add `OPS_RECIPIENTS` to `apps/api/.env.example`.
+- [ ] **Step 3:** `apps/lighthaus` deploys to **Vercel** (own project, like dashboard); the snapshot page to **Cloudflare Pages**. Document both. Ensure CD runs `pnpm --filter @site-haus/db db:migrate` before `lighthaus-api` boots (check `.github/workflows/cd.yml`).
+- [ ] **Step 4:** commerce `worker` heartbeat (cross-repo follow-up): in `sitehaus-commerce/apps/worker`, POST `{ service: "commerce-worker" }` to `http://<vps>:3007/heartbeat` on a repeatable schedule. Tracked separately.
+- [ ] **Step 5:** commit `:whale: lighthaus — compose service + env + deploy wiring`.
 
 ---
 
 ## Phase 8 — Final verification
 
-### Task 23: Full suite + integration smoke
+### Task 27: Full suite + integration smoke + PR
 
-- [ ] **Step 1: Run all affected test suites**
-
-Run:
-```bash
-pnpm --filter @site-haus/monitoring test
-pnpm --filter lighthaus test
-pnpm --filter api test
-```
-Expected: all PASS.
-
-- [ ] **Step 2: Type-check + build the workspace**
-
-Run: `pnpm check-types && pnpm build --filter=lighthaus --filter=api --filter=dashboard --filter=@site-haus/db --filter=@site-haus/monitoring --filter=@site-haus/transactional`
-Expected: clean.
-
-- [ ] **Step 3: Local end-to-end smoke** (against a dev DB + Redis)
-
-- Apply migration: `cd packages/db && pnpm db:migrate`.
-- Start `lighthaus` (`pnpm --filter lighthaus dev`); confirm logs show config sync + a fast cycle.
-- `curl -s localhost:3006/health` → `{status, uptime, version}`.
-- `curl -s -XPOST localhost:3006/heartbeat -H 'content-type: application/json' -d '{"service":"commerce-worker"}'` → `{ok:true}`; confirm a `check_results` row.
-- Visit dashboard `/status` → board renders the seeded monitors.
-
-- [ ] **Step 4: Commit any fixes, then open PR**
+- [ ] **Step 1:** run suites: `pnpm --filter @site-haus/monitoring test`, `pnpm --filter lighthaus-api test`, `pnpm --filter api test`. All pass.
+- [ ] **Step 2:** `pnpm check-types` and build the touched packages/apps (`@site-haus/db`, `@site-haus/monitoring`, `@site-haus/transactional`, `lighthaus-api`, `lighthaus`, `api`).
+- [ ] **Step 3:** local e2e (dev DB + Redis): `pnpm --filter @site-haus/db db:migrate`; boot `lighthaus-api` (config sync + a fast cycle in logs); `curl localhost:3007/health`; `curl -XPOST localhost:3007/heartbeat -d '{"service":"commerce-worker"}'` → row written; obtain an IAM token and `curl -H "Authorization: Bearer <staff-token>" localhost:3007/status` → all groups; with a client token → only that client's monitors; confirm `status.json` lands in R2 (or the injected fake in tests); load `apps/lighthaus` and the snapshot page.
+- [ ] **Step 4:** address the Minor findings logged in `.superpowers/sdd/progress.md` (final-review triage), then push + PR:
 
 ```bash
 git push -u origin feat/lighthaus
-gh pr create --base main --title "Lighthaus monitoring & status system" --body "Implements docs/superpowers/specs/2026-06-26-lighthaus-monitoring-design.md"
+gh pr create --base release/commerce-flagship --title "Lighthaus monitoring & status system" --body "Implements docs/superpowers/specs/2026-06-26-lighthaus-monitoring-design.md (Revision v2)"
 ```
+
+> PR base is `release/commerce-flagship` (this branch sits on top of the commerce work).
 
 ---
 
-## Self-Review
+## Self-Review (Revision v2)
 
-**Spec coverage:**
-- Pure core checks (HTTP/DNS/SSL/domain/email-DNS/service-health/heartbeat) → Tasks 2–7. ✅
-- Incident state machine → Task 8. ✅
-- DB tables `monitors`/`check_results`/`incidents` + migration → Task 9. ✅
-- Scheduler/dispatcher + `monitors.config.ts` + persistence → Tasks 10–13. ✅
-- `lighthaus.*` job types + processor branch + ops recipients + Redis enqueue + Resend failsafe → Tasks 12, 15, 17. ✅
-- healthchecks.io dead-man's-switch + worker heartbeat ingest → Tasks 13, 14, 22. ✅
-- `/api/health` endpoints across apps → Tasks 18, 19. ✅
-- Dashboard `/status` UI → Task 20. ✅
-- Dockerfile + compose + env → Tasks 21, 22. ✅
-- TDD, SERVFAIL+REFUSED case, expired/near-expiry cert, blip/open/resolve, Redis-down failsafe → Tasks 3, 4, 8, 12. ✅
+**Spec coverage:** pure core (Tasks 1–8 ✅ done); tables incl `client_id` (9); collector = scaffold/repo/dispatcher/scheduler/heartbeat (10–14); R2 snapshot (15); JWT guard + per-tenant scoped read API (16); api job types/renders/processor/health (17–20); `/api/health` across apps (21); status UI scaffold+auth/board/detail (22–23); independent snapshot page (24); Docker/compose/Vercel/Cloudflare/env (25–26); verify+PR (27). Two-tier failure-domain design and per-tenant scoping (spec §0) are realized by Tasks 15+16+24.
 
-**Type consistency:** `LighthausJob` (Task 12) and the `NotificationJobData` additions (Task 15) are defined with identical property names/types; processor handlers (Task 17) and render fns (Task 16) consume those exact fields. `CheckResult` (core) vs `CheckResultRow` (db) are deliberately distinct names to avoid collision.
+**Type consistency:** `LighthausJob` (12) ≡ `NotificationJobData` additions (17); `CheckResult` (core) vs `CheckResultRow` (db) kept distinct; `StatusSnapshot` (15) is the contract for the snapshot page (24); the scoped-read viewer shape `{ isStaff, clientIds }` is shared by repo (11) and status service (16).
 
-**Open items carried to deploy (spec §12):** production hostnames in `monitors.config.ts`, ops recipient list, `HEALTHCHECKS_URL`, DKIM selectors, commerce `gateway`/`payments` health controllers + worker heartbeat POST (cross-repo).
+**Open items (deploy-time, spec §0/§12):** real `clientId`s for client-site monitors; production hostnames; ops recipients; `HEALTHCHECKS_URL`; R2 bucket/credentials + public URL; Cloudflare Access policy; confirm `apps/api` JWT secret/encoding to mirror; OAuth client registration for the status UI; commerce gateway/payments health + worker heartbeat (cross-repo).
