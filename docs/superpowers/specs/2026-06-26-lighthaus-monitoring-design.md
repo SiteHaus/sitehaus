@@ -1,8 +1,63 @@
 # Lighthaus — Monitoring & Status System
 
 **Date:** 2026-06-26
-**Status:** Design (approved-pending-review)
+**Status:** Design — Revision v2 (per-tenant status app + two-tier UI)
 **Author:** SiteHaus eng
+
+---
+
+## 0. Revision v2 (2026-06-26) — supersedes §3, §5.2, §5.6
+
+After the core checks were built (Tasks 1–5, unaffected), two architecture
+decisions reshaped the delivery/UI layer. **This section is authoritative where it
+conflicts with §3 / §5.2 / §5.6 below.**
+
+**Decision 1 — the status surface must not share a failure domain with what it
+monitors.** A `/status` route inside the dashboard reads the monitored Postgres,
+_is_ a monitored target, and (if IAM-gated) can't be reached when IAM is down —
+three circular dependencies. Resolved with **two tiers**:
+
+| Tier                      | What                                            | Auth                                              | Survives                                                                                       |
+| ------------------------- | ----------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Availability snapshot** | dead-simple is-it-up board                      | **Cloudflare Access** (staff), _not_ SiteHaus IAM | everything: VPS / Postgres / dashboard / IAM all down. Served from Cloudflare (R2/Pages).      |
+| **Rich status app**       | history, latency, incidents, per-tenant scoping | SiteHaus IAM (OAuth PKCE)                         | only when the platform is up — acceptable, because Tier 1 + email alerts cover the outage case |
+
+The alerting path (Resend incident emails + healthchecks.io dead-man's-switch) was
+already failure-domain-independent and remains the primary "platform down" signal.
+
+**Decision 2 — the rich app is per-tenant (staff + clients).** SiteHaus staff see
+all monitors; a client logs in and sees **only their own** site's status. This
+makes it a customer-facing product, not just an ops board.
+
+**Resulting component changes (authoritative):**
+
+- **`packages/monitoring`** — pure core. Unchanged. (Tasks 1–5 done.)
+- **`apps/lighthaus-api`** _(was `apps/lighthaus` in §5.2)_ — NestJS. Runs the
+  collector (scheduler, checks, incident machine, alert dispatch, heartbeat ingest)
+  **and** publishes the availability snapshot to Cloudflare R2 each cycle **and**
+  serves an authenticated, **per-tenant-scoped read API** for the UI. Auth: mirror
+  `apps/api`'s JWT `AccessGuard` (validate the IAM-issued access token with the
+  shared secret) — same tokens as dashboard, no separate introspection service.
+- **`apps/lighthaus`** _(new — replaces the dashboard `/status` route in §5.6)_ —
+  Next.js status UI. OAuth PKCE login like dashboard/commerce (`@site-haus/sdk`).
+  Staff view = all groups; client view = only monitors scoped to their client(s).
+  Calls `lighthaus-api` (no direct DB access from the browser app).
+- **Availability snapshot page** — static, fed by the R2 `status.json` Lighthaus
+  publishes; hosted on Cloudflare (Pages) behind Cloudflare Access. Independent of
+  every monitored component.
+- **`monitors` table gains `client_id`** (nullable FK → `clientsTable`).
+  Client-site monitors carry a `clientId`; service/infra monitors have `null`
+  (= staff-only, never shown to clients). Scoping: staff → all; client →
+  `WHERE client_id IN (caller's clients)`, where the caller's client ids come from
+  `userRolesTable.clientId` (same source `apps/api` uses for client-user lookups).
+- **`monitors.config.ts`** gains optional `clientId` per monitor group (config-driven
+  mapping; no admin UI — YAGNI).
+- The **dashboard `/status` route in §5.6 is dropped** — replaced by `apps/lighthaus`.
+- Email `ctaUrl` now points at the `apps/lighthaus` URL, not the dashboard.
+
+**Open sub-decisions to confirm at review:** Cloudflare Access vs unguessable URL
+for the snapshot; whether `lighthaus-api` shares the JWT secret with `apps/api`
+(assumed yes) or uses HTTP introspection; client-facing copy/branding for the UI.
 
 ---
 
@@ -14,7 +69,7 @@ nameservers, SiteGround had dropped the zone, so their NS answered `REFUSED` →
 global `SERVFAIL` → nothing resolved. Nobody was watching the
 DNS/SSL/domain/email layer.
 
-**Lighthaus** is the keeper that watches the coast. It must catch that *class* of
+**Lighthaus** is the keeper that watches the coast. It must catch that _class_ of
 failure — DNS, SSL, domain-registration, email-DNS, and service health — not just
 application bugs. It is internal/ops-facing, never client-facing.
 
@@ -26,6 +81,7 @@ Every claim below was checked against the actual codebase. Drift from the
 original brief is called out.
 
 ### Confirmed ✅
+
 - **Notifications system** (`apps/api/src/notifications/`) is exactly as assumed:
   - `NOTIFICATIONS_QUEUE = 'notifications'` (exported from `notifications.service.ts`).
   - `NotificationsService.enqueue(job)` → `queue.add(job.type, job, { attempts: 3, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 100, removeOnFail: 200 })`.
@@ -52,42 +108,45 @@ original brief is called out.
   badges). This is greenfield.
 
 ### Drift / corrections ⚠️
+
 1. **`api` already has a health controller**, but not the spec's shape.
    `apps/api/src/health/health.controller.ts` serves `GET /health` →
    `{ status: 'ok' }` and `GET /health/db`. Lighthaus needs `{ status, uptime,
-   version }`. → **Upgrade** the existing controller rather than add a new one;
+version }`. → **Upgrade** the existing controller rather than add a new one;
    the route stays `/health` (Caddy/origin already expose it). The brief's
    "`/api/health`" is the externally-routed path; internally it's the `health`
    controller.
 2. **Two independent compose stacks, each with its own Postgres AND its own
    Redis, on separate Docker networks** — this is the biggest correction:
 
-   | Stack | Network | Postgres | Redis | Notable services |
-   |---|---|---|---|---|
-   | `sitehaus/docker-compose.prod.yml` | `sitehaus-network` | ✅ (the `@site-haus/db` DB) | ✅ (the notifications queue) | api, web, dashboard, iam, commerce-ui, caddy |
-   | `sitehaus-commerce/docker-compose.prod.yml` | `sitehaus-commerce-network` | ✅ (separate) | ✅ (separate) | gateway, payments, **worker**, caddy |
+   | Stack                                       | Network                     | Postgres                    | Redis                        | Notable services                             |
+   | ------------------------------------------- | --------------------------- | --------------------------- | ---------------------------- | -------------------------------------------- |
+   | `sitehaus/docker-compose.prod.yml`          | `sitehaus-network`          | ✅ (the `@site-haus/db` DB) | ✅ (the notifications queue) | api, web, dashboard, iam, commerce-ui, caddy |
+   | `sitehaus-commerce/docker-compose.prod.yml` | `sitehaus-commerce-network` | ✅ (separate)               | ✅ (separate)                | gateway, payments, **worker**, caddy         |
 
    **Consequence:** Lighthaus lives in the **`sitehaus` stack**, because that is
-   where both the shared `@site-haus/db` Postgres *and* the notifications Redis
+   where both the shared `@site-haus/db` Postgres _and_ the notifications Redis
    already are. It never touches the commerce DB/Redis — it watches commerce
    services **over HTTP** (`/api/health`) and the commerce `worker` heartbeats
    Lighthaus **over HTTP** across the network boundary (published port / internal
-   URL). "Shared Postgres" in the brief is true *within* the sitehaus stack.
+   URL). "Shared Postgres" in the brief is true _within_ the sitehaus stack.
+
 3. **Packaging decision (locked):** the scheduler shell is a **new NestJS app
    `apps/lighthaus`** (own container, own failure domain), not a module inside
    `api`. If it shared `api`'s process it could not detect `api` going down.
 
 ---
 
-## 3. Naming
+## 3. Naming _(updated by §0 Revision v2)_
 
-| Thing | Name | Rationale |
-|---|---|---|
-| Deployable container (NestJS) | **`apps/lighthaus`** | The product/brand. Mirrors `apps/api`. |
-| Pure check + incident core | **`@site-haus/monitoring`** (`packages/monitoring`) | Framework-free, reusable, swappable — brand must not leak into pure logic. |
-| DB tables | `monitors`, `check_results`, `incidents` | Descriptive. |
-| Notification job types | `lighthaus.incident_opened`, `lighthaus.incident_resolved`, `lighthaus.daily_digest` | Branded queue events. |
-| Dashboard route | `/status` | User-facing word. |
+| Thing                         | Name                                                                                 | Rationale                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| Collector + read API (NestJS) | **`apps/lighthaus-api`**                                                             | Runs checks + serves the scoped read API. Mirrors `apps/api`.              |
+| Status UI (Next.js)           | **`apps/lighthaus`**                                                                 | The product/brand front door. OAuth PKCE login.                            |
+| Pure check + incident core    | **`@site-haus/monitoring`** (`packages/monitoring`)                                  | Framework-free, reusable, swappable — brand must not leak into pure logic. |
+| DB tables                     | `monitors`, `check_results`, `incidents`                                             | Descriptive. `monitors` carries `client_id`.                               |
+| Notification job types        | `lighthaus.incident_opened`, `lighthaus.incident_resolved`, `lighthaus.daily_digest` | Branded queue events.                                                      |
+| Availability snapshot         | `status.json` on Cloudflare R2 → static page on Cloudflare Pages                     | Independent failure domain.                                                |
 
 > Chose **lighthaus** over "lighthouse" deliberately: "lighthouse" collides with
 > Google Lighthouse (web-perf auditing) in a repo full of Next.js sites.
@@ -122,6 +181,7 @@ original brief is called out.
 ```
 
 **Two failure domains on purpose:**
+
 - Primary alert path: Lighthaus → Redis → api Notifications Processor → Resend.
 - If Redis is unreachable, Lighthaus **falls back to a direct Resend send** for
   that alert (so a Redis outage still pages ops).
@@ -138,13 +198,14 @@ Pure, unit-testable functions. Each returns:
 
 ```ts
 type CheckResult = {
-  status: 'up' | 'degraded' | 'down';
+  status: "up" | "degraded" | "down";
   latencyMs?: number;
-  detail: Record<string, unknown>;   // structured, jsonb-friendly
+  detail: Record<string, unknown>; // structured, jsonb-friendly
 };
 ```
 
 Functions:
+
 - `checkHttp(target, opts)` — uptime + latency; non-2xx/timeout → `down`.
 - `checkDns(host)` — resolves A/AAAA; **`SERVFAIL` / `REFUSED` / no-answer → `down`**
   (the onehealthclinics case). Uses node `dns/promises` with explicit error-code
@@ -163,14 +224,14 @@ Functions:
 ```ts
 type IncidentState = { consecutiveFailures: number; open: boolean };
 type Transition =
-  | { kind: 'none' }
-  | { kind: 'open' }       // crossed failure threshold → open + alert
-  | { kind: 'resolve' };   // recovered → resolve + alert
+  | { kind: "none" }
+  | { kind: "open" } // crossed failure threshold → open + alert
+  | { kind: "resolve" }; // recovered → resolve + alert
 
 function reduceIncident(
   state: IncidentState,
   result: CheckResult,
-  opts: { failureThreshold: number },  // default 2
+  opts: { failureThreshold: number }, // default 2
 ): { state: IncidentState; transition: Transition };
 ```
 
@@ -182,13 +243,19 @@ counts as a failure for SSL/domain warnings only if the monitor's policy says so
 (Decision: keep paging for `down`; surface `degraded` in digest. Avoids paging ops
 at 3am because a cert has 13 days left.)
 
-### 5.2 `apps/lighthaus` (NestJS, thin shell — own container)
+### 5.2 `apps/lighthaus-api` (NestJS) — collector + scoped read API _(renamed by §0; was `apps/lighthaus`)_
+
+> Per §0 Revision v2 this app is **`apps/lighthaus-api`** and additionally hosts the
+> per-tenant read API (JWT `AccessGuard` like `apps/api`, scoping monitors by the
+> caller's `client_id`) and publishes the Cloudflare R2 availability snapshot each
+> cycle. The collector internals below are unchanged.
 
 Mirrors `apps/worker`. Modules/services:
+
 - **`SchedulerService`** — `@Interval`-driven loops (Nest schedule) or a manual
   `setInterval` bootstrap. Two cadences: fast (HTTP/DNS/service-health/heartbeat)
   every **2 min**; slow (SSL/domain/email-DNS) **daily**. Loads `monitors.config.ts`,
-  runs *due* checks, calls core fns, persists `check_results`, runs `reduceIncident`,
+  runs _due_ checks, calls core fns, persists `check_results`, runs `reduceIncident`,
   opens/resolves `incidents`.
 - **`DispatcherService`** — on `open`/`resolve` transitions, `enqueue` a
   `lighthaus.*` job onto `NOTIFICATIONS_QUEUE`. **Resend failsafe:** wrap enqueue in
@@ -221,6 +288,7 @@ monitors
   target        text   -- url | host | domain | service-id
   thresholds    jsonb  -- { failureThreshold, sslWarnDays, domainWarnDays, maxSilenceMs, dkimSelector, ... }
   group         text   -- 'client-site'|'sh-service'|'commerce-service'
+  client_id     uuid null fk → clients   -- (Revision v2) tenant scoping; null = staff-only
   enabled       boolean default true
   created_at / updated_at
 
@@ -263,6 +331,7 @@ Migration generated via `pnpm db:gen` in `packages/db`, committed under
 
 Add to `src/render/notifications.tsx` (or a sibling `lighthaus.tsx` exported via
 `./render/*`):
+
 - `renderIncidentOpenedEmail({ monitorName, group, status, detailLines, ctaUrl })`
 - `renderIncidentResolvedEmail({ monitorName, group, downtimeFormatted, ctaUrl })`
 - `renderDailyDigestEmail({ date, rows, openIncidents, ctaUrl })`
@@ -270,23 +339,27 @@ Add to `src/render/notifications.tsx` (or a sibling `lighthaus.tsx` exported via
 `ctaUrl` → dashboard `/status`. All reuse the existing `NotificationEmail`
 component (title/body/context/cta).
 
-### 5.6 `dashboard` `/status` UI (Vercel, auth-gated, internal)
+### 5.6 ~~`dashboard` `/status` UI~~ → **`apps/lighthaus` status UI** _(replaced by §0 Revision v2)_
 
-App-Router route `app/(dashboard)/status/` (employee-only — reuse existing
-`use-is-employee` gate). TanStack Query hooks read the shared Postgres via
-`@site-haus/db` (server components / route handlers — **no cross-service API**).
-Layout:
-- Per-**group** cards (`client-site`, `sh-service`, `commerce-service`).
-- Each row: green/amber/red dot + latency + last-checked relative time.
-- 90-day uptime bar (sparkline of `check_results`).
-- Open-incident timeline.
+**Dropped:** the dashboard `/status` route (shared a failure domain with the
+monitored platform). **Replaced by** a standalone `apps/lighthaus` Next.js app:
 
-Follows dashboard standards (one component per file, thin page, query keys in
-`lib/query-keys.ts`, format helpers from `@site-haus/utils`).
+- OAuth PKCE login via `@site-haus/sdk` (same as dashboard/commerce).
+- Calls `apps/lighthaus-api`'s scoped read API — **no direct DB access from the
+  browser app, no cross-tier coupling beyond the API.**
+- **Staff** see all groups (`client-site`, `sh-service`, `commerce-service`);
+  a **client** sees only monitors scoped to their `client_id`(s).
+- Each row: green/amber/red dot + latency + last-checked; 90-day uptime bar from
+  `check_results`; open-incident timeline.
+
+Plus the **availability snapshot page** (Tier 1): a static page on Cloudflare Pages
+behind Cloudflare Access that renders the `status.json` Lighthaus publishes to R2 —
+no SiteHaus IAM, survives a full platform outage.
 
 ### 5.7 `/api/health` across apps
 
 Add a `200 + { status, uptime, version }` health endpoint to apps lacking one:
+
 - Next apps (`web`, `dashboard`, `docs`, `iam`, `commerce`): `app/api/health/route.ts`.
 - Nest apps (`api` already → upgrade; commerce `gateway`, `payments`): health
   controller. (commerce services live in the other repo — add there.)
@@ -295,11 +368,11 @@ Add a `200 + { status, uptime, version }` health endpoint to apps lacking one:
 
 ## 6. Cadence & alerting rules
 
-| Check class | Cadence |
-|---|---|
+| Check class                                                     | Cadence         |
+| --------------------------------------------------------------- | --------------- |
 | HTTP uptime+latency, DNS, service `/api/health`, heartbeat eval | every **2 min** |
-| SSL expiry, domain (RDAP), email-DNS | **daily** |
-| Daily digest | **08:00** local |
+| SSL expiry, domain (RDAP), email-DNS                            | **daily**       |
+| Daily digest                                                    | **08:00** local |
 
 - Alert (open incident) after **2 consecutive `down`** results.
 - On recovery (`up` while open): **resolve incident + send recovery email**.
@@ -313,17 +386,29 @@ Add a `200 + { status, uptime, version }` health endpoint to apps lacking one:
 
 ```ts
 export const monitors: MonitorConfig[] = [
-  { name: 'onehealthclinics.com', group: 'client-site', checks: [
-      { type: 'http', target: 'https://onehealthclinics.com' },
-      { type: 'dns', target: 'onehealthclinics.com' },
-      { type: 'ssl', target: 'onehealthclinics.com', thresholds: { sslWarnDays: 14 } },
-      { type: 'domain', target: 'onehealthclinics.com', thresholds: { domainWarnDays: 30 } },
-      { type: 'email_dns', target: 'onehealthclinics.com', thresholds: { dkimSelector: 'google' } },
-  ]},
-  { name: 'api', group: 'sh-service', checks: [
-      { type: 'service_health', target: 'https://api.sitehaus.../health' } ]},
-  { name: 'commerce-worker', group: 'commerce-service', checks: [
-      { type: 'heartbeat', target: 'commerce-worker', thresholds: { maxSilenceMs: 180000 } } ]},
+  {
+    name: "onehealthclinics.com",
+    group: "client-site",
+    checks: [
+      { type: "http", target: "https://onehealthclinics.com" },
+      { type: "dns", target: "onehealthclinics.com" },
+      { type: "ssl", target: "onehealthclinics.com", thresholds: { sslWarnDays: 14 } },
+      { type: "domain", target: "onehealthclinics.com", thresholds: { domainWarnDays: 30 } },
+      { type: "email_dns", target: "onehealthclinics.com", thresholds: { dkimSelector: "google" } },
+    ],
+  },
+  {
+    name: "api",
+    group: "sh-service",
+    checks: [{ type: "service_health", target: "https://api.sitehaus.../health" }],
+  },
+  {
+    name: "commerce-worker",
+    group: "commerce-service",
+    checks: [
+      { type: "heartbeat", target: "commerce-worker", thresholds: { maxSilenceMs: 180000 } },
+    ],
+  },
   // ...
 ];
 ```
@@ -336,6 +421,7 @@ Config is the source of truth; `monitors` rows are upserted from it on boot
 ## 8. Environment / wiring
 
 `apps/lighthaus` env:
+
 - `DATABASE_URL` — sitehaus Postgres (same as api).
 - `REDIS_URL` / BullMQ connection — sitehaus redis (same as api notifications).
 - `RESEND_API_KEY` + `EMAIL_FROM` — for the failsafe direct send.
@@ -354,6 +440,7 @@ heartbeat ingest if cross-host.
 ## 9. Testing (TDD — tests first)
 
 Unit-test **every** check fn against mocked DNS/HTTP/TLS/RDAP:
+
 - `checkDns`: the **`SERVFAIL` + `REFUSED`** cases → `down` (the regression that
   started this).
 - `checkSsl`: expired cert → `down`; 10-days-out → `degraded`; healthy → `up`.
