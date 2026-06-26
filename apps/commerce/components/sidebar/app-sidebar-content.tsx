@@ -35,6 +35,7 @@ export const AppSideBarContent = () => {
                     tooltip={item.title}
                     isActive={isActive(pathname, href, item.url === "/")}
                     asChild
+                    className="data-[active=true]:bg-primary/10 data-[active=true]:text-primary"
                   >
                     <Link href={href}>
                       {item.icon && <item.icon />}

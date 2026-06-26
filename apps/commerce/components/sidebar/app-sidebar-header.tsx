@@ -45,7 +45,7 @@ export const AppSideBarHeader = () => {
                   {current.initials}
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-bold">{current.label}</span>
+                  <span className="truncate font-bold font-display">{current.label}</span>
                   <span className="truncate text-xs text-sidebar-foreground/50 font-normal">
                     {current.subtitle}
                   </span>
