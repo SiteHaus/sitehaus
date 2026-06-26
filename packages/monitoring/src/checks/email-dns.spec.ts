@@ -48,4 +48,19 @@ describe("checkEmailDns", () => {
     expect(r.status).toBe("degraded");
     expect(r.detail.dkim).toBe(false);
   });
+
+  it("treats a thrown TXT lookup as absent (degraded, not throw)", async () => {
+    const r = await checkEmailDns("x.test", {
+      dkimSelector: "google",
+      resolver: {
+        ...healthy,
+        resolveTxt: async () => {
+          throw new Error("SERVFAIL");
+        },
+      },
+    });
+    expect(r.status).toBe("degraded");
+    expect(r.detail.spf).toBe(false);
+    expect(r.detail.dkim).toBe(false);
+  });
 });
