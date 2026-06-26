@@ -10,14 +10,9 @@ import {
   type StripeStatus,
 } from "@/lib/commerce";
 import { useStoreNav } from "@/lib/use-store-nav";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import {
@@ -27,10 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@site-haus/ui/components/base/select";
-import { Separator } from "@site-haus/ui/components/base/separator";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertCircle, CheckCircle, ExternalLink, Loader2, Settings2 } from "lucide-react";
-import { PageHero } from "@/components/page-hero";
+import { AlertCircle, CheckCircle, ExternalLink, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -111,89 +104,97 @@ export default function SettingsPage() {
     );
   }
 
+  const saveButton = (
+    <Button onClick={() => saveMutation.mutate()} disabled={!dirty || saveMutation.isPending}>
+      {saveMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
+      Save Changes
+    </Button>
+  );
+
   return (
-    <div className="space-y-6">
-      <PageHero
-        icon={Settings2}
+    <div>
+      <PageHeader
         title="Settings"
-        subtitle="Manage your store configuration and integrations."
+        subtitle={store?.slug}
+        actions={dirty ? saveButton : undefined}
       />
 
-      {/* Store Details */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Store Details</CardTitle>
-          <CardDescription>
-            Your store's public-facing slug, custom domain, and checkout settings.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="slug">Slug</Label>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground select-none">
-                {process.env.NEXT_PUBLIC_STOREFRONT_BASE_URL ?? "https://store.sitehaus.dev"}/
-              </span>
+      <div className="space-y-4">
+        {/* Store Info */}
+        <SectionCard
+          title="Store Info"
+          description="Your store's public-facing slug, custom domain, and currency."
+        >
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="slug">Slug</Label>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground select-none">
+                  {process.env.NEXT_PUBLIC_STOREFRONT_BASE_URL ?? "https://store.sitehaus.dev"}/
+                </span>
+                <Input
+                  id="slug"
+                  value={slug}
+                  onChange={(e) => {
+                    setSlug(e.target.value);
+                    markDirty();
+                  }}
+                  placeholder="my-store"
+                  className="flex-1"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Lowercase letters, numbers, and hyphens only.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="domain">Custom Domain</Label>
               <Input
-                id="slug"
-                value={slug}
+                id="domain"
+                value={domain}
                 onChange={(e) => {
-                  setSlug(e.target.value);
+                  setDomain(e.target.value);
                   markDirty();
                 }}
-                placeholder="my-store"
-                className="flex-1"
+                placeholder="shop.yourdomain.com"
               />
+              <p className="text-xs text-muted-foreground">
+                Point a CNAME to{" "}
+                <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">
+                  stores.sitehaus.dev
+                </code>{" "}
+                then enter the domain here.
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Lowercase letters, numbers, and hyphens only.
-            </p>
-          </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="domain">Custom Domain</Label>
-            <Input
-              id="domain"
-              value={domain}
-              onChange={(e) => {
-                setDomain(e.target.value);
-                markDirty();
-              }}
-              placeholder="shop.yourdomain.com"
-            />
-            <p className="text-xs text-muted-foreground">
-              Point a CNAME to{" "}
-              <code className="font-mono text-xs bg-muted px-1 py-0.5 rounded">
-                stores.sitehaus.dev
-              </code>{" "}
-              then enter the domain here.
-            </p>
+            <div className="space-y-1.5">
+              <Label htmlFor="currency">Currency</Label>
+              <Select
+                value={currency}
+                onValueChange={(v) => {
+                  setCurrency(v);
+                  markDirty();
+                }}
+              >
+                <SelectTrigger id="currency">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+        </SectionCard>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="currency">Currency</Label>
-            <Select
-              value={currency}
-              onValueChange={(v) => {
-                setCurrency(v);
-                markDirty();
-              }}
-            >
-              <SelectTrigger id="currency">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CURRENCIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="fulfillment">Fulfillment Method</Label>
+        {/* Fulfillment */}
+        <SectionCard title="Fulfillment" description="How customers receive their orders.">
+          <div className="space-y-3">
             <Select
               value={fulfillmentType}
               onValueChange={(v) => {
@@ -219,50 +220,32 @@ export default function SettingsPage() {
               </div>
             )}
           </div>
+        </SectionCard>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="ttl">Cart Reservation</Label>
-            <div className="flex items-center gap-3">
-              <Input
-                id="ttl"
-                type="number"
-                min={5}
-                max={60}
-                value={reservationTtl}
-                onChange={(e) => {
-                  setReservationTtl(Number(e.target.value));
-                  markDirty();
-                }}
-                className="w-24"
-              />
-              <span className="text-sm text-muted-foreground">minutes</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              How long inventory is held in an open cart (5–60 min).
-            </p>
+        {/* Cart Reservation */}
+        <SectionCard
+          title="Cart Reservation"
+          description="How long inventory is held in an open cart (5–60 min)."
+        >
+          <div className="flex items-center gap-3">
+            <Input
+              id="ttl"
+              type="number"
+              min={5}
+              max={60}
+              value={reservationTtl}
+              onChange={(e) => {
+                setReservationTtl(Number(e.target.value));
+                markDirty();
+              }}
+              className="w-24"
+            />
+            <span className="text-sm text-muted-foreground">minutes</span>
           </div>
+        </SectionCard>
 
-          <div className="flex justify-end pt-2">
-            <Button
-              onClick={() => saveMutation.mutate()}
-              disabled={!dirty || saveMutation.isPending}
-            >
-              {saveMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
-              Save Changes
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Stripe */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Stripe</CardTitle>
-          <CardDescription>Connect Stripe to accept payments on your store.</CardDescription>
-        </CardHeader>
-        <CardContent>
+        {/* Stripe */}
+        <SectionCard title="Stripe" description="Connect Stripe to accept payments on your store.">
           {stripeStatus?.connected ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2 text-sm">
@@ -307,24 +290,20 @@ export default function SettingsPage() {
               </Button>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </SectionCard>
 
-      {/* Danger Zone */}
-      <Card className="border-destructive/40">
-        <CardHeader>
-          <CardTitle className="text-destructive">Danger Zone</CardTitle>
-          <CardDescription>Irreversible actions — proceed with care.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Store ID</p>
-              <p className="text-xs text-muted-foreground font-mono mt-0.5">{store?.id}</p>
-            </div>
+        {/* Danger Zone */}
+        <SectionCard
+          title="Danger Zone"
+          description="Irreversible actions — proceed with care."
+          className="border-destructive/40"
+        >
+          <div>
+            <p className="text-sm font-medium">Store ID</p>
+            <p className="text-xs text-muted-foreground font-mono mt-0.5">{store?.id}</p>
           </div>
-        </CardContent>
-      </Card>
+        </SectionCard>
+      </div>
     </div>
   );
 }
