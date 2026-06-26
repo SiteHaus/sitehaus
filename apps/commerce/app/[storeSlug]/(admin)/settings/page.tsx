@@ -297,6 +297,7 @@ export default function SettingsPage() {
           title="Danger Zone"
           description="Irreversible actions — proceed with care."
           className="border-destructive/40"
+          titleClassName="text-destructive"
         >
           <div>
             <p className="text-sm font-medium">Store ID</p>

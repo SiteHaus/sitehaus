@@ -101,7 +101,10 @@ export function DeliveryLog({ endpointId }: Props) {
           <TableRow key={d.id}>
             <TableCell className="font-mono text-xs">{d.event}</TableCell>
             <TableCell>
-              <StatusBadge tone={deliveryTone(d.status)} label={d.status} />
+              <StatusBadge
+                tone={deliveryTone(d.status)}
+                label={d.status.charAt(0).toUpperCase() + d.status.slice(1)}
+              />
             </TableCell>
             <TableCell className="text-sm">
               <ResponseBody delivery={d} />

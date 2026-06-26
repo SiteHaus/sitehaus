@@ -150,7 +150,6 @@ body {
 
 /* ── Motion tokens ──────────────────────────────────────────────── */
 :root {
-  --motion-fast: 150ms;
   --motion-base: 200ms;
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
@@ -172,15 +171,6 @@ body {
   .sh-fade-in {
     animation: none;
   }
-}
-.sh-lift {
-  transition:
-    transform var(--motion-base) var(--ease-out),
-    box-shadow var(--motion-base) var(--ease-out);
-}
-.sh-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px oklch(0.4 0.04 50 / 0.1);
 }
 
 /* ── Status tones ───────────────────────────────────────────────── */
