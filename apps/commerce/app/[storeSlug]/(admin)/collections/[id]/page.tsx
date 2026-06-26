@@ -10,6 +10,9 @@ import {
   type CollectionItem,
   type ProductItem,
 } from "@/lib/commerce";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -21,6 +24,7 @@ import {
 } from "@site-haus/ui/components/base/dialog";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
+import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
   Table,
   TableBody,
@@ -30,7 +34,7 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Package, Plus } from "lucide-react";
+import { ChevronLeft, Loader2, Package, Plus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -82,105 +86,123 @@ export default function CollectionDetailPage() {
 
   if (isLoading || !collectionMeta) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="size-5 animate-spin text-muted-foreground" />
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-48 rounded-lg" />
+        <Skeleton className="h-48 rounded-lg" />
       </div>
     );
   }
 
   const productIds = new Set(collection?.products.map((p) => p.id) ?? []);
+  const productCountLabel = `${collectionMeta.productCount} product${collectionMeta.productCount !== 1 ? "s" : ""}`;
+  const statusBadge = collectionMeta.scheduled ? (
+    <StatusBadge
+      tone="info"
+      label={
+        collectionMeta.goesLiveAt
+          ? new Date(collectionMeta.goesLiveAt).toLocaleDateString()
+          : "Scheduled"
+      }
+    />
+  ) : (
+    <StatusBadge tone="success" label="Active" />
+  );
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => push("/collections")}>
-          <ArrowLeft className="size-4" />
-        </Button>
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{collectionMeta.name}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {collectionMeta.productCount} product{collectionMeta.productCount !== 1 ? "s" : ""}
-          </p>
-        </div>
-        {dirty && (
-          <div className="ml-auto">
-            <Button
-              onClick={() =>
-                saveMutation.mutate({
-                  name: name || undefined,
-                  slug: slug || undefined,
-                  description: description || undefined,
-                })
-              }
-              disabled={saveMutation.isPending}
-            >
-              {saveMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
-              Save
+    <div>
+      <PageHeader
+        eyebrow="Collections"
+        title={collectionMeta.name}
+        subtitle={productCountLabel}
+        aside={statusBadge}
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => push("/collections")}>
+              <ChevronLeft className="size-4" />
+              Collections
             </Button>
+            {dirty && (
+              <Button
+                onClick={() =>
+                  saveMutation.mutate({
+                    name: name || undefined,
+                    slug: slug || undefined,
+                    description: description || undefined,
+                  })
+                }
+                disabled={saveMutation.isPending}
+              >
+                {saveMutation.isPending && <Loader2 className="size-4 animate-spin" />}
+                Save
+              </Button>
+            )}
+          </>
+        }
+      />
+
+      <div className="max-w-2xl space-y-4">
+        {/* Details */}
+        <SectionCard title="Details">
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setDirty(true);
+                }}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="slug">Slug</Label>
+              <Input
+                id="slug"
+                value={slug}
+                onChange={(e) => {
+                  setSlug(e.target.value);
+                  setDirty(true);
+                }}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="desc">Description</Label>
+              <Input
+                id="desc"
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  setDirty(true);
+                }}
+                placeholder="Optional description"
+              />
+            </div>
           </div>
-        )}
-      </div>
+        </SectionCard>
 
-      {/* Edit form */}
-      <div className="border rounded-lg p-5 space-y-4 bg-card">
-        <h2 className="font-medium text-sm">Details</h2>
-        <div className="space-y-1.5">
-          <Label htmlFor="name">Name</Label>
-          <Input
-            id="name"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              setDirty(true);
-            }}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="slug">Slug</Label>
-          <Input
-            id="slug"
-            value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value);
-              setDirty(true);
-            }}
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="desc">Description</Label>
-          <Input
-            id="desc"
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-              setDirty(true);
-            }}
-            placeholder="Optional description"
-          />
-        </div>
-      </div>
-
-      {/* Products */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-medium text-sm">Products</h2>
-          <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
-            <Plus className="size-4 mr-2" />
-            Add Product
-          </Button>
-        </div>
-
-        {productIds.size === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 border rounded-lg text-center bg-card">
-            <Package className="size-8 text-muted-foreground/40 mb-3" />
-            <p className="text-sm text-muted-foreground">No products in this collection yet.</p>
-            <Button variant="outline" size="sm" className="mt-3" onClick={() => setAddOpen(true)}>
-              <Plus className="size-4 mr-2" />
+        {/* Products */}
+        <SectionCard
+          title="Products"
+          actions={
+            <Button variant="outline" size="sm" onClick={() => setAddOpen(true)}>
+              <Plus className="size-4" />
               Add Product
             </Button>
-          </div>
-        ) : (
-          <div className="border rounded-lg overflow-hidden">
+          }
+          contentClassName={productIds.size > 0 ? "p-0" : undefined}
+        >
+          {productIds.size === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Package className="size-8 text-muted-foreground/40 mb-3" />
+              <p className="text-sm text-muted-foreground">No products in this collection yet.</p>
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => setAddOpen(true)}>
+                <Plus className="size-4" />
+                Add Product
+              </Button>
+            </div>
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -201,8 +223,8 @@ export default function CollectionDetailPage() {
                 ))}
               </TableBody>
             </Table>
-          </div>
-        )}
+          )}
+        </SectionCard>
       </div>
 
       {addOpen && (
