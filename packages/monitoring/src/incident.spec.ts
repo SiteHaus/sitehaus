@@ -38,4 +38,11 @@ describe("reduceIncident", () => {
     expect(transition.kind).toBe("none");
     expect(state.consecutiveFailures).toBe(0);
   });
+
+  it("degraded while open stays open, resets counter, does not resolve", () => {
+    const open: IncidentState = { consecutiveFailures: 2, open: true };
+    const { state, transition } = reduceIncident(open, degraded);
+    expect(transition.kind).toBe("none");
+    expect(state).toEqual({ consecutiveFailures: 0, open: true });
+  });
 });

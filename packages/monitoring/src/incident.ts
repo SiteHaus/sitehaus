@@ -32,7 +32,7 @@ export function reduceIncident(
   if (state.open && result.status === "up") {
     return { state: { consecutiveFailures: 0, open: false }, transition: { kind: "resolve" } };
   }
-  // degraded while open keeps it open but does not reset failure count below current
+  // degraded is not a failure: keep the incident's open state as-is, but reset the consecutive-failure counter to 0
   if (result.status === "degraded") {
     return { state: { ...state, consecutiveFailures: 0 }, transition: { kind: "none" } };
   }
