@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, desc, eq, gte, isNull, schema, type Db } from "@site-haus/db";
+import { and, desc, eq, gt, gte, isNull, schema, type Db } from "@site-haus/db";
 import type { CheckResult } from "@site-haus/monitoring";
 import { LIGHTHAUS_DB } from "../db/tokens";
 import type { MonitorConfig } from "../monitors.config";
@@ -153,5 +153,52 @@ export class MonitorRepository {
   async listForViewer(viewer: { isStaff: boolean; clientIds: string[] }): Promise<Monitor[]> {
     const all = await this.listEnabled();
     return filterByViewer(all, viewer);
+  }
+
+  /** Staff = holds the `admin` role on any first-party (SiteHaus) client. */
+  async isStaffAdmin(userId: string): Promise<boolean> {
+    const rows = await this.db
+      .select({ id: schema.userRolesTable.id })
+      .from(schema.userRolesTable)
+      .innerJoin(schema.rolesTable, eq(schema.rolesTable.id, schema.userRolesTable.roleId))
+      .innerJoin(schema.clientsTable, eq(schema.clientsTable.id, schema.rolesTable.clientId))
+      .where(
+        and(
+          eq(schema.userRolesTable.userId, userId),
+          eq(schema.rolesTable.key, "admin"),
+          eq(schema.clientsTable.firstParty, true),
+        ),
+      )
+      .limit(1);
+    return rows.length > 0;
+  }
+
+  /** Mirror apps/api AccessGuard: session must exist, match aud, be unrevoked and unexpired. */
+  async sessionValid(sessionId: string, clientId: string): Promise<boolean> {
+    const session = await this.db.query.sessionsTable.findFirst({
+      where: and(
+        eq(schema.sessionsTable.id, sessionId),
+        eq(schema.sessionsTable.clientId, clientId),
+        isNull(schema.sessionsTable.revokedAt),
+        gt(schema.sessionsTable.expiresAt, new Date()),
+      ),
+    });
+    return !!session;
+  }
+
+  recentResults(monitorId: string, limit = 100) {
+    return this.db.query.checkResultsTable.findMany({
+      where: eq(schema.checkResultsTable.monitorId, monitorId),
+      orderBy: desc(schema.checkResultsTable.checkedAt),
+      limit,
+    });
+  }
+
+  recentIncidents(monitorId: string, limit = 20): Promise<Incident[]> {
+    return this.db.query.incidentsTable.findMany({
+      where: eq(schema.incidentsTable.monitorId, monitorId),
+      orderBy: desc(schema.incidentsTable.openedAt),
+      limit,
+    });
   }
 }

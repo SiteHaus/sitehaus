@@ -570,6 +570,9 @@ importers:
       '@site-haus/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
+      '@types/express':
+        specifier: ^5.0.0
+        version: 5.0.3
       '@types/jest':
         specifier: ^29.5.12
         version: 29.5.14

@@ -32,6 +32,7 @@
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
     "@nestjs/testing": "^11.1.6",
+    "@types/express": "^5.0.0",
     "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",
     "@types/jest": "^29.5.12",

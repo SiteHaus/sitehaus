@@ -2,6 +2,7 @@ import { S3Client } from "@aws-sdk/client-s3";
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
+import { AuthModule } from "./auth/auth.module";
 import lighthausConfig from "./config/lighthaus.config";
 import { DbModule } from "./db/db.module";
 import { DeadmanService } from "./deadman/deadman.service";
@@ -12,6 +13,8 @@ import { MonitorRepository } from "./persistence/monitor.repository";
 import { SchedulerService } from "./scheduler/scheduler.service";
 import { SnapshotService } from "./snapshot/snapshot.service";
 import { R2_CLIENT } from "./snapshot/tokens";
+import { StatusController } from "./status/status.controller";
+import { StatusService } from "./status/status.service";
 
 @Module({
   imports: [
@@ -19,13 +22,15 @@ import { R2_CLIENT } from "./snapshot/tokens";
     ScheduleModule.forRoot(),
     DbModule,
     QueueModule,
+    AuthModule,
   ],
-  controllers: [HeartbeatController, HealthController],
+  controllers: [HeartbeatController, HealthController, StatusController],
   providers: [
     MonitorRepository,
     SchedulerService,
     DeadmanService,
     SnapshotService,
+    StatusService,
     {
       provide: R2_CLIENT,
       inject: [ConfigService],
