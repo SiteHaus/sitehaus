@@ -5,6 +5,7 @@ import { DeadmanService } from "../deadman/deadman.service";
 import { DispatcherService } from "../dispatcher/dispatcher.service";
 import { monitors as monitorConfigs } from "../monitors.config";
 import { MonitorRepository } from "../persistence/monitor.repository";
+import { SnapshotService } from "../snapshot/snapshot.service";
 import { realChecks, runCheck, type CheckDeps, type MonitorLike } from "./check-runner";
 
 type Monitor = MonitorLike & { id: string; name: string; group: string };
@@ -23,6 +24,7 @@ export class SchedulerService implements OnModuleInit {
     private readonly repo: MonitorRepository,
     private readonly dispatcher: DispatcherService,
     private readonly deadman: DeadmanService,
+    private readonly snapshot: SnapshotService,
   ) {
     this.deps = { ...realChecks, getLastHeartbeat: (t) => this.repo.getLastHeartbeat(t) };
   }
@@ -35,6 +37,13 @@ export class SchedulerService implements OnModuleInit {
   async fastCycle(): Promise<void> {
     await this.runGroup((type) => FAST_TYPES.has(type));
     await this.deadman.ping();
+    try {
+      await this.snapshot.publish();
+    } catch (err) {
+      this.logger.warn(
+        `snapshot publish failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   @Cron("0 6 * * *")
