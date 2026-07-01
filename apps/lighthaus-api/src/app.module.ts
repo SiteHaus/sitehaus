@@ -3,12 +3,18 @@ import { ConfigModule } from "@nestjs/config";
 import { ScheduleModule } from "@nestjs/schedule";
 import lighthausConfig from "./config/lighthaus.config";
 import { DbModule } from "./db/db.module";
+import { DeadmanService } from "./deadman/deadman.service";
+import { QueueModule } from "./dispatcher/queue.module";
+import { MonitorRepository } from "./persistence/monitor.repository";
+import { SchedulerService } from "./scheduler/scheduler.service";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [lighthausConfig] }),
     ScheduleModule.forRoot(),
     DbModule,
+    QueueModule,
   ],
+  providers: [MonitorRepository, SchedulerService, DeadmanService],
 })
 export class AppModule {}
