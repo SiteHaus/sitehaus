@@ -1364,13 +1364,13 @@ export default registerAs("lighthaus", () => ({
   databaseUrl: process.env.DATABASE_URL!,
   redisUrl: process.env.REDIS_URL ?? "redis://redis:6379",
   resendApiKey: process.env.RESEND_API_KEY!,
-  emailFrom: process.env.EMAIL_FROM ?? "Lighthaus <alerts@sitehaus.co>",
+  emailFrom: process.env.EMAIL_FROM ?? "Lighthaus <alerts@sitehaus.dev>",
   opsRecipients: (process.env.OPS_RECIPIENTS ?? "")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean),
   healthchecksUrl: process.env.HEALTHCHECKS_URL ?? "",
-  lighthausUrl: process.env.LIGHTHAUS_URL ?? "https://status.sitehaus.co",
+  lighthausUrl: process.env.LIGHTHAUS_URL ?? "https://status.sitehaus.dev",
   port: Number(process.env.LIGHTHAUS_PORT ?? 3007),
   // Same secret apps/api signs IAM access tokens with — lets us validate them here.
   jwtSecret: process.env.JWT_SECRET ?? process.env.JWT_SECRET_B64URL ?? "",
@@ -1451,7 +1451,7 @@ import { AppModule } from "./app.module.js";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [process.env.LIGHTHAUS_UI_ORIGIN ?? "https://status.sitehaus.co"],
+    origin: [process.env.LIGHTHAUS_UI_ORIGIN ?? "https://status.sitehaus.dev"],
     credentials: true,
   });
   const config = app.get(ConfigService);
@@ -1527,7 +1527,7 @@ export const monitors: MonitorConfig[] = [
   {
     name: "sitehaus-api",
     group: "sh-service",
-    checks: [{ type: "service_health", target: "https://api.sitehaus.co/health" }],
+    checks: [{ type: "service_health", target: "https://api.sitehaus.dev/health" }],
   },
   {
     name: "commerce-worker",
@@ -1931,7 +1931,7 @@ export function GET() {
 
 **Interfaces:** Produces a logged-in app shell where a server util / client hook can call `lighthaus-api`'s `/status` with the IAM access token. Mirrors the existing dashboard auth exactly.
 
-- [ ] **Step 1: study dashboard auth** — read `apps/dashboard/app/login`, `app/callback`, `app/providers`, and how it obtains/stores the IAM access token and attaches it to API calls (cookies vs header). **Replicate that pattern** (same `@site-haus/sdk` client config, same OAuth PKCE redirect URIs, new client registration for `status.sitehaus.co`).
+- [ ] **Step 1: study dashboard auth** — read `apps/dashboard/app/login`, `app/callback`, `app/providers`, and how it obtains/stores the IAM access token and attaches it to API calls (cookies vs header). **Replicate that pattern** (same `@site-haus/sdk` client config, same OAuth PKCE redirect URIs, new client registration for `status.sitehaus.dev`).
 - [ ] **Step 2: scaffold** the Next app (copy dashboard's `package.json`/`next.config`/`tsconfig` shape; TanStack Query provider; Tailwind v4 + `@site-haus/ui`). Set `LIGHTHAUS_API_URL` env. Add an API client helper that points at `lighthaus-api` and forwards the access token.
 - [ ] **Step 3: verify** `pnpm --filter lighthaus dev` boots, login redirects through IAM, callback lands authenticated. Commit `:sparkles: lighthaus — scaffold status UI app + OAuth PKCE auth`.
 
