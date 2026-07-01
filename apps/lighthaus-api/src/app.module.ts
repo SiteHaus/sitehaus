@@ -5,6 +5,8 @@ import lighthausConfig from "./config/lighthaus.config";
 import { DbModule } from "./db/db.module";
 import { DeadmanService } from "./deadman/deadman.service";
 import { QueueModule } from "./dispatcher/queue.module";
+import { HealthController } from "./health/health.controller";
+import { HeartbeatController } from "./heartbeat/heartbeat.controller";
 import { MonitorRepository } from "./persistence/monitor.repository";
 import { SchedulerService } from "./scheduler/scheduler.service";
 
@@ -15,6 +17,7 @@ import { SchedulerService } from "./scheduler/scheduler.service";
     DbModule,
     QueueModule,
   ],
+  controllers: [HeartbeatController, HealthController],
   providers: [MonitorRepository, SchedulerService, DeadmanService],
 })
 export class AppModule {}
