@@ -1,0 +1,4 @@
+@import "tailwindcss";
+@import "@site-haus/ui/styles/default.css";
+
+@source '../node_modules/@site-haus/ui';
