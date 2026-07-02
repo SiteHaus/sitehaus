@@ -751,7 +751,7 @@ importers:
         version: link:../validation
       '@ts-rest/core':
         specifier: ^3.53.0-rc.1
-        version: 3.53.0-rc.1(@types/node@24.13.2)
+        version: 3.53.0-rc.1(@types/node@22.17.2)
       axios:
         specifier: ^1.12.2
         version: 1.12.2
@@ -765,6 +765,9 @@ importers:
       '@site-haus/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.17.2
       eslint:
         specifier: ^9.31.0
         version: 9.33.0(jiti@2.5.1)
@@ -888,7 +891,7 @@ importers:
         version: link:../contracts
       '@ts-rest/core':
         specifier: ^3.53.0-rc.1
-        version: 3.53.0-rc.1(@types/node@24.13.2)
+        version: 3.53.0-rc.1(@types/node@22.17.2)
       axios:
         specifier: ^1.12.2
         version: 1.12.2
@@ -899,6 +902,9 @@ importers:
       '@site-haus/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.17.2
       eslint:
         specifier: ^9.31.0
         version: 9.33.0(jiti@2.5.1)
@@ -15792,10 +15798,6 @@ snapshots:
   '@ts-rest/core@3.53.0-rc.1(@types/node@22.17.2)':
     optionalDependencies:
       '@types/node': 22.17.2
-
-  '@ts-rest/core@3.53.0-rc.1(@types/node@24.13.2)':
-    optionalDependencies:
-      '@types/node': 24.13.2
 
   '@tsconfig/node10@1.0.11': {}
 
