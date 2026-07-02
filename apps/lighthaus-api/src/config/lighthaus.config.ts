@@ -22,6 +22,9 @@ export default registerAs("lighthaus", () => ({
     .map((s) => s.trim())
     .filter(Boolean),
   healthchecksUrl: process.env.HEALTHCHECKS_URL ?? "",
+  // Shared secret that heartbeat pushers (e.g. commerce-worker) send as
+  // `Authorization: Bearer <secret>`. Unset → the ingest endpoint fails closed.
+  heartbeatSecret: process.env.HEARTBEAT_SECRET ?? "",
   lighthausUrl: process.env.LIGHTHAUS_URL ?? "https://status.sitehaus.dev",
   port: Number(process.env.LIGHTHAUS_PORT ?? 3007),
   // Same secret apps/api signs IAM access tokens with — lets us validate them here.

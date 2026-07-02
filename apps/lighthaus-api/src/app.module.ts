@@ -9,6 +9,7 @@ import { DeadmanService } from "./deadman/deadman.service";
 import { QueueModule } from "./dispatcher/queue.module";
 import { HealthController } from "./health/health.controller";
 import { HeartbeatController } from "./heartbeat/heartbeat.controller";
+import { HeartbeatIngestGuard } from "./heartbeat/heartbeat.guard";
 import { MonitorRepository } from "./persistence/monitor.repository";
 import { SchedulerService } from "./scheduler/scheduler.service";
 import { SnapshotService } from "./snapshot/snapshot.service";
@@ -31,6 +32,7 @@ import { StatusService } from "./status/status.service";
     DeadmanService,
     SnapshotService,
     StatusService,
+    HeartbeatIngestGuard,
     {
       provide: R2_CLIENT,
       inject: [ConfigService],

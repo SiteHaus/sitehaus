@@ -1,5 +1,6 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post, UseGuards } from "@nestjs/common";
 import { MonitorRepository } from "../persistence/monitor.repository";
+import { HeartbeatIngestGuard } from "./heartbeat.guard";
 
 /**
  * Push ingest for heartbeat monitors. Services that can't be polled (e.g. the
@@ -7,6 +8,7 @@ import { MonitorRepository } from "../persistence/monitor.repository";
  * what evaluateHeartbeat later turns into a `down`.
  */
 @Controller("heartbeat")
+@UseGuards(HeartbeatIngestGuard)
 export class HeartbeatController {
   constructor(private readonly repo: MonitorRepository) {}
 
