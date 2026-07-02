@@ -33,4 +33,36 @@ export type NotificationJobData =
       billingRecordId: string;
       clientId: string;
       amountCents: number;
+    }
+  // Lighthaus monitoring alerts — enqueued by apps/lighthaus-api onto this same
+  // queue. These MUST stay byte-for-byte aligned with `LighthausJob` in
+  // apps/lighthaus-api/src/dispatcher/dispatcher.service.ts.
+  | {
+      type: 'lighthaus.incident_opened';
+      monitorId: string;
+      monitorName: string;
+      group: string;
+      status: string;
+      detail: Record<string, unknown>;
+      openedAt: string;
+    }
+  | {
+      type: 'lighthaus.incident_resolved';
+      monitorId: string;
+      monitorName: string;
+      group: string;
+      openedAt: string;
+      resolvedAt: string;
+      downtimeMs: number;
+    }
+  | {
+      type: 'lighthaus.daily_digest';
+      date: string;
+      summary: {
+        monitorName: string;
+        group: string;
+        uptime24h: number;
+        status: string;
+      }[];
+      openIncidents: { monitorName: string; openedAt: string }[];
     };

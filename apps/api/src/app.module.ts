@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
 import authConfig from './conf/auth.config';
 import emailConfig from './conf/email.config';
+import opsConfig from './conf/ops.config';
 import redisConfig from './conf/redis.config';
 import storageConfig from './conf/storage.config';
 import stripeConfig from './conf/stripe.config';
@@ -40,7 +41,14 @@ import { TicketsModule } from './tickets/tickets.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [authConfig, emailConfig, storageConfig, redisConfig, stripeConfig],
+      load: [
+        authConfig,
+        emailConfig,
+        storageConfig,
+        redisConfig,
+        stripeConfig,
+        opsConfig,
+      ],
     }),
     BullModule.forRootAsync({
       inject: [redisConfig.KEY],
