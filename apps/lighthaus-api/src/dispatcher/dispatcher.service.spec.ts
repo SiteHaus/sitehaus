@@ -22,7 +22,9 @@ const configValues: Record<string, unknown> = {
   "lighthaus.lighthausUrl": "https://s.test",
 };
 
-async function build(add: jest.Mock, send: jest.Mock) {
+type AsyncFn = (...args: unknown[]) => Promise<unknown>;
+
+async function build(add: jest.Mock<AsyncFn>, send: jest.Mock<AsyncFn>) {
   const moduleRef = await Test.createTestingModule({
     providers: [
       DispatcherService,
@@ -36,8 +38,8 @@ async function build(add: jest.Mock, send: jest.Mock) {
 
 describe("DispatcherService", () => {
   it("enqueues the job and does not touch Resend when Redis is healthy", async () => {
-    const add = jest.fn().mockResolvedValue(undefined);
-    const send = jest.fn();
+    const add = jest.fn<AsyncFn>().mockResolvedValue(undefined);
+    const send = jest.fn<AsyncFn>();
     const dispatcher = await build(add, send);
 
     await dispatcher.dispatch(job);
@@ -47,8 +49,8 @@ describe("DispatcherService", () => {
   });
 
   it("falls back to a direct Resend send to ops when the queue rejects", async () => {
-    const add = jest.fn().mockRejectedValue(new Error("redis down"));
-    const send = jest.fn().mockResolvedValue(undefined);
+    const add = jest.fn<AsyncFn>().mockRejectedValue(new Error("redis down"));
+    const send = jest.fn<AsyncFn>().mockResolvedValue(undefined);
     const dispatcher = await build(add, send);
 
     await dispatcher.dispatch(job);
