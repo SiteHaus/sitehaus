@@ -29,6 +29,17 @@ export const monitors: MonitorConfig[] = [
     ],
   },
   {
+    name: "nayadnara.com",
+    group: "client-site",
+    clientId: process.env.NAYADNARA_CLIENT_ID, // set once Nayadnara has an OAuth client → scopes to his view
+    checks: [
+      { type: "http", target: "https://nayadnara.com" },
+      { type: "dns", target: "nayadnara.com" },
+      { type: "domain", target: "nayadnara.com", thresholds: { domainWarnDays: 30 } },
+      { type: "ssl", target: "nayadnara.com", thresholds: { sslWarnDays: 14 } },
+    ],
+  },
+  {
     name: "sitehaus-api",
     group: "sh-service",
     checks: [{ type: "service_health", target: "https://api.sitehaus.dev/health" }],
