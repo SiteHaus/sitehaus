@@ -32,7 +32,7 @@ export const IncidentTimeline = ({ incidents }: IncidentTimelineProps) => {
                 {meta.label}
                 {!inc.resolvedAt && <span className="text-red-600"> · ongoing</span>}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p className="font-numeric-id text-xs text-muted-foreground">
                 Started {formatDate(inc.openedAt, DATETIME)}
                 {inc.resolvedAt && ` · recovered ${formatDate(inc.resolvedAt, DATETIME)}`}
               </p>

@@ -8,7 +8,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ForbiddenError, useMonitorDetail } from "@/lib/status-client";
-import { statusMeta } from "@/lib/status";
+import { checkTypeLabel, statusMeta } from "@/lib/status";
 import { HistoryStrip } from "@/app/_components/history-strip";
 import { IncidentTimeline } from "@/app/_components/incident-timeline";
 import { UptimeBar } from "@/app/_components/uptime-bar";
@@ -53,7 +53,7 @@ export const MonitorDetail = ({ monitorId }: MonitorDetailProps) => {
   const meta = statusMeta(current);
 
   return (
-    <div className="space-y-6">
+    <div className="sh-fade-in space-y-6">
       <Link
         href="/"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
@@ -64,11 +64,11 @@ export const MonitorDetail = ({ monitorId }: MonitorDetailProps) => {
 
       <header className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className={cn("size-3 rounded-full", meta.dot)} aria-hidden />
+          <span className={cn("mt-1.5 size-3 shrink-0 rounded-full", meta.dot)} aria-hidden />
           <div>
-            <h1 className="text-lg font-semibold">{monitor.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              {label(monitor.group)} · {monitor.type}
+            <h1 className="font-display text-2xl leading-tight font-semibold">{monitor.name}</h1>
+            <p className="text-[11px] font-semibold tracking-[0.14em] text-primary uppercase">
+              {label(monitor.group)} · {checkTypeLabel(monitor.type)}
             </p>
           </div>
         </div>
@@ -77,15 +77,21 @@ export const MonitorDetail = ({ monitorId }: MonitorDetailProps) => {
 
       <Card className="gap-3 p-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Recent uptime</span>
+          <span className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+            Recent uptime
+          </span>
           <UptimeBar pct={recentUptime} />
         </div>
         <HistoryStrip history={history} />
-        <p className="text-xs text-muted-foreground">Last {history.length} checks</p>
+        <p className="font-numeric-id text-xs text-muted-foreground">
+          Last {history.length} checks
+        </p>
       </Card>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Incident history</h2>
+        <h2 className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+          Incident history
+        </h2>
         <IncidentTimeline incidents={incidents} />
       </section>
     </div>

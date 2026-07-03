@@ -20,7 +20,9 @@ export const GroupCard = ({ group, monitors }: GroupCardProps) => {
       <div className="flex items-center justify-between border-b bg-muted/30 px-4 py-3">
         <div className="flex items-center gap-2">
           <span className={cn("size-2.5 rounded-full", meta.dot)} aria-hidden />
-          <h2 className="text-sm font-semibold">{label(group)}</h2>
+          <h2 className="text-xs font-semibold tracking-[0.14em] text-foreground/80 uppercase">
+            {label(group)}
+          </h2>
         </div>
         <span className={cn("text-xs font-medium", meta.text)}>{meta.label}</span>
       </div>

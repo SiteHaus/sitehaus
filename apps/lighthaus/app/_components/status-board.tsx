@@ -43,17 +43,20 @@ export const StatusBoard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="sh-fade-in space-y-6">
       <header className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
           <Activity className="size-5" />
         </div>
         <div>
-          <h1 className="text-lg font-semibold">SiteHaus Status</h1>
+          <p className="text-[11px] font-semibold tracking-[0.14em] text-primary uppercase">
+            Status
+          </p>
+          <h1 className="font-display text-2xl leading-tight font-semibold">SiteHaus Status</h1>
           <p className="text-sm text-muted-foreground">{overallLabel(data.groups)}</p>
         </div>
         {data.isStaff && (
-          <span className="ml-auto rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+          <span className="ml-auto rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
             Staff view
           </span>
         )}
