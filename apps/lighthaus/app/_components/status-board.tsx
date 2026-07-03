@@ -5,6 +5,7 @@ import { Activity } from "lucide-react";
 import { useStatusBoard } from "@/lib/status-client";
 import { worstStatus } from "@/lib/status";
 import { GroupCard } from "./group-card";
+import { StatusHeaderActions } from "./status-header-actions";
 
 // Flatten every monitor across groups so the page banner can summarize the whole
 // system in one line.
@@ -55,11 +56,14 @@ export const StatusBoard = () => {
           <h1 className="font-display text-2xl leading-tight font-semibold">SiteHaus Status</h1>
           <p className="text-sm text-muted-foreground">{overallLabel(data.groups)}</p>
         </div>
-        {data.isStaff && (
-          <span className="ml-auto rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-            Staff view
-          </span>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {data.isStaff && (
+            <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+              Staff view
+            </span>
+          )}
+          <StatusHeaderActions />
+        </div>
       </header>
 
       {data.groups.length === 0 ? (
