@@ -10,7 +10,7 @@ import { QueueModule } from "./dispatcher/queue.module";
 import { HealthController } from "./health/health.controller";
 import { HeartbeatController } from "./heartbeat/heartbeat.controller";
 import { HeartbeatIngestGuard } from "./heartbeat/heartbeat.guard";
-import { MonitorRepository } from "./persistence/monitor.repository";
+import { PersistenceModule } from "./persistence/persistence.module";
 import { SchedulerService } from "./scheduler/scheduler.service";
 import { SnapshotService } from "./snapshot/snapshot.service";
 import { R2_CLIENT } from "./snapshot/tokens";
@@ -22,12 +22,12 @@ import { StatusService } from "./status/status.service";
     ConfigModule.forRoot({ isGlobal: true, load: [lighthausConfig] }),
     ScheduleModule.forRoot(),
     DbModule,
+    PersistenceModule,
     QueueModule,
     AuthModule,
   ],
   controllers: [HeartbeatController, HealthController, StatusController],
   providers: [
-    MonitorRepository,
     SchedulerService,
     DeadmanService,
     SnapshotService,

@@ -1,10 +1,12 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
+import { PersistenceModule } from "../persistence/persistence.module";
 import { AccessGuard } from "./access.guard";
 
 @Module({
   imports: [
+    PersistenceModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
