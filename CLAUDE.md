@@ -213,15 +213,17 @@ All apps are proxied through Caddy for local development. Config: `infra/Caddyfi
 
 Run with: `sudo caddy run --config infra/Caddyfile.dev`
 
-| Domain                   | App                       | Port  |
-| ------------------------ | ------------------------- | ----- |
-| `sitehaus.localhost`     | Marketing site            | :3000 |
-| `dashboard.localhost`    | Dashboard                 | :3001 |
-| `iam.localhost`          | IAM portal                | :3002 |
-| `api.localhost`          | NestJS API                | :3003 |
-| `commerce.localhost`     | Commerce admin UI         | :3004 |
-| `docs.localhost`         | Docs (Astro Starlight)    | :3005 |
-| `commerce-api.localhost` | sitehaus-commerce gateway | :7020 |
+| Domain                    | App                       | Port  |
+| ------------------------- | ------------------------- | ----- |
+| `sitehaus.localhost`      | Marketing site            | :3000 |
+| `dashboard.localhost`     | Dashboard                 | :3001 |
+| `iam.localhost`           | IAM portal                | :3002 |
+| `api.localhost`           | NestJS API                | :3003 |
+| `commerce.localhost`      | Commerce admin UI         | :3004 |
+| `docs.localhost`          | Docs (Astro Starlight)    | :3005 |
+| `status.localhost`        | Lighthaus status UI       | :3006 |
+| `lighthaus-api.localhost` | Lighthaus read/ingest API | :3007 |
+| `commerce-api.localhost`  | sitehaus-commerce gateway | :7020 |
 
 Caddy provides HTTPS via auto-provisioned TLS for `.localhost` domains, enabling proper cookie scoping and OAuth redirect URIs that mirror production.
 
@@ -233,6 +235,8 @@ Caddy provides HTTPS via auto-provisioned TLS for `.localhost` domains, enabling
 - 3003: NestJS API
 - 3004: Commerce admin UI
 - 3005: Docs (Astro Starlight)
+- 3006: Lighthaus status UI (lighthaus)
+- 3007: Lighthaus API (lighthaus-api)
 - 6969: Email preview server (transactional)
 - 5432: PostgreSQL (Docker)
 

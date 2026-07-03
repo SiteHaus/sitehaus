@@ -31,6 +31,14 @@ docs.localhost {
 	reverse_proxy localhost:3005
 }
 
+status.localhost {
+	reverse_proxy localhost:3006
+}
+
+lighthaus-api.localhost {
+	reverse_proxy localhost:3007
+}
+
 commerce-api.localhost {
 	reverse_proxy localhost:7020
 }
