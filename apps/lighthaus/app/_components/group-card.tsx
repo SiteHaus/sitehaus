@@ -16,7 +16,7 @@ export const GroupCard = ({ group, monitors }: GroupCardProps) => {
   const meta = statusMeta(roll);
 
   return (
-    <Card className="overflow-hidden py-0">
+    <Card className="gap-0 overflow-hidden py-0">
       <div className="flex items-center justify-between border-b bg-muted/30 px-4 py-3">
         <div className="flex items-center gap-2">
           <span className={cn("size-2.5 rounded-full", meta.dot)} aria-hidden />
