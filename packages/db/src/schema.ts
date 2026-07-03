@@ -1,10 +1,12 @@
 export * from "./core/index.js";
 export * from "./iam/index.js";
+export * from "./monitoring/index.js";
 
 import { drizzle, NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as core from "./core/index.js";
 import * as iam from "./iam/index.js";
+import * as monitoring from "./monitoring/index.js";
 
 export {
   and,
@@ -28,6 +30,7 @@ export {
 export const schema = {
   ...iam,
   ...core,
+  ...monitoring,
 } as const;
 
 export type Db = NodePgDatabase<typeof schema>;

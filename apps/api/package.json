@@ -11,9 +11,9 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:cov": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
@@ -93,8 +93,7 @@
       ".ts"
     ],
     "roots": [
-      "<rootDir>/src",
-      "<rootDir>/test"
+      "<rootDir>/src"
     ],
     "moduleFileExtensions": [
       "ts",
@@ -106,16 +105,19 @@
         "ts-jest",
         {
           "useESM": true,
-          "tsconfig": "<rootDir>/tsconfig.json"
+          "tsconfig": "<rootDir>/tsconfig.spec.json"
         }
       ]
     },
     "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1",
       "^src/(.*)$": "<rootDir>/src/$1",
       "^@site-haus/validation/forms/users$": "<rootDir>/test/__mocks__/@site-haus/validation/forms/users.ts",
       "^@site-haus/validation(.*)$": "<rootDir>/../../packages/validation/src$1",
       "^@site-haus/utils/(.*)$": "<rootDir>/../../packages/utils/src/$1",
-      "^@site-haus/db$": "<rootDir>/../../packages/db/src/index.ts"
+      "^@site-haus/transactional/render/(.*)$": "<rootDir>/../../packages/transactional/dist/render/$1.js",
+      "^@site-haus/transactional$": "<rootDir>/../../packages/transactional/dist/index.js",
+      "^@site-haus/db$": "<rootDir>/../../packages/db/src/schema.ts"
     }
   }
 }

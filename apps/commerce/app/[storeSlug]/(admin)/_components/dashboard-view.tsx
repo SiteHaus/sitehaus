@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@site-haus/ui/components/base/button";
-import { LayoutDashboard } from "lucide-react";
 import { useState } from "react";
-import { PageHero } from "@/components/page-hero";
+import { PageHeader } from "@/components/ui/page-header";
 import { LowStockAlerts } from "./low-stock-alerts";
 import { RecentOrders } from "./recent-orders";
 import { RevenueChart } from "./revenue-chart";
@@ -22,27 +21,25 @@ export function DashboardView({ firstName }: { firstName: string }) {
 
   return (
     <div className="space-y-6">
-      <PageHero
-        icon={LayoutDashboard}
-        title={`Welcome back, ${firstName}`}
-        subtitle="Here's what's happening in your store."
-        size="lg"
-        className="py-14 bg-gradient-to-br from-primary/[0.08] via-sidebar to-sidebar"
-      >
-        <div className="flex items-center gap-1 border rounded-lg p-1">
-          {PERIODS.map((p) => (
-            <Button
-              key={p.value}
-              variant={period === p.value ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => setPeriod(p.value)}
-            >
-              {p.label}
-            </Button>
-          ))}
-        </div>
-      </PageHero>
+      <PageHeader
+        title="Dashboard"
+        subtitle={`Welcome back, ${firstName}`}
+        actions={
+          <div className="flex items-center gap-1 border rounded-lg p-1">
+            {PERIODS.map((p) => (
+              <Button
+                key={p.value}
+                variant={period === p.value ? "default" : "ghost"}
+                size="sm"
+                className="h-7 px-3 text-xs"
+                onClick={() => setPeriod(p.value)}
+              >
+                {p.label}
+              </Button>
+            ))}
+          </div>
+        }
+      />
 
       <StatCards period={period} />
 

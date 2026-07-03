@@ -1,9 +1,10 @@
 "use client";
 
 import { collectOrder, getMyStore, getOrder, refundOrder, shipOrder } from "@/lib/commerce";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
 import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +25,7 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Package, RotateCcw, Truck } from "lucide-react";
+import { ChevronLeft, Loader2, Package, RotateCcw, Truck } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -116,81 +117,74 @@ export default function OrderDetailPage() {
   const canCollect = order.status === "confirmed" && fulfillmentType === "pickup";
   const canRefund = order.status === "confirmed" || order.status === "shipped";
   const ref = order.id.slice(0, 8).toUpperCase();
-
   const hasShipping = order.shippingLine1 || order.shippingName;
 
   return (
-    <div className="max-w-3xl">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => push("/orders")}>
-          <ArrowLeft className="size-4" />
-        </Button>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold font-mono">#{ref}</h1>
-            <OrderStatusBadge status={order.status} />
-          </div>
-          <p className="text-sm text-muted-foreground mt-0.5">{order.email}</p>
-        </div>
-        <div className="flex gap-2">
-          {canShip && (
-            <Button size="sm" onClick={() => setShipDialogOpen(true)}>
-              <Truck className="size-4" />
-              Mark Shipped
+    <div>
+      <PageHeader
+        eyebrow="Orders"
+        title={`#${ref}`}
+        titleClassName="font-numeric-id"
+        subtitle={`${order.email} · ${formatDate(order.createdAt)}`}
+        aside={<OrderStatusBadge status={order.status} />}
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => push("/orders")}>
+              <ChevronLeft className="size-4" />
+              Orders
             </Button>
-          )}
-          {canCollect && (
-            <Button size="sm" onClick={() => setCollectDialogOpen(true)}>
-              <Package className="size-4" />
-              Mark Collected
-            </Button>
-          )}
-          {canRefund && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-destructive hover:text-destructive"
-              onClick={() => setRefundDialogOpen(true)}
-            >
-              <RotateCcw className="size-4" />
-              Refund
-            </Button>
-          )}
-        </div>
-      </div>
+            {canShip && (
+              <Button size="sm" onClick={() => setShipDialogOpen(true)}>
+                <Truck className="size-4" />
+                Mark Shipped
+              </Button>
+            )}
+            {canCollect && (
+              <Button size="sm" onClick={() => setCollectDialogOpen(true)}>
+                <Package className="size-4" />
+                Mark Collected
+              </Button>
+            )}
+            {canRefund && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setRefundDialogOpen(true)}
+              >
+                <RotateCcw className="size-4" />
+                Refund
+              </Button>
+            )}
+          </>
+        }
+      />
 
-      {/* Timeline */}
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle className="text-base">Timeline</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-muted-foreground">Placed</p>
-            <p className="font-medium">{formatDate(order.createdAt)}</p>
+      <div className="max-w-3xl space-y-4">
+        {/* Timeline */}
+        <SectionCard title="Timeline">
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <p className="text-muted-foreground">Placed</p>
+              <p className="font-medium">{formatDate(order.createdAt)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Confirmed</p>
+              <p className="font-medium">{formatDate(order.confirmedAt)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Shipped</p>
+              <p className="font-medium">{formatDate(order.shippedAt)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Tracking #</p>
+              <p className="font-medium">{order.trackingNumber ?? "—"}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-muted-foreground">Confirmed</p>
-            <p className="font-medium">{formatDate(order.confirmedAt)}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Shipped</p>
-            <p className="font-medium">{formatDate(order.shippedAt)}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Tracking #</p>
-            <p className="font-medium">{order.trackingNumber ?? "—"}</p>
-          </div>
-        </CardContent>
-      </Card>
+        </SectionCard>
 
-      {/* Items */}
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle className="text-base">Items</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
+        {/* Items */}
+        <SectionCard title="Items" contentClassName="p-0">
           <Table>
             <TableHeader>
               <TableRow>
@@ -241,29 +235,26 @@ export default function OrderDetailPage() {
               <span>{formatCents(order.totalCents, order.currency)}</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </SectionCard>
 
-      {/* Shipping address */}
-      {hasShipping && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Shipping Address</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm space-y-0.5">
-            {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
-            {order.shippingLine1 && <p>{order.shippingLine1}</p>}
-            {order.shippingLine2 && <p>{order.shippingLine2}</p>}
-            {(order.shippingCity || order.shippingState || order.shippingZip) && (
-              <p>
-                {[order.shippingCity, order.shippingState, order.shippingZip]
-                  .filter(Boolean)
-                  .join(", ")}
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      )}
+        {/* Shipping address */}
+        {hasShipping && (
+          <SectionCard title="Shipping Address">
+            <div className="text-sm space-y-0.5">
+              {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
+              {order.shippingLine1 && <p>{order.shippingLine1}</p>}
+              {order.shippingLine2 && <p>{order.shippingLine2}</p>}
+              {(order.shippingCity || order.shippingState || order.shippingZip) && (
+                <p>
+                  {[order.shippingCity, order.shippingState, order.shippingZip]
+                    .filter(Boolean)
+                    .join(", ")}
+                </p>
+              )}
+            </div>
+          </SectionCard>
+        )}
+      </div>
 
       {/* Ship dialog */}
       <Dialog open={shipDialogOpen} onOpenChange={(o) => !o && setShipDialogOpen(false)}>

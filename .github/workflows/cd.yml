@@ -39,6 +39,10 @@ jobs:
             dockerfile: apps/api/Dockerfile
             api_url: ""
             client_key: ""
+          - app: lighthaus-api
+            dockerfile: apps/lighthaus-api/Dockerfile
+            api_url: ""
+            client_key: ""
           - app: commerce
             dockerfile: apps/commerce/Dockerfile
             api_url: https://api.staging.sitehaus.dev
@@ -86,6 +90,9 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             docker compose -f docker-compose.staging.yml pull
+            # Migrate before app boot — lighthaus-api reads new monitoring tables.
+            docker compose -f docker-compose.staging.yml up -d postgres
+            docker compose -f docker-compose.staging.yml run --rm migrate
             docker compose -f docker-compose.staging.yml up -d --remove-orphans
             docker image prune -f
 
@@ -123,6 +130,10 @@ jobs:
             client_key: iam
           - app: api
             dockerfile: apps/api/Dockerfile
+            api_url: ""
+            client_key: ""
+          - app: lighthaus-api
+            dockerfile: apps/lighthaus-api/Dockerfile
             api_url: ""
             client_key: ""
           - app: commerce
@@ -170,6 +181,9 @@ jobs:
             cd /srv/sitehaus
             git pull origin main
             docker compose -f docker-compose.prod.yml pull
+            # Migrate before app boot — lighthaus-api reads new monitoring tables.
+            docker compose -f docker-compose.prod.yml up -d postgres
+            docker compose -f docker-compose.prod.yml run --rm migrate
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             docker compose -f docker-compose.prod.yml restart caddy
             docker image prune -f

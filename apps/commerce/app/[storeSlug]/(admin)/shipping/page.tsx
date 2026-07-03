@@ -1,7 +1,8 @@
 "use client";
 
 import { listShippingZones } from "@/lib/commerce";
-import { PageHero } from "@/components/page-hero";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -21,18 +22,20 @@ export default function ShippingPage() {
 
   const zones = data?.items ?? [];
 
+  const newZoneButton = (
+    <Button onClick={() => setAddOpen(true)}>
+      <Plus className="size-4" />
+      Add Zone
+    </Button>
+  );
+
   return (
     <div className="space-y-6">
-      <PageHero
-        icon={Truck}
+      <PageHeader
         title="Shipping"
-        subtitle="Configure which countries you ship to and what rates apply."
-      >
-        <Button onClick={() => setAddOpen(true)}>
-          <Plus className="size-4 mr-2" />
-          Add Zone
-        </Button>
-      </PageHero>
+        subtitle={isLoading ? "—" : `${zones.length} zone${zones.length !== 1 ? "s" : ""}`}
+        actions={newZoneButton}
+      />
 
       {isLoading ? (
         <div className="space-y-4">
@@ -41,17 +44,12 @@ export default function ShippingPage() {
           ))}
         </div>
       ) : zones.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center border rounded-lg bg-card">
-          <Truck className="size-10 text-muted-foreground/40 mb-4" />
-          <p className="font-medium">No shipping zones configured</p>
-          <p className="text-sm text-muted-foreground mt-1 mb-4">
-            Add a zone to define where you ship and what rates apply.
-          </p>
-          <Button onClick={() => setAddOpen(true)}>
-            <Plus className="size-4 mr-2" />
-            Add Zone
-          </Button>
-        </div>
+        <EmptyState
+          icon={Truck}
+          title="No shipping zones"
+          description="Add a zone to define where you ship and what rates apply."
+          action={newZoneButton}
+        />
       ) : (
         <div className="space-y-4">
           {zones.map((zone) => (

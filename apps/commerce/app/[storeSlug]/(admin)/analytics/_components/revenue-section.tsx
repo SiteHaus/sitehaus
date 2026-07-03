@@ -1,7 +1,7 @@
 "use client";
 
 import { getAnalyticsRevenue, type RevenuePeriod } from "@/lib/commerce";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
+import { SectionCard } from "@/components/ui/section-card";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
   ChartContainer,
@@ -48,11 +48,8 @@ export function RevenueSection({ period }: { period: PeriodOption }) {
   const aov = totals.orders > 0 ? totals.revenue / totals.orders : 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Revenue</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <SectionCard title="Revenue">
+      <div className="space-y-6">
         <div className="grid grid-cols-3 gap-4">
           {isLoading ? (
             Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-12 w-full" />)
@@ -117,7 +114,7 @@ export function RevenueSection({ period }: { period: PeriodOption }) {
             </AreaChart>
           </ChartContainer>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </SectionCard>
   );
 }

@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  collectOrder,
-  getMyStore,
-  listOrders,
-  shipOrder,
-  type AdminOrderSummary,
-  type OrderStatus,
-} from "@/lib/commerce";
+import { collectOrder, getMyStore, listOrders, shipOrder, type OrderStatus } from "@/lib/commerce";
+import { REAL_ORDER_STATUSES } from "@/lib/order-display";
+import { formatCents, formatDate } from "@/lib/format";
 import { useStoreNav } from "@/lib/use-store-nav";
-import { PageHero } from "@/components/page-hero";
+import { Avatar, AvatarFallback } from "@site-haus/ui/components/base/avatar";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
   Dialog,
@@ -20,65 +15,83 @@ import {
 } from "@site-haus/ui/components/base/dialog";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
-import { Skeleton } from "@site-haus/ui/components/base/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@site-haus/ui/components/base/table";
-import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
+import { TableCell } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, ChevronDown, Loader2, Package, ShoppingCart, Truck } from "lucide-react";
+import { Loader2, ShoppingCart, Truck } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { OrderStatusBadge } from "./_components/order-status-badge";
+import { OrderFilterCards, type OrderFilterKey } from "./_components/order-filter-cards";
+import { AbandonedDrawer } from "./_components/abandoned-drawer";
+import { RevenueSummary } from "./_components/revenue-summary";
+import { PageHeader } from "@/components/ui/page-header";
+import { DataTableShell } from "@/components/ui/data-table-shell";
 
 const LIMIT = 20;
 
-const STATUS_TABS: { label: string; value: OrderStatus | "all" }[] = [
-  { label: "All", value: "all" },
-  { label: "Paid", value: "confirmed" },
-  { label: "Shipped", value: "shipped" },
-  { label: "Delivered", value: "delivered" },
-  { label: "Refunded", value: "refunded" },
-  { label: "Cancelled", value: "cancelled" },
-];
+const FILTER_STATUSES: Record<OrderFilterKey, OrderStatus[]> = {
+  all: REAL_ORDER_STATUSES,
+  confirmed: ["confirmed"],
+  shipped: ["shipped"],
+  delivered: ["delivered"],
+  refunded: ["refunded"],
+  cancelled: ["cancelled"],
+};
 
-function formatCents(cents: number, currency: string) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currency.toUpperCase(),
-  }).format(cents / 100);
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
+function useOrderCount(key: OrderFilterKey) {
+  return useQuery({
+    queryKey: ["orders", "count", key],
+    queryFn: () => listOrders({ status: FILTER_STATUSES[key], limit: 1 }).then((r) => r.total),
   });
 }
 
 export default function OrdersPage() {
   const { push } = useStoreNav();
   const qc = useQueryClient();
-  const [status, setStatus] = useState<OrderStatus | "all">("all");
+  const [filter, setFilter] = useState<OrderFilterKey>("all");
   const [email, setEmail] = useState("");
   const [emailSearch, setEmailSearch] = useState("");
   const [offset, setOffset] = useState(0);
-  const [awaitingOpen, setAwaitingOpen] = useState(false);
   const [shipOrderId, setShipOrderId] = useState<string | null>(null);
   const [trackingNumber, setTrackingNumber] = useState("");
 
   const { data: store } = useQuery({ queryKey: ["store"], queryFn: getMyStore });
   const fulfillmentType = store?.fulfillmentType ?? "shipping";
 
-  const { data: actionQueueData, isLoading: actionQueueLoading } = useQuery({
-    queryKey: ["orders", "confirmed-queue"],
-    queryFn: () => listOrders({ status: "confirmed", limit: 50, sort: "newest" }),
+  // ── card counts (total only) ──
+  const allCount = useOrderCount("all");
+  const confirmedCount = useOrderCount("confirmed");
+  const shippedCount = useOrderCount("shipped");
+  const deliveredCount = useOrderCount("delivered");
+  const refundedCount = useOrderCount("refunded");
+  const cancelledCount = useOrderCount("cancelled");
+
+  const counts: Record<OrderFilterKey, number | undefined> = {
+    all: allCount.data,
+    confirmed: confirmedCount.data,
+    shipped: shippedCount.data,
+    delivered: deliveredCount.data,
+    refunded: refundedCount.data,
+    cancelled: cancelledCount.data,
+  };
+
+  // ── abandoned (pending) ──
+  const { data: pendingData } = useQuery({
+    queryKey: ["orders", "pending"],
+    queryFn: () => listOrders({ status: ["pending"], limit: 50, sort: "newest" }),
+  });
+
+  // ── main list ──
+  const { data, isLoading } = useQuery({
+    queryKey: ["orders", "list", filter, emailSearch, offset],
+    queryFn: () =>
+      listOrders({
+        status: FILTER_STATUSES[filter],
+        email: emailSearch || undefined,
+        limit: LIMIT,
+        offset,
+        sort: "newest",
+      }),
   });
 
   const shipMutation = useMutation({
@@ -101,31 +114,12 @@ export default function OrdersPage() {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to collect order"),
   });
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["orders", status, emailSearch, offset],
-    queryFn: () =>
-      listOrders({
-        status: status === "all" ? undefined : status,
-        email: emailSearch || undefined,
-        limit: LIMIT,
-        offset,
-        sort: "newest",
-      }),
-  });
-
-  const { data: awaitingData } = useQuery({
-    queryKey: ["orders", "pending-summary"],
-    queryFn: () => listOrders({ status: "pending", limit: 50, sort: "newest" }),
-  });
-
-  const awaitingTotal = awaitingData?.total ?? 0;
-
   const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / LIMIT);
   const currentPage = Math.floor(offset / LIMIT) + 1;
 
-  function handleStatusChange(value: string) {
-    setStatus(value as OrderStatus | "all");
+  function handleSelect(key: OrderFilterKey) {
+    setFilter(key);
     setOffset(0);
   }
 
@@ -137,13 +131,19 @@ export default function OrdersPage() {
 
   return (
     <div>
-      <PageHero
-        icon={ShoppingCart}
+      <PageHeader
         title="Orders"
-        subtitle={isLoading ? "—" : `${total} order${total !== 1 ? "s" : ""}`}
+        subtitle={
+          allCount.data === undefined
+            ? "—"
+            : `${allCount.data} order${allCount.data !== 1 ? "s" : ""}`
+        }
+        aside={<RevenueSummary />}
       />
 
-      <form onSubmit={handleEmailSearch} className="flex gap-2 mb-6">
+      <OrderFilterCards active={filter} onSelect={handleSelect} counts={counts} />
+
+      <form onSubmit={handleEmailSearch} className="mt-6 mb-4 flex gap-2">
         <Input
           placeholder="Search by email..."
           value={email}
@@ -169,183 +169,81 @@ export default function OrdersPage() {
         )}
       </form>
 
-      {/* Action queue */}
-      <div className="border rounded-lg mb-6">
-        <div className="px-4 py-3 border-b flex items-center gap-2">
-          {fulfillmentType === "pickup" ? (
-            <Package className="size-4 text-muted-foreground" />
-          ) : (
-            <Truck className="size-4 text-muted-foreground" />
-          )}
-          <span className="text-sm font-medium">
-            {fulfillmentType === "pickup" ? "Ready for Pickup" : "Ready to Ship"}
-          </span>
-          {!actionQueueLoading && (
-            <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
-              {actionQueueData?.total ?? 0}
-            </span>
-          )}
-        </div>
-        {actionQueueLoading ? (
-          <div className="p-4 space-y-2">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <Skeleton key={i} className="h-10 w-full" />
-            ))}
-          </div>
-        ) : actionQueueData?.items.length === 0 ? (
-          <div className="flex items-center gap-2 px-4 py-5 text-sm text-muted-foreground">
-            <CheckCircle2 className="size-4 text-green-500 shrink-0" />
-            You&apos;re all caught up
-          </div>
-        ) : (
-          <Table>
-            <TableBody>
-              {actionQueueData?.items.map((order: AdminOrderSummary) => (
-                <TableRow key={order.id}>
-                  <TableCell
-                    className="font-mono text-sm font-medium cursor-pointer"
-                    onClick={() => push(`/orders/${order.id}`)}
+      <DataTableShell
+        columns={[
+          { header: "Order" },
+          { header: "Customer" },
+          { header: "Status" },
+          { header: "Items" },
+          { header: "Total" },
+          { header: "Date" },
+          { header: "Action", className: "text-right" },
+        ]}
+        rows={data?.items ?? []}
+        getRowKey={(o) => o.id}
+        isLoading={isLoading}
+        onRowClick={(o) => push(`/orders/${o.id}`)}
+        empty={{ icon: ShoppingCart, title: "No orders found" }}
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={(p) => setOffset((p - 1) * LIMIT)}
+        renderRow={(order) => (
+          <>
+            <TableCell className="font-numeric-id text-sm font-medium">
+              #{order.id.slice(0, 8).toUpperCase()}
+            </TableCell>
+            <TableCell>
+              <span className="flex items-center gap-2">
+                <Avatar className="size-7">
+                  <AvatarFallback className="text-[11px]">
+                    {order.email.slice(0, 1).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-muted-foreground">{order.email}</span>
+              </span>
+            </TableCell>
+            <TableCell>
+              <OrderStatusBadge status={order.status} />
+            </TableCell>
+            <TableCell className="text-muted-foreground">{order.itemCount}</TableCell>
+            <TableCell className="font-medium">
+              {formatCents(order.totalCents, order.currency)}
+            </TableCell>
+            <TableCell className="text-muted-foreground">{formatDate(order.createdAt)}</TableCell>
+            <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+              {order.status === "confirmed" &&
+                (fulfillmentType === "pickup" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => collectMutation.mutate(order.id)}
+                    disabled={collectMutation.isPending}
                   >
-                    #{order.id.slice(0, 8).toUpperCase()}
-                  </TableCell>
-                  <TableCell
-                    className="text-muted-foreground cursor-pointer"
-                    onClick={() => push(`/orders/${order.id}`)}
+                    {collectMutation.isPending && <Loader2 className="size-3.5 animate-spin" />}
+                    Mark collected
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setShipOrderId(order.id);
+                      setTrackingNumber("");
+                    }}
                   >
-                    {order.email}
-                  </TableCell>
-                  <TableCell
-                    className="text-muted-foreground cursor-pointer"
-                    onClick={() => push(`/orders/${order.id}`)}
-                  >
-                    {formatDate(order.createdAt)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {fulfillmentType === "pickup" ? (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => collectMutation.mutate(order.id)}
-                        disabled={collectMutation.isPending}
-                      >
-                        {collectMutation.isPending && <Loader2 className="size-3.5 animate-spin" />}
-                        Mark Collected
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setShipOrderId(order.id);
-                          setTrackingNumber("");
-                        }}
-                      >
-                        <Truck className="size-3.5" />
-                        Ship
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    <Truck className="size-3.5" />
+                    Ship
+                  </Button>
+                ))}
+            </TableCell>
+          </>
         )}
-      </div>
+      />
 
-      <Tabs value={status} onValueChange={handleStatusChange} className="mb-4">
-        <TabsList>
-          {STATUS_TABS.map((t) => (
-            <TabsTrigger key={t.value} value={t.value}>
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Order</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Items</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Date</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  {Array.from({ length: 6 }).map((_, j) => (
-                    <TableCell key={j}>
-                      <Skeleton className="h-4 w-24" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : data?.items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={6}>
-                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                    <ShoppingCart className="size-10 mb-3 opacity-30" />
-                    <p className="font-medium">No orders found</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              data?.items.map((order: AdminOrderSummary) => (
-                <TableRow
-                  key={order.id}
-                  className="cursor-pointer"
-                  onClick={() => push(`/orders/${order.id}`)}
-                >
-                  <TableCell className="font-mono text-sm font-medium">
-                    #{order.id.slice(0, 8).toUpperCase()}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{order.email}</TableCell>
-                  <TableCell>
-                    <OrderStatusBadge status={order.status} />
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{order.itemCount}</TableCell>
-                  <TableCell className="font-medium">
-                    {formatCents(order.totalCents, order.currency)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(order.createdAt)}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={offset === 0}
-              onClick={() => setOffset((o) => Math.max(0, o - LIMIT))}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={offset + LIMIT >= total}
-              onClick={() => setOffset((o) => o + LIMIT)}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+      <AbandonedDrawer
+        items={pendingData?.items ?? []}
+        total={pendingData?.total ?? 0}
+        onOpenOrder={(id) => push(`/orders/${id}`)}
+      />
 
       <Dialog
         open={!!shipOrderId}
@@ -387,65 +285,11 @@ export default function OrdersPage() {
               disabled={shipMutation.isPending || !trackingNumber.trim()}
             >
               {shipMutation.isPending && <Loader2 className="size-4 animate-spin" />}
-              Confirm
+              Confirm & notify buyer
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {awaitingTotal > 0 && (
-        <div className="mt-6 border rounded-lg overflow-hidden">
-          <button
-            className="flex items-center gap-2 w-full px-4 py-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-colors"
-            onClick={() => setAwaitingOpen((v) => !v)}
-          >
-            <ChevronDown
-              className={`size-4 transition-transform ${awaitingOpen ? "rotate-180" : ""}`}
-            />
-            <span className="font-medium">Awaiting Payment</span>
-            <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium">
-              {awaitingTotal}
-            </span>
-          </button>
-          {awaitingOpen && (
-            <div className="border-t opacity-60">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Items</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Date</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {awaitingData?.items.map((order: AdminOrderSummary) => (
-                    <TableRow
-                      key={order.id}
-                      className="cursor-pointer"
-                      onClick={() => push(`/orders/${order.id}`)}
-                    >
-                      <TableCell className="font-mono text-sm font-medium">
-                        #{order.id.slice(0, 8).toUpperCase()}
-                      </TableCell>
-                      <TableCell>{order.email}</TableCell>
-                      <TableCell>{order.itemCount}</TableCell>
-                      <TableCell>{formatCents(order.totalCents, order.currency)}</TableCell>
-                      <TableCell>{formatDate(order.createdAt)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {awaitingTotal > 50 && (
-                <p className="py-2 text-center text-xs text-muted-foreground">
-                  Showing 50 of {awaitingTotal}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

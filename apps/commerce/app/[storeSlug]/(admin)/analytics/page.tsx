@@ -2,8 +2,7 @@
 
 import { Button } from "@site-haus/ui/components/base/button";
 import { useState } from "react";
-import { BarChart3 } from "lucide-react";
-import { PageHero } from "@/components/page-hero";
+import { PageHeader } from "@/components/ui/page-header";
 import { type PeriodOption } from "../_components/period-utils";
 import { AbandonedCartsSection } from "./_components/abandoned-carts-section";
 import { FunnelSection } from "./_components/funnel-section";
@@ -20,27 +19,29 @@ const PERIODS: { label: string; value: PeriodOption }[] = [
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState<PeriodOption>("30d");
 
+  const periodPicker = (
+    <div className="flex items-center gap-1 border rounded-lg p-1">
+      {PERIODS.map((p) => (
+        <Button
+          key={p.value}
+          variant={period === p.value ? "default" : "ghost"}
+          size="sm"
+          className="h-7 px-3 text-xs"
+          onClick={() => setPeriod(p.value)}
+        >
+          {p.label}
+        </Button>
+      ))}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
-      <PageHero
-        icon={BarChart3}
+      <PageHeader
         title="Analytics"
         subtitle="Store performance for the selected period."
-      >
-        <div className="flex items-center gap-1 border rounded-lg p-1">
-          {PERIODS.map((p) => (
-            <Button
-              key={p.value}
-              variant={period === p.value ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => setPeriod(p.value)}
-            >
-              {p.label}
-            </Button>
-          ))}
-        </div>
-      </PageHero>
+        actions={periodPicker}
+      />
 
       <RevenueSection period={period} />
 

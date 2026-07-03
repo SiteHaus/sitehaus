@@ -27,17 +27,9 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ChevronDown,
-  ChevronRight,
-  Loader2,
-  Pencil,
-  Plus,
-  Trash2,
-  Webhook,
-  Zap,
-} from "lucide-react";
-import { PageHero } from "@/components/page-hero";
+import { ChevronDown, ChevronRight, Loader2, Pencil, Plus, Trash2, Webhook } from "lucide-react";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { useState } from "react";
 import { toast } from "sonner";
 import { DeliveryLog } from "./_components/delivery-log";
@@ -199,21 +191,25 @@ export default function WebhooksPage() {
     toast.success("Endpoint created");
   }
 
+  const addButton = (
+    <Button onClick={() => setCreateOpen(true)}>
+      <Plus className="size-4" />
+      Add Endpoint
+    </Button>
+  );
+
   return (
     <div className="space-y-6">
-      <PageHero
-        icon={Zap}
+      <PageHeader
         title="Webhooks"
-        subtitle="Send real-time event notifications to your own endpoints."
-      >
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="size-4 mr-2" />
-          Add Endpoint
-        </Button>
-      </PageHero>
+        subtitle={
+          isLoading ? "—" : `${endpoints.length} endpoint${endpoints.length !== 1 ? "s" : ""}`
+        }
+        actions={addButton}
+      />
 
       {isLoading ? (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-xl border">
           <Table>
             <TableHeader>
               <TableRow>
@@ -248,19 +244,14 @@ export default function WebhooksPage() {
           </Table>
         </div>
       ) : endpoints.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-24 text-center border rounded-lg bg-card">
-          <Webhook className="size-10 text-muted-foreground/40 mb-4" />
-          <p className="font-medium">No webhook endpoints configured</p>
-          <p className="text-sm text-muted-foreground mt-1 mb-4">
-            Add an endpoint to start receiving real-time event notifications.
-          </p>
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="size-4 mr-2" />
-            Add Endpoint
-          </Button>
-        </div>
+        <EmptyState
+          icon={Webhook}
+          title="No endpoints configured"
+          description="Add an endpoint to start receiving real-time event notifications."
+          action={addButton}
+        />
       ) : (
-        <div className="border rounded-lg overflow-hidden">
+        <div className="overflow-hidden rounded-xl border sh-fade-in">
           <Table>
             <TableHeader>
               <TableRow>

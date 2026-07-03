@@ -1,7 +1,7 @@
 "use client";
 
 import { getAnalyticsAbandonedCarts, getAnalyticsAbandonedCartsList } from "@/lib/commerce";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
+import { SectionCard } from "@/components/ui/section-card";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import {
   Table,
@@ -46,11 +46,8 @@ export function AbandonedCartsSection({ period }: { period: PeriodOption }) {
   const hasAbandonedCarts = summary && summary.abandoned > 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Abandoned Carts</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <SectionCard title="Abandoned Carts">
+      <div className="space-y-6">
         {/* Summary stats */}
         {summaryLoading ? (
           <div className="grid grid-cols-3 gap-4">
@@ -152,7 +149,7 @@ export function AbandonedCartsSection({ period }: { period: PeriodOption }) {
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </SectionCard>
   );
 }

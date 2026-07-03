@@ -225,6 +225,14 @@ export function RateDialog({ open, onClose, zoneId, rate }: Props) {
             <div className="flex items-center gap-2 sm:mr-auto">
               <span className="text-sm text-destructive">Delete this rate?</span>
               <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeleteConfirm(false)}
+                disabled={deleteMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => deleteMutation.mutate()}
@@ -232,14 +240,6 @@ export function RateDialog({ open, onClose, zoneId, rate }: Props) {
               >
                 {deleteMutation.isPending && <Loader2 className="size-3 animate-spin" />}
                 Yes, delete
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDeleteConfirm(false)}
-                disabled={deleteMutation.isPending}
-              >
-                Cancel
               </Button>
             </div>
           )}

@@ -14,6 +14,10 @@ export class HealthController {
 
   @Get()
   checkApi() {
-    return { status: 'ok' };
+    return {
+      status: 'ok',
+      uptime: Math.floor(process.uptime()),
+      version: process.env.APP_VERSION ?? 'dev',
+    };
   }
 }

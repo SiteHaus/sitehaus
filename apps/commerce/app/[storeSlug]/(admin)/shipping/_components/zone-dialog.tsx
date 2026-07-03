@@ -194,6 +194,14 @@ export function ZoneDialog({ open, onClose, zone }: Props) {
             <div className="flex items-center gap-2 sm:mr-auto">
               <span className="text-sm text-destructive">Delete this zone?</span>
               <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setDeleteConfirm(false)}
+                disabled={deleteMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => deleteMutation.mutate()}
@@ -201,14 +209,6 @@ export function ZoneDialog({ open, onClose, zone }: Props) {
               >
                 {deleteMutation.isPending && <Loader2 className="size-3 animate-spin" />}
                 Yes, delete
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDeleteConfirm(false)}
-                disabled={deleteMutation.isPending}
-              >
-                Cancel
               </Button>
             </div>
           )}
