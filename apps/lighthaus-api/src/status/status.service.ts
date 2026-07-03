@@ -9,6 +9,7 @@ export interface StatusMonitorView {
   name: string;
   type: string;
   status: string;
+  latencyMs: number | null;
   lastCheckedAt: Date | null;
   uptime90d: number;
   openIncidentSince: Date | null;
@@ -42,6 +43,7 @@ export class StatusService {
         name: m.name,
         type: m.type,
         status: last?.status ?? "up",
+        latencyMs: last?.latencyMs ?? null,
         lastCheckedAt: last?.checkedAt ?? null,
         uptime90d,
         openIncidentSince: open?.openedAt ?? null,

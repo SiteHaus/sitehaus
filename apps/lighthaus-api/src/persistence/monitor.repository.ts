@@ -94,11 +94,13 @@ export class MonitorRepository {
     return last?.checkedAt ?? null;
   }
 
-  async getLastResult(monitorId: string): Promise<{ status: string; checkedAt: Date } | null> {
+  async getLastResult(
+    monitorId: string,
+  ): Promise<{ status: string; checkedAt: Date; latencyMs: number | null } | null> {
     const row = await this.db.query.checkResultsTable.findFirst({
       where: eq(schema.checkResultsTable.monitorId, monitorId),
       orderBy: desc(schema.checkResultsTable.checkedAt),
-      columns: { status: true, checkedAt: true },
+      columns: { status: true, checkedAt: true, latencyMs: true },
     });
     return row ?? null;
   }

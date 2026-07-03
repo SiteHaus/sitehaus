@@ -10,9 +10,26 @@ export interface StatusMonitorView {
   name: string;
   type: string;
   status: string;
+  latencyMs: number | null;
   lastCheckedAt: string | null;
   uptime90d: number;
   openIncidentSince: string | null;
+}
+
+// Human labels for the check `type` stored on each monitor. Keeps the board
+// readable — five rows for one site are only distinguishable by their check.
+const CHECK_TYPE_LABELS: Record<string, string> = {
+  http: "HTTP",
+  dns: "DNS",
+  ssl: "SSL",
+  domain: "Domain",
+  email_dns: "Email DNS",
+  service_health: "Health",
+  heartbeat: "Heartbeat",
+};
+
+export function checkTypeLabel(type: string): string {
+  return CHECK_TYPE_LABELS[type] ?? type.replace(/_/g, " ").toUpperCase();
 }
 
 export interface StatusBoard {

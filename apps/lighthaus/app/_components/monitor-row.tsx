@@ -1,7 +1,7 @@
 import { formatDate } from "@site-haus/utils/core/format";
 import { cn } from "@site-haus/ui/lib/utils";
 import Link from "next/link";
-import { statusMeta, type StatusMonitorView } from "@/lib/status";
+import { checkTypeLabel, statusMeta, type StatusMonitorView } from "@/lib/status";
 import { UptimeBar } from "./uptime-bar";
 
 interface MonitorRowProps {
@@ -21,7 +21,12 @@ export const MonitorRow = ({ monitor }: MonitorRowProps) => {
       <div className="flex min-w-0 items-center gap-3">
         <span className={cn("size-2.5 shrink-0 rounded-full", meta.dot)} aria-hidden />
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{monitor.name}</p>
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-medium">{monitor.name}</p>
+            <span className="status-badge tone-neutral shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase">
+              {checkTypeLabel(monitor.type)}
+            </span>
+          </div>
           <p className={cn("text-xs", meta.text)}>
             {meta.label}
             {monitor.openIncidentSince && (
@@ -36,7 +41,10 @@ export const MonitorRow = ({ monitor }: MonitorRowProps) => {
 
       <div className="flex shrink-0 flex-col items-end gap-1">
         <UptimeBar pct={monitor.uptime90d} />
-        <span className="text-xs text-muted-foreground">
+        <span className="font-numeric-id text-xs text-muted-foreground">
+          {monitor.latencyMs != null && (
+            <span className="tabular-nums">{monitor.latencyMs}ms · </span>
+          )}
           {monitor.lastCheckedAt ? `checked ${formatDate(monitor.lastCheckedAt)}` : "no checks yet"}
         </span>
       </div>
