@@ -15,6 +15,16 @@ export const GroupCard = ({ group, monitors }: GroupCardProps) => {
   const roll = worstStatus(monitors);
   const meta = statusMeta(roll);
 
+  // Group rows by site (monitor name) so a multi-check client site reads as one
+  // block, separated from the next site — not one long undifferentiated list.
+  const bySite = monitors.reduce<Map<string, StatusMonitorView[]>>((acc, m) => {
+    const list = acc.get(m.name) ?? [];
+    list.push(m);
+    acc.set(m.name, list);
+    return acc;
+  }, new Map());
+  const sites = [...bySite.entries()];
+
   return (
     <Card className="gap-0 overflow-hidden py-0">
       <div className="flex items-center justify-between border-b bg-muted/30 px-4 py-3">
@@ -26,9 +36,13 @@ export const GroupCard = ({ group, monitors }: GroupCardProps) => {
         </div>
         <span className={cn("text-xs font-medium", meta.text)}>{meta.label}</span>
       </div>
-      <div className="divide-y">
-        {monitors.map((m) => (
-          <MonitorRow key={m.id} monitor={m} />
+      <div>
+        {sites.map(([name, rows], i) => (
+          <div key={name} className={cn("divide-y", i > 0 && "border-t-4 border-muted/60")}>
+            {rows.map((m) => (
+              <MonitorRow key={m.id} monitor={m} />
+            ))}
+          </div>
         ))}
       </div>
     </Card>
