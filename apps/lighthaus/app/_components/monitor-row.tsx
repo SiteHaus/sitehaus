@@ -43,7 +43,7 @@ export const MonitorRow = ({ monitor, showName = true }: MonitorRowProps) => {
       </div>
 
       <div className="flex shrink-0 flex-col items-end gap-1">
-        <UptimeBar pct={monitor.uptime90d} />
+        <UptimeBar pct={monitor.uptime90d} pending={!monitor.lastCheckedAt} />
         <span className="font-numeric-id text-xs text-muted-foreground">
           {monitor.latencyMs != null && (
             <span className="tabular-nums">{monitor.latencyMs}ms · </span>
