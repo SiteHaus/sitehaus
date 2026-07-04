@@ -1,6 +1,6 @@
 import type { MonitorType } from "@site-haus/monitoring";
 
-export type MonitorGroup = "client-site" | "sh-service" | "commerce-service";
+export type MonitorGroup = "client-site" | "sh-service" | "commerce-service" | "staging";
 
 export interface MonitorCheck {
   type: MonitorType;
@@ -15,7 +15,21 @@ export interface MonitorConfig {
   checks: MonitorCheck[];
 }
 
+// A first-party SiteHaus service: is it serving (health endpoint) + is its cert
+// healthy (SSL expiry). DNS is skipped — we run these domains through Cloudflare.
+function service(name: string, group: MonitorGroup, healthUrl: string): MonitorConfig {
+  return {
+    name,
+    group,
+    checks: [
+      { type: "service_health", target: healthUrl },
+      { type: "ssl", target: new URL(healthUrl).hostname, thresholds: { sslWarnDays: 14 } },
+    ],
+  };
+}
+
 export const monitors: MonitorConfig[] = [
+  // ── Client sites ──────────────────────────────────────────────────────────
   {
     name: "onehealthclinics.com",
     group: "client-site",
@@ -39,11 +53,19 @@ export const monitors: MonitorConfig[] = [
       { type: "ssl", target: "nayadnara.com", thresholds: { sslWarnDays: 14 } },
     ],
   },
-  {
-    name: "sitehaus-api",
-    group: "sh-service",
-    checks: [{ type: "service_health", target: "https://api.sitehaus.dev/health" }],
-  },
+
+  // ── SiteHaus platform (prod) ─────────────────────────────────────────────
+  service("dashboard.sitehaus.dev", "sh-service", "https://dashboard.sitehaus.dev/api/health"),
+  service("iam.sitehaus.dev", "sh-service", "https://iam.sitehaus.dev/api/health"),
+  service("api.sitehaus.dev", "sh-service", "https://api.sitehaus.dev/health"),
+
+  // ── Commerce (prod) ──────────────────────────────────────────────────────
+  service("commerce.sitehaus.dev", "commerce-service", "https://commerce.sitehaus.dev/api/health"),
+  service(
+    "api.commerce.sitehaus.dev",
+    "commerce-service",
+    "https://api.commerce.sitehaus.dev/health",
+  ),
   {
     name: "commerce-worker",
     group: "commerce-service",
@@ -51,4 +73,23 @@ export const monitors: MonitorConfig[] = [
       { type: "heartbeat", target: "commerce-worker", thresholds: { maxSilenceMs: 180000 } },
     ],
   },
+
+  // ── Staging (our services only — client sites have no staging) ───────────
+  service(
+    "dashboard.staging.sitehaus.dev",
+    "staging",
+    "https://dashboard.staging.sitehaus.dev/api/health",
+  ),
+  service("iam.staging.sitehaus.dev", "staging", "https://iam.staging.sitehaus.dev/api/health"),
+  service("api.staging.sitehaus.dev", "staging", "https://api.staging.sitehaus.dev/health"),
+  service(
+    "commerce.staging.sitehaus.dev",
+    "staging",
+    "https://commerce.staging.sitehaus.dev/api/health",
+  ),
+  service(
+    "api.commerce.staging.sitehaus.dev",
+    "staging",
+    "https://api.commerce.staging.sitehaus.dev/health",
+  ),
 ];
