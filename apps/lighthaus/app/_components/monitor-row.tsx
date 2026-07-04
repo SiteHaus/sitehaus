@@ -6,11 +6,14 @@ import { UptimeBar } from "./uptime-bar";
 
 interface MonitorRowProps {
   monitor: StatusMonitorView;
+  // Hidden when the row sits under a per-site accordion whose header already
+  // names the site — the row then leads with its check-type badge.
+  showName?: boolean;
 }
 
 // One monitor line: status dot + name on the left, 90d uptime + last-checked on
 // the right. The whole row links to the monitor detail page.
-export const MonitorRow = ({ monitor }: MonitorRowProps) => {
+export const MonitorRow = ({ monitor, showName = true }: MonitorRowProps) => {
   const meta = statusMeta(monitor.status);
 
   return (
@@ -22,7 +25,7 @@ export const MonitorRow = ({ monitor }: MonitorRowProps) => {
         <span className={cn("size-2.5 shrink-0 rounded-full", meta.dot)} aria-hidden />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-medium">{monitor.name}</p>
+            {showName && <p className="truncate text-sm font-medium">{monitor.name}</p>}
             <span className="status-badge tone-neutral shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase">
               {checkTypeLabel(monitor.type)}
             </span>
