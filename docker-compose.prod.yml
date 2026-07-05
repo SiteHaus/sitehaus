@@ -78,6 +78,15 @@ services:
       redis:
         condition: service_healthy
 
+  # Status UI — all NEXT_PUBLIC_* config is baked into the image at build time.
+  lighthaus:
+    image: ghcr.io/sitehaus/sitehaus-lighthaus:latest
+    restart: always
+    networks:
+      - sitehaus-network
+    depends_on:
+      - lighthaus-api
+
   # One-shot Drizzle migration runner. Not part of `up` (profile-gated) — CD runs
   # `docker compose run --rm migrate` after postgres is healthy and before the
   # apps boot. Lives on the network so it can reach postgres (which has no host

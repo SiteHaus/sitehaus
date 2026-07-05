@@ -43,3 +43,17 @@ commerce.sitehaus.dev {
 	tls sitehausdev@gmail.com
 	encode gzip
 }
+
+status.sitehaus.dev {
+	import security_headers
+	reverse_proxy lighthaus:3000
+	tls sitehausdev@gmail.com
+	encode gzip
+}
+
+lighthaus-api.sitehaus.dev {
+	import security_headers
+	reverse_proxy lighthaus-api:3007
+	tls sitehausdev@gmail.com
+	encode gzip
+}

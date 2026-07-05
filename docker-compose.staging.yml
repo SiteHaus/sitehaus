@@ -80,6 +80,20 @@ services:
           cpus: "0.5"
           memory: 512M
 
+  # Status UI — all NEXT_PUBLIC_* config is baked into the image at build time.
+  lighthaus:
+    image: ghcr.io/sitehaus/sitehaus-lighthaus:staging
+    restart: always
+    networks:
+      - sitehaus-network
+    depends_on:
+      - lighthaus-api
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
   # One-shot Drizzle migration runner — see docker-compose.prod.yml for details.
   # CD runs `docker compose run --rm migrate` before the apps boot.
   migrate:
