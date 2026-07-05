@@ -88,9 +88,9 @@ export const monitors: MonitorConfig[] = [
     "https://commerce.staging.sitehaus.dev/api/health",
   ),
   service(
-    "api.commerce.staging.sitehaus.dev",
+    "api.staging.commerce.sitehaus.dev",
     "staging",
-    "https://api.commerce.staging.sitehaus.dev/health",
+    "https://api.staging.commerce.sitehaus.dev/health",
   ),
   // Client staging site — a website, not a service. domain/email_dns live on the
   // prod root (onehealthclinics.com), so staging only checks reachability + cert.
