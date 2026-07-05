@@ -2,6 +2,7 @@
 
 import { Button } from "@site-haus/ui/components/base/button";
 import { useState } from "react";
+import { PageHeader } from "@/components/ui/page-header";
 import { LowStockAlerts } from "./low-stock-alerts";
 import { RecentOrders } from "./recent-orders";
 import { RevenueChart } from "./revenue-chart";
@@ -20,27 +21,25 @@ export function DashboardView({ firstName }: { firstName: string }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Welcome back, {firstName}</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            Here's what's happening in your store.
-          </p>
-        </div>
-        <div className="flex items-center gap-1 border rounded-lg p-1">
-          {PERIODS.map((p) => (
-            <Button
-              key={p.value}
-              variant={period === p.value ? "default" : "ghost"}
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => setPeriod(p.value)}
-            >
-              {p.label}
-            </Button>
-          ))}
-        </div>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        subtitle={`Welcome back, ${firstName}`}
+        actions={
+          <div className="flex items-center gap-1 border rounded-lg p-1">
+            {PERIODS.map((p) => (
+              <Button
+                key={p.value}
+                variant={period === p.value ? "default" : "ghost"}
+                size="sm"
+                className="h-7 px-3 text-xs"
+                onClick={() => setPeriod(p.value)}
+              >
+                {p.label}
+              </Button>
+            ))}
+          </div>
+        }
+      />
 
       <StatCards period={period} />
 

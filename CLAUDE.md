@@ -213,14 +213,17 @@ All apps are proxied through Caddy for local development. Config: `infra/Caddyfi
 
 Run with: `sudo caddy run --config infra/Caddyfile.dev`
 
-| Domain                   | App                       | Port  |
-| ------------------------ | ------------------------- | ----- |
-| `sitehaus.localhost`     | Marketing site            | :3000 |
-| `dashboard.localhost`    | Dashboard                 | :3001 |
-| `iam.localhost`          | IAM portal                | :3002 |
-| `api.localhost`          | NestJS API                | :3003 |
-| `commerce.localhost`     | Commerce admin UI         | :3004 |
-| `commerce-api.localhost` | sitehaus-commerce gateway | :7020 |
+| Domain                    | App                       | Port  |
+| ------------------------- | ------------------------- | ----- |
+| `sitehaus.localhost`      | Marketing site            | :3000 |
+| `dashboard.localhost`     | Dashboard                 | :3001 |
+| `iam.localhost`           | IAM portal                | :3002 |
+| `api.localhost`           | NestJS API                | :3003 |
+| `commerce.localhost`      | Commerce admin UI         | :3004 |
+| `docs.localhost`          | Docs (Astro Starlight)    | :3005 |
+| `status.localhost`        | Lighthaus status UI       | :3006 |
+| `lighthaus-api.localhost` | Lighthaus read/ingest API | :3007 |
+| `commerce-api.localhost`  | sitehaus-commerce gateway | :7020 |
 
 Caddy provides HTTPS via auto-provisioned TLS for `.localhost` domains, enabling proper cookie scoping and OAuth redirect URIs that mirror production.
 
@@ -231,26 +234,29 @@ Caddy provides HTTPS via auto-provisioned TLS for `.localhost` domains, enabling
 - 3002: IAM portal
 - 3003: NestJS API
 - 3004: Commerce admin UI
+- 3005: Docs (Astro Starlight)
+- 3006: Lighthaus status UI (lighthaus)
+- 3007: Lighthaus API (lighthaus-api)
 - 6969: Email preview server (transactional)
 - 5432: PostgreSQL (Docker)
 
 ## Architecture Docs
 
-- [`docs/architecture/auth-flow.md`](docs/architecture/auth-flow.md) — End-to-end OAuth PKCE + JWT + session auth flow
+Ecosystem documentation now lives in the **`apps/docs`** Astro Starlight site
+(`docs.localhost` / :3005; `cd apps/docs && pnpm dev`). Source markdown is under
+`apps/docs/src/content/docs/`. Highlights:
 
-## React/Next Standards (Dashboard)
+- [`apps/docs/src/content/docs/architecture/auth.md`](apps/docs/src/content/docs/architecture/auth.md) — End-to-end OAuth PKCE + JWT + session auth flow
+- [`apps/docs/src/content/docs/architecture/ecosystem-map.md`](apps/docs/src/content/docs/architecture/ecosystem-map.md) — Every repo, app, package, port, and who-calls-what
+- [`apps/docs/src/content/docs/architecture/deployment.md`](apps/docs/src/content/docs/architecture/deployment.md) — Docker Compose, GitHub Actions CD, Caddy, and the `sitehaus` CLI
+- [`apps/docs/src/content/docs/findings/index.md`](apps/docs/src/content/docs/findings/index.md) — Discovery findings register (F-001…F-029)
 
-Full spec: [`docs/standards/react.md`](docs/standards/react.md)
+## App-Level Standards
 
-**Key rules:**
+Each app has its own `CLAUDE.md` with app-specific patterns and rules. See:
 
-- One component per file — no exceptions
-- `page.tsx` files are thin shells (role dispatch only, ≤15 lines); all view components in `_components/`
-- All dashboard pages are `"use client"` (auth dependency)
-- Data fetching: React Query (`@tanstack/react-query`) — all queries via hooks, all keys via `@/lib/query-keys`
-- Format helpers: `formatDate`, `formatCents`, `label` from `@site-haus/utils/core/format`
-- Badge variants: `statusVariant`, `billingVariant`, etc. from `@/lib/variants`
-- No inline format or variant functions — extract on third use, never before
-- Mutations: `toast.success/error` in `onSuccess/onError`; initial loads throw
-- Forms: react-hook-form + zod resolver; schemas always from `@site-haus/validation`
-- Types: from `@site-haus/contracts`; no `any`
+- `apps/dashboard/CLAUDE.md` — React/Next standards, React Query, component organization
+- `apps/api/CLAUDE.md` — NestJS guards, ts-rest controller pattern, service rules
+- `apps/web/CLAUDE.md` — Marketing site, server components, SEO
+- `apps/iam/CLAUDE.md` — IAM portal (feature-complete)
+- `apps/commerce/CLAUDE.md` — Commerce admin UI, store context, commerce API

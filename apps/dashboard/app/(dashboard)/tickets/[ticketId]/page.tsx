@@ -18,6 +18,7 @@ import {
   Pencil,
   Tag,
   MessageCircle,
+  MessageSquare,
   User,
   AlertCircle,
   CheckCircle2,
@@ -37,6 +38,7 @@ import { useComments } from "@/hooks/use-comments";
 import { TicketAudienceBadge } from "../_components/TicketAudienceBadge";
 import { TicketAttachments } from "../_components/TicketAttachments";
 import { useIsEmployee } from "@/hooks/use-is-employee";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import { useTicketAttachments } from "@/hooks/use-ticket-attachments";
 import { AuditLogItem } from "@site-haus/contracts";
 import { label } from "@site-haus/utils/core/format";
@@ -164,37 +166,34 @@ export default function TicketDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <Button asChild variant="ghost" size="sm" className="mb-2">
-          <Link href="/tickets">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Tickets
+      <PageHero
+        icon={MessageSquare}
+        title={`#${ticket.number} ${ticket.title}`}
+        subtitle={`${ticket.type} ticket`}
+        back={
+          <Link
+            href="/tickets"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Back to Tickets
           </Link>
-        </Button>
-
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-mono text-sm text-muted-foreground mb-1">#{ticket.number}</p>
-            <h1 className="text-3xl font-bold">{ticket.title}</h1>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <TicketAudienceBadge audience={isEmployee} />
-
-            <TicketStatusBadge status={ticket.status} />
-
-            <TicketTypeBadge type={ticket.type} />
-            {canManage && (
-              <Button asChild size="sm" variant="outline">
-                <Link href={`/tickets/${ticketId}/edit`}>
-                  <Pencil className="mr-2 h-3.5 w-3.5" />
-                  Edit
-                </Link>
-              </Button>
-            )}
-          </div>
+        }
+      >
+        <div className="flex items-center gap-2">
+          <TicketAudienceBadge audience={isEmployee} />
+          <TicketStatusBadge status={ticket.status} />
+          <TicketTypeBadge type={ticket.type} />
+          {canManage && (
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/tickets/${ticketId}/edit`}>
+                <Pencil className="mr-2 h-3.5 w-3.5" />
+                Edit
+              </Link>
+            </Button>
+          )}
         </div>
-      </div>
+      </PageHero>
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

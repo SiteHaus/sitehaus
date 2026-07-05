@@ -3,7 +3,7 @@ const ProjectsLayout = ({
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  return <div className="mx-auto max-w-5xl py-6">{children}</div>;
+  return <>{children}</>;
 };
 
 export default ProjectsLayout;

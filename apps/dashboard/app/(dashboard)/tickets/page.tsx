@@ -8,6 +8,7 @@ import { Input } from "@site-haus/ui/components/base/input";
 import { useSearchParams } from "next/navigation";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { Ticket, Plus, Search, UserCheck, ChevronDown, CircleCheck } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -132,20 +133,26 @@ export default function TicketsPage() {
 
   return (
     <>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {assignedToMe ? "Assigned to Me" : canManage ? "All Tickets" : "My Tickets"}
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            {assignedToMe
-              ? "Tickets currently assigned to you."
-              : canManage
-                ? "View and manage all support tickets."
-                : "View and track your support tickets."}
-          </p>
-        </div>
-        <div className="flex items-center gap-3 mb-4">
+      <PageHero
+        icon={Ticket}
+        title={assignedToMe ? "Assigned to Me" : canManage ? "All Tickets" : "My Tickets"}
+        subtitle={
+          assignedToMe
+            ? "Tickets currently assigned to you."
+            : canManage
+              ? "View and manage all support tickets."
+              : "View and track your support tickets."
+        }
+      >
+        <Button asChild>
+          <Link href="/tickets/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Ticket
+          </Link>
+        </Button>
+      </PageHero>
+      <div className="pt-6 space-y-3">
+        <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -155,12 +162,6 @@ export default function TicketsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Button asChild>
-            <Link href="/tickets/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Ticket
-            </Link>
-          </Button>
         </div>
         <Tabs
           value={statusFilter}

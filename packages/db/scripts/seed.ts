@@ -1,5 +1,5 @@
 import { schema } from "@site-haus/db";
-import { NewClient, NewClientRedirectUri } from "@site-haus/db/iam/clients";
+import { NewClient } from "@site-haus/db/iam/clients";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -64,6 +64,22 @@ const CLIENTS: NewClient[] = [
     requiresConsent: false,
   },
   {
+    key: "lighthaus",
+    name: "LightHaus",
+    type: "public",
+    firstParty: true,
+    audience: "sitehaus.lighthaus",
+    requiresConsent: false,
+  },
+  {
+    key: "lighthaus-api",
+    name: "LightHaus API",
+    type: "public",
+    firstParty: true,
+    audience: "sitehaus.lighthaus-api",
+    requiresConsent: false,
+  },
+  {
     id: "00000000-cafe-4bab-8000-000000000002",
     key: "gracejeanne",
     name: "Grace Jeanne",
@@ -116,6 +132,18 @@ const CLIENT_REDIRECT_URIS: Record<string, string[]> = {
     "https://commerce.localhost/callback",
     "https://commerce.staging.sitehaus.dev/callback",
     "https://commerce.sitehaus.dev/callback",
+  ],
+  lighthaus: [
+    "http://localhost:3006/callback",
+    "https://status.localhost/callback",
+    "https://status.staging.sitehaus.dev/callback",
+    "https://status.sitehaus.dev/callback",
+  ],
+  "lighthaus-api": [
+    "http://localhost:3007/callback",
+    "https://lighthaus-api.localhost/callback",
+    "https://lighthaus-api.staging.sitehaus.dev/callback",
+    "https://lighthaus-api.sitehaus.dev/callback",
   ],
   "sitehaus-commerce-admin": [
     "http://localhost:3004/callback",

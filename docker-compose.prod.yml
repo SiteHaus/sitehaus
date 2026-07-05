@@ -63,6 +63,52 @@ services:
       redis:
         condition: service_healthy
 
+  lighthaus-api:
+    image: ghcr.io/sitehaus/sitehaus-lighthaus-api:latest
+    restart: always
+    env_file:
+      - ./apps/lighthaus-api/.env
+    ports:
+      - "3007:3007"
+    networks:
+      - sitehaus-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Status UI — all NEXT_PUBLIC_* config is baked into the image at build time.
+  lighthaus:
+    image: ghcr.io/sitehaus/sitehaus-lighthaus:latest
+    restart: always
+    networks:
+      - sitehaus-network
+    depends_on:
+      - lighthaus-api
+
+  # One-shot Drizzle migration runner. Not part of `up` (profile-gated) — CD runs
+  # `docker compose run --rm migrate` after postgres is healthy and before the
+  # apps boot. Lives on the network so it can reach postgres (which has no host
+  # port); reuses lighthaus-api's env for DATABASE_URL.
+  migrate:
+    profiles: ["migrate"]
+    image: node:20-alpine
+    restart: "no"
+    working_dir: /repo/packages/db
+    volumes:
+      - ./:/repo
+    env_file:
+      - ./apps/lighthaus-api/.env
+    networks:
+      - sitehaus-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["sh", "-c"]
+    command:
+      - "corepack enable && corepack prepare pnpm@10.14.0 --activate && pnpm install --filter @site-haus/db... --frozen-lockfile && pnpm --filter @site-haus/db db:migrate"
+
   redis:
     image: redis:7-alpine
     restart: always

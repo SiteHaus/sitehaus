@@ -29,12 +29,13 @@ import {
   updateProjectSchema,
 } from "@site-haus/validation/forms/project";
 import { format } from "date-fns";
-import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, CalendarIcon, FilePen, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 const typeOptions = projectTypeEnum.options.map((v) => ({
   label: v.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase()),
@@ -140,281 +141,291 @@ export default function EditProjectPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-6 space-y-6">
-      <div>
-        <Button asChild variant="ghost" size="sm" className="-ml-2 mb-2">
-          <Link href={`/projects/${projectId}`}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
+    <div className="space-y-6">
+      <PageHero
+        icon={FilePen}
+        title={`Edit ${project.name}`}
+        subtitle="Update project details below."
+        back={
+          <Link
+            href={`/projects/${projectId}`}
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" />
             Back to Project
           </Link>
-        </Button>
-        <h1 className="text-3xl font-bold">Edit {project.name}</h1>
-        <p className="text-muted-foreground mt-1">Update project details below.</p>
-      </div>
+        }
+      />
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          {/* General */}
-          <div className="space-y-4">
-            <FormSection>General</FormSection>
-            <div className="flex flex-col md:flex-row gap-4">
+      <div className="mx-auto max-w-2xl">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* General */}
+            <div className="space-y-4">
+              <FormSection>General</FormSection>
+              <div className="flex flex-col md:flex-row gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <ComboBoxField
+                      field={field}
+                      name="type"
+                      label="Type"
+                      options={typeOptions}
+                      form={form}
+                    />
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
-                name="name"
+                name="description"
                 render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Name</FormLabel>
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Textarea {...field} value={field.value ?? ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
-                name="type"
+                name="billingStatus"
                 render={({ field }) => (
                   <ComboBoxField
                     field={field}
-                    name="type"
-                    label="Type"
-                    options={typeOptions}
+                    name="billingStatus"
+                    label="Billing Status"
+                    options={billingOptions}
                     form={form}
                   />
                 )}
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="billingStatus"
-              render={({ field }) => (
-                <ComboBoxField
-                  field={field}
-                  name="billingStatus"
-                  label="Billing Status"
-                  options={billingOptions}
-                  form={form}
+            {/* Domains & Repository */}
+            <div className="space-y-4">
+              <FormSection>Domains & Repository</FormSection>
+              <div className="flex flex-col md:flex-row gap-4">
+                <FormField
+                  control={form.control}
+                  name="siteDomain"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Domain</FormLabel>
+                      <FormControl>
+                        <Input placeholder="example.com" {...field} value={field.value ?? ""} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              )}
-            />
-          </div>
-
-          {/* Domains & Repository */}
-          <div className="space-y-4">
-            <FormSection>Domains & Repository</FormSection>
-            <div className="flex flex-col md:flex-row gap-4">
-              <FormField
-                control={form.control}
-                name="siteDomain"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Domain</FormLabel>
-                    <FormControl>
-                      <Input placeholder="example.com" {...field} value={field.value ?? ""} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="stagingDomain"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Staging Domain</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="staging.example.com"
-                        {...field}
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="repoUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Repository URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://github.com/..."
-                      {...field}
-                      value={field.value ?? ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Billing */}
-          <div className="space-y-4">
-            <FormSection>Billing</FormSection>
-            <div className="flex flex-col md:flex-row gap-4">
-              <FormField
-                control={form.control}
-                name="monthlyRateCents"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Monthly Rate (cents)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="15000"
-                        {...field}
-                        value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="depositAmountCents"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Deposit Amount (cents)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="50000"
-                        {...field}
-                        value={field.value ?? ""}
-                        onChange={(e) =>
-                          field.onChange(e.target.value === "" ? undefined : Number(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </div>
-
-          {/* Dates */}
-          <div className="space-y-4">
-            <FormSection>Dates</FormSection>
-            <div className="flex flex-col md:flex-row gap-4">
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Start Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "text-left font-normal w-full",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            {field.value ? (
-                              format(new Date(field.value), "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => field.onChange(date?.toISOString() ?? null)}
-                          captionLayout="dropdown"
+                <FormField
+                  control={form.control}
+                  name="stagingDomain"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Staging Domain</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="staging.example.com"
+                          {...field}
+                          value={field.value ?? ""}
                         />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
-                name="dueDate"
+                name="repoUrl"
                 render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Due Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "text-left font-normal w-full",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            {field.value ? (
-                              format(new Date(field.value), "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => field.onChange(date?.toISOString() ?? null)}
-                          captionLayout="dropdown"
-                        />
-                      </PopoverContent>
-                    </Popover>
+                  <FormItem>
+                    <FormLabel>Repository URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://github.com/..."
+                        {...field}
+                        value={field.value ?? ""}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-          </div>
 
-          <Separator />
+            {/* Billing */}
+            <div className="space-y-4">
+              <FormSection>Billing</FormSection>
+              <div className="flex flex-col md:flex-row gap-4">
+                <FormField
+                  control={form.control}
+                  name="monthlyRateCents"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Monthly Rate (cents)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="15000"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === "" ? undefined : Number(e.target.value),
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="depositAmountCents"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Deposit Amount (cents)</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="50000"
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === "" ? undefined : Number(e.target.value),
+                            )
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
-          <div className="flex items-center gap-3">
-            <Button type="submit" disabled={saving}>
-              {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
-            </Button>
-            <Button type="button" variant="outline" asChild>
-              <Link href={`/projects/${projectId}`}>Cancel</Link>
-            </Button>
-          </div>
-        </form>
-      </Form>
+            {/* Dates */}
+            <div className="space-y-4">
+              <FormSection>Dates</FormSection>
+              <div className="flex flex-col md:flex-row gap-4">
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Start Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "text-left font-normal w-full",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date?.toISOString() ?? null)}
+                            captionLayout="dropdown"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="dueDate"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Due Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "text-left font-normal w-full",
+                                !field.value && "text-muted-foreground",
+                              )}
+                            >
+                              {field.value ? (
+                                format(new Date(field.value), "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => field.onChange(date?.toISOString() ?? null)}
+                            captionLayout="dropdown"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center gap-3">
+              <Button type="submit" disabled={saving}>
+                {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
+              <Button type="button" variant="outline" asChild>
+                <Link href={`/projects/${projectId}`}>Cancel</Link>
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </div>
   );
 }

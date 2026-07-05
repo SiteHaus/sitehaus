@@ -8,6 +8,8 @@ import { useClientContext } from "../../../hooks/use-client-context";
 import { useIsEmployee } from "../../../hooks/use-is-employee";
 import { useRouter } from "next/navigation";
 import { ProfileForm } from "./_components/profile-form";
+import { Building2 } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 export default function ProfilePage() {
   const clientContext = useClientContext();
@@ -47,24 +49,23 @@ export default function ProfilePage() {
 
   if (!clientContext) {
     return (
-      <div className="mx-auto max-w-2xl py-6 space-y-2">
-        <h1 className="text-3xl font-bold">Business Profile</h1>
-        <p className="text-muted-foreground">
-          Business profiles are tied to a client organization. Select a client context to view or
-          edit a profile.
-        </p>
+      <div className="mx-auto max-w-2xl space-y-2">
+        <PageHero
+          icon={Building2}
+          title="Business Profile"
+          subtitle="Business profiles are tied to a client organization. Select a client context to view or edit a profile."
+        />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Business Profile</h1>
-        <p className="text-muted-foreground mt-1">
-          Help us understand your business so we can build something great together.
-        </p>
-      </div>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <PageHero
+        icon={Building2}
+        title="Business Profile"
+        subtitle="Help us understand your business so we can build something great together."
+      />
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <Spinner className="h-6 w-6" />

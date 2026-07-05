@@ -16,6 +16,7 @@ import {
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { ClipboardList, Search, SlidersHorizontal, X } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import { useMemo, useState } from "react";
 
 // ─── Action catalog ────────────────────────────────────────────────────────
@@ -242,13 +243,12 @@ export function AuditLogView() {
   }
 
   return (
-    <div className="space-y-6 pt-6">
-      <div>
-        <h1 className="text-3xl font-bold">Audit Log</h1>
-        <p className="text-muted-foreground mt-1 text-sm">
-          A record of all actions taken across your workspace.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <PageHero
+        icon={ClipboardList}
+        title="Audit Log"
+        subtitle="A record of all actions taken across your workspace."
+      />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">

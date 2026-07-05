@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>SiteHaus — Availability Snapshot</title>
+    <!--
+      War-room availability snapshot. Deliberately dependency-free: no build step,
+      no framework, no SiteHaus-hosted anything. It fetches the static status.json
+      that lighthaus-api publishes to R2, so it keeps working when the platform
+      (IAM, dashboard, lighthaus-api itself) is down. Its whole value is surviving
+      an outage — keep it a single self-contained file.
+
+      Data source resolution (first that is set wins):
+        1. ?src= query param        (ad-hoc override for testing)
+        2. window.STATUS_SRC        (set by an optional adjacent config.js)
+        3. ./status.json            (same-origin default; proxy R2 here via CF)
+    -->
+    <style>
+      :root {
+        --bg: #0b0c0e;
+        --panel: #16181c;
+        --border: #262a30;
+        --text: #e7e9ea;
+        --muted: #8b9096;
+        --up: #22c55e;
+        --degraded: #f59e0b;
+        --down: #ef4444;
+        --stale: #f59e0b;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      .wrap {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+      .generated {
+        font-size: 13px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .banner {
+        display: none;
+        margin: 16px 0;
+        padding: 10px 14px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .banner.stale {
+        display: block;
+        background: rgba(245, 158, 11, 0.12);
+        border: 1px solid rgba(245, 158, 11, 0.35);
+        color: var(--stale);
+      }
+      .banner.error {
+        display: block;
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        color: var(--down);
+      }
+      .incidents {
+        margin: 16px 0;
+        padding: 12px 14px;
+        border-radius: 8px;
+        background: rgba(239, 68, 68, 0.08);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        font-size: 13px;
+      }
+      .incidents h2 {
+        font-size: 13px;
+        margin: 0 0 6px;
+        color: var(--down);
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+      .incidents li {
+        color: var(--text);
+      }
+      .group {
+        margin-top: 20px;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--panel);
+      }
+      .group-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.02);
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: capitalize;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border-top: 1px solid var(--border);
+      }
+      .row:first-of-type {
+        border-top: 0;
+      }
+      .row-name {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .dot.up {
+        background: var(--up);
+      }
+      .dot.degraded {
+        background: var(--degraded);
+      }
+      .dot.down {
+        background: var(--down);
+      }
+      .meta {
+        text-align: right;
+        font-size: 12px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      footer {
+        margin-top: 32px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>SiteHaus — Availability Snapshot</h1>
+        <span class="generated" id="generated">loading…</span>
+      </header>
+
+      <div class="banner" id="banner"></div>
+      <div id="incidents"></div>
+      <div id="board"></div>
+
+      <footer>
+        Independent war-room view · served from R2, refreshes every 30s ·
+        <span id="src"></span>
+      </footer>
+    </div>
+
+    <!-- Optional deploy-time override; ignored if absent. -->
+    <script src="config.js" onerror="void 0"></script>
+    <script>
+      (function () {
+        var STALE_MS = 5 * 60 * 1000; // snapshot older than this = warn
+        var REFRESH_MS = 30 * 1000; // status.json is cached ~30s
+
+        function resolveSrc() {
+          var q = new URLSearchParams(location.search).get("src");
+          if (q) return q;
+          if (window.STATUS_SRC) return window.STATUS_SRC;
+          return "./status.json";
+        }
+
+        var SRC = resolveSrc();
+        document.getElementById("src").textContent = SRC;
+
+        function esc(s) {
+          var d = document.createElement("div");
+          d.textContent = s == null ? "" : String(s);
+          return d.innerHTML;
+        }
+
+        function fmtTime(iso) {
+          if (!iso) return "—";
+          var d = new Date(iso);
+          return isNaN(d) ? "—" : d.toLocaleString();
+        }
+
+        function ageString(ms) {
+          var s = Math.floor(ms / 1000);
+          if (s < 60) return s + "s ago";
+          var m = Math.floor(s / 60);
+          if (m < 60) return m + "m ago";
+          return Math.floor(m / 60) + "h ago";
+        }
+
+        function render(snap) {
+          var banner = document.getElementById("banner");
+          var gen = new Date(snap.generatedAt);
+          var age = Date.now() - gen.getTime();
+
+          document.getElementById("generated").textContent =
+            "generated " + fmtTime(snap.generatedAt) + " (" + ageString(age) + ")";
+
+          if (age > STALE_MS) {
+            banner.className = "banner stale";
+            banner.textContent =
+              "⚠ Snapshot is stale (" +
+              ageString(age) +
+              "). The monitor may not be publishing — treat this data with suspicion.";
+          } else {
+            banner.className = "banner";
+            banner.textContent = "";
+          }
+
+          var inc = document.getElementById("incidents");
+          if (snap.openIncidents && snap.openIncidents.length) {
+            inc.innerHTML =
+              '<div class="incidents"><h2>Open incidents</h2><ul>' +
+              snap.openIncidents
+                .map(function (i) {
+                  return (
+                    "<li>" +
+                    esc(i.monitorName) +
+                    " — since " +
+                    fmtTime(i.openedAt) +
+                    "</li>"
+                  );
+                })
+                .join("") +
+              "</ul></div>";
+          } else {
+            inc.innerHTML = "";
+          }
+
+          var board = document.getElementById("board");
+          board.innerHTML = (snap.groups || [])
+            .map(function (g) {
+              var rows = g.monitors
+                .map(function (m) {
+                  var st = ["up", "degraded", "down"].indexOf(m.status) >= 0 ? m.status : "up";
+                  return (
+                    '<div class="row"><div class="row-name">' +
+                    '<span class="dot ' +
+                    st +
+                    '"></span><span class="name">' +
+                    esc(m.name) +
+                    "</span></div>" +
+                    '<span class="meta">' +
+                    (m.uptime24h != null ? m.uptime24h + "% · " : "") +
+                    (m.lastCheckedAt ? "checked " + ageString(Date.now() - new Date(m.lastCheckedAt).getTime()) : "no checks") +
+                    "</span></div>"
+                  );
+                })
+                .join("");
+              return (
+                '<div class="group"><div class="group-head">' +
+                esc(g.group) +
+                "</div>" +
+                rows +
+                "</div>"
+              );
+            })
+            .join("");
+        }
+
+        function fail(msg) {
+          var banner = document.getElementById("banner");
+          banner.className = "banner error";
+          banner.textContent = "✕ " + msg;
+          document.getElementById("generated").textContent = "unavailable";
+        }
+
+        function load() {
+          fetch(SRC, { cache: "no-store" })
+            .then(function (r) {
+              if (!r.ok) throw new Error("HTTP " + r.status);
+              return r.json();
+            })
+            .then(render)
+            .catch(function (e) {
+              fail("Could not load snapshot from " + SRC + " (" + e.message + ").");
+            });
+        }
+
+        load();
+        setInterval(load, REFRESH_MS);
+      })();
+    </script>
+  </body>
+</html>

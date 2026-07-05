@@ -2,16 +2,10 @@
 
 import { listProducts, type ProductItem, type ProductStatus } from "@/lib/commerce";
 import { useStoreNav } from "@/lib/use-store-nav";
+import { PageHeader } from "@/components/ui/page-header";
+import { DataTableShell } from "@/components/ui/data-table-shell";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Skeleton } from "@site-haus/ui/components/base/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@site-haus/ui/components/base/table";
+import { TableCell } from "@site-haus/ui/components/base/table";
 import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { Package, Plus } from "lucide-react";
@@ -62,18 +56,16 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
-            {isLoading ? "—" : `${total} product${total !== 1 ? "s" : ""}`}
-          </p>
-        </div>
-        <Button onClick={() => push("/products/new")}>
-          <Plus className="size-4" />
-          New Product
-        </Button>
-      </div>
+      <PageHeader
+        title="Products"
+        subtitle={isLoading ? "—" : `${total} product${total !== 1 ? "s" : ""}`}
+        actions={
+          <Button onClick={() => push("/products/new")}>
+            <Plus className="size-4" />
+            New Product
+          </Button>
+        }
+      />
 
       <Tabs value={status} onValueChange={handleStatusChange} className="mb-4">
         <TabsList>
@@ -85,110 +77,52 @@ export default function ProductsPage() {
         </TabsList>
       </Tabs>
 
-      <div className="border rounded-lg overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12"></TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Variants</TableHead>
-              <TableHead>Created</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <Skeleton className="size-10 rounded" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-40" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-5 w-16 rounded-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-8" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-24" />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : data?.items.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                    <Package className="size-10 mb-3 opacity-30" />
-                    <p className="font-medium">No products yet</p>
-                    <p className="text-sm mt-1">Create your first product to get started.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              data?.items.map((product: ProductItem) => (
-                <TableRow
-                  key={product.id}
-                  className="cursor-pointer"
-                  onClick={() => push(`/products/${product.id}`)}
-                >
-                  <TableCell>
-                    {product.primaryImage ? (
-                      <Image
-                        src={product.primaryImage.cdnUrl}
-                        alt={product.primaryImage.altText ?? product.name}
-                        width={40}
-                        height={40}
-                        className="rounded object-cover size-10"
-                      />
-                    ) : (
-                      <div className="size-10 rounded bg-muted flex items-center justify-center">
-                        <Package className="size-4 text-muted-foreground" />
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={product.status} />
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{product.variantCount}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDate(product.createdAt)}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={offset === 0}
-              onClick={() => setOffset((o) => Math.max(0, o - LIMIT))}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={offset + LIMIT >= total}
-              onClick={() => setOffset((o) => o + LIMIT)}
-            >
-              Next
-            </Button>
-          </div>
-        </div>
-      )}
+      <DataTableShell
+        columns={[
+          { header: "", className: "w-12" },
+          { header: "Name" },
+          { header: "Status" },
+          { header: "Variants" },
+          { header: "Created" },
+        ]}
+        rows={data?.items ?? []}
+        getRowKey={(p) => p.id}
+        isLoading={isLoading}
+        onRowClick={(p) => push(`/products/${p.id}`)}
+        empty={{
+          icon: Package,
+          title: "No products yet",
+          description: "Create your first product to get started.",
+        }}
+        page={currentPage}
+        totalPages={totalPages}
+        onPageChange={(p) => setOffset((p - 1) * LIMIT)}
+        renderRow={(product: ProductItem) => (
+          <>
+            <TableCell>
+              {product.primaryImage ? (
+                <Image
+                  src={product.primaryImage.cdnUrl}
+                  alt={product.primaryImage.altText ?? product.name}
+                  width={40}
+                  height={40}
+                  className="rounded object-cover size-10"
+                />
+              ) : (
+                <div className="size-10 rounded bg-muted flex items-center justify-center">
+                  <Package className="size-4 text-muted-foreground" />
+                </div>
+              )}
+            </TableCell>
+            <TableCell className="font-medium">{product.name}</TableCell>
+            <TableCell>
+              <StatusBadge status={product.status} />
+            </TableCell>
+            <TableCell className="text-muted-foreground">{product.variantCount}</TableCell>
+            <TableCell className="text-muted-foreground">{formatDate(product.createdAt)}</TableCell>
+          </>
+        )}
+      />
     </div>
   );
 }

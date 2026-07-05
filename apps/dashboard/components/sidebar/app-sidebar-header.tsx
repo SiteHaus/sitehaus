@@ -14,22 +14,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@site-haus/ui/components/base/sidebar";
+import { APPS, getAppUrl } from "@site-haus/ui/lib/apps";
 import { ChevronsUpDown, ExternalLink } from "lucide-react";
 
-const APPS = [
-  { id: "dashboard", label: "SiteHaus", subtitle: "Client Portal", initials: "SH" },
-  { id: "commerce", label: "Commerce", subtitle: "Store Admin", initials: "EC" },
-  { id: "iam", label: "IAM", subtitle: "Identity & Access", initials: "IA" },
-] as const;
-
 const CURRENT_APP = "dashboard";
-
-function getAppUrl(appId: string): string {
-  if (typeof window === "undefined") return "#";
-  const parts = window.location.hostname.split(".");
-  parts[0] = appId;
-  return `${window.location.protocol}//${parts.join(".")}`;
-}
 
 export const AppSideBarHeader = () => {
   const current = APPS.find((a) => a.id === CURRENT_APP)!;

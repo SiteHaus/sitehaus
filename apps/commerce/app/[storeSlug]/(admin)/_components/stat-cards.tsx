@@ -5,11 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/componen
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, ShoppingBag, DollarSign } from "lucide-react";
+import { useFormatCents } from "@/lib/use-format-cents";
 import { type PeriodOption, periodToParams } from "./period-utils";
-
-function formatCents(cents: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
-}
 
 function StatCard({
   title,
@@ -40,6 +37,7 @@ function StatCard({
 }
 
 export function StatCards({ period }: { period: PeriodOption }) {
+  const formatCents = useFormatCents();
   const { from, to, granularity } = periodToParams(period);
 
   const { data, isLoading } = useQuery({

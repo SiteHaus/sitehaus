@@ -112,6 +112,7 @@ export type VariantAdmin = {
   sortOrder: number;
   stock: number;
   reserved: number;
+  allowBackorder: boolean;
   availability: "in_stock" | "low_stock" | "out_of_stock";
   optionValues: VariantOptionValueRef[];
 };
@@ -302,14 +303,17 @@ export type AdminOrderDetail = AdminOrderSummary & {
 export type OrderListResponse = { items: AdminOrderSummary[]; total: number };
 
 export const listOrders = (params?: {
-  status?: OrderStatus;
+  status?: OrderStatus | OrderStatus[];
   email?: string;
   limit?: number;
   offset?: number;
   sort?: "newest" | "oldest";
 }) => {
   const qs = new URLSearchParams();
-  if (params?.status) qs.set("status", params.status);
+  if (params?.status) {
+    const statuses = Array.isArray(params.status) ? params.status : [params.status];
+    statuses.forEach((s) => qs.append("status", s));
+  }
   if (params?.email) qs.set("email", params.email);
   if (params?.limit) qs.set("limit", String(params.limit));
   if (params?.offset) qs.set("offset", String(params.offset));
@@ -487,7 +491,7 @@ export const getInventory = (variantId: string) =>
 
 export const updateInventory = (
   variantId: string,
-  body: { stock?: number; allowBackorder?: boolean },
+  body: { stock?: number; allowBackorder?: boolean; reason?: string },
 ) =>
   request<InventoryItem>(`/v1/admin/inventory/${variantId}`, {
     method: "PATCH",
@@ -512,3 +516,158 @@ export const getAnalyticsTopProducts = (from: string, to: string, limit = 5) =>
   request<TopProductsDashboard>(
     `/v1/admin/analytics/top-products?from=${from}&to=${to}&limit=${limit}`,
   );
+
+export type FunnelStage = {
+  stage: "product_viewed" | "add_to_cart" | "checkout_started" | "order_completed";
+  count: number;
+  conversionRate: number | null;
+};
+export type FunnelResponse = { stages: FunnelStage[] };
+
+export type AbandonedCartsResponse = {
+  totalCartsWithItems: number;
+  abandoned: number;
+  abandonedRate: number;
+};
+
+export const getAnalyticsFunnel = (from: string, to: string) =>
+  request<FunnelResponse>(`/v1/admin/analytics/funnel?from=${from}&to=${to}`);
+
+export const getAnalyticsAbandonedCarts = (from: string, to: string) =>
+  request<AbandonedCartsResponse>(`/v1/admin/analytics/abandoned-carts?from=${from}&to=${to}`);
+
+export type AbandonedCartRow = {
+  cartId: string;
+  itemCount: number;
+  estimatedValueCents: number;
+  createdAt: string;
+  lastActivityAt: string;
+  isAnonymous: boolean;
+};
+
+export const getAnalyticsAbandonedCartsList = (from: string, to: string, limit = 20, offset = 0) =>
+  request<{ items: AbandonedCartRow[]; total: number }>(
+    `/v1/admin/analytics/abandoned-carts/list?from=${from}&to=${to}&limit=${limit}&offset=${offset}`,
+  );
+
+// Shipping
+export type ShippingRate = {
+  id: string;
+  name: string;
+  rateCents: number;
+  minOrderCents?: number;
+  estimatedDays?: number;
+};
+
+export type ShippingZone = {
+  id: string;
+  name: string;
+  countries: string[];
+  sortOrder: number;
+  rates: ShippingRate[];
+};
+
+export const listShippingZones = () =>
+  request<{ items: ShippingZone[] }>("/v1/admin/shipping/zones");
+
+export const createShippingZone = (body: {
+  name: string;
+  countries: string[];
+  sortOrder?: number;
+}) =>
+  request<ShippingZone>("/v1/admin/shipping/zones", { method: "POST", body: JSON.stringify(body) });
+
+export const updateShippingZone = (
+  zoneId: string,
+  body: { name?: string; countries?: string[]; sortOrder?: number },
+) =>
+  request<ShippingZone>(`/v1/admin/shipping/zones/${zoneId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteShippingZone = (zoneId: string) =>
+  request<{ message: string }>(`/v1/admin/shipping/zones/${zoneId}`, { method: "DELETE" });
+
+export const createShippingRate = (
+  zoneId: string,
+  body: { name: string; rateCents: number; minOrderCents?: number; estimatedDays?: number },
+) =>
+  request<ShippingRate>(`/v1/admin/shipping/zones/${zoneId}/rates`, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateShippingRate = (
+  zoneId: string,
+  rateId: string,
+  body: { name?: string; rateCents?: number; minOrderCents?: number; estimatedDays?: number },
+) =>
+  request<ShippingRate>(`/v1/admin/shipping/zones/${zoneId}/rates/${rateId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteShippingRate = (zoneId: string, rateId: string) =>
+  request<ShippingRate>(`/v1/admin/shipping/zones/${zoneId}/rates/${rateId}`, {
+    method: "DELETE",
+  });
+
+// Webhooks
+export type WebhookEvent =
+  | "order.confirmed"
+  | "order.shipped"
+  | "order.delivered"
+  | "order.refunded"
+  | "return.requested"
+  | "return.approved"
+  | "return.refunded"
+  | "inventory.low"
+  | "product.published";
+
+export type WebhookEndpoint = {
+  id: string;
+  url: string;
+  events: WebhookEvent[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type WebhookEndpointWithSecret = WebhookEndpoint & { secret: string };
+
+export type WebhookDeliveryStatus = "pending" | "delivered" | "failed";
+
+export type WebhookDelivery = {
+  id: string;
+  endpointId: string;
+  event: string;
+  status: WebhookDeliveryStatus;
+  attemptCount: number;
+  lastAttemptAt: string | null;
+  responseStatus: number | null;
+  createdAt: string;
+};
+
+export const listWebhookEndpoints = () => request<WebhookEndpoint[]>("/v1/admin/webhooks");
+
+export const createWebhookEndpoint = (body: { url: string; events: WebhookEvent[] }) =>
+  request<WebhookEndpointWithSecret>("/v1/admin/webhooks", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+
+export const updateWebhookEndpoint = (
+  endpointId: string,
+  body: { url?: string; events?: WebhookEvent[]; isActive?: boolean },
+) =>
+  request<WebhookEndpoint>(`/v1/admin/webhooks/${endpointId}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
+export const deleteWebhookEndpoint = (endpointId: string) =>
+  request<{}>(`/v1/admin/webhooks/${endpointId}`, { method: "DELETE" });
+
+export const listWebhookDeliveries = (endpointId: string) =>
+  request<WebhookDelivery[]>(`/v1/admin/webhooks/${endpointId}/deliveries`);

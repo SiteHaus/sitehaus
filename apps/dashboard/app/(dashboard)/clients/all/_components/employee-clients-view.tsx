@@ -3,7 +3,8 @@
 import { useClients } from "@/hooks/use-clients";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
-import { Contact, Search } from "lucide-react";
+import { Contact, Search, Users } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -16,17 +17,16 @@ export function EmployeeClientsView() {
   );
 
   return (
-    <div className="space-y-6 pt-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Clients</h1>
-          {!isLoading && (
-            <p className="text-muted-foreground mt-1 text-sm">
-              {clients?.length ?? 0} {(clients?.length ?? 0) === 1 ? "client" : "clients"} total
-            </p>
-          )}
-        </div>
-      </div>
+    <div className="space-y-6">
+      <PageHero
+        icon={Users}
+        title="Clients"
+        subtitle={
+          !isLoading
+            ? `${clients?.length ?? 0} ${(clients?.length ?? 0) === 1 ? "client" : "clients"} total`
+            : "Manage your client accounts."
+        }
+      />
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

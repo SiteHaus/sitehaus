@@ -1,7 +1,9 @@
 import { CryptoService } from './crypto.service';
 
 describe('CryptoService', () => {
-  const c = new CryptoService();
+  // CryptoService derives an encryption key from the JWT secret; the methods
+  // exercised here don't use it, so a stub secret is sufficient.
+  const c = new CryptoService({ secret: Buffer.from('test-secret') } as never);
 
   it('randomIdOfLength returns at-least requested length', () => {
     const s = c.randomIdOfLength(96);

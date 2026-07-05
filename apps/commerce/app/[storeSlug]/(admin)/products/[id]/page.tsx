@@ -1,15 +1,16 @@
 "use client";
 
 import { archiveProduct, getProduct, updateProduct } from "@/lib/commerce";
+import { PageHeader } from "@/components/ui/page-header";
+import { SectionCard } from "@/components/ui/section-card";
 import { useStoreNav } from "@/lib/use-store-nav";
 import { Button } from "@site-haus/ui/components/base/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@site-haus/ui/components/base/card";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import { Textarea } from "@site-haus/ui/components/base/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
+import { ChevronLeft, Loader2, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -83,45 +84,43 @@ export default function ProductDetailPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => push("/products")}>
-          <ArrowLeft className="size-4" />
-        </Button>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold truncate">{product.name}</h1>
-            <StatusBadge status={product.status} />
-          </div>
-        </div>
-        {product.status !== "archived" && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => archiveMutation.mutate()}
-            disabled={archiveMutation.isPending}
-            className="text-destructive hover:text-destructive"
-          >
-            {archiveMutation.isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Trash2 className="size-4" />
+      <PageHeader
+        eyebrow="Products"
+        title={product.name}
+        subtitle={<StatusBadge status={product.status} />}
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => push("/products")}>
+              <ChevronLeft className="size-4" />
+              Products
+            </Button>
+            {product.status !== "archived" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => archiveMutation.mutate()}
+                disabled={archiveMutation.isPending}
+                className="text-destructive hover:text-destructive"
+              >
+                {archiveMutation.isPending ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Trash2 className="size-4" />
+                )}
+                Archive
+              </Button>
             )}
-            Archive
-          </Button>
-        )}
-      </div>
+          </>
+        }
+      />
 
       {/* Two-column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: product content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Details</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <SectionCard title="Details">
+            <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input
@@ -153,8 +152,8 @@ export default function ProductDetailPage() {
                   </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </SectionCard>
 
           <VariantsCard productId={id} variants={product.variants} options={product.options} />
         </div>
@@ -163,7 +162,11 @@ export default function ProductDetailPage() {
         <div className="space-y-6">
           <StatusCard productId={id} status={product.status} />
           <ImagesCard productId={id} />
-          <InventoryCard variants={product.variants} />
+          <InventoryCard
+            productId={product.id}
+            productName={product.name}
+            variants={product.variants}
+          />
         </div>
       </div>
     </div>

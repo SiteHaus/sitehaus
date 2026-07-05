@@ -60,6 +60,60 @@ services:
           cpus: "0.5"
           memory: 512M
 
+  lighthaus-api:
+    image: ghcr.io/sitehaus/sitehaus-lighthaus-api:staging
+    restart: always
+    networks:
+      - sitehaus-network
+    env_file:
+      - ./apps/lighthaus-api/.env
+    ports:
+      - "3007:3007"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  # Status UI — all NEXT_PUBLIC_* config is baked into the image at build time.
+  lighthaus:
+    image: ghcr.io/sitehaus/sitehaus-lighthaus:staging
+    restart: always
+    networks:
+      - sitehaus-network
+    depends_on:
+      - lighthaus-api
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  # One-shot Drizzle migration runner — see docker-compose.prod.yml for details.
+  # CD runs `docker compose run --rm migrate` before the apps boot.
+  migrate:
+    profiles: ["migrate"]
+    image: node:20-alpine
+    restart: "no"
+    working_dir: /repo/packages/db
+    volumes:
+      - ./:/repo
+    env_file:
+      - ./apps/lighthaus-api/.env
+    networks:
+      - sitehaus-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: ["sh", "-c"]
+    command:
+      - "corepack enable && corepack prepare pnpm@10.14.0 --activate && pnpm install --filter @site-haus/db... --frozen-lockfile && pnpm --filter @site-haus/db db:migrate"
+
   web:
     image: ghcr.io/sitehaus/sitehaus-web:staging
     restart: always

@@ -145,6 +145,58 @@
   --table-control-text: oklch(0.75 0 0);
 }
 
+/* ── Page hero ───────────────────────────────────────────────────── */
+[data-sidebar="sidebar"],
+.page-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+[data-sidebar="sidebar"]::before,
+.page-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  opacity: 0.04;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.dark [data-sidebar="sidebar"]::before,
+.dark .page-hero::before {
+  opacity: 0.07;
+}
+
+.page-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    repeating-linear-gradient(-45deg, oklch(0.55 0.045 50 / 0.11) 0px, oklch(0.55 0.045 50 / 0.11) 1px, transparent 1px, transparent 12px),
+    repeating-linear-gradient( 45deg, oklch(0.55 0.045 50 / 0.11) 0px, oklch(0.55 0.045 50 / 0.11) 1px, transparent 1px, transparent 12px);
+  pointer-events: none;
+}
+
+.dark .page-hero::after {
+  background-image:
+    repeating-linear-gradient(-45deg, oklch(0.75 0.020 60 / 0.09) 0px, oklch(0.75 0.020 60 / 0.09) 1px, transparent 1px, transparent 12px),
+    repeating-linear-gradient( 45deg, oklch(0.75 0.020 60 / 0.09) 0px, oklch(0.75 0.020 60 / 0.09) 1px, transparent 1px, transparent 12px);
+}
+
+.page-hero h1 {
+  color: oklch(0.24 0.07 38);
+}
+
+.dark .page-hero h1 {
+  color: oklch(0.93 0.030 65);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

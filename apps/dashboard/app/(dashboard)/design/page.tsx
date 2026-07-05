@@ -32,6 +32,7 @@ import {
   Ticket,
   Zap,
 } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -50,16 +51,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export default function DesignShowcase() {
   return (
     <div className="space-y-12 pb-20">
-      {/* Header */}
-      <div className="pt-2">
-        <div className="flex items-center gap-2 mb-1">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h1 className="text-2xl font-bold">Design System</h1>
-        </div>
-        <p className="text-muted-foreground text-sm">
-          Component showcase — techy modern aesthetic with cool blue-gray neutrals.
-        </p>
-      </div>
+      <PageHero
+        icon={Sparkles}
+        title="Design System"
+        subtitle="Component showcase and design tokens."
+      />
 
       {/* Color Swatches */}
       <Section title="Color Tokens">

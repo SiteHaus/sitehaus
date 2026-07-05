@@ -6,7 +6,9 @@ import {
   Package,
   Settings,
   ShoppingCart,
+  Truck,
   Warehouse,
+  Webhook,
 } from "lucide-react";
 
 export type SidebarMenuItem = {
@@ -45,6 +47,16 @@ export const sideBarMenuItems: SidebarMenuItem[] = [
     title: "Analytics",
     url: "/analytics",
     icon: BarChart3,
+  },
+  {
+    title: "Shipping",
+    url: "/shipping",
+    icon: Truck,
+  },
+  {
+    title: "Webhooks",
+    url: "/webhooks",
+    icon: Webhook,
   },
   {
     title: "Settings",

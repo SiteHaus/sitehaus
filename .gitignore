@@ -41,3 +41,6 @@ yarn-error.log*
 .claude
 .agents
 skills-lock.json
+# Local-only auth security audit (Workstream 2) — never commit (contains exploit detail)
+/security-audit/
+.superpowers/

@@ -22,6 +22,7 @@
   "devDependencies": {
     "@site-haus/eslint-config": "workspace:*",
     "@site-haus/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
     "eslint": "^9.31.0",
     "typescript": "5.8.2"
   },

@@ -34,6 +34,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ProjectBillingSection } from "./_components/project-billing-section";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 
 export default function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -91,35 +92,33 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <Button asChild variant="ghost" size="sm" className="mb-2">
-          <Link href="/projects">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Projects
+      <PageHero
+        icon={FolderOpen}
+        title={project.name}
+        subtitle={project.description ?? undefined}
+        back={
+          <Link
+            href="/projects"
+            className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" />
+            Back to Projects
           </Link>
-        </Button>
-
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">{project.name}</h1>
-            {project.description && (
-              <p className="text-muted-foreground mt-1">{project.description}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Badge variant={statusVariant(project.status)}>{label(project.status)}</Badge>
-            <Badge variant="outline">{label(project.type)}</Badge>
-            {canManage && (
-              <Button asChild size="sm" variant="outline">
-                <Link href={`/projects/${projectId}/edit`}>
-                  <Pencil className="mr-2 h-3.5 w-3.5" />
-                  Edit
-                </Link>
-              </Button>
-            )}
-          </div>
+        }
+      >
+        <div className="flex items-center gap-2">
+          <Badge variant={statusVariant(project.status)}>{label(project.status)}</Badge>
+          <Badge variant="outline">{label(project.type)}</Badge>
+          {canManage && (
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/projects/${projectId}/edit`}>
+                <Pencil className="mr-2 h-3.5 w-3.5" />
+                Edit
+              </Link>
+            </Button>
+          )}
         </div>
-      </div>
+      </PageHero>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>

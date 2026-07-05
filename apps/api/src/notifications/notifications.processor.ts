@@ -8,6 +8,11 @@ import {
   renderMilestoneSignedOffEmail,
   renderPaymentFailedEmail,
 } from '@site-haus/transactional/render/notifications';
+import {
+  renderDailyDigestEmail,
+  renderIncidentOpenedEmail,
+  renderIncidentResolvedEmail,
+} from '@site-haus/transactional/render/lighthaus';
 import { Job } from 'bullmq';
 import { DRIZZLE } from 'src/db/tokens';
 import { EmailService } from 'src/email/email.service';
@@ -18,6 +23,8 @@ import type { NotificationJobData } from './notifications.types';
 export class NotificationsProcessor extends WorkerHost {
   private readonly logger = new Logger(NotificationsProcessor.name);
   private readonly dashboardUrl: string;
+  private readonly opsRecipients: string[];
+  private readonly statusUrl: string;
 
   constructor(
     @Inject(DRIZZLE) private readonly db: Db,
@@ -26,6 +33,8 @@ export class NotificationsProcessor extends WorkerHost {
   ) {
     super();
     this.dashboardUrl = config.get<string>('stripe.dashboardUrl')!;
+    this.opsRecipients = config.get<string[]>('ops.recipients') ?? [];
+    this.statusUrl = config.get<string>('ops.statusUrl')!;
   }
 
   async process(job: Job<NotificationJobData>): Promise<void> {
@@ -43,6 +52,15 @@ export class NotificationsProcessor extends WorkerHost {
         break;
       case 'billing.payment_failed':
         await this.handleBillingPaymentFailed(job.data);
+        break;
+      case 'lighthaus.incident_opened':
+        await this.handleIncidentOpened(job.data);
+        break;
+      case 'lighthaus.incident_resolved':
+        await this.handleIncidentResolved(job.data);
+        break;
+      case 'lighthaus.daily_digest':
+        await this.handleDailyDigest(job.data);
         break;
       default:
         this.logger.warn(
@@ -167,6 +185,69 @@ export class NotificationsProcessor extends WorkerHost {
     });
     await this.email.send({
       to: emails,
+      subject,
+      html,
+      text,
+      tags: { type: data.type },
+    });
+  }
+
+  // ─── Lighthaus monitoring alerts → ops recipients only (never clients) ──────
+
+  private async handleIncidentOpened(
+    data: Extract<NotificationJobData, { type: 'lighthaus.incident_opened' }>,
+  ) {
+    if (this.opsRecipients.length === 0) return;
+    const { subject, html, text } = await renderIncidentOpenedEmail({
+      monitorName: data.monitorName,
+      group: data.group,
+      status: data.status,
+      detail: data.detail,
+      openedAt: data.openedAt,
+      ctaUrl: `${this.statusUrl}/m/${data.monitorId}`,
+    });
+    await this.email.send({
+      to: this.opsRecipients,
+      subject,
+      html,
+      text,
+      tags: { type: data.type },
+    });
+  }
+
+  private async handleIncidentResolved(
+    data: Extract<NotificationJobData, { type: 'lighthaus.incident_resolved' }>,
+  ) {
+    if (this.opsRecipients.length === 0) return;
+    const { subject, html, text } = await renderIncidentResolvedEmail({
+      monitorName: data.monitorName,
+      group: data.group,
+      openedAt: data.openedAt,
+      resolvedAt: data.resolvedAt,
+      downtimeMs: data.downtimeMs,
+      ctaUrl: `${this.statusUrl}/m/${data.monitorId}`,
+    });
+    await this.email.send({
+      to: this.opsRecipients,
+      subject,
+      html,
+      text,
+      tags: { type: data.type },
+    });
+  }
+
+  private async handleDailyDigest(
+    data: Extract<NotificationJobData, { type: 'lighthaus.daily_digest' }>,
+  ) {
+    if (this.opsRecipients.length === 0) return;
+    const { subject, html, text } = await renderDailyDigestEmail({
+      date: data.date,
+      summary: data.summary,
+      openIncidents: data.openIncidents,
+      ctaUrl: this.statusUrl,
+    });
+    await this.email.send({
+      to: this.opsRecipients,
       subject,
       html,
       text,

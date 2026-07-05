@@ -11,6 +11,7 @@ import { Input } from "@site-haus/ui/components/base/input";
 import { Spinner } from "@site-haus/ui/components/base/spinner";
 import { label } from "@site-haus/utils/core/format";
 import { FolderKanban, Globe, Mail, Phone, Plus, Search } from "lucide-react";
+import { PageHero } from "@site-haus/ui/components/shared/page-hero";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -49,10 +50,16 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Projects</h1>
-        <p className="text-muted-foreground mt-1">Manage all your web projects.</p>
-      </div>
+      <PageHero icon={FolderKanban} title="Projects" subtitle="Manage all your web projects.">
+        {canManage && (
+          <Button asChild>
+            <Link href="/projects/new">
+              <Plus className="mr-2 h-4 w-4" />
+              New Project
+            </Link>
+          </Button>
+        )}
+      </PageHero>
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
@@ -64,14 +71,6 @@ export default function ProjectsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        {canManage && (
-          <Button asChild>
-            <Link href="/projects/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Project
-            </Link>
-          </Button>
-        )}
       </div>
 
       {loading ? (

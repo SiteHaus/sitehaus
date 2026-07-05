@@ -1,0 +1,57 @@
+FROM node:20-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN apk add --no-cache libc6-compat && \
+    corepack enable && \
+    corepack prepare pnpm@10.14.0 --activate && \
+    pnpm add -g turbo@^2
+
+FROM base AS prune
+WORKDIR /app
+
+COPY . .
+RUN --mount=type=cache,target=/root/.cache/turbo \
+    turbo prune lighthaus-api --docker
+
+FROM base AS installer
+WORKDIR /app
+
+COPY --from=prune /app/out/json/ .
+COPY --from=prune /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=prune /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm fetch
+
+COPY --from=prune /app/out/full/ ./
+COPY turbo.json turbo.json
+
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm install -r
+
+FROM base AS build
+WORKDIR /app
+
+COPY --from=installer /app ./
+
+RUN --mount=type=cache,target=/root/.cache/turbo \
+    turbo run build --filter=lighthaus-api...
+
+# Use pnpm deploy to create a production bundle with all deps resolved
+RUN --mount=type=cache,target=/pnpm/store \
+    pnpm --filter=lighthaus-api deploy --prod --legacy /app/deploy
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV LIGHTHAUS_PORT=3007
+
+# Copy the deployed bundle (includes node_modules with all deps)
+COPY --from=build /app/deploy ./
+# Copy built dist (pnpm deploy doesn't include build outputs)
+COPY --from=build /app/apps/lighthaus-api/dist ./dist
+
+EXPOSE 3007
+
+CMD ["node", "dist/main.js"]
