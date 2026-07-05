@@ -12,7 +12,7 @@
   </a>
 </div>
 
-A full-stack Identity and Access Management (IAM) platform. Built with **Next.js, NestJS, Turborepo, TypeScript, Docker, and PostgreSQL**.
+The SiteHaus platform: Identity and Access Management, client dashboard, commerce admin, and the Lighthaus monitoring/status system. Built with **Next.js, NestJS, Turborepo, TypeScript, Docker, and PostgreSQL**.
 
 ## Structure
 
@@ -20,25 +20,33 @@ The repo is organized as a [Turborepo](https://turborepo.com/docs) monorepo with
 
 ### Apps
 
-| App          | Description                    | Port |
-| ------------ | ------------------------------ | ---- |
-| `api/`       | NestJS backend API             | 3000 |
-| `web/`       | Marketing site                 | 3000 |
-| `dashboard/` | Client and developer dashboard | 3001 |
-| `iam/`       | Identity Management Portal     | 3002 |
+| App              | Description                                      | Port |
+| ---------------- | ------------------------------------------------ | ---- |
+| `web/`           | Marketing site                                   | 3000 |
+| `dashboard/`     | Client and developer dashboard                   | 3001 |
+| `iam/`           | Identity Management Portal                       | 3002 |
+| `api/`           | NestJS backend API (IAM + dashboard)             | 3003 |
+| `commerce/`      | Commerce store-admin UI                          | 3004 |
+| `docs/`          | Internal docs (Astro Starlight, local-only)      | 3005 |
+| `lighthaus/`     | Lighthaus status board UI                        | 3006 |
+| `lighthaus-api/` | Lighthaus monitoring backend (probes, incidents) | 3007 |
+
+The commerce admin talks to the separate [`sitehaus-commerce`](https://github.com/SiteHaus/ecommerce-api) backend. `docs/` is deliberately **not deployed** — it documents internal architecture and stays on `docs.localhost`.
 
 ### Packages
 
-| Package          | Description                                       |
-| ---------------- | ------------------------------------------------- |
-| `db/`            | Drizzle ORM database layer (PostgreSQL)           |
-| `contracts/`     | ts-rest API contracts for type-safe communication |
-| `sdk/`           | Client SDK with automatic token refresh           |
-| `validation/`    | Zod schemas shared across apps                    |
-| `ui/`            | Shared UI components (shadcn/ui)                  |
-| `stores/`        | Zustand state management                          |
-| `transactional/` | React Email templates                             |
-| `utils/`         | Shared utilities                                  |
+| Package          | Description                                        |
+| ---------------- | -------------------------------------------------- |
+| `db/`            | Drizzle ORM database layer (PostgreSQL)            |
+| `contracts/`     | ts-rest API contracts for type-safe communication  |
+| `sdk/`           | Client SDK with automatic token refresh            |
+| `client-sdk/`    | Server-side SDK for services validating IAM tokens |
+| `monitoring/`    | Lighthaus pure check core (http/dns/ssl/heartbeat) |
+| `validation/`    | Zod schemas shared across apps                     |
+| `ui/`            | Shared UI components (shadcn/ui)                   |
+| `stores/`        | Zustand state management                           |
+| `transactional/` | React Email templates                              |
+| `utils/`         | Shared utilities                                   |
 
 ## Development
 
@@ -67,11 +75,17 @@ pnpm dev
 ### Running Individual Apps
 
 ```bash
-pnpm dev --filter=web        # Marketing site
-pnpm dev --filter=dashboard  # Dashboard
-pnpm dev --filter=iam        # IAM portal
-pnpm dev --filter=api        # API server
+pnpm dev --filter=web            # Marketing site
+pnpm dev --filter=dashboard      # Dashboard
+pnpm dev --filter=iam            # IAM portal
+pnpm dev --filter=api            # API server
+pnpm dev --filter=commerce       # Commerce admin
+pnpm dev --filter=docs           # Docs site
+pnpm dev --filter=lighthaus      # Status board UI
+pnpm dev --filter=lighthaus-api  # Monitoring backend
 ```
+
+For HTTPS `.localhost` domains that mirror production (cookie scoping, OAuth redirects), run Caddy: `sudo caddy run --config infra/Caddyfile.dev`
 
 ### Database Commands
 
@@ -108,7 +122,7 @@ pnpm --filter api test:cov    # Coverage
 ## CI/CD
 
 - **CI**: Runs type checking, linting, and builds on PRs to `main`
-- **CD**: On merge to `main`, builds Docker images and pushes to GitHub Container Registry (`ghcr.io/sitehaus/sitehaus-*`), then deploys to production
+- **CD**: On merge to `main`, builds Docker images, deploys to **staging** (running DB migrations first), waits for a **manual approval gate**, then rebuilds and deploys to **production**
 
 ### Docker Images
 
@@ -118,6 +132,9 @@ Images are built in parallel and published to ghcr.io:
 - `ghcr.io/sitehaus/sitehaus-dashboard`
 - `ghcr.io/sitehaus/sitehaus-iam`
 - `ghcr.io/sitehaus/sitehaus-api`
+- `ghcr.io/sitehaus/sitehaus-commerce`
+- `ghcr.io/sitehaus/sitehaus-lighthaus`
+- `ghcr.io/sitehaus/sitehaus-lighthaus-api`
 
 ### Local Docker Build
 
@@ -133,6 +150,12 @@ Copy `.env.example` to `.env` and configure:
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - JWT signing secret
 - `ACCESS_TTL_SEC` / `REFRESH_TTL_SEC` - Token expiration times
+
+Apps with their own configuration (`apps/api`, `apps/lighthaus-api`, `apps/lighthaus`, `apps/commerce`) each ship an `.env.example` documenting their full set.
+
+## Monitoring (Lighthaus)
+
+`lighthaus-api` probes every deployed service and client site (HTTP, DNS, SSL/domain expiry, email DNS, health endpoints, push heartbeats), opens/resolves incidents, emails ops via the shared notifications queue (with a direct-Resend failsafe), and publishes a failure-domain-independent `status.json` snapshot to R2. The `lighthaus` app is the IAM-authenticated status board — staff see everything, clients see their own sites.
 
 ## Tech Stack
 
