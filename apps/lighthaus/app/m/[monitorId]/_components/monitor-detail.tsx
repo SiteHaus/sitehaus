@@ -80,7 +80,7 @@ export const MonitorDetail = ({ monitorId }: MonitorDetailProps) => {
           <span className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
             Recent uptime
           </span>
-          <UptimeBar pct={recentUptime} />
+          <UptimeBar pct={recentUptime} pending={history.length === 0} />
         </div>
         <HistoryStrip history={history} />
         <p className="font-numeric-id text-xs text-muted-foreground">

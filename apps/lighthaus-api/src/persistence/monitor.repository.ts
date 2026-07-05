@@ -25,8 +25,15 @@ export class MonitorRepository {
   constructor(@Inject(LIGHTHAUS_DB) private readonly db: Db) {}
 
   async syncFromConfig(configs: MonitorConfig[]): Promise<void> {
+    // Identity of a monitor = name + type + target. Track everything the config
+    // still declares so we can prune anything that was renamed or removed.
+    const active = new Set<string>();
+    const key = (name: string, type: string, target: string) =>
+      `${name}\u0000${type}\u0000${target}`;
+
     for (const cfg of configs) {
       for (const check of cfg.checks) {
+        active.add(key(cfg.name, check.type, check.target));
         const existing = await this.db.query.monitorsTable.findFirst({
           where: and(
             eq(schema.monitorsTable.name, cfg.name),
@@ -40,15 +47,30 @@ export class MonitorRepository {
           thresholds: check.thresholds ?? null,
         };
         if (existing) {
+          // enabled: true re-activates a monitor that was pruned then re-added.
           await this.db
             .update(schema.monitorsTable)
-            .set({ ...values, updatedAt: new Date() })
+            .set({ ...values, enabled: true, updatedAt: new Date() })
             .where(eq(schema.monitorsTable.id, existing.id));
         } else {
           await this.db
             .insert(schema.monitorsTable)
             .values({ name: cfg.name, type: check.type, target: check.target, ...values });
         }
+      }
+    }
+
+    // Prune: disable (not delete — keeps check/incident history) any enabled
+    // monitor the config no longer declares, so it drops off the board.
+    const enabled = await this.db.query.monitorsTable.findMany({
+      where: eq(schema.monitorsTable.enabled, true),
+    });
+    for (const m of enabled) {
+      if (!active.has(key(m.name, m.type, m.target))) {
+        await this.db
+          .update(schema.monitorsTable)
+          .set({ enabled: false, updatedAt: new Date() })
+          .where(eq(schema.monitorsTable.id, m.id));
       }
     }
   }
