@@ -65,7 +65,7 @@ export const GroupCard = ({ group, monitors }: GroupCardProps) => {
                   </span>
                 </span>
               </AccordionTrigger>
-              <AccordionContent className="-mx-4 pb-0">
+              <AccordionContent className="-mx-4 pb-0 [&_a]:no-underline">
                 <div className="divide-y border-t">
                   {rows.map((m) => (
                     <MonitorRow key={m.id} monitor={m} showName={false} />
