@@ -50,13 +50,21 @@ export const setRefreshCookie = (
 
 export const clearRefreshCookie = (res: Response, clientKey?: string) => {
   const sameSite = getSameSite();
-  res.clearCookie(getRefreshCookieName(clientKey), {
+  const base = {
     httpOnly: true,
     secure: isProd || sameSite === 'none',
     sameSite,
     path: '/',
-    ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {}),
-  });
+  };
+  const name = getRefreshCookieName(clientKey);
+  // Clear both attribute variants: a cookie can only be deleted with the same
+  // Domain it was set with, and browsers may still hold host-only strays from
+  // deployments that predate COOKIE_DOMAIN. A stray that survives clearing is
+  // replayed forever and trips refresh-token reuse detection on every visit.
+  res.clearCookie(name, base);
+  if (process.env.COOKIE_DOMAIN) {
+    res.clearCookie(name, { ...base, domain: process.env.COOKIE_DOMAIN });
+  }
 };
 
 /** Clear all sh_refresh* cookies found in the request (used on account deletion). */
@@ -65,19 +73,24 @@ export const clearAllRefreshCookies = (
   cookies: Record<string, string>,
 ) => {
   const sameSite = getSameSite();
-  const opts = {
+  const base = {
     httpOnly: true,
     secure: isProd || sameSite === 'none',
     sameSite,
     path: '/',
-    ...(process.env.COOKIE_DOMAIN ? { domain: process.env.COOKIE_DOMAIN } : {}),
   };
   Object.keys(cookies)
     .filter(
       (name) =>
         name === REFRESH_COOKIE || name.startsWith(`${REFRESH_COOKIE}_`),
     )
-    .forEach((name) => res.clearCookie(name, opts));
+    .forEach((name) => {
+      // Both attribute variants — see clearRefreshCookie.
+      res.clearCookie(name, base);
+      if (process.env.COOKIE_DOMAIN) {
+        res.clearCookie(name, { ...base, domain: process.env.COOKIE_DOMAIN });
+      }
+    });
 };
 
 /**
