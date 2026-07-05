@@ -71,7 +71,7 @@ export const StatusBoard = () => {
       ) : (
         <div className="space-y-4">
           {data.groups.map((g) => (
-            <GroupCard key={g.group} group={g.group} monitors={g.monitors} />
+            <GroupCard key={g.group} group={g.group} monitors={g.monitors} isStaff={data.isStaff} />
           ))}
         </div>
       )}

@@ -32,6 +32,42 @@ export function checkTypeLabel(type: string): string {
   return CHECK_TYPE_LABELS[type] ?? type.replace(/_/g, " ").toUpperCase();
 }
 
+// Plain-language labels for clients (non-technical business owners). Clients only
+// ever see client-site checks; the platform types are mapped for completeness.
+const CHECK_TYPE_LABELS_FRIENDLY: Record<string, string> = {
+  http: "Website",
+  dns: "Can be found",
+  ssl: "Secure connection",
+  domain: "Domain renewal",
+  email_dns: "Email setup",
+  service_health: "Service",
+  heartbeat: "Background worker",
+};
+
+export function checkTypeLabelFriendly(type: string): string {
+  return CHECK_TYPE_LABELS_FRIENDLY[type] ?? checkTypeLabel(type);
+}
+
+// Audience-aware: staff read the technical term they debug with; clients read
+// plain language.
+export function checkLabel(type: string, isStaff: boolean): string {
+  return isStaff ? checkTypeLabel(type) : checkTypeLabelFriendly(type);
+}
+
+// Display names for monitor groups. A client only ever sees their own site, so
+// "client-site" reads as "Your Website" for them; staff see all four sections.
+const GROUP_LABELS: Record<string, string> = {
+  "client-site": "Client Sites",
+  "sh-service": "SiteHaus Platform",
+  "commerce-service": "Commerce",
+  staging: "Staging",
+};
+
+export function groupLabel(group: string, isStaff: boolean): string {
+  if (group === "client-site" && !isStaff) return "Your Website";
+  return GROUP_LABELS[group] ?? group.replace(/-/g, " ");
+}
+
 export interface StatusBoard {
   isStaff: boolean;
   groups: { group: string; monitors: StatusMonitorView[] }[];

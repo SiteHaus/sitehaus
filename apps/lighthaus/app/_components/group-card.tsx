@@ -6,19 +6,19 @@ import {
 } from "@site-haus/ui/components/base/accordion";
 import { Card } from "@site-haus/ui/components/base/card";
 import { cn } from "@site-haus/ui/lib/utils";
-import { label } from "@site-haus/utils/core/format";
-import { statusMeta, worstStatus, type StatusMonitorView } from "@/lib/status";
+import { groupLabel, statusMeta, worstStatus, type StatusMonitorView } from "@/lib/status";
 import { MonitorRow } from "./monitor-row";
 
 interface GroupCardProps {
   group: string;
   monitors: StatusMonitorView[];
+  isStaff: boolean;
 }
 
 // A titled card for one monitor group. The header dot rolls the group up to its
 // worst member; each site inside is its own accordion (open by default) so sites
 // read as distinct, collapsible units rather than one long list.
-export const GroupCard = ({ group, monitors }: GroupCardProps) => {
+export const GroupCard = ({ group, monitors, isStaff }: GroupCardProps) => {
   const roll = worstStatus(monitors);
   const meta = statusMeta(roll);
 
@@ -37,7 +37,7 @@ export const GroupCard = ({ group, monitors }: GroupCardProps) => {
         <div className="flex items-center gap-2">
           <span className={cn("size-2.5 rounded-full", meta.dot)} aria-hidden />
           <h2 className="text-xs font-semibold tracking-[0.14em] text-foreground/80 uppercase">
-            {label(group)}
+            {groupLabel(group, isStaff)}
           </h2>
         </div>
         <span className={cn("text-xs font-medium", meta.text)}>{meta.label}</span>
@@ -68,7 +68,7 @@ export const GroupCard = ({ group, monitors }: GroupCardProps) => {
               <AccordionContent className="-mx-4 pb-0 [&_a]:no-underline">
                 <div className="divide-y border-t">
                   {rows.map((m) => (
-                    <MonitorRow key={m.id} monitor={m} showName={false} />
+                    <MonitorRow key={m.id} monitor={m} isStaff={isStaff} showName={false} />
                   ))}
                 </div>
               </AccordionContent>
