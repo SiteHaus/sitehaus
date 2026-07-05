@@ -13,4 +13,18 @@ describe("HeartbeatController", () => {
     expect(recordHeartbeat).toHaveBeenCalledWith("commerce-worker");
     expect(res).toEqual({ ok: true });
   });
+
+  it.each([{}, { service: "" }, { service: 42 }])(
+    "rejects a body without a usable service name (%p)",
+    async (body) => {
+      const recordHeartbeat = jest.fn(async () => undefined);
+      const repo = { recordHeartbeat } as unknown as MonitorRepository;
+      const controller = new HeartbeatController(repo);
+
+      await expect(controller.ingest(body as { service?: unknown })).rejects.toThrow(
+        "service is required",
+      );
+      expect(recordHeartbeat).not.toHaveBeenCalled();
+    },
+  );
 });

@@ -13,12 +13,16 @@ type Monitor = MonitorLike & { id: string; name: string; group: string };
 const FAST_TYPES = new Set(["http", "dns", "service_health", "heartbeat"]);
 const SLOW_TYPES = new Set(["ssl", "domain", "email_dns"]);
 const DAY_MS = 24 * 60 * 60 * 1000;
+// Must match reduceIncident's default failureThreshold — rehydrated open
+// incidents are seeded at the threshold so the reducer treats them as open.
+const FAILURE_THRESHOLD = 2;
 
 @Injectable()
 export class SchedulerService implements OnModuleInit {
   private readonly logger = new Logger(SchedulerService.name);
   private readonly incidentStates = new Map<string, IncidentState>();
   private readonly deps: CheckDeps;
+  private fastCycleRunning = false;
 
   constructor(
     private readonly repo: MonitorRepository,
@@ -31,10 +35,36 @@ export class SchedulerService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     await this.repo.syncFromConfig(monitorConfigs);
+    // Rehydrate incident state from the DB. Without this, a restart forgets
+    // every open incident: a still-down monitor would open a duplicate row
+    // (and re-alert), and a monitor that recovered while we were down would
+    // never emit its resolve transition — the incident stays open forever.
+    for (const incident of await this.repo.listOpenIncidents()) {
+      this.incidentStates.set(incident.monitorId, {
+        consecutiveFailures: FAILURE_THRESHOLD,
+        open: true,
+      });
+    }
   }
 
   @Interval(120_000)
   async fastCycle(): Promise<void> {
+    // A cycle slower than the interval (many monitors × slow timeouts) must
+    // not overlap the next one — overlapping runs double-record results and
+    // race the in-memory incident state.
+    if (this.fastCycleRunning) {
+      this.logger.warn("fast cycle still running; skipping this tick");
+      return;
+    }
+    this.fastCycleRunning = true;
+    try {
+      await this.runFastCycle();
+    } finally {
+      this.fastCycleRunning = false;
+    }
+  }
+
+  private async runFastCycle(): Promise<void> {
     await this.runGroup((type) => FAST_TYPES.has(type));
     await this.deadman.ping();
     try {

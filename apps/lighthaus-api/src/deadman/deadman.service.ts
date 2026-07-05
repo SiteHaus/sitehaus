@@ -16,7 +16,8 @@ export class DeadmanService {
     const url = this.config.get<string>("lighthaus.healthchecksUrl");
     if (!url) return;
     try {
-      await fetch(url);
+      // Bounded: a hanging healthchecks endpoint must not stall the fast cycle.
+      await fetch(url, { signal: AbortSignal.timeout(10_000) });
     } catch (err) {
       this.logger.warn(`deadman ping failed: ${err instanceof Error ? err.message : String(err)}`);
     }

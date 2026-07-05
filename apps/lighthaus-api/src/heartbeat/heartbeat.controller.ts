@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Post, UseGuards } from "@nestjs/common";
 import { MonitorRepository } from "../persistence/monitor.repository";
 import { HeartbeatIngestGuard } from "./heartbeat.guard";
 
@@ -13,7 +13,10 @@ export class HeartbeatController {
   constructor(private readonly repo: MonitorRepository) {}
 
   @Post()
-  async ingest(@Body() body: { service: string }): Promise<{ ok: true }> {
+  async ingest(@Body() body: { service?: unknown }): Promise<{ ok: true }> {
+    if (typeof body?.service !== "string" || body.service.length === 0) {
+      throw new BadRequestException("service is required");
+    }
     await this.repo.recordHeartbeat(body.service);
     return { ok: true };
   }

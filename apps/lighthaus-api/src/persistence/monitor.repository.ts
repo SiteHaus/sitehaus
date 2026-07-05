@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, desc, eq, gt, gte, isNull, schema, type Db } from "@site-haus/db";
+import { and, desc, eq, gt, gte, isNull, schema, sql, type Db } from "@site-haus/db";
 import type { CheckResult } from "@site-haus/monitoring";
 import { LIGHTHAUS_DB } from "../db/tokens";
 import type { MonitorConfig } from "../monitors.config";
@@ -84,10 +84,16 @@ export class MonitorRepository {
       ),
     });
     if (!m) return null;
+    // Only rows written by the ingest endpoint count as a real heartbeat. The
+    // scheduler also records its own "up" *evaluations* for this monitor, and
+    // treating those as heartbeats would keep the monitor alive forever after
+    // the pusher dies (each 2-min evaluation refreshing the 3-min silence
+    // window it is supposed to measure).
     const last = await this.db.query.checkResultsTable.findFirst({
       where: and(
         eq(schema.checkResultsTable.monitorId, m.id),
         eq(schema.checkResultsTable.status, "up"),
+        sql`${schema.checkResultsTable.detail}->>'source' = 'heartbeat-ingest'`,
       ),
       orderBy: desc(schema.checkResultsTable.checkedAt),
     });
@@ -114,6 +120,12 @@ export class MonitorRepository {
         ),
       })) ?? null
     );
+  }
+
+  listOpenIncidents(): Promise<Incident[]> {
+    return this.db.query.incidentsTable.findMany({
+      where: isNull(schema.incidentsTable.resolvedAt),
+    });
   }
 
   async openIncident(monitorId: string, lastStatus: string): Promise<Incident> {
