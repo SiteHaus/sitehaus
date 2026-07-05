@@ -74,7 +74,7 @@ export const monitors: MonitorConfig[] = [
     ],
   },
 
-  // ── Staging (our services only — client sites have no staging) ───────────
+  // ── Staging (staff-only — our services + any client sites with a staging env) ─
   service(
     "dashboard.staging.sitehaus.dev",
     "staging",
@@ -92,4 +92,15 @@ export const monitors: MonitorConfig[] = [
     "staging",
     "https://api.commerce.staging.sitehaus.dev/health",
   ),
+  // Client staging site — a website, not a service. domain/email_dns live on the
+  // prod root (onehealthclinics.com), so staging only checks reachability + cert.
+  {
+    name: "staging.onehealthclinics.com",
+    group: "staging",
+    checks: [
+      { type: "http", target: "https://staging.onehealthclinics.com" },
+      { type: "dns", target: "staging.onehealthclinics.com" },
+      { type: "ssl", target: "staging.onehealthclinics.com", thresholds: { sslWarnDays: 14 } },
+    ],
+  },
 ];
