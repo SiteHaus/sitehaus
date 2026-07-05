@@ -13,11 +13,8 @@ import {
 } from "@site-haus/ui/components/base/table";
 import { useQuery } from "@tanstack/react-query";
 import { ShoppingCart } from "lucide-react";
+import { useFormatCents } from "@/lib/use-format-cents";
 import { type PeriodOption, periodToParams } from "../../_components/period-utils";
-
-function formatCents(cents: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
-}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -29,6 +26,7 @@ function formatDate(iso: string) {
 }
 
 export function AbandonedCartsSection({ period }: { period: PeriodOption }) {
+  const formatCents = useFormatCents();
   const { from, to } = periodToParams(period);
 
   const { data: summary, isLoading: summaryLoading } = useQuery({

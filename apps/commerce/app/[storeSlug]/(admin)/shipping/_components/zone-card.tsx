@@ -14,15 +14,13 @@ import {
 } from "@site-haus/ui/components/base/table";
 import { Edit2, Plus } from "lucide-react";
 import { useState } from "react";
+import { useFormatCents } from "@/lib/use-format-cents";
 import { countryName } from "./countries";
 import { RateDialog } from "./rate-dialog";
 import { ZoneDialog } from "./zone-dialog";
 
-function formatCents(cents: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
-}
-
 function RateLabel({ rate }: { rate: ShippingRate }) {
+  const formatCents = useFormatCents();
   if (rate.rateCents === 0 && rate.minOrderCents !== undefined) {
     return (
       <span>

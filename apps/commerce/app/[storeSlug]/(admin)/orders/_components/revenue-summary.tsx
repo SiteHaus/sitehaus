@@ -1,6 +1,7 @@
 "use client";
 
 import { getAnalyticsRevenue } from "@/lib/commerce";
+import { useFormatCents } from "@/lib/use-format-cents";
 import { ChartContainer, type ChartConfig } from "@site-haus/ui/components/base/chart";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart } from "recharts";
@@ -18,6 +19,7 @@ function monthRange() {
 }
 
 export function RevenueSummary() {
+  const formatCents = useFormatCents();
   const { from, to, label } = monthRange();
   const { data } = useQuery({
     queryKey: ["analytics", "revenue", from, to],
@@ -27,11 +29,7 @@ export function RevenueSummary() {
   const periods = data?.periods ?? [];
   // Analytics `revenue` is summed from `totalCents` server-side, so it is in cents.
   const totalCents = periods.reduce((sum, p) => sum + p.revenue, 0);
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(totalCents / 100);
+  const formatted = formatCents(totalCents, { maximumFractionDigits: 0 });
 
   return (
     <div className="text-right">
