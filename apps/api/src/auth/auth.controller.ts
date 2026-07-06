@@ -186,9 +186,11 @@ export class AuthController {
     // Prefer the per-client cookie; fall back to the legacy sh_refresh for
     // backward compat with sessions created before per-client cookies shipped.
     const clientKey = req.client!.key;
+    const perClientToken = req.cookies?.[getRefreshCookieName(clientKey)] as
+      | string
+      | undefined;
     const token =
-      (req.cookies?.[getRefreshCookieName(clientKey)] as string | undefined) ??
-      (req.cookies?.[REFRESH_COOKIE] as string | undefined);
+      perClientToken ?? (req.cookies?.[REFRESH_COOKIE] as string | undefined);
     if (!token) throw new BadRequestException('No refresh token');
 
     try {
@@ -209,7 +211,13 @@ export class AuthController {
       );
       return res.json(rest);
     } catch (e) {
-      clearRefreshCookie(res, clientKey);
+      // Clear the cookie the failing token actually came from. Clearing only
+      // the per-client name while the token came from the legacy sh_refresh
+      // leaves the stale legacy cookie in place: it is replayed on every
+      // subsequent load, trips refresh-token reuse detection, and that
+      // revokes the user's fresh sessions too — a lockout only a manual
+      // cookie clear could end.
+      clearRefreshCookie(res, perClientToken ? clientKey : undefined);
       throw e;
     }
   }
