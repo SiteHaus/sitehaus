@@ -86,22 +86,32 @@ export class SchedulerService implements OnModuleInit {
     const all = (await this.repo.listEnabled()) as Monitor[];
     const summary: {
       monitorName: string;
+      type: string;
       group: string;
       uptime24h: number;
       status: string;
     }[] = [];
-    const openIncidents: { monitorName: string; openedAt: string }[] = [];
+    const openIncidents: { monitorName: string; type: string; openedAt: string }[] = [];
 
     for (const m of all) {
       const uptime24h = await this.repo.uptime(m.id, DAY_MS);
       const open = await this.repo.getOpenIncident(m.id);
+      // `type` disambiguates rows: one site is many monitors (http/dns/ssl/…)
+      // that all share the same name — without it the digest reads as
+      // duplicate lines with contradictory statuses.
       summary.push({
         monitorName: m.name,
+        type: m.type,
         group: m.group,
         uptime24h,
         status: open ? "down" : "up",
       });
-      if (open) openIncidents.push({ monitorName: m.name, openedAt: open.openedAt.toISOString() });
+      if (open)
+        openIncidents.push({
+          monitorName: m.name,
+          type: m.type,
+          openedAt: open.openedAt.toISOString(),
+        });
     }
 
     await this.dispatcher.dispatch({
