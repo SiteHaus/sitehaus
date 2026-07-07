@@ -32,8 +32,14 @@ export type LighthausJob =
   | {
       type: "lighthaus.daily_digest";
       date: string;
-      summary: { monitorName: string; group: string; uptime24h: number; status: string }[];
-      openIncidents: { monitorName: string; openedAt: string }[];
+      summary: {
+        monitorName: string;
+        type: string;
+        group: string;
+        uptime24h: number;
+        status: string;
+      }[];
+      openIncidents: { monitorName: string; type: string; openedAt: string }[];
     };
 
 @Injectable()
