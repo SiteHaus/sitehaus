@@ -60,6 +60,17 @@ services:
           cpus: "0.5"
           memory: 512M
 
+  lighthaus:
+    image: ghcr.io/sitehaus/sitehaus-lighthaus:staging
+    restart: always
+    networks:
+      - sitehaus-network
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
   lighthaus-api:
     image: ghcr.io/sitehaus/sitehaus-lighthaus-api:staging
     restart: always

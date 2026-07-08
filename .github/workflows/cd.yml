@@ -43,6 +43,12 @@ jobs:
             dockerfile: apps/lighthaus-api/Dockerfile
             api_url: ""
             client_key: ""
+          - app: lighthaus
+            dockerfile: apps/lighthaus/Dockerfile
+            api_url: https://api.staging.sitehaus.dev
+            client_key: lighthaus
+            iam_url: https://iam.staging.sitehaus.dev
+            lighthaus_api_url: https://lighthaus-api.staging.sitehaus.dev
           - app: commerce
             dockerfile: apps/commerce/Dockerfile
             api_url: https://api.staging.sitehaus.dev
@@ -68,6 +74,8 @@ jobs:
             NEXT_PUBLIC_API_URL=${{ matrix.api_url }}
             NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
             NEXT_PUBLIC_COMMERCE_URL=${{ matrix.commerce_url }}
+            NEXT_PUBLIC_IAM_URL=${{ matrix.iam_url }}
+            NEXT_PUBLIC_LIGHTHAUS_API_URL=${{ matrix.lighthaus_api_url }}
           cache-from: type=gha,scope=${{ matrix.app }}-staging
           cache-to: type=gha,scope=${{ matrix.app }}-staging,mode=max
 
@@ -136,6 +144,12 @@ jobs:
             dockerfile: apps/lighthaus-api/Dockerfile
             api_url: ""
             client_key: ""
+          - app: lighthaus
+            dockerfile: apps/lighthaus/Dockerfile
+            api_url: https://api.sitehaus.dev
+            client_key: lighthaus
+            iam_url: https://iam.sitehaus.dev
+            lighthaus_api_url: https://lighthaus-api.sitehaus.dev
           - app: commerce
             dockerfile: apps/commerce/Dockerfile
             api_url: https://api.sitehaus.dev
@@ -161,6 +175,8 @@ jobs:
             NEXT_PUBLIC_API_URL=${{ matrix.api_url }}
             NEXT_PUBLIC_CLIENT_KEY=${{ matrix.client_key }}
             NEXT_PUBLIC_COMMERCE_URL=${{ matrix.commerce_url }}
+            NEXT_PUBLIC_IAM_URL=${{ matrix.iam_url }}
+            NEXT_PUBLIC_LIGHTHAUS_API_URL=${{ matrix.lighthaus_api_url }}
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,scope=${{ matrix.app }},mode=max
 
