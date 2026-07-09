@@ -268,7 +268,6 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-foreground">Orders</h3>
-                  <Separator />
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label
@@ -302,7 +301,6 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-foreground">Returns/Refunds</h3>
-                  <Separator />
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="refund-issued" className="text-sm font-medium cursor-pointer">
@@ -338,7 +336,6 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-foreground">Cart</h3>
-                  <Separator />
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label
@@ -364,8 +361,6 @@ export default function SettingsPage() {
             </div>
           </div>
         </SectionCard>
-
-        <Separator />
 
         {/* Stripe */}
         <SectionCard title="Stripe" description="Connect Stripe to accept payments on your store.">
