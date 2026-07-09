@@ -15,6 +15,7 @@ import { SectionCard } from "@/components/ui/section-card";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
+import { Checkbox } from "@site-haus/ui/components/base/checkbox";
 import {
   Select,
   SelectContent,
@@ -227,69 +228,200 @@ export default function SettingsPage() {
           title="Cart Reservation"
           description="How long inventory is held in an open cart (5–60 min)."
         >
-          <div className="flex items-center gap-3">
-            <Input
-              id="ttl"
-              type="number"
-              min={5}
-              max={60}
-              value={reservationTtl}
-              onChange={(e) => {
-                setReservationTtl(Number(e.target.value));
-                markDirty();
-              }}
-              className="w-24"
-            />
-            <span className="text-sm text-muted-foreground">minutes</span>
-          </div>
+          <CardContent>
+            <div className="flex items-center gap-3">
+              <Input
+                id="ttl"
+                type="number"
+                min={5}
+                max={60}
+                value={reservationTtl}
+                onChange={(e) => {
+                  setReservationTtl(Number(e.target.value));
+                  markDirty();
+                }}
+                className="w-24"
+              />
+              <span className="text-sm text-muted-foreground">minutes</span>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => saveMutation.mutate()}
+                disabled={!dirty || saveMutation.isPending}
+              >
+                {saveMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                Save Changes
+              </Button>
+            </div>
+          </CardContent>
         </SectionCard>
+
+        {/* Notis */}
+        <SectionCard>
+          <CardHeader>
+            <CardTitle>Email Notifications</CardTitle>
+            <CardDescription>
+              Set notifications through email for all things commerce
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Orders Column */}
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-foreground">Orders</h3>
+                  <Separator />
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label
+                        htmlFor="order-confirmed"
+                        className="text-sm font-medium cursor-pointer"
+                      >
+                        Order Confirmed
+                      </Label>
+                      <Checkbox id="order-confirmed" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="order-shipped" className="text-sm font-medium cursor-pointer">
+                        Order Shipped
+                      </Label>
+                      <Checkbox id="order-shipped" />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label
+                        htmlFor="order-delivered"
+                        className="text-sm font-medium cursor-pointer"
+                      >
+                        Order Delivered
+                      </Label>
+                      <Checkbox id="order-delivered" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Another Topic Column */}
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-foreground">Returns/Refunds</h3>
+                  <Separator />
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="refund-issued" className="text-sm font-medium cursor-pointer">
+                        Refund Issued
+                      </Label>
+                      <Checkbox id="refund-issued" />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label
+                      htmlFor="return-request-confirm"
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      Return Requested Confirmation
+                    </Label>
+                    <Checkbox id="return-request-confirm" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="return-status" className="text-sm font-medium cursor-pointer">
+                      Return Status (Approved/Rejected)
+                    </Label>
+                    <Checkbox id="return-status" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="return-refunded" className="text-sm font-medium cursor-pointer">
+                      Return Refunded
+                    </Label>
+                    <Checkbox id="return-refunded" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-foreground">Cart</h3>
+                  <Separator />
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label
+                        htmlFor="abandoned-cart"
+                        className="text-sm font-medium cursor-pointer"
+                      >
+                        Abandoned Cart Recovery
+                      </Label>
+                      <Checkbox id="abandoned-cart" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => saveMutation.mutate()}
+                disabled={!dirty || saveMutation.isPending}
+              >
+                {saveMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                Save Changes
+              </Button>
+            </div>
+          </CardContent>
+        </SectionCard>
+
+        <Separator />
 
         {/* Stripe */}
         <SectionCard title="Stripe" description="Connect Stripe to accept payments on your store.">
-          {stripeStatus?.connected ? (
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm">
-                <CheckCircle className="size-4 text-green-500" />
-                <span className="font-medium">Stripe connected</span>
-              </div>
-              <div className="grid grid-cols-3 gap-3 text-sm">
-                <StatusRow label="Charges" enabled={stripeStatus.chargesEnabled} />
-                <StatusRow label="Payouts" enabled={stripeStatus.payoutsEnabled} />
-                <StatusRow label="Details submitted" enabled={stripeStatus.detailsSubmitted} />
-              </div>
-              {!stripeStatus.detailsSubmitted && (
-                <div className="flex items-start gap-2 rounded-md bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 p-3 text-sm text-yellow-800 dark:text-yellow-300">
-                  <AlertCircle className="size-4 mt-0.5 shrink-0" />
-                  <span>
-                    Your Stripe account setup is incomplete. Finish onboarding to enable payments.
-                  </span>
+          <CardContent>
+            {stripeStatus?.connected ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="size-4 text-green-500" />
+                  <span className="font-medium">Stripe connected</span>
                 </div>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => connectMutation.mutate()}
-                disabled={connectMutation.isPending}
-              >
-                {connectMutation.isPending ? (
-                  <Loader2 className="size-4 mr-2 animate-spin" />
-                ) : (
-                  <ExternalLink className="size-4 mr-2" />
+                <div className="grid grid-cols-3 gap-3 text-sm">
+                  <StatusRow label="Charges" enabled={stripeStatus.chargesEnabled} />
+                  <StatusRow label="Payouts" enabled={stripeStatus.payoutsEnabled} />
+                  <StatusRow label="Details submitted" enabled={stripeStatus.detailsSubmitted} />
+                </div>
+                {!stripeStatus.detailsSubmitted && (
+                  <div className="flex items-start gap-2 rounded-md bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 p-3 text-sm text-yellow-800 dark:text-yellow-300">
+                    <AlertCircle className="size-4 mt-0.5 shrink-0" />
+                    <span>
+                      Your Stripe account setup is incomplete. Finish onboarding to enable payments.
+                    </span>
+                  </div>
                 )}
-                Open Stripe Dashboard
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                You haven't connected a Stripe account yet. Connect one to start accepting payments.
-              </p>
-              <Button onClick={() => connectMutation.mutate()} disabled={connectMutation.isPending}>
-                {connectMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
-                Connect Stripe
-              </Button>
-            </div>
-          )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => connectMutation.mutate()}
+                  disabled={connectMutation.isPending}
+                >
+                  {connectMutation.isPending ? (
+                    <Loader2 className="size-4 mr-2 animate-spin" />
+                  ) : (
+                    <ExternalLink className="size-4 mr-2" />
+                  )}
+                  Open Stripe Dashboard
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  You haven't connected a Stripe account yet. Connect one to start accepting
+                  payments.
+                </p>
+                <Button
+                  onClick={() => connectMutation.mutate()}
+                  disabled={connectMutation.isPending}
+                >
+                  {connectMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                  Connect Stripe
+                </Button>
+              </div>
+            )}
+          </CardContent>
         </SectionCard>
 
         {/* Danger Zone */}
