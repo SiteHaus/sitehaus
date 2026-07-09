@@ -257,57 +257,55 @@ export default function SettingsPage() {
           </div>
         </SectionCard>
 
-        {/* Notis */}
+        {/* Customer Email Notifications */}
         <SectionCard
-          title="Email Notifications"
-          description="Set notifications through email for all things commerce"
+          title="Customer Notifications"
+          description="Emails sent to customers about their orders, returns, and carts."
         >
           <div className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Orders Column */}
-              <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 pb-1.5 border-b-2 border-primary/70">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                    Orders
+                  </h3>
+                </div>
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-foreground">Orders</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label
-                        htmlFor="order-confirmed"
-                        className="text-sm font-medium cursor-pointer"
-                      >
-                        Order Confirmed
-                      </Label>
-                      <Checkbox id="order-confirmed" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="order-shipped" className="text-sm font-medium cursor-pointer">
-                        Order Shipped
-                      </Label>
-                      <Checkbox id="order-shipped" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <Label
-                        htmlFor="order-delivered"
-                        className="text-sm font-medium cursor-pointer"
-                      >
-                        Order Delivered
-                      </Label>
-                      <Checkbox id="order-delivered" />
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="order-confirmed" className="text-sm font-medium cursor-pointer">
+                      Order Confirmed
+                    </Label>
+                    <Checkbox id="order-confirmed" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="order-shipped" className="text-sm font-medium cursor-pointer">
+                      Order Shipped
+                    </Label>
+                    <Checkbox id="order-shipped" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="order-delivered" className="text-sm font-medium cursor-pointer">
+                      Order Delivered
+                    </Label>
+                    <Checkbox id="order-delivered" />
                   </div>
                 </div>
               </div>
 
-              {/* Another Topic Column */}
-              <div className="space-y-4">
+              {/* Returns/Refunds Column */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 pb-1.5 border-b-2 border-primary/70">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                    Returns/Refunds
+                  </h3>
+                </div>
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-foreground">Returns/Refunds</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="refund-issued" className="text-sm font-medium cursor-pointer">
-                        Refund Issued
-                      </Label>
-                      <Checkbox id="refund-issued" />
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="refund-issued" className="text-sm font-medium cursor-pointer">
+                      Refund Issued
+                    </Label>
+                    <Checkbox id="refund-issued" />
                   </div>
                   <div className="flex items-center justify-between">
                     <Label
@@ -333,23 +331,76 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              {/* Cart Column */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 pb-1.5 border-b-2 border-primary/70">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                    Cart
+                  </h3>
+                </div>
                 <div className="space-y-3">
-                  <h3 className="text-sm font-semibold text-foreground">Cart</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label
-                        htmlFor="abandoned-cart"
-                        className="text-sm font-medium cursor-pointer"
-                      >
-                        Abandoned Cart Recovery
-                      </Label>
-                      <Checkbox id="abandoned-cart" />
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="abandoned-cart" className="text-sm font-medium cursor-pointer">
+                      Abandoned Cart Recovery
+                    </Label>
+                    <Checkbox id="abandoned-cart" />
                   </div>
                 </div>
               </div>
             </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                onClick={() => saveMutation.mutate()}
+                disabled={!dirty || saveMutation.isPending}
+              >
+                {saveMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </SectionCard>
+
+        {/* Merchant Email Notifications */}
+        <SectionCard
+          title="Merchant Notifications"
+          description="Emails sent to you about store activity that needs attention."
+        >
+          <div className="space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 pb-1.5 border-b-2 border-primary/70">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                  Orders
+                </h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="new-order" className="text-sm font-medium cursor-pointer">
+                    New Order Placed
+                  </Label>
+                  <Checkbox id="new-order" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="return-requested" className="text-sm font-medium cursor-pointer">
+                    Return Requested
+                  </Label>
+                  <Checkbox id="return-requested" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="stock" className="text-sm font-medium cursor-pointer">
+                    Low Stock / Out of Stock
+                  </Label>
+                  <Checkbox id="stock" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="failed" className="text-sm font-medium cursor-pointer">
+                    Order Failed / Payment Failed
+                  </Label>
+                  <Checkbox id="failed" />
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-end pt-2">
               <Button
                 onClick={() => saveMutation.mutate()}
