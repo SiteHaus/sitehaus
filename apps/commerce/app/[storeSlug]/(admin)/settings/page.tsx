@@ -228,7 +228,7 @@ export default function SettingsPage() {
           title="Cart Reservation"
           description="How long inventory is held in an open cart (5–60 min)."
         >
-          <CardContent>
+          <div>
             <div className="flex items-center gap-3">
               <Input
                 id="ttl"
@@ -254,18 +254,15 @@ export default function SettingsPage() {
                 Save Changes
               </Button>
             </div>
-          </CardContent>
+          </div>
         </SectionCard>
 
         {/* Notis */}
-        <SectionCard>
-          <CardHeader>
-            <CardTitle>Email Notifications</CardTitle>
-            <CardDescription>
-              Set notifications through email for all things commerce
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <SectionCard
+          title="Email Notifications"
+          description="Set notifications through email for all things commerce"
+        >
+          <div className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Orders Column */}
               <div className="space-y-4">
@@ -365,14 +362,14 @@ export default function SettingsPage() {
                 Save Changes
               </Button>
             </div>
-          </CardContent>
+          </div>
         </SectionCard>
 
         <Separator />
 
         {/* Stripe */}
         <SectionCard title="Stripe" description="Connect Stripe to accept payments on your store.">
-          <CardContent>
+          <div>
             {stripeStatus?.connected ? (
               <div className="space-y-4">
                 <div className="flex items-center gap-2 text-sm">
@@ -421,7 +418,7 @@ export default function SettingsPage() {
                 </Button>
               </div>
             )}
-          </CardContent>
+          </div>
         </SectionCard>
 
         {/* Danger Zone */}
