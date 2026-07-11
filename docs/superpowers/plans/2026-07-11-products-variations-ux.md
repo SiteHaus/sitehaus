@@ -54,57 +54,20 @@ type SyncVariationsResult = {
 
 ### Task 1: Validation schema for the sync payload
 
+> **No test runner in `packages/validation`** (only `build`/`dev`, no jest). Do **not** add one. Verify via `check-types`. This schema's guards (`.max(3)` dimensions, `priceCents >= 0`) are also enforced downstream by Task 3's service (combination validation, exercised by its spec) and by the frontend dimension cap.
+
 **Files:**
 
 - Modify: `packages/validation/src/variants.schemas.ts`
-- Test: `packages/validation/src/variants.schemas.spec.ts` (create)
+- Modify (only if needed): `packages/validation/src/index.ts` (barrel re-export)
 
 **Interfaces:**
 
-- Produces: `syncVariationsSchema` (zod), `SyncVariationsDto` (type), `syncVariationsResultSchema`.
+- Produces: `syncVariationsSchema` (zod), `SyncVariationsDto` (type). (`syncVariationsResultSchema` is added later, in Task 4, alongside the contract route.)
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Add the schema**
 
-```ts
-// packages/validation/src/variants.schemas.spec.ts
-import { syncVariationsSchema } from "./variants.schemas";
-
-describe("syncVariationsSchema", () => {
-  it("accepts a plain product (no dimensions, one row with empty values)", () => {
-    const r = syncVariationsSchema.safeParse({
-      dimensions: [],
-      rows: [{ values: [], priceCents: 1200, stock: 40 }],
-    });
-    expect(r.success).toBe(true);
-  });
-
-  it("rejects more than 3 dimensions", () => {
-    const dim = (name: string) => ({ name, values: ["a"] });
-    const r = syncVariationsSchema.safeParse({
-      dimensions: [dim("A"), dim("B"), dim("C"), dim("D")],
-      rows: [],
-    });
-    expect(r.success).toBe(false);
-  });
-
-  it("rejects a negative price", () => {
-    const r = syncVariationsSchema.safeParse({
-      dimensions: [],
-      rows: [{ values: [], priceCents: -1, stock: 0 }],
-    });
-    expect(r.success).toBe(false);
-  });
-});
-```
-
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `cd ~/Dev/sitehaus-commerce && pnpm --filter @sitehaus-ecom/validation test -- variants.schemas`
-Expected: FAIL — `syncVariationsSchema` is not exported.
-
-- [ ] **Step 3: Add the schema**
-
-Append to `packages/validation/src/variants.schemas.ts`:
+Append to `packages/validation/src/variants.schemas.ts` (add `import { z } from "zod";` at the top if not already present):
 
 ```ts
 export const syncVariationsSchema = z.object({
@@ -132,17 +95,21 @@ export const syncVariationsSchema = z.object({
 export type SyncVariationsDto = z.infer<typeof syncVariationsSchema>;
 ```
 
-(If `z` isn't already imported at the top of the file, add `import { z } from "zod";`.)
+- [ ] **Step 2: Ensure it's exported from the package barrel**
 
-- [ ] **Step 4: Run test to verify it passes**
+Grep `packages/validation/src/index.ts` for `variants.schemas`. If the file re-exports each schema module explicitly and `variants.schemas` is missing, add `export * from "./variants.schemas";` (match the existing export style). If the barrel already re-exports it (e.g. `export * from "./variants.schemas"`), no change needed.
 
-Run: `pnpm --filter @sitehaus-ecom/validation test -- variants.schemas`
-Expected: PASS (3 tests).
+- [ ] **Step 3: Verify it typechecks**
 
-- [ ] **Step 5: Commit**
+Run: `cd ~/Dev/sitehaus-commerce && pnpm --filter @sitehaus-ecom/validation check-types`
+Expected: clean.
+
+- [ ] **Step 4: Commit (exact files only — the tree has unrelated in-flight changes; never `git add -A`)**
 
 ```bash
-git add packages/validation/src/variants.schemas.ts packages/validation/src/variants.schemas.spec.ts
+git add packages/validation/src/variants.schemas.ts
+# add index.ts too ONLY if you edited it in Step 2:
+# git add packages/validation/src/index.ts
 git commit -m "feat(validation): syncVariations payload schema"
 ```
 
