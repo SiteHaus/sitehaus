@@ -251,6 +251,28 @@ export const deleteVariant = (variantId: string) =>
     method: "DELETE",
   });
 
+// ─── Variations (bulk sync) ────────────────────────────────────────────────────
+export type SyncVariationsBody = {
+  dimensions: { name: string; values: string[] }[];
+  rows: {
+    values: string[];
+    priceCents: number;
+    stock: number;
+    sku?: string | null;
+    isActive?: boolean;
+    compareAtCents?: number | null;
+  }[];
+};
+export type SyncVariationsResult = {
+  product: ProductDetail;
+  blocked: { variantId: string; name: string }[];
+};
+export const syncVariations = (productId: string, body: SyncVariationsBody) =>
+  request<SyncVariationsResult>(`/v1/admin/products/${productId}/variations`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+
 // ─── Orders ──────────────────────────────────────────────────────────────────
 
 export type OrderStatus =
@@ -260,7 +282,8 @@ export type OrderStatus =
   | "delivered"
   | "failed"
   | "refunded"
-  | "cancelled";
+  | "cancelled"
+  | "abandoned";
 
 export type OrderLineItem = {
   productName: string;
