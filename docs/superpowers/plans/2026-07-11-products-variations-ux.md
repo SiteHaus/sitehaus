@@ -40,8 +40,9 @@ type SyncVariationsBody = {
   }>;
 };
 
-// Response: the refreshed product plus any combinations that could NOT be deleted
-// because they have active orders (kept as-is; surfaced to the user).
+// Response: the refreshed product plus any combinations that could NOT be hard-deleted
+// because they have active orders — those are DEACTIVATED (isActive=false) and
+// preserved for order history, then surfaced to the user.
 type SyncVariationsResult = {
   product: ProductDetail; // same shape catalog.products.get returns
   blocked: Array<{ variantId: string; name: string }>;
@@ -467,7 +468,14 @@ export class VariationsSyncService {
           )
           .limit(1);
         if (active.length) {
+          // Can't hard-delete a variant with active orders. Honor the seller's
+          // intent to remove it by deactivating it (hidden from storefront,
+          // preserved for order history), and report it as blocked.
           const v = existingVariants.find((e) => e.id === id)!;
+          await tx
+            .update(productVariantsTable)
+            .set({ isActive: false, updatedAt: new Date() })
+            .where(eq(productVariantsTable.id, id));
           blocked.push({ variantId: id, name: v.name });
           continue;
         }
