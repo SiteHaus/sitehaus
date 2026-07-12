@@ -144,7 +144,10 @@ function DimensionRow({
 export function DimensionEditor({ dimensions, onChange }: Props) {
   const [pending, setPending] = useState<{ next: Dimension[]; rows: number } | null>(null);
 
-  function applyChange(next: Dimension[]) {
+  // Guarded: only additions (a new value or a new dimension) can push rowCount
+  // past the threshold, so only those go through the confirm gate. Renames and
+  // removals never increase rowCount and apply immediately.
+  function applyGuarded(next: Dimension[]) {
     const rows = rowCount(next);
     if (rows > ROW_LIMIT) {
       setPending({ next, rows });
@@ -160,17 +163,17 @@ export function DimensionEditor({ dimensions, onChange }: Props) {
   }
 
   function updateName(index: number, name: string) {
-    applyChange(dimensions.map((d, i) => (i === index ? { ...d, name } : d)));
+    onChange(dimensions.map((d, i) => (i === index ? { ...d, name } : d)));
   }
 
   function addValue(index: number, value: string) {
-    applyChange(
+    applyGuarded(
       dimensions.map((d, i) => (i === index ? { ...d, values: [...d.values, value] } : d)),
     );
   }
 
   function removeValue(index: number, value: string) {
-    applyChange(
+    onChange(
       dimensions.map((d, i) =>
         i === index ? { ...d, values: d.values.filter((v) => v !== value) } : d,
       ),
@@ -178,12 +181,12 @@ export function DimensionEditor({ dimensions, onChange }: Props) {
   }
 
   function removeDimension(index: number) {
-    applyChange(dimensions.filter((_, i) => i !== index));
+    onChange(dimensions.filter((_, i) => i !== index));
   }
 
   function addDimension() {
     if (dimensions.length >= MAX_DIMENSIONS) return;
-    applyChange([...dimensions, { name: "", values: [] }]);
+    applyGuarded([...dimensions, { name: "", values: [] }]);
   }
 
   return (
