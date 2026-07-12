@@ -715,7 +715,7 @@ export function generateCombinations(dims: Dimension[]): string[][] {
 }
 
 export function rowCount(dims: Dimension[]): number {
-  return dims.reduce((n, d) => n * Math.max(d.values.length, 0), 1);
+  return dims.filter((d) => d.values.length).reduce((n, d) => n * d.values.length, 1);
 }
 
 export function pluralize(word: string): string {
