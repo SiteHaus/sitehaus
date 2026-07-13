@@ -47,8 +47,18 @@ function seed(product: ProductDetail): Seed {
   // A PLAIN product is different: its lone variant carries the product's price
   // and stock, and "inactive" there just means the product is switched off, not
   // deleted. Keep it, or the pricing fields would blank out.
+  //
+  // N1 — but "the plain product's variant" must be a LIVE one whenever a live one
+  // exists. A product that collapsed from dimensions to plain can be left with a
+  // retired tombstone (deactivated because it had orders) sitting alongside the
+  // real plain variant. Surfacing the tombstone as the pricing row would show dead
+  // price/stock AND push its `isActive: false` onto the live variant on the next
+  // save, making the product unbuyable. Prefer an active variant; fall back to an
+  // inactive one only when that's genuinely all there is (a switched-off product).
   const isPlain = options.length === 0;
-  const editable = isPlain ? product.variants : product.variants.filter((v) => v.isActive);
+  const activeVariants = product.variants.filter((v) => v.isActive);
+  const plainVariant = activeVariants[0] ?? product.variants[0];
+  const editable = isPlain ? (plainVariant ? [plainVariant] : []) : activeVariants;
   const rows: EditableRow[] = editable.map((v) => {
     const values = valuesOf(v);
     return {
