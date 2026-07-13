@@ -75,10 +75,10 @@ export default function OrdersPage() {
     cancelled: cancelledCount.data,
   };
 
-  // ── abandoned (pending) ──
-  const { data: pendingData } = useQuery({
-    queryKey: ["orders", "pending"],
-    queryFn: () => listOrders({ status: ["pending"], limit: 50, sort: "newest" }),
+  // ── abandoned checkouts (never paid): live `pending` + auto-cleaned `abandoned` ──
+  const { data: abandonedData } = useQuery({
+    queryKey: ["orders", "abandoned"],
+    queryFn: () => listOrders({ status: ["pending", "abandoned"], limit: 50, sort: "newest" }),
   });
 
   // ── main list ──
@@ -240,8 +240,8 @@ export default function OrdersPage() {
       />
 
       <AbandonedDrawer
-        items={pendingData?.items ?? []}
-        total={pendingData?.total ?? 0}
+        items={abandonedData?.items ?? []}
+        total={abandonedData?.total ?? 0}
         onOpenOrder={(id) => push(`/orders/${id}`)}
       />
 
