@@ -18,7 +18,7 @@ import { StatusBadge } from "../_components/status-badge";
 import { ImagesCard } from "./_components/ImagesCard";
 import { InventoryCard } from "./_components/InventoryCard";
 import { StatusCard } from "./_components/status-card";
-import { VariantsCard } from "./_components/variants-card";
+import { VariationsCard } from "./_components/variations-card";
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -155,7 +155,7 @@ export default function ProductDetailPage() {
             </div>
           </SectionCard>
 
-          <VariantsCard productId={id} variants={product.variants} options={product.options} />
+          <VariationsCard product={product} />
         </div>
 
         {/* Right: sidebar */}
