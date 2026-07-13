@@ -34,6 +34,12 @@ function seed(product: ProductDetail): { dimensions: Dimension[]; rows: Editable
       isActive: v.isActive,
     };
   });
+  // A brand-new product has no variants yet. Seed a single plain row (matching
+  // what `regenerate([])` would produce) so the pricing fields always have
+  // something to render/save instead of going blank.
+  if (rows.length === 0 && dimensions.length === 0) {
+    rows.push({ key: keyOf([]), values: [], priceCents: 0, stock: 0, sku: "", isActive: true });
+  }
   return { dimensions, rows };
 }
 
