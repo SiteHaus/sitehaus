@@ -63,6 +63,11 @@ function DimensionRow({
           value={dimension.name}
           onChange={(e) => onNameChange(e.target.value)}
           placeholder="What varies?"
+          // A freshly-added dimension (from the "sold in more than one…" checkbox
+          // or "Also varies by…") starts unnamed — land the cursor here so the
+          // seller can type straight away. React applies autoFocus on mount only,
+          // so it never steals focus on later re-renders.
+          autoFocus={!dimension.name}
         />
         <Button
           size="icon"
