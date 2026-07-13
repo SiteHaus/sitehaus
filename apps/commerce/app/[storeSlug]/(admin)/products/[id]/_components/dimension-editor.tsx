@@ -1,6 +1,6 @@
 "use client";
 
-import { pluralize, rowCount, type Dimension } from "@/lib/combinations";
+import { duplicateNameIndexes, pluralize, rowCount, type Dimension } from "@/lib/combinations";
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -24,6 +24,8 @@ type Props = {
 
 type DimensionRowProps = {
   dimension: Dimension;
+  /** This name repeats an earlier dimension's — the backend rejects that. */
+  duplicateName: boolean;
   onNameChange: (name: string) => void;
   onAddValue: (value: string) => void;
   onRemoveValue: (value: string) => void;
@@ -32,6 +34,7 @@ type DimensionRowProps = {
 
 function DimensionRow({
   dimension,
+  duplicateName,
   onNameChange,
   onAddValue,
   onRemoveValue,
@@ -59,10 +62,11 @@ function DimensionRow({
     <div className="rounded-lg border p-3 space-y-2">
       <div className="flex items-center gap-2">
         <Input
-          className="h-8 text-sm flex-1"
+          className={`h-8 text-sm flex-1 ${duplicateName ? "border-destructive" : ""}`}
           value={dimension.name}
           onChange={(e) => onNameChange(e.target.value)}
           placeholder="What varies?"
+          aria-invalid={duplicateName}
           // A freshly-added dimension (from the "sold in more than one…" checkbox
           // or "Also varies by…") starts unnamed — land the cursor here so the
           // seller can type straight away. React applies autoFocus on mount only,
@@ -79,8 +83,14 @@ function DimensionRow({
         </Button>
       </div>
 
-      {trimmedName && (
-        <p className="text-xs font-medium text-muted-foreground">{pluralize(trimmedName)}</p>
+      {duplicateName ? (
+        <p className="text-xs font-medium text-destructive">
+          You&apos;ve already used this name — pick a different one.
+        </p>
+      ) : (
+        trimmedName && (
+          <p className="text-xs font-medium text-muted-foreground">{pluralize(trimmedName)}</p>
+        )
       )}
 
       {dimension.values.length > 0 && (
@@ -148,6 +158,10 @@ function DimensionRow({
 
 export function DimensionEditor({ dimensions, onChange }: Props) {
   const [pending, setPending] = useState<{ next: Dimension[]; rows: number } | null>(null);
+  // I4 — the sync endpoint rejects duplicate dimension names (case-insensitive).
+  // Flag the offender inline; VariationsCard's Save is gated on the same rule
+  // (via `saveHint`), so the seller can't fire an avoidable 400.
+  const dupes = new Set(duplicateNameIndexes(dimensions));
 
   // Guarded: only additions (a new value or a new dimension) can push rowCount
   // past the threshold, so only those go through the confirm gate. Renames and
@@ -200,6 +214,7 @@ export function DimensionEditor({ dimensions, onChange }: Props) {
         <DimensionRow
           key={i}
           dimension={dimension}
+          duplicateName={dupes.has(i)}
           onNameChange={(name) => updateName(i, name)}
           onAddValue={(value) => addValue(i, value)}
           onRemoveValue={(value) => removeValue(i, value)}

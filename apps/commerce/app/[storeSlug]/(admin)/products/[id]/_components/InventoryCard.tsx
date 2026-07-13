@@ -53,7 +53,7 @@ export function InventoryCard({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="pl-6">Variant</TableHead>
+                <TableHead className="pl-6">Item</TableHead>
                 <TableHead className="text-right">Stock</TableHead>
                 <TableHead className="text-right">Reserved</TableHead>
                 <TableHead className="text-right">Available</TableHead>

@@ -28,8 +28,9 @@ export function VariationsCard({ product }: Props) {
     dimensions,
     rows,
     count,
-    dirty,
     isSaving,
+    canSave,
+    saveHint,
     setDimensions,
     setRow,
     removeRow,
@@ -58,10 +59,14 @@ export function VariationsCard({ product }: Props) {
     <div className="space-y-6">
       <SectionCard
         actions={
-          <Button size="sm" onClick={() => save()} disabled={!dirty || isSaving}>
-            {isSaving && <Loader2 className="size-4 animate-spin" />}
-            Save
-          </Button>
+          <div className="flex items-center gap-3">
+            {/* I1 — say what's missing rather than letting Save fire a 400. */}
+            {saveHint && <span className="text-xs text-muted-foreground">{saveHint}</span>}
+            <Button size="sm" onClick={() => save()} disabled={!canSave}>
+              {isSaving && <Loader2 className="size-4 animate-spin" />}
+              Save
+            </Button>
+          </div>
         }
       >
         <div className="flex items-start gap-2">
