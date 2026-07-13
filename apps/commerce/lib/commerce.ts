@@ -27,6 +27,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export type FulfillmentType = "shipping" | "pickup";
 
+export type NotificationPreferences = {
+  orderConfirmed?: boolean;
+  orderShipped?: boolean;
+};
+
 export type StoreDetail = {
   id: string;
   clientId: string;
@@ -39,6 +44,7 @@ export type StoreDetail = {
   stripeDetailsSubmitted: boolean;
   reservationTtlMinutes: number;
   fulfillmentType: FulfillmentType;
+  notificationPreferences: NotificationPreferences | null;
 };
 
 export type StripeStatus = {
@@ -76,6 +82,12 @@ export const connectStripe = (returnUrl: string) =>
   });
 
 export const getStripeStatus = () => request<StripeStatus>("/v1/admin/stores/stripe-status");
+
+export const updateNotificationPreferences = (body: NotificationPreferences) =>
+  request<StoreDetail>("/v1/admin/stores/notification-preferences", {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
 
 // ─── Products ────────────────────────────────────────────────────────────────
 

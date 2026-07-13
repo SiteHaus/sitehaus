@@ -4,8 +4,10 @@ import {
   connectStripe,
   getMyStore,
   getStripeStatus,
+  updateNotificationPreferences,
   updateStore,
   type FulfillmentType,
+  type NotificationPreferences,
   type StoreDetail,
   type StripeStatus,
 } from "@/lib/commerce";
@@ -15,6 +17,7 @@ import { SectionCard } from "@/components/ui/section-card";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
+import { Switch } from "@site-haus/ui/components/base/switch";
 import {
   Select,
   SelectContent,
@@ -56,6 +59,10 @@ export default function SettingsPage() {
   const [currency, setCurrency] = useState("usd");
   const [reservationTtl, setReservationTtl] = useState(15);
   const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("shipping");
+  const [notifications, setNotifications] = useState<NotificationPreferences>({
+    orderConfirmed: true,
+    orderShipped: true,
+  });
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
@@ -65,17 +72,23 @@ export default function SettingsPage() {
     setCurrency(store.currency);
     setReservationTtl(store.reservationTtlMinutes);
     setFulfillmentType(store.fulfillmentType);
+    setNotifications({
+      orderConfirmed: store.notificationPreferences?.orderConfirmed ?? true,
+      orderShipped: store.notificationPreferences?.orderShipped ?? true,
+    });
   }, [store]);
 
   const saveMutation = useMutation({
-    mutationFn: () =>
-      updateStore({
+    mutationFn: async () => {
+      await updateStore({
         slug: slug || undefined,
         domain: domain || null,
         currency,
         reservationTtlMinutes: reservationTtl,
         fulfillmentType,
-      }),
+      });
+      await updateNotificationPreferences(notifications);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["store"] });
       setDirty(false);
@@ -219,6 +232,48 @@ export default function SettingsPage() {
                 </span>
               </div>
             )}
+          </div>
+        </SectionCard>
+
+        {/* Notifications */}
+        <SectionCard
+          title="Notifications"
+          description="Email notifications sent to customers about their orders."
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="notify-order-confirmed">Order confirmed</Label>
+                <p className="text-xs text-muted-foreground">
+                  Email customers when their order is confirmed and paid.
+                </p>
+              </div>
+              <Switch
+                id="notify-order-confirmed"
+                checked={notifications.orderConfirmed ?? false}
+                onCheckedChange={(checked) => {
+                  setNotifications((prev) => ({ ...prev, orderConfirmed: checked }));
+                  markDirty();
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="notify-order-shipped">Order shipped</Label>
+                <p className="text-xs text-muted-foreground">
+                  Email customers when their order ships, with tracking details.
+                </p>
+              </div>
+              <Switch
+                id="notify-order-shipped"
+                checked={notifications.orderShipped ?? false}
+                onCheckedChange={(checked) => {
+                  setNotifications((prev) => ({ ...prev, orderShipped: checked }));
+                  markDirty();
+                }}
+              />
+            </div>
           </div>
         </SectionCard>
 
