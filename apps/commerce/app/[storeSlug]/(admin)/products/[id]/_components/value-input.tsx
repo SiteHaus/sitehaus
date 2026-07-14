@@ -88,7 +88,9 @@ export function ValueInput({ dimensionName, existing, onAdd, onRemoveLast }: Pro
     <div>
       <Popover open={showSuggestions}>
         <PopoverAnchor asChild>
-          <InputGroup className="h-7">
+          {/* h-8 to match the dimension-name field above. The default addon padding is
+              sized for a h-9 group and would crush the Kbd at this height. */}
+          <InputGroup className="h-8">
             <InputGroupInput
               ref={inputRef}
               className="text-sm"
@@ -104,11 +106,12 @@ export function ValueInput({ dimensionName, existing, onAdd, onRemoveLast }: Pro
               onBlur={() => setFocused(false)}
               onKeyDown={onKeyDown}
             />
-            {canCommit && (
-              <InputGroupAddon align="inline-end">
-                <Kbd>Enter</Kbd>
-              </InputGroupAddon>
-            )}
+            {/* Always on show. Gating this behind "you've already typed something" made it
+                an affordance you could only discover after guessing the interaction — it
+                dims instead, so it reads as a hint before it reads as a prompt. */}
+            <InputGroupAddon align="inline-end" className="py-0">
+              <Kbd className={cn(!canCommit && "opacity-50")}>Enter</Kbd>
+            </InputGroupAddon>
           </InputGroup>
         </PopoverAnchor>
 

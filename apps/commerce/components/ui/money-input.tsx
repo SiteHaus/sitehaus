@@ -62,7 +62,9 @@ export function MoneyInput({
 
   return (
     <InputGroup className={cn("h-8", className)}>
-      <InputGroupAddon>$</InputGroupAddon>
+      {/* Default addon padding is sized for a h-9 group; zero it out so the $ isn't
+          fighting for vertical room at h-8. */}
+      <InputGroupAddon className="py-0">$</InputGroupAddon>
       <InputGroupInput
         inputMode="decimal"
         value={display}
