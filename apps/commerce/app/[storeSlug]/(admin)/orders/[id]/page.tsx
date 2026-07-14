@@ -242,8 +242,14 @@ export default function OrderDetailPage() {
           <SectionCard title="Shipping Address">
             <div className="text-sm space-y-0.5">
               {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
-              {order.shippingLine1 && <p>{order.shippingLine1}</p>}
-              {order.shippingLine2 && <p>{order.shippingLine2}</p>}
+              {order.shippingLine1 ? (
+                <>
+                  <p>{order.shippingLine1}</p>
+                  {order.shippingLine2 && <p>{order.shippingLine2}</p>}
+                </>
+              ) : (
+                <p className="text-muted-foreground italic">Street unavailable</p>
+              )}
               {(order.shippingCity || order.shippingState || order.shippingZip) && (
                 <p>
                   {[order.shippingCity, order.shippingState, order.shippingZip]
