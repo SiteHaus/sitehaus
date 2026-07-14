@@ -2,7 +2,13 @@
 
 import { useRef, useState } from "react";
 import { suggestionsFor } from "@/lib/value-suggestions";
-import { Input } from "@site-haus/ui/components/base/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@site-haus/ui/components/base/input-group";
+import { Kbd } from "@site-haus/ui/components/base/kbd";
+import { Popover, PopoverAnchor, PopoverContent } from "@site-haus/ui/components/base/popover";
 import { cn } from "@site-haus/ui/lib/utils";
 
 type Props = {
@@ -17,11 +23,15 @@ type Props = {
 /**
  * Type a value, press Enter, get a badge. Repeat.
  *
- * Deliberately NOT a combobox in a popover: adding S/M/L/XL through one of those means
- * four open-close cycles, and for a dimension we have no suggestions for (Count, Grind)
- * the popover is a floating panel containing nothing but a text field. A token input
- * stays put, keeps focus after every add, and degrades to a plain text box when there's
- * nothing to suggest.
+ * Deliberately NOT a combobox you open and close: adding S/M/L/XL that way is four
+ * open-close cycles, and for a dimension we have no suggestions for (Count, Grind) the
+ * popover is a floating panel containing nothing but a text field. This stays put, keeps
+ * focus after every add, and degrades to a plain text box when there's nothing to suggest.
+ *
+ * The suggestion list IS rendered through a popover — but only for its portal. `Card` sets
+ * `overflow-hidden`, so an absolutely-positioned list inside one gets guillotined at the
+ * card's edge. Focus is explicitly kept in the input so the popover never behaves like a
+ * dialog: you keep typing, arrow keys still reach our handler.
  */
 export function ValueInput({ dimensionName, existing, onAdd, onRemoveLast }: Props) {
   const [query, setQuery] = useState("");
@@ -38,6 +48,7 @@ export function ValueInput({ dimensionName, existing, onAdd, onRemoveLast }: Pro
     .filter((s) => !taken.has(s.toLowerCase()))
     .filter((s) => s.toLowerCase().includes(trimmed.toLowerCase()));
   const showSuggestions = focused && matches.length > 0;
+  const canCommit = trimmed.length > 0 && !isDuplicate;
 
   function commit(value: string) {
     const v = value.trim();
@@ -74,47 +85,62 @@ export function ValueInput({ dimensionName, existing, onAdd, onRemoveLast }: Pro
   }
 
   return (
-    <div className="relative">
-      <Input
-        ref={inputRef}
-        className="h-7 text-sm"
-        value={query}
-        placeholder={`Add a ${singular} — press Enter`}
-        aria-label={`Add a ${singular}`}
-        aria-invalid={isDuplicate}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setActive(-1);
-        }}
-        onFocus={() => setFocused(true)}
-        // Delayed so a click on a suggestion lands before the list unmounts.
-        onBlur={() => setTimeout(() => setFocused(false), 120)}
-        onKeyDown={onKeyDown}
-      />
+    <div>
+      <Popover open={showSuggestions}>
+        <PopoverAnchor asChild>
+          <InputGroup className="h-7">
+            <InputGroupInput
+              ref={inputRef}
+              className="text-sm"
+              value={query}
+              placeholder={`Add a ${singular}…`}
+              aria-label={`Add a ${singular}`}
+              aria-invalid={isDuplicate}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setActive(-1);
+              }}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              onKeyDown={onKeyDown}
+            />
+            {canCommit && (
+              <InputGroupAddon align="inline-end">
+                <Kbd>Enter</Kbd>
+              </InputGroupAddon>
+            )}
+          </InputGroup>
+        </PopoverAnchor>
 
-      {isDuplicate && (
-        <p className="mt-1 text-xs font-medium text-destructive">{trimmed} is already added.</p>
-      )}
-
-      {showSuggestions && (
-        <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-md border bg-popover shadow-md">
+        <PopoverContent
+          align="start"
+          className="w-(--radix-popover-trigger-width) p-1"
+          // Keep the caret in the input: without this the popover grabs focus on open and
+          // the whole thing turns into the dialog we were trying to get away from.
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+        >
           {matches.map((s, i) => (
             <button
               key={s}
               type="button"
-              // Keep focus in the input: blur would tear the list down mid-click.
+              // Blur would tear the list down before the click landed.
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => commit(s)}
               onMouseEnter={() => setActive(i)}
               className={cn(
-                "block w-full px-2 py-1.5 text-left text-sm",
+                "block w-full rounded-sm px-2 py-1.5 text-left text-sm",
                 i === active ? "bg-accent text-accent-foreground" : "hover:bg-accent/50",
               )}
             >
               {s}
             </button>
           ))}
-        </div>
+        </PopoverContent>
+      </Popover>
+
+      {isDuplicate && (
+        <p className="mt-1 text-xs font-medium text-destructive">{trimmed} is already added.</p>
       )}
     </div>
   );
