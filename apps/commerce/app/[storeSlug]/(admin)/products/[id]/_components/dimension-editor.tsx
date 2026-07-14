@@ -59,7 +59,9 @@ function DimensionRow({
   }
 
   return (
-    <div className="rounded-lg border p-3 space-y-2">
+    // Nested inside the card now, so it reads as a sub-block: muted fill, hairline
+    // border. A full-strength border here competed with the card's own edge.
+    <div className="rounded-lg border border-border/60 bg-muted/30 p-3 space-y-2">
       <div className="flex items-center gap-2">
         <Input
           className={`h-8 text-sm flex-1 ${duplicateName ? "border-destructive" : ""}`}
