@@ -13,7 +13,7 @@ import {
 import { Input } from "@site-haus/ui/components/base/input";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
-import { ValueCombobox } from "./value-combobox";
+import { ValueInput } from "./value-input";
 
 const MAX_DIMENSIONS = 3;
 const ROW_LIMIT = 25;
@@ -98,10 +98,14 @@ function DimensionRow({
         </div>
       )}
 
-      <ValueCombobox
+      <ValueInput
         dimensionName={dimension.name}
         existing={dimension.values}
         onAdd={onAddValue}
+        onRemoveLast={() => {
+          const last = dimension.values.at(-1);
+          if (last) onRemoveValue(last);
+        }}
       />
     </div>
   );
