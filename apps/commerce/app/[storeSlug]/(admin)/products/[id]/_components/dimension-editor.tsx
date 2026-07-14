@@ -13,6 +13,7 @@ import {
 import { Input } from "@site-haus/ui/components/base/input";
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
+import { ValueCombobox } from "./value-combobox";
 
 const MAX_DIMENSIONS = 3;
 const ROW_LIMIT = 25;
@@ -40,23 +41,7 @@ function DimensionRow({
   onRemoveValue,
   onRemove,
 }: DimensionRowProps) {
-  const [adding, setAdding] = useState(false);
-  const [newValue, setNewValue] = useState("");
-
   const trimmedName = dimension.name.trim();
-  const singular = (trimmedName || "value").toLowerCase();
-  const trimmedNewValue = newValue.trim();
-  const isDuplicate = dimension.values.some(
-    (v) => v.toLowerCase() === trimmedNewValue.toLowerCase(),
-  );
-  const canAdd = trimmedNewValue.length > 0 && !isDuplicate;
-
-  function commitAdd() {
-    if (!canAdd) return;
-    onAddValue(trimmedNewValue);
-    setNewValue("");
-    setAdding(false);
-  }
 
   return (
     // Nested inside the card now, so it reads as a sub-block: muted fill, hairline
@@ -113,47 +98,11 @@ function DimensionRow({
         </div>
       )}
 
-      {adding ? (
-        <div className="flex items-center gap-1.5">
-          <Input
-            className="h-7 text-sm"
-            value={newValue}
-            onChange={(e) => setNewValue(e.target.value)}
-            placeholder={`e.g. ${trimmedName ? "" : "Red"}`}
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === "Enter") commitAdd();
-              if (e.key === "Escape") {
-                setNewValue("");
-                setAdding(false);
-              }
-            }}
-          />
-          <Button size="sm" className="h-7 px-2" onClick={commitAdd} disabled={!canAdd}>
-            Add
-          </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="size-7"
-            onClick={() => {
-              setNewValue("");
-              setAdding(false);
-            }}
-          >
-            <X className="size-3" />
-          </Button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          onClick={() => setAdding(true)}
-        >
-          <Plus className="size-3" />
-          add a {singular}
-        </button>
-      )}
+      <ValueCombobox
+        dimensionName={dimension.name}
+        existing={dimension.values}
+        onAdd={onAddValue}
+      />
     </div>
   );
 }
