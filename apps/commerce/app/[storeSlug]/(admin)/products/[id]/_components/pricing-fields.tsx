@@ -1,17 +1,10 @@
 "use client";
 
 import { SectionCard } from "@/components/ui/section-card";
+import { formatCents, formatOptionalCents, parseDollars, parseOptionalDollars } from "@/lib/money";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import type { EditableRow } from "./use-variations";
-
-function formatCents(cents: number) {
-  return (cents / 100).toFixed(2);
-}
-
-function parseDollars(val: string) {
-  return Math.round(parseFloat(val) * 100);
-}
 
 type Props = {
   row: EditableRow;
@@ -34,6 +27,26 @@ export function PricingFields({ row, onChange }: Props) {
           />
         </div>
         <div className="space-y-2">
+          <Label>
+            Compare at ($)
+            <span className="ml-1 font-normal text-muted-foreground">optional</span>
+          </Label>
+          <Input
+            type="number"
+            min="0"
+            step="0.01"
+            value={formatOptionalCents(row.compareAtCents)}
+            onChange={(e) => onChange({ compareAtCents: parseOptionalDollars(e.target.value) })}
+            placeholder="—"
+          />
+          <p className="text-xs text-muted-foreground">
+            The old price, shown struck through. Leave empty if it&apos;s not on sale.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mt-3">
+        <div className="space-y-2">
           <Label>In stock</Label>
           <Input
             type="number"
@@ -44,15 +57,14 @@ export function PricingFields({ row, onChange }: Props) {
             placeholder="0"
           />
         </div>
-      </div>
-
-      <div className="space-y-2 mt-3">
-        <Label>SKU</Label>
-        <Input
-          value={row.sku}
-          onChange={(e) => onChange({ sku: e.target.value })}
-          placeholder="Optional"
-        />
+        <div className="space-y-2">
+          <Label>SKU</Label>
+          <Input
+            value={row.sku}
+            onChange={(e) => onChange({ sku: e.target.value })}
+            placeholder="Optional"
+          />
+        </div>
       </div>
     </SectionCard>
   );

@@ -13,15 +13,8 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { Trash2 } from "lucide-react";
+import { formatCents, formatOptionalCents, parseDollars, parseOptionalDollars } from "@/lib/money";
 import type { EditableRow } from "./use-variations";
-
-function formatCents(cents: number) {
-  return (cents / 100).toFixed(2);
-}
-
-function parseDollars(val: string) {
-  return Math.round(parseFloat(val) * 100);
-}
 
 type Props = {
   rows: EditableRow[];
@@ -51,6 +44,10 @@ export function CombinationsTable({ rows, dimensions, setRow, removeRow, count }
                 </TableHead>
               ))}
               <TableHead>Price</TableHead>
+              <TableHead>
+                Compare at
+                <span className="ml-1 font-normal text-muted-foreground">(optional)</span>
+              </TableHead>
               <TableHead>Stock</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead className="w-12 pr-6" />
@@ -75,6 +72,21 @@ export function CombinationsTable({ rows, dimensions, setRow, removeRow, count }
                       setRow(row.key, { priceCents: parseDollars(e.target.value) || 0 })
                     }
                     placeholder="0.00"
+                  />
+                </TableCell>
+                <TableCell>
+                  {/* Empty = not on sale. Set it above the price and the storefront
+                      shows it struck through. */}
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="h-8 w-24"
+                    value={formatOptionalCents(row.compareAtCents)}
+                    onChange={(e) =>
+                      setRow(row.key, { compareAtCents: parseOptionalDollars(e.target.value) })
+                    }
+                    placeholder="—"
                   />
                 </TableCell>
                 <TableCell>

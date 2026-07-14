@@ -14,6 +14,8 @@ export type EditableRow = {
   key: string;
   values: string[];
   priceCents: number;
+  /** The was-price shown struck through on the storefront. null = not on sale. */
+  compareAtCents: number | null;
   stock: number;
   sku: string;
   isActive: boolean;
@@ -65,6 +67,7 @@ function seed(product: ProductDetail): Seed {
       key: keyOf(values),
       values,
       priceCents: v.priceCents,
+      compareAtCents: v.compareAtCents,
       stock: v.stock,
       sku: v.sku ?? "",
       isActive: v.isActive,
@@ -81,7 +84,15 @@ function seed(product: ProductDetail): Seed {
   // what `regenerate([])` would produce) so the pricing fields always have
   // something to render/save instead of going blank.
   if (rows.length === 0 && dimensions.length === 0) {
-    rows.push({ key: keyOf([]), values: [], priceCents: 0, stock: 0, sku: "", isActive: true });
+    rows.push({
+      key: keyOf([]),
+      values: [],
+      priceCents: 0,
+      compareAtCents: null,
+      stock: 0,
+      sku: "",
+      isActive: true,
+    });
   }
   return { dimensions, rows, removedKeys };
 }
@@ -136,6 +147,9 @@ export function useVariations(product: ProductDetail) {
         key,
         values,
         priceCents: defaults?.priceCents ?? 0,
+        // A brand-new combination isn't on sale until the seller says so — carrying
+        // the first row's compare-at forward would invent a discount they never set.
+        compareAtCents: null,
         stock: 0,
         sku: "",
         isActive: true,
@@ -161,6 +175,10 @@ export function useVariations(product: ProductDetail) {
         rows: Object.values(rowMap).map((r) => ({
           values: r.values,
           priceCents: r.priceCents,
+          // The editor now owns compare-at, so send it every time: null is a real
+          // value here (it clears a sale price). C2's "omit to preserve" contract
+          // still holds for any caller that doesn't carry the field.
+          compareAtCents: r.compareAtCents,
           stock: r.stock,
           sku: r.sku || null,
           isActive: r.isActive,
@@ -223,6 +241,7 @@ export function useVariations(product: ProductDetail) {
           key,
           values: [],
           priceCents: first?.priceCents ?? 0,
+          compareAtCents: first?.compareAtCents ?? null,
           stock: first?.stock ?? 0,
           sku: first?.sku ?? "",
           isActive: true,
