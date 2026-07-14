@@ -13,7 +13,7 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { Trash2 } from "lucide-react";
-import { formatCents, formatOptionalCents, parseDollars, parseOptionalDollars } from "@/lib/money";
+import { MoneyInput } from "@/components/ui/money-input";
 import type { EditableRow } from "./use-variations";
 
 type Props = {
@@ -62,30 +62,23 @@ export function CombinationsTable({ rows, dimensions, setRow, removeRow, count }
                   </TableCell>
                 ))}
                 <TableCell>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    className="h-8 w-24"
-                    value={formatCents(row.priceCents)}
-                    onChange={(e) =>
-                      setRow(row.key, { priceCents: parseDollars(e.target.value) || 0 })
-                    }
+                  <MoneyInput
+                    className="w-28"
+                    aria-label="Price"
+                    cents={row.priceCents}
+                    onChange={(cents) => setRow(row.key, { priceCents: cents ?? 0 })}
                     placeholder="0.00"
                   />
                 </TableCell>
                 <TableCell>
                   {/* Empty = not on sale. Set it above the price and the storefront
                       shows it struck through. */}
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    className="h-8 w-24"
-                    value={formatOptionalCents(row.compareAtCents)}
-                    onChange={(e) =>
-                      setRow(row.key, { compareAtCents: parseOptionalDollars(e.target.value) })
-                    }
+                  <MoneyInput
+                    className="w-28"
+                    aria-label="Compare at price"
+                    nullable
+                    cents={row.compareAtCents}
+                    onChange={(cents) => setRow(row.key, { compareAtCents: cents })}
                     placeholder="—"
                   />
                 </TableCell>

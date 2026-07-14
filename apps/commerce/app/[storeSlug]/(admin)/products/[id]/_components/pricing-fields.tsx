@@ -1,7 +1,7 @@
 "use client";
 
+import { MoneyInput } from "@/components/ui/money-input";
 import { SectionCard } from "@/components/ui/section-card";
-import { formatCents, formatOptionalCents, parseDollars, parseOptionalDollars } from "@/lib/money";
 import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import type { EditableRow } from "./use-variations";
@@ -16,27 +16,26 @@ export function PricingFields({ row, onChange }: Props) {
     <SectionCard title="Pricing & stock">
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <Label>Price ($)</Label>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={formatCents(row.priceCents)}
-            onChange={(e) => onChange({ priceCents: parseDollars(e.target.value) || 0 })}
+          <Label>Price</Label>
+          <MoneyInput
+            className="h-9"
+            aria-label="Price"
+            cents={row.priceCents}
+            onChange={(cents) => onChange({ priceCents: cents ?? 0 })}
             placeholder="0.00"
           />
         </div>
         <div className="space-y-2">
           <Label>
-            Compare at ($)
+            Compare at
             <span className="ml-1 font-normal text-muted-foreground">optional</span>
           </Label>
-          <Input
-            type="number"
-            min="0"
-            step="0.01"
-            value={formatOptionalCents(row.compareAtCents)}
-            onChange={(e) => onChange({ compareAtCents: parseOptionalDollars(e.target.value) })}
+          <MoneyInput
+            className="h-9"
+            aria-label="Compare at price"
+            nullable
+            cents={row.compareAtCents}
+            onChange={(cents) => onChange({ compareAtCents: cents })}
             placeholder="—"
           />
           <p className="text-xs text-muted-foreground">
