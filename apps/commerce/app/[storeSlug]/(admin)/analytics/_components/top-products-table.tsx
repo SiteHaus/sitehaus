@@ -9,13 +9,11 @@ import { Tabs, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs"
 import { useQuery } from "@tanstack/react-query";
 import { TrendingUp } from "lucide-react";
 import { useState } from "react";
+import { useFormatCents } from "@/lib/use-format-cents";
 import { type PeriodOption, periodToParams } from "../../_components/period-utils";
 
-function formatCents(cents: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
-}
-
 export function TopProductsTable({ period }: { period: PeriodOption }) {
+  const formatCents = useFormatCents();
   const { from, to } = periodToParams(period);
   const { push } = useStoreNav();
   const [tab, setTab] = useState<"revenue" | "views">("revenue");

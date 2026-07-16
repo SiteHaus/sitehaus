@@ -85,32 +85,96 @@ export async function renderIncidentResolvedEmail(props: IncidentResolvedEmailPr
 
 export type DailyDigestEmailProps = {
   date: string;
-  summary: { monitorName: string; group: string; uptime24h: number; status: string }[];
-  openIncidents: { monitorName: string; openedAt: string }[];
+  // `type` is the check kind (http/dns/ssl/…). Optional for backward compat
+  // with jobs enqueued before it existed — those rows render without a label.
+  summary: {
+    monitorName: string;
+    type?: string;
+    group: string;
+    uptime24h: number;
+    status: string;
+  }[];
+  openIncidents: { monitorName: string; type?: string; openedAt: string }[];
   ctaUrl: string;
 };
 
+const CHECK_LABELS: Record<string, string> = {
+  http: "HTTP",
+  dns: "DNS",
+  ssl: "SSL",
+  domain: "Domain",
+  email_dns: "Email DNS",
+  service_health: "Health",
+  heartbeat: "Heartbeat",
+};
+
+const checkLabel = (type?: string) =>
+  type ? (CHECK_LABELS[type] ?? type.replace(/_/g, " ")) : undefined;
+
+const rowLabel = (name: string, type?: string) => {
+  const label = checkLabel(type);
+  return label ? `${name} · ${label}` : name;
+};
+
+const shortUtc = (iso: string) =>
+  new Date(iso).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "UTC",
+  }) + " UTC";
+
 export async function renderDailyDigestEmail(props: DailyDigestEmailProps) {
-  const subject = `Lighthaus daily digest — ${props.date}`;
+  const openCount = props.openIncidents.length;
+  const subject =
+    openCount === 0
+      ? `Lighthaus daily digest — ${props.date} · all clear`
+      : `Lighthaus daily digest — ${props.date} · ${openCount} open`;
+
+  const openSince = new Map(
+    props.openIncidents.map((i) => [`${i.monitorName} ${i.type ?? ""}`, i.openedAt]),
+  );
+
+  // Problems lead: anything down or short of 100% uptime, worst first.
+  const attention = props.summary
+    .filter((s) => s.status !== "up" || s.uptime24h < 100)
+    .sort((a, b) => a.uptime24h - b.uptime24h);
+
+  // Everything healthy collapses to one line per group — the reader only
+  // needs to scan individual rows when something is wrong.
+  const healthyByGroup = new Map<string, number>();
+  for (const s of props.summary) {
+    if (s.status === "up" && s.uptime24h >= 100) {
+      healthyByGroup.set(s.group, (healthyByGroup.get(s.group) ?? 0) + 1);
+    }
+  }
+
+  const attentionRows = attention.map((s) => {
+    const since = openSince.get(`${s.monitorName} ${s.type ?? ""}`);
+    return {
+      label: `⚠ ${rowLabel(s.monitorName, s.type)} (${s.group})`,
+      value: `${s.uptime24h}% · ${s.status}${since ? ` — open since ${shortUtc(since)}` : ""}`,
+    };
+  });
+
+  const healthyRows = [...healthyByGroup.entries()].map(([group, count]) => ({
+    label: `✓ ${group}`,
+    value: `${count} check${count === 1 ? "" : "s"} · 100%`,
+  }));
+
   const openLine =
-    props.openIncidents.length === 0
+    openCount === 0
       ? "No incidents are currently open."
-      : `${props.openIncidents.length} incident(s) still open.`;
+      : `${openCount} incident${openCount === 1 ? "" : "s"} still open.`;
+
   const { html, text } = await render(
     <NotificationEmail
       previewText={subject}
       title={`Monitoring digest for ${props.date}`}
-      body={`Here is the last 24 hours of availability across all monitors. ${openLine}`}
-      context={[
-        ...props.summary.map((s) => ({
-          label: `${s.monitorName} (${s.group})`,
-          value: `${s.uptime24h}% · ${s.status}`,
-        })),
-        ...props.openIncidents.map((i) => ({
-          label: `Open: ${i.monitorName}`,
-          value: `since ${new Date(i.openedAt).toUTCString()}`,
-        })),
-      ]}
+      body={`The last 24 hours across all monitors. ${openLine}`}
+      context={[...attentionRows, ...healthyRows]}
       ctaText="Open status board"
       ctaUrl={props.ctaUrl}
     />,

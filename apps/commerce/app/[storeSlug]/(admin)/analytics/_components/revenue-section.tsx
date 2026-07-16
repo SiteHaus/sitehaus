@@ -11,15 +11,12 @@ import {
 } from "@site-haus/ui/components/base/chart";
 import { useQuery } from "@tanstack/react-query";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useFormatCents } from "@/lib/use-format-cents";
 import { type PeriodOption, periodToParams } from "../../_components/period-utils";
 
 const chartConfig = {
   revenue: { label: "Revenue", color: "hsl(var(--primary))" },
 } satisfies ChartConfig;
-
-function formatCents(cents: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
-}
 
 function formatAxisDate(date: string, period: PeriodOption) {
   const d = new Date(date);
@@ -29,6 +26,7 @@ function formatAxisDate(date: string, period: PeriodOption) {
 }
 
 export function RevenueSection({ period }: { period: PeriodOption }) {
+  const formatCents = useFormatCents();
   const { from, to, granularity } = periodToParams(period);
 
   const { data, isLoading } = useQuery({

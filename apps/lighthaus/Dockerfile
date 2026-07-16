@@ -59,6 +59,5 @@ COPY --from=build /app/apps/lighthaus/package.json .
 
 COPY --from=build --chown=nextjs:nodejs /app/apps/lighthaus/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/apps/lighthaus/.next/static ./apps/lighthaus/.next/static
-COPY --from=build --chown=nextjs:nodejs /app/apps/lighthaus/public ./apps/lighthaus/public
 
 CMD ["node", "apps/lighthaus/server.js"]

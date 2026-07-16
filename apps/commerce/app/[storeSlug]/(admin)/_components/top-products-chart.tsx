@@ -11,6 +11,7 @@ import {
 } from "@site-haus/ui/components/base/chart";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, Cell, XAxis, YAxis } from "recharts";
+import { useFormatCents } from "@/lib/use-format-cents";
 import { type PeriodOption, periodToParams } from "./period-utils";
 
 const CHART_COLORS = [
@@ -25,19 +26,12 @@ const chartConfig = {
   revenue: { label: "Revenue" },
 } satisfies ChartConfig;
 
-function formatCents(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
-
 function truncate(s: string, max = 20) {
   return s.length > max ? s.slice(0, max) + "…" : s;
 }
 
 export function TopProductsChart({ period }: { period: PeriodOption }) {
+  const formatCents = useFormatCents();
   const { from, to } = periodToParams(period);
 
   const { data, isLoading } = useQuery({
@@ -81,7 +75,11 @@ export function TopProductsChart({ period }: { period: PeriodOption }) {
               width={90}
             />
             <ChartTooltip
-              content={<ChartTooltipContent formatter={(value) => formatCents(value as number)} />}
+              content={
+                <ChartTooltipContent
+                  formatter={(value) => formatCents(value as number, { maximumFractionDigits: 0 })}
+                />
+              }
             />
             <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
               {chartData.map((_, i) => (

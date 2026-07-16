@@ -60,9 +60,11 @@ export type NotificationJobData =
       date: string;
       summary: {
         monitorName: string;
+        /** check type (http/dns/ssl/…) — one site is many monitors sharing a name */
+        type: string;
         group: string;
         uptime24h: number;
         status: string;
       }[];
-      openIncidents: { monitorName: string; openedAt: string }[];
+      openIncidents: { monitorName: string; type: string; openedAt: string }[];
     };

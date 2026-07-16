@@ -17,6 +17,9 @@ jobs:
     env:
       NEXT_PUBLIC_API_URL: https://api.sitehaus.dev
       NEXT_PUBLIC_CLIENT_KEY: iam
+      # apps/lighthaus requires these at build time (module-scope env guards)
+      NEXT_PUBLIC_LIGHTHAUS_API_URL: https://lighthaus-api.sitehaus.dev
+      NEXT_PUBLIC_IAM_URL: https://iam.sitehaus.dev
 
     steps:
       - name: Checkout
