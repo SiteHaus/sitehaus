@@ -23,7 +23,7 @@ function AccordionItem({
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn("data-open:bg-muted/50 not-last:border-b", className)}
+      className={cn("data-[state=open]:bg-muted/50 not-last:border-b", className)}
       {...props}
     />
   );
@@ -66,7 +66,7 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Content
       data-slot="accordion-content"
-      className="data-open:animate-accordion-down data-closed:animate-accordion-up px-4 text-sm overflow-hidden"
+      className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up px-4 text-sm overflow-hidden"
       {...props}
     >
       <div

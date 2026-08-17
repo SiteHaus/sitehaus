@@ -52,7 +52,7 @@ export const GroupCard = ({ group, monitors, isStaff }: GroupCardProps) => {
           const siteRoll = worstStatus(rows);
           const siteMeta = statusMeta(siteRoll);
           return (
-            <AccordionItem key={name} value={name} className="data-open:bg-transparent">
+            <AccordionItem key={name} value={name} className="data-[state=open]:bg-transparent">
               <AccordionTrigger className="items-center px-4 py-3 hover:no-underline">
                 <span className="flex min-w-0 flex-1 items-center gap-3 pr-2">
                   <span
