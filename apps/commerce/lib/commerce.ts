@@ -27,9 +27,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export type FulfillmentType = "shipping" | "pickup";
 
+// Merchant-facing toggles for the notification emails they receive at
+// `store.notificationEmail`. Keys mirror the backend's `notification_preferences`
+// jsonb column (sitehaus-commerce packages/validation/src/store.schemas.ts) —
+// keep in sync. `lowStock` has no sender wired up yet.
 export type NotificationPreferences = {
-  orderConfirmed?: boolean;
-  orderShipped?: boolean;
+  newOrder?: boolean;
+  returnRequested?: boolean;
+  lowStock?: boolean;
+  paymentFailed?: boolean;
 };
 
 export type StoreDetail = {
@@ -69,6 +75,7 @@ export const updateStore = (body: {
   timezone?: string;
   reservationTtlMinutes?: number;
   fulfillmentType?: FulfillmentType;
+  notificationPreferences?: NotificationPreferences;
 }) =>
   request<StoreDetail>("/v1/admin/stores", {
     method: "PATCH",
@@ -82,12 +89,6 @@ export const connectStripe = (returnUrl: string) =>
   });
 
 export const getStripeStatus = () => request<StripeStatus>("/v1/admin/stores/stripe-status");
-
-export const updateNotificationPreferences = (body: NotificationPreferences) =>
-  request<StoreDetail>("/v1/admin/stores/notification-preferences", {
-    method: "PATCH",
-    body: JSON.stringify(body),
-  });
 
 // ─── Products ────────────────────────────────────────────────────────────────
 
