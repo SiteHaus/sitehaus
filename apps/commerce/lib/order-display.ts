@@ -1,6 +1,11 @@
 import type { OrderStatus } from "./commerce";
 
-/** Statuses that count as real orders. `pending` (abandoned checkout) and `failed` are excluded. */
+/**
+ * Statuses that count as real orders (they were paid). Never-paid checkouts —
+ * `pending`, `abandoned`, `failed` — are excluded; abandoned/pending live in
+ * the Abandoned checkouts drawer instead. `cancelled` stays here for a real,
+ * paid order that gets explicitly cancelled.
+ */
 export const REAL_ORDER_STATUSES: OrderStatus[] = [
   "confirmed",
   "shipped",
@@ -10,13 +15,14 @@ export const REAL_ORDER_STATUSES: OrderStatus[] = [
 ];
 
 const LABELS: Record<OrderStatus, string> = {
-  pending: "Abandoned",
+  pending: "Pending",
   confirmed: "Paid",
   shipped: "Shipped",
   delivered: "Delivered",
   failed: "Payment failed",
   refunded: "Refunded",
   cancelled: "Cancelled",
+  abandoned: "Abandoned",
 };
 
 export function statusLabel(s: OrderStatus): string {
@@ -32,6 +38,7 @@ const DOT: Record<OrderStatus, string> = {
   failed: "var(--destructive)",
   refunded: "var(--chart-3)", // clay
   cancelled: "var(--muted-foreground)",
+  abandoned: "var(--muted-foreground)",
 };
 
 export function statusDotColor(s: OrderStatus): string {

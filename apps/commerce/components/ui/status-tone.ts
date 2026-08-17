@@ -14,6 +14,7 @@ const ORDER_TONE: Record<OrderStatus, Tone> = {
   failed: "danger",
   refunded: "warning",
   cancelled: "danger",
+  abandoned: "neutral",
 };
 export function orderTone(s: OrderStatus): Tone {
   return ORDER_TONE[s];
