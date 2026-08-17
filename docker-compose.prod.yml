@@ -63,12 +63,6 @@ services:
       redis:
         condition: service_healthy
 
-  lighthaus:
-    image: ghcr.io/sitehaus/sitehaus-lighthaus:latest
-    restart: always
-    networks:
-      - sitehaus-network
-
   lighthaus-api:
     image: ghcr.io/sitehaus/sitehaus-lighthaus-api:latest
     restart: always
