@@ -4,7 +4,6 @@ import {
   connectStripe,
   getMyStore,
   getStripeStatus,
-  updateNotificationPreferences,
   updateStore,
   type FulfillmentType,
   type NotificationPreferences,
@@ -60,8 +59,10 @@ export default function SettingsPage() {
   const [reservationTtl, setReservationTtl] = useState(15);
   const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("shipping");
   const [notifications, setNotifications] = useState<NotificationPreferences>({
-    orderConfirmed: true,
-    orderShipped: true,
+    newOrder: true,
+    returnRequested: true,
+    lowStock: true,
+    paymentFailed: true,
   });
   const [dirty, setDirty] = useState(false);
 
@@ -73,8 +74,10 @@ export default function SettingsPage() {
     setReservationTtl(store.reservationTtlMinutes);
     setFulfillmentType(store.fulfillmentType);
     setNotifications({
-      orderConfirmed: store.notificationPreferences?.orderConfirmed ?? true,
-      orderShipped: store.notificationPreferences?.orderShipped ?? true,
+      newOrder: store.notificationPreferences?.newOrder ?? true,
+      returnRequested: store.notificationPreferences?.returnRequested ?? true,
+      lowStock: store.notificationPreferences?.lowStock ?? true,
+      paymentFailed: store.notificationPreferences?.paymentFailed ?? true,
     });
   }, [store]);
 
@@ -86,8 +89,8 @@ export default function SettingsPage() {
         currency,
         reservationTtlMinutes: reservationTtl,
         fulfillmentType,
+        notificationPreferences: notifications,
       });
-      await updateNotificationPreferences(notifications);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["store"] });
@@ -238,21 +241,21 @@ export default function SettingsPage() {
         {/* Notifications */}
         <SectionCard
           title="Notifications"
-          description="Email notifications sent to customers about their orders."
+          description="Emails sent to you when store activity needs your attention."
         >
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5">
-                <Label htmlFor="notify-order-confirmed">Order confirmed</Label>
+                <Label htmlFor="notify-new-order">New order placed</Label>
                 <p className="text-xs text-muted-foreground">
-                  Email customers when their order is confirmed and paid.
+                  Email you when a customer places and pays for an order.
                 </p>
               </div>
               <Switch
-                id="notify-order-confirmed"
-                checked={notifications.orderConfirmed ?? false}
+                id="notify-new-order"
+                checked={notifications.newOrder ?? false}
                 onCheckedChange={(checked) => {
-                  setNotifications((prev) => ({ ...prev, orderConfirmed: checked }));
+                  setNotifications((prev) => ({ ...prev, newOrder: checked }));
                   markDirty();
                 }}
               />
@@ -260,16 +263,51 @@ export default function SettingsPage() {
 
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5">
-                <Label htmlFor="notify-order-shipped">Order shipped</Label>
+                <Label htmlFor="notify-return-requested">Return requested</Label>
                 <p className="text-xs text-muted-foreground">
-                  Email customers when their order ships, with tracking details.
+                  Email you when a customer requests a return.
                 </p>
               </div>
               <Switch
-                id="notify-order-shipped"
-                checked={notifications.orderShipped ?? false}
+                id="notify-return-requested"
+                checked={notifications.returnRequested ?? false}
                 onCheckedChange={(checked) => {
-                  setNotifications((prev) => ({ ...prev, orderShipped: checked }));
+                  setNotifications((prev) => ({ ...prev, returnRequested: checked }));
+                  markDirty();
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="notify-payment-failed">Payment failed</Label>
+                <p className="text-xs text-muted-foreground">
+                  Email you when a customer's payment or refund fails to process.
+                </p>
+              </div>
+              <Switch
+                id="notify-payment-failed"
+                checked={notifications.paymentFailed ?? false}
+                onCheckedChange={(checked) => {
+                  setNotifications((prev) => ({ ...prev, paymentFailed: checked }));
+                  markDirty();
+                }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="notify-low-stock">Low stock</Label>
+                <p className="text-xs text-muted-foreground">
+                  Email you when a product's inventory runs low. Coming soon — this toggle is saved
+                  but nothing sends this email yet.
+                </p>
+              </div>
+              <Switch
+                id="notify-low-stock"
+                checked={notifications.lowStock ?? false}
+                onCheckedChange={(checked) => {
+                  setNotifications((prev) => ({ ...prev, lowStock: checked }));
                   markDirty();
                 }}
               />
