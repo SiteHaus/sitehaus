@@ -1,6 +1,13 @@
 "use client";
 
-import { collectOrder, getMyStore, getOrder, refundOrder, shipOrder } from "@/lib/commerce";
+import {
+  collectOrder,
+  getMyStore,
+  getOrder,
+  refundOrder,
+  shipOrder,
+  updateShippingAddress,
+} from "@/lib/commerce";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionCard } from "@/components/ui/section-card";
 import { useStoreNav } from "@/lib/use-store-nav";
@@ -25,7 +32,7 @@ import {
   TableRow,
 } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Loader2, Package, RotateCcw, Truck } from "lucide-react";
+import { ChevronLeft, Loader2, Package, Pencil, RotateCcw, Truck } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -67,6 +74,24 @@ export default function OrderDetailPage() {
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   const [collectDialogOpen, setCollectDialogOpen] = useState(false);
 
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
+  const [addrName, setAddrName] = useState("");
+  const [addrLine1, setAddrLine1] = useState("");
+  const [addrLine2, setAddrLine2] = useState("");
+  const [addrCity, setAddrCity] = useState("");
+  const [addrState, setAddrState] = useState("");
+  const [addrZip, setAddrZip] = useState("");
+
+  function openAddressDialog() {
+    setAddrName(order?.shippingName ?? "");
+    setAddrLine1(order?.shippingLine1 ?? "");
+    setAddrLine2(order?.shippingLine2 ?? "");
+    setAddrCity(order?.shippingCity ?? "");
+    setAddrState(order?.shippingState ?? "");
+    setAddrZip(order?.shippingZip ?? "");
+    setAddressDialogOpen(true);
+  }
+
   const shipMutation = useMutation({
     mutationFn: () => shipOrder(id, trackingNumber),
     onSuccess: () => {
@@ -88,6 +113,25 @@ export default function OrderDetailPage() {
       setCollectDialogOpen(false);
     },
     onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to collect order"),
+  });
+
+  const addressMutation = useMutation({
+    mutationFn: () =>
+      updateShippingAddress(id, {
+        name: addrName.trim(),
+        line1: addrLine1.trim(),
+        line2: addrLine2.trim() || undefined,
+        city: addrCity.trim(),
+        state: addrState.trim() || undefined,
+        zip: addrZip.trim(),
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["order", id] });
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      toast.success("Shipping address saved");
+      setAddressDialogOpen(false);
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to save address"),
   });
 
   const refundMutation = useMutation({
@@ -238,8 +282,16 @@ export default function OrderDetailPage() {
         </SectionCard>
 
         {/* Shipping address */}
-        {hasShipping && (
-          <SectionCard title="Shipping Address">
+        <SectionCard
+          title="Shipping Address"
+          actions={
+            <Button variant="ghost" size="sm" onClick={openAddressDialog}>
+              <Pencil className="size-3.5" />
+              {hasShipping ? "Edit" : "Add"}
+            </Button>
+          }
+        >
+          {hasShipping ? (
             <div className="text-sm space-y-0.5">
               {order.shippingName && <p className="font-medium">{order.shippingName}</p>}
               {order.shippingLine1 ? (
@@ -258,8 +310,13 @@ export default function OrderDetailPage() {
                 </p>
               )}
             </div>
-          </SectionCard>
-        )}
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No shipping address on file for this order. Follow up with the customer directly, then
+              add it here.
+            </p>
+          )}
+        </SectionCard>
       </div>
 
       {/* Ship dialog */}
@@ -334,6 +391,83 @@ export default function OrderDetailPage() {
             <Button onClick={() => collectMutation.mutate()} disabled={collectMutation.isPending}>
               {collectMutation.isPending && <Loader2 className="size-4 animate-spin" />}
               Confirm Pickup
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Shipping address dialog */}
+      <Dialog open={addressDialogOpen} onOpenChange={(o) => !o && setAddressDialogOpen(false)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{hasShipping ? "Edit" : "Add"} Shipping Address</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="addr-name">Full name</Label>
+              <Input
+                id="addr-name"
+                value={addrName}
+                onChange={(e) => setAddrName(e.target.value)}
+                autoFocus
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="addr-line1">Street address</Label>
+              <Input
+                id="addr-line1"
+                value={addrLine1}
+                onChange={(e) => setAddrLine1(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="addr-line2">Apt / Suite (optional)</Label>
+              <Input
+                id="addr-line2"
+                value={addrLine2}
+                onChange={(e) => setAddrLine2(e.target.value)}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="col-span-1 space-y-1.5">
+                <Label htmlFor="addr-city">City</Label>
+                <Input
+                  id="addr-city"
+                  value={addrCity}
+                  onChange={(e) => setAddrCity(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="addr-state">State</Label>
+                <Input
+                  id="addr-state"
+                  value={addrState}
+                  onChange={(e) => setAddrState(e.target.value)}
+                  placeholder="UT"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="addr-zip">Zip</Label>
+                <Input id="addr-zip" value={addrZip} onChange={(e) => setAddrZip(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddressDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => addressMutation.mutate()}
+              disabled={
+                addressMutation.isPending ||
+                !addrName.trim() ||
+                !addrLine1.trim() ||
+                !addrCity.trim() ||
+                !addrZip.trim()
+              }
+            >
+              {addressMutation.isPending && <Loader2 className="size-4 animate-spin" />}
+              Save
             </Button>
           </DialogFooter>
         </DialogContent>
