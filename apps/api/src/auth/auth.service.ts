@@ -217,6 +217,22 @@ export class AuthService {
     userId: string,
     ctx: { clientId: string; ip?: string; ua?: string },
   ) {
+    // F-041: this is a login sink just like password login — must not skip 2FA.
+    const has2fa = await this.totp.isEnabled(userId);
+    if (has2fa) {
+      return this.issueTokens(userId, ctx, { mfaPending: true });
+    }
+
+    await this.audit.log({
+      clientId: ctx.clientId,
+      userId,
+      action: 'user.login',
+      targetType: 'user',
+      targetId: userId,
+      ip: ctx.ip,
+      ua: ctx.ua,
+    });
+
     return this.issueTokens(userId, ctx);
   }
 
