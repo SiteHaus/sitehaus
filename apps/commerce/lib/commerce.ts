@@ -378,6 +378,22 @@ export const collectOrder = (orderId: string) =>
     body: JSON.stringify({}),
   });
 
+export const updateShippingAddress = (
+  orderId: string,
+  body: {
+    name: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state?: string;
+    zip: string;
+  },
+) =>
+  request<AdminOrderDetail>(`/v1/admin/orders/${orderId}/shipping-address`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
+
 // ─── Collections ─────────────────────────────────────────────────────────────
 
 export type CollectionItem = {
