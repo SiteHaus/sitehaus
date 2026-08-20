@@ -299,8 +299,8 @@ export default function SettingsPage() {
               <div className="space-y-0.5">
                 <Label htmlFor="notify-low-stock">Low stock</Label>
                 <p className="text-xs text-muted-foreground">
-                  Email you when a product's inventory runs low. Coming soon — this toggle is saved
-                  but nothing sends this email yet.
+                  Email you when you adjust a product's stock down to or below its low-stock
+                  threshold (defaults to 5 units).
                 </p>
               </div>
               <Switch
