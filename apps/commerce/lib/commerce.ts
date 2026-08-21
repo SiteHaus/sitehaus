@@ -51,6 +51,7 @@ export type StoreDetail = {
   reservationTtlMinutes: number;
   fulfillmentType: FulfillmentType;
   notificationPreferences: NotificationPreferences | null;
+  taxRegistrationConfirmed: boolean;
 };
 
 export type StripeStatus = {
@@ -76,6 +77,7 @@ export const updateStore = (body: {
   reservationTtlMinutes?: number;
   fulfillmentType?: FulfillmentType;
   notificationPreferences?: NotificationPreferences;
+  taxRegistrationConfirmed?: boolean;
 }) =>
   request<StoreDetail>("/v1/admin/stores", {
     method: "PATCH",
