@@ -45,7 +45,7 @@ export function RateDialog({ open, onClose, zoneId, rate }: Props) {
   const isEdit = !!rate;
 
   const initialType: RateType =
-    rate && rate.rateCents === 0 && rate.minOrderCents !== undefined ? "free" : "flat";
+    rate && rate.rateCents === 0 && rate.minOrderCents != null ? "free" : "flat";
 
   const [name, setName] = useState(rate?.name ?? "");
   const [rateType, setRateType] = useState<RateType>(initialType);
@@ -53,10 +53,10 @@ export function RateDialog({ open, onClose, zoneId, rate }: Props) {
     rate && rate.rateCents > 0 ? centsToDisplay(rate.rateCents) : "",
   );
   const [thresholdDollars, setThresholdDollars] = useState(
-    rate?.minOrderCents !== undefined ? centsToDisplay(rate.minOrderCents) : "",
+    rate?.minOrderCents != null ? centsToDisplay(rate.minOrderCents) : "",
   );
   const [estimatedDays, setEstimatedDays] = useState(
-    rate?.estimatedDays !== undefined ? String(rate.estimatedDays) : "",
+    rate?.estimatedDays != null ? String(rate.estimatedDays) : "",
   );
   const [deleteConfirm, setDeleteConfirm] = useState(false);
 
@@ -64,10 +64,8 @@ export function RateDialog({ open, onClose, zoneId, rate }: Props) {
     setName(rate?.name ?? "");
     setRateType(initialType);
     setRateDollars(rate && rate.rateCents > 0 ? centsToDisplay(rate.rateCents) : "");
-    setThresholdDollars(
-      rate?.minOrderCents !== undefined ? centsToDisplay(rate.minOrderCents) : "",
-    );
-    setEstimatedDays(rate?.estimatedDays !== undefined ? String(rate.estimatedDays) : "");
+    setThresholdDollars(rate?.minOrderCents != null ? centsToDisplay(rate.minOrderCents) : "");
+    setEstimatedDays(rate?.estimatedDays != null ? String(rate.estimatedDays) : "");
     setDeleteConfirm(false);
   }
 
