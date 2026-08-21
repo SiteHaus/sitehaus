@@ -21,7 +21,7 @@ import { ZoneDialog } from "./zone-dialog";
 
 function RateLabel({ rate }: { rate: ShippingRate }) {
   const formatCents = useFormatCents();
-  if (rate.rateCents === 0 && rate.minOrderCents !== undefined) {
+  if (rate.rateCents === 0 && rate.minOrderCents != null) {
     return (
       <span>
         Free on orders over <span className="font-medium">{formatCents(rate.minOrderCents)}</span>
@@ -82,7 +82,7 @@ export function ZoneCard({ zone }: { zone: ShippingZone }) {
                       <RateLabel rate={rate} />
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {rate.estimatedDays !== undefined ? `${rate.estimatedDays} days` : "—"}
+                      {rate.estimatedDays != null ? `${rate.estimatedDays} days` : "—"}
                     </TableCell>
                     <TableCell>
                       <Button

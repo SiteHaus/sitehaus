@@ -609,8 +609,8 @@ export type ShippingRate = {
   id: string;
   name: string;
   rateCents: number;
-  minOrderCents?: number;
-  estimatedDays?: number;
+  minOrderCents?: number | null;
+  estimatedDays?: number | null;
 };
 
 export type ShippingZone = {
