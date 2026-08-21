@@ -45,5 +45,6 @@ skills-lock.json
 /security-audit/
 .superpowers/
 
-# AI-authored design specs — local working docs only, never pushed
+# AI-authored design specs and implementation plans — local working docs only, never pushed
 docs/superpowers/specs/
+docs/superpowers/plans/
