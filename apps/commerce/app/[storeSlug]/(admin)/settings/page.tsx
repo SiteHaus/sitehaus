@@ -4,9 +4,11 @@ import {
   connectStripe,
   getMyStore,
   getStripeStatus,
+  listShippingZones,
   updateStore,
   type FulfillmentType,
   type NotificationPreferences,
+  type ShippingZone,
   type StoreDetail,
   type StripeStatus,
 } from "@/lib/commerce";
@@ -49,6 +51,12 @@ export default function SettingsPage() {
   const { data: stripeStatus } = useQuery<StripeStatus>({
     queryKey: ["stripe-status"],
     queryFn: getStripeStatus,
+    enabled: !!store,
+  });
+
+  const { data: shippingZones } = useQuery<{ items: ShippingZone[] }>({
+    queryKey: ["shipping-zones"],
+    queryFn: listShippingZones,
     enabled: !!store,
   });
 
@@ -108,6 +116,15 @@ export default function SettingsPage() {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  const confirmTaxMutation = useMutation({
+    mutationFn: () => updateStore({ taxRegistrationConfirmed: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["store"] });
+      toast.success("Tax registration marked as confirmed");
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   function markDirty() {
     setDirty(true);
   }
@@ -136,6 +153,51 @@ export default function SettingsPage() {
       />
 
       <div className="space-y-4">
+        {/* Go-live checklist */}
+        <SectionCard
+          title="Go-Live Checklist"
+          description="What checkout enforces before this store can take a real payment."
+        >
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <StatusRow
+                label="Shipping zones configured"
+                enabled={(shippingZones?.items.length ?? 0) > 0}
+              />
+              {(shippingZones?.items.length ?? 0) === 0 && (
+                <Button variant="outline" size="sm" asChild>
+                  <a href={`/${storeSlug}/shipping`}>Configure</a>
+                </Button>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <StatusRow
+                label="Stripe connected"
+                enabled={!!(stripeStatus?.connected && stripeStatus?.chargesEnabled)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <StatusRow
+                label="Tax registration confirmed"
+                enabled={!!store?.taxRegistrationConfirmed}
+              />
+              {!store?.taxRegistrationConfirmed && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => confirmTaxMutation.mutate()}
+                  disabled={confirmTaxMutation.isPending}
+                >
+                  {confirmTaxMutation.isPending && <Loader2 className="size-4 mr-2 animate-spin" />}
+                  Mark as confirmed
+                </Button>
+              )}
+            </div>
+          </div>
+        </SectionCard>
+
         {/* Store Info */}
         <SectionCard
           title="Store Info"
