@@ -5,12 +5,18 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
 import { StripeModule } from 'src/stripe/stripe.module';
 import { StripeWebhookController } from 'src/stripe/stripe-webhook.controller';
 import { BillingController } from './billing.controller';
+import { BillingInternalController } from './billing-internal.controller';
 import { BillingService } from './billing.service';
+import { ServiceKeyGuard } from './service-key.guard';
 
 @Module({
   imports: [DbModule, AuditModule, StripeModule, NotificationsModule],
-  providers: [BillingService],
+  providers: [BillingService, ServiceKeyGuard],
   exports: [BillingService],
-  controllers: [BillingController, StripeWebhookController],
+  controllers: [
+    BillingController,
+    BillingInternalController,
+    StripeWebhookController,
+  ],
 })
 export class BillingModule {}

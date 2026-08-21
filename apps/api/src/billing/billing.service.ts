@@ -45,7 +45,7 @@ export class BillingService {
     private readonly notifications: NotificationsService,
   ) {}
 
-  private async ensureStripeCustomer(
+  async ensureStripeCustomer(
     clientId: string,
     email?: string,
   ): Promise<string | null> {
