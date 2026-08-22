@@ -5,14 +5,17 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@site-haus/ui/components/base/button";
 import { Skeleton } from "@site-haus/ui/components/base/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Truck } from "lucide-react";
 import { useState } from "react";
+import { LabelsTab } from "./_components/labels-tab";
 import { ZoneCard } from "./_components/zone-card";
 import { ZoneDialog } from "./_components/zone-dialog";
 
 export default function ShippingPage() {
   const [addOpen, setAddOpen] = useState(false);
+  const [tab, setTab] = useState("zones");
 
   const { data, isLoading } = useQuery({
     queryKey: ["shipping-zones"],
@@ -34,29 +37,42 @@ export default function ShippingPage() {
       <PageHeader
         title="Shipping"
         subtitle={isLoading ? "—" : `${zones.length} zone${zones.length !== 1 ? "s" : ""}`}
-        actions={newZoneButton}
+        actions={tab === "zones" ? newZoneButton : undefined}
       />
 
-      {isLoading ? (
-        <div className="space-y-4">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <Skeleton key={i} className="h-40 w-full rounded-xl" />
-          ))}
-        </div>
-      ) : zones.length === 0 ? (
-        <EmptyState
-          icon={Truck}
-          title="No shipping zones"
-          description="Add a zone to define where you ship and what rates apply."
-          action={newZoneButton}
-        />
-      ) : (
-        <div className="space-y-4">
-          {zones.map((zone) => (
-            <ZoneCard key={zone.id} zone={zone} />
-          ))}
-        </div>
-      )}
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList>
+          <TabsTrigger value="zones">Zones & Rates</TabsTrigger>
+          <TabsTrigger value="labels">Labels</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="zones" className="space-y-4 pt-4">
+          {isLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <Skeleton key={i} className="h-40 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : zones.length === 0 ? (
+            <EmptyState
+              icon={Truck}
+              title="No shipping zones"
+              description="Add a zone to define where you ship and what rates apply."
+              action={newZoneButton}
+            />
+          ) : (
+            <div className="space-y-4">
+              {zones.map((zone) => (
+                <ZoneCard key={zone.id} zone={zone} />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="labels" className="pt-4">
+          <LabelsTab />
+        </TabsContent>
+      </Tabs>
 
       <ZoneDialog open={addOpen} onClose={() => setAddOpen(false)} />
     </div>

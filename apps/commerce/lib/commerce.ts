@@ -499,6 +499,45 @@ export type ParcelPreset = {
 
 export const listPresets = () => request<{ items: ParcelPreset[] }>("/v1/admin/shipping/presets");
 
+export const createPreset = (input: {
+  name: string;
+  lengthIn: number;
+  widthIn: number;
+  heightIn: number;
+}) =>
+  request<ParcelPreset>("/v1/admin/shipping/presets", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+
+export const deletePreset = (presetId: string) =>
+  request<{ message: string }>(`/v1/admin/shipping/presets/${presetId}`, {
+    method: "DELETE",
+  });
+
+// `getPostageBalance`/`listLedger` only ever respond 200 or 404 (see the
+// gateway's LabelsAdminController) — unlike getShippingRates/buyLabel, they
+// carry no structured 400 error body, so the plain `request()` helper is
+// correct here, not `requestAllow400`.
+
+export type PostageBalance = { availableCents: number; pendingCents: number };
+
+export const getPostageBalance = () =>
+  request<PostageBalance>("/v1/admin/shipping/postage/balance");
+
+export type LedgerEntry = {
+  id: string;
+  orderId: string;
+  amountCents: number;
+  type: "charge" | "refund";
+  status: "pending" | "settled" | "failed";
+  createdAt: string;
+  settledAt: string | null;
+};
+
+export const listLedger = () =>
+  request<{ items: LedgerEntry[] }>("/v1/admin/shipping/postage/ledger");
+
 // ─── Collections ─────────────────────────────────────────────────────────────
 
 export type CollectionItem = {
