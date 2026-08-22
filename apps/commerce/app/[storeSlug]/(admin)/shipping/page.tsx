@@ -8,6 +8,7 @@ import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@site-haus/ui/components/base/tabs";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Truck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { LabelsTab } from "./_components/labels-tab";
 import { ZoneCard } from "./_components/zone-card";
@@ -15,7 +16,10 @@ import { ZoneDialog } from "./_components/zone-dialog";
 
 export default function ShippingPage() {
   const [addOpen, setAddOpen] = useState(false);
-  const [tab, setTab] = useState("zones");
+  // Allows deep-linking straight to the Labels tab (e.g. from the Ship
+  // dialog's "add an origin address" prompt) via ?tab=labels.
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState(searchParams.get("tab") === "labels" ? "labels" : "zones");
 
   const { data, isLoading } = useQuery({
     queryKey: ["shipping-zones"],

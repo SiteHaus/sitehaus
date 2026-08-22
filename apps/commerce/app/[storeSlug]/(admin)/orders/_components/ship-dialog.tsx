@@ -16,6 +16,8 @@ import { Input } from "@site-haus/ui/components/base/input";
 import { Label } from "@site-haus/ui/components/base/label";
 import { Loader2 } from "lucide-react";
 import { buyLabel, getOriginAddress, getShippingRates, shipOrder } from "@/lib/commerce";
+import { useFormatCents } from "@/lib/use-format-cents";
+import { useStoreNav } from "@/lib/use-store-nav";
 
 interface ShipDialogProps {
   open: boolean;
@@ -24,11 +26,9 @@ interface ShipDialogProps {
   onShipped: () => void;
 }
 
-function formatCents(cents: number): string {
-  return `$${(cents / 100).toFixed(2)}`;
-}
-
 export function ShipDialog({ open, onOpenChange, orderId, onShipped }: ShipDialogProps) {
+  const formatCents = useFormatCents();
+  const { push } = useStoreNav();
   const [trackingNumber, setTrackingNumber] = useState("");
   const [shipmentId, setShipmentId] = useState<string | null>(null);
   const [rates, setRates] = useState<
@@ -89,7 +89,7 @@ export function ShipDialog({ open, onOpenChange, orderId, onShipped }: ShipDialo
     mutationFn: () => buyLabel(orderId, shipmentId!, selectedRateId!),
     onSuccess: (result) => {
       if ("error" in result) {
-        if (result.error === "not_found") {
+        if (result.error === "rate_expired") {
           // Rates are short-lived — the selected one can expire between fetching
           // and buying. Refresh the list rather than leaving the merchant stuck
           // on a card-billing message that has nothing to do with the problem.
@@ -97,6 +97,10 @@ export function ShipDialog({ open, onOpenChange, orderId, onShipped }: ShipDialo
           setRates(null);
           setSelectedRateId(null);
           ratesMutation.mutate();
+          return;
+        }
+        if (result.error === "not_found") {
+          toast.error("Couldn't find this order — try reopening it.");
           return;
         }
         toast.error(
@@ -202,6 +206,27 @@ export function ShipDialog({ open, onOpenChange, orderId, onShipped }: ShipDialo
                     Couldn&apos;t find this order&apos;s shipment details — try again.
                   </p>
                 )}
+                {ratesError.error === "origin_required" && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-destructive">
+                      You need a ship-from address before buying labels.
+                    </p>
+                    <Button variant="outline" onClick={() => push("/shipping?tab=labels")}>
+                      Add ship-from address
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {ratesMutation.isError && !ratesError && (
+              <div className="space-y-2">
+                <p className="text-sm text-destructive">
+                  Couldn&apos;t fetch shipping rates — try again.
+                </p>
+                <Button variant="outline" onClick={() => ratesMutation.mutate()}>
+                  Try again
+                </Button>
               </div>
             )}
 

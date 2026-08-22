@@ -40,9 +40,9 @@ export function PresetDialog({ open, onClose }: Props) {
     mutationFn: () =>
       createPreset({
         name,
-        lengthIn: parseFloat(lengthIn),
-        widthIn: parseFloat(widthIn),
-        heightIn: parseFloat(heightIn),
+        lengthIn: parseInt(lengthIn, 10),
+        widthIn: parseInt(widthIn, 10),
+        heightIn: parseInt(heightIn, 10),
       }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["parcel-presets"] });
@@ -53,8 +53,11 @@ export function PresetDialog({ open, onClose }: Props) {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  // parcel_presets.length_in/width_in/height_in are Postgres integer columns —
+  // a decimal here passes this validation but throws on insert.
   const dims = [lengthIn, widthIn, heightIn];
-  const canSave = name.trim().length > 0 && dims.every((d) => d !== "" && parseFloat(d) > 0);
+  const canSave =
+    name.trim().length > 0 && dims.every((d) => /^\d+$/.test(d) && parseInt(d, 10) > 0);
 
   return (
     <Dialog
@@ -89,7 +92,7 @@ export function PresetDialog({ open, onClose }: Props) {
               <Input
                 type="number"
                 min="0"
-                step="0.1"
+                step="1"
                 value={lengthIn}
                 onChange={(e) => setLengthIn(e.target.value)}
                 placeholder="L"
@@ -98,7 +101,7 @@ export function PresetDialog({ open, onClose }: Props) {
               <Input
                 type="number"
                 min="0"
-                step="0.1"
+                step="1"
                 value={widthIn}
                 onChange={(e) => setWidthIn(e.target.value)}
                 placeholder="W"
@@ -107,7 +110,7 @@ export function PresetDialog({ open, onClose }: Props) {
               <Input
                 type="number"
                 min="0"
-                step="0.1"
+                step="1"
                 value={heightIn}
                 onChange={(e) => setHeightIn(e.target.value)}
                 placeholder="H"

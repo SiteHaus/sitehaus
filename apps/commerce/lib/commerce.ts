@@ -418,14 +418,21 @@ export type RateOption = {
 export type GetRatesResult =
   | { shipmentId: string; rates: RateOption[] }
   | {
-      error: "missing_weight" | "billing_blocked" | "not_found" | "billing_setup_required";
+      error:
+        | "missing_weight"
+        | "billing_blocked"
+        | "not_found"
+        | "billing_setup_required"
+        | "origin_required";
       variants?: { variantId: string; variantName: string }[];
       setupUrl?: string;
     };
 
 export type BuyLabelResult =
   | { orderId: string; carrier: string; service: string; trackingCode: string; labelUrl: string }
-  | { error: "billing_blocked" | "not_found" };
+  // `rate_expired` is recoverable (re-quote and pick again); `not_found` means
+  // the order itself is missing.
+  | { error: "billing_blocked" | "rate_expired" | "not_found" };
 
 async function requestAllow400<T>(path: string, options: RequestInit = {}): Promise<T> {
   const { accessToken: token, managedClientId } = useAuthStore.getState();
