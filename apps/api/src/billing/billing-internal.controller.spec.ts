@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
+import { IS_PUBLIC_KEY } from 'src/public.decorator';
 import { BillingInternalController } from './billing-internal.controller';
 import { BillingService } from './billing.service';
 
@@ -24,6 +25,16 @@ describe('BillingInternalController', () => {
       ],
     }).compile();
     controller = moduleRef.get(BillingInternalController);
+  });
+
+  // The global AccessGuard (APP_GUARD) runs before any route-level guard and
+  // 401s a request with no bearer token. This is a service-to-service call
+  // authenticating with x-service-key, so without @Public() ServiceKeyGuard
+  // never even runs and the cross-repo billing lookup always fails.
+  it('is exempt from the global user-auth guard', () => {
+    expect(Reflect.getMetadata(IS_PUBLIC_KEY, BillingInternalController)).toBe(
+      true,
+    );
   });
 
   it('returns the stripeCustomerId, creating one if the client never had one', async () => {
