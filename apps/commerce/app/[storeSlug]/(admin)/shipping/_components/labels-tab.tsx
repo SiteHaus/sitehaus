@@ -201,7 +201,12 @@ export function LabelsTab() {
         title="Ship-from address"
         description="The origin address printed on every label you buy."
         actions={
-          <Button variant="outline" size="sm" onClick={() => setEditOriginOpen(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEditOriginOpen(true)}
+            disabled={originLoading}
+          >
             <Pencil className="size-4 mr-1" />
             {hasOrigin ? "Edit" : "Add address"}
           </Button>
@@ -228,11 +233,18 @@ export function LabelsTab() {
 
       <PresetDialog open={addPresetOpen} onClose={() => setAddPresetOpen(false)} />
 
-      <OriginAddressDialog
-        open={editOriginOpen}
-        onClose={() => setEditOriginOpen(false)}
-        address={origin}
-      />
+      {/* Mounted only once `origin` has loaded — same pattern as ZoneDialog (via ZoneCard) and
+          EndpointDialog (via EndpointRow): the dialog's form state initializes once, at mount,
+          from its `address` prop, so it must never mount before the real data exists. Mounting it
+          unconditionally while the query is still in flight would lock in blank fields forever,
+          since a later-arriving `address` prop can't re-sync a `useState` initializer. */}
+      {origin && (
+        <OriginAddressDialog
+          open={editOriginOpen}
+          onClose={() => setEditOriginOpen(false)}
+          address={origin}
+        />
+      )}
     </div>
   );
 }
