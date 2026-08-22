@@ -5,7 +5,6 @@ import {
   getMyStore,
   getOrder,
   refundOrder,
-  shipOrder,
   updateShippingAddress,
 } from "@/lib/commerce";
 import { PageHeader } from "@/components/ui/page-header";
@@ -44,6 +43,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { OrderStatusBadge } from "../_components/order-status-badge";
+import { ShipDialog } from "../_components/ship-dialog";
 
 // USPS 2-letter codes as values — matches what Stripe returns for US addresses
 // and what's already stored in shippingState.
@@ -133,7 +133,6 @@ export default function OrderDetailPage() {
   });
 
   const [shipDialogOpen, setShipDialogOpen] = useState(false);
-  const [trackingNumber, setTrackingNumber] = useState("");
   const [refundDialogOpen, setRefundDialogOpen] = useState(false);
   const [collectDialogOpen, setCollectDialogOpen] = useState(false);
 
@@ -154,18 +153,6 @@ export default function OrderDetailPage() {
     setAddrZip(order?.shippingZip ?? "");
     setAddressDialogOpen(true);
   }
-
-  const shipMutation = useMutation({
-    mutationFn: () => shipOrder(id, trackingNumber),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["order", id] });
-      qc.invalidateQueries({ queryKey: ["orders"] });
-      toast.success("Order marked as shipped");
-      setShipDialogOpen(false);
-      setTrackingNumber("");
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to ship order"),
-  });
 
   const collectMutation = useMutation({
     mutationFn: () => collectOrder(id),
@@ -383,34 +370,12 @@ export default function OrderDetailPage() {
       </div>
 
       {/* Ship dialog */}
-      <Dialog open={shipDialogOpen} onOpenChange={(o) => !o && setShipDialogOpen(false)}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Mark as Shipped</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <Label>Tracking Number</Label>
-            <Input
-              value={trackingNumber}
-              onChange={(e) => setTrackingNumber(e.target.value)}
-              placeholder="e.g. 1Z999AA10123456784"
-              autoFocus
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShipDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => shipMutation.mutate()}
-              disabled={shipMutation.isPending || !trackingNumber.trim()}
-            >
-              {shipMutation.isPending && <Loader2 className="size-4 animate-spin" />}
-              Confirm
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ShipDialog
+        open={shipDialogOpen}
+        onOpenChange={setShipDialogOpen}
+        orderId={id}
+        onShipped={() => {}}
+      />
 
       {/* Refund dialog */}
       <Dialog open={refundDialogOpen} onOpenChange={(o) => !o && setRefundDialogOpen(false)}>

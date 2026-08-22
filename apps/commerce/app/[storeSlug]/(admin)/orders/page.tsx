@@ -1,20 +1,12 @@
 "use client";
 
-import { collectOrder, getMyStore, listOrders, shipOrder, type OrderStatus } from "@/lib/commerce";
+import { collectOrder, getMyStore, listOrders, type OrderStatus } from "@/lib/commerce";
 import { REAL_ORDER_STATUSES } from "@/lib/order-display";
 import { formatCents, formatDate } from "@/lib/format";
 import { useStoreNav } from "@/lib/use-store-nav";
 import { Avatar, AvatarFallback } from "@site-haus/ui/components/base/avatar";
 import { Button } from "@site-haus/ui/components/base/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@site-haus/ui/components/base/dialog";
 import { Input } from "@site-haus/ui/components/base/input";
-import { Label } from "@site-haus/ui/components/base/label";
 import { TableCell } from "@site-haus/ui/components/base/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, ShoppingCart, Truck } from "lucide-react";
@@ -24,6 +16,7 @@ import { OrderStatusBadge } from "./_components/order-status-badge";
 import { OrderFilterCards, type OrderFilterKey } from "./_components/order-filter-cards";
 import { AbandonedDrawer } from "./_components/abandoned-drawer";
 import { RevenueSummary } from "./_components/revenue-summary";
+import { ShipDialog } from "./_components/ship-dialog";
 import { PageHeader } from "@/components/ui/page-header";
 import { DataTableShell } from "@/components/ui/data-table-shell";
 
@@ -53,7 +46,6 @@ export default function OrdersPage() {
   const [emailSearch, setEmailSearch] = useState("");
   const [offset, setOffset] = useState(0);
   const [shipOrderId, setShipOrderId] = useState<string | null>(null);
-  const [trackingNumber, setTrackingNumber] = useState("");
 
   const { data: store } = useQuery({ queryKey: ["store"], queryFn: getMyStore });
   const fulfillmentType = store?.fulfillmentType ?? "shipping";
@@ -92,17 +84,6 @@ export default function OrdersPage() {
         offset,
         sort: "newest",
       }),
-  });
-
-  const shipMutation = useMutation({
-    mutationFn: () => shipOrder(shipOrderId!, trackingNumber),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["orders"] });
-      toast.success("Order marked as shipped");
-      setShipOrderId(null);
-      setTrackingNumber("");
-    },
-    onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to ship order"),
   });
 
   const collectMutation = useMutation({
@@ -223,13 +204,7 @@ export default function OrdersPage() {
                     Mark collected
                   </Button>
                 ) : (
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setShipOrderId(order.id);
-                      setTrackingNumber("");
-                    }}
-                  >
+                  <Button size="sm" onClick={() => setShipOrderId(order.id)}>
                     <Truck className="size-3.5" />
                     Ship
                   </Button>
@@ -245,51 +220,16 @@ export default function OrdersPage() {
         onOpenOrder={(id) => push(`/orders/${id}`)}
       />
 
-      <Dialog
-        open={!!shipOrderId}
-        onOpenChange={(o) => {
-          if (!o) {
-            setShipOrderId(null);
-            setTrackingNumber("");
-          }
-        }}
-      >
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Mark as Shipped</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
-            <Label>Tracking Number</Label>
-            <Input
-              value={trackingNumber}
-              onChange={(e) => setTrackingNumber(e.target.value)}
-              placeholder="e.g. 1Z999AA10123456784"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && trackingNumber.trim()) shipMutation.mutate();
-              }}
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShipOrderId(null);
-                setTrackingNumber("");
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => shipMutation.mutate()}
-              disabled={shipMutation.isPending || !trackingNumber.trim()}
-            >
-              {shipMutation.isPending && <Loader2 className="size-4 animate-spin" />}
-              Confirm & notify buyer
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {shipOrderId && (
+        <ShipDialog
+          open={!!shipOrderId}
+          onOpenChange={(o) => {
+            if (!o) setShipOrderId(null);
+          }}
+          orderId={shipOrderId}
+          onShipped={() => {}}
+        />
+      )}
     </div>
   );
 }

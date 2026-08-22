@@ -398,6 +398,107 @@ export const updateShippingAddress = (
     body: JSON.stringify(body),
   });
 
+// ─── Shipping Labels (EasyPost) ────────────────────────────────────────────────
+//
+// `getShippingRates` and `buyLabel` hit gateway routes that respond with a real
+// 400 status for expected, structured error states — missing variant weight,
+// no postage card on file, a declined charge — not just server failure. Those
+// bodies carry an `error` discriminant (plus `variants`/`setupUrl`) that the
+// dialog needs intact, so both calls go through `requestAllow400` instead of
+// `request`, which throws away everything but a message string on non-2xx.
+
+export type RateOption = {
+  rateId: string;
+  carrier: string;
+  service: string;
+  amountCents: number;
+  estimatedDays: number | null;
+};
+
+export type GetRatesResult =
+  | { shipmentId: string; rates: RateOption[] }
+  | {
+      error: "missing_weight" | "billing_blocked" | "not_found" | "billing_setup_required";
+      variants?: { variantId: string; variantName: string }[];
+      setupUrl?: string;
+    };
+
+export type BuyLabelResult =
+  | { orderId: string; carrier: string; service: string; trackingCode: string; labelUrl: string }
+  | { error: "billing_blocked" | "not_found" };
+
+async function requestAllow400<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const { accessToken: token, managedClientId } = useAuthStore.getState();
+
+  const res = await fetch(`${COMMERCE_URL}${path}`, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(managedClientId ? { "x-client-id": managedClientId } : {}),
+      ...options.headers,
+    },
+  });
+
+  if (!res.ok && res.status !== 400) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { message?: string }).message ?? `HTTP ${res.status}`);
+  }
+
+  return res.json() as Promise<T>;
+}
+
+export const getShippingRates = (orderId: string) =>
+  requestAllow400<GetRatesResult>(`/v1/admin/orders/${orderId}/label/rates`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+
+export const buyLabel = (orderId: string, shipmentId: string, rateId: string) =>
+  requestAllow400<BuyLabelResult>(`/v1/admin/orders/${orderId}/label`, {
+    method: "POST",
+    body: JSON.stringify({ shipmentId, rateId }),
+  });
+
+export type OriginAddress = {
+  originName: string | null;
+  originLine1: string | null;
+  originLine2: string | null;
+  originCity: string | null;
+  originState: string | null;
+  originZip: string | null;
+  originCountry: string | null;
+};
+
+export type OriginAddressInput = {
+  originName: string;
+  originLine1: string;
+  originLine2?: string | null;
+  originCity: string;
+  originState: string;
+  originZip: string;
+  originCountry: string;
+};
+
+export const getOriginAddress = () => request<OriginAddress>("/v1/admin/shipping/origin");
+
+export const setOriginAddress = (address: OriginAddressInput) =>
+  request<OriginAddress>("/v1/admin/shipping/origin", {
+    method: "PUT",
+    body: JSON.stringify(address),
+  });
+
+export type ParcelPreset = {
+  id: string;
+  name: string;
+  lengthIn: number;
+  widthIn: number;
+  heightIn: number;
+  createdAt: string;
+};
+
+export const listPresets = () => request<{ items: ParcelPreset[] }>("/v1/admin/shipping/presets");
+
 // ─── Collections ─────────────────────────────────────────────────────────────
 
 export type CollectionItem = {
