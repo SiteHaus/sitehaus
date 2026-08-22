@@ -32,6 +32,20 @@ export async function submitContact(
     message,
   ].filter((l) => l !== null);
 
+  // Real sending defaults on in production/staging (both bake NODE_ENV=production
+  // into the Docker image) and off everywhere else, so a local `pnpm dev` can't
+  // email a real inbox just because a real RESEND_API_KEY is sitting in .env.
+  // EMAIL_ENABLED, if set, always wins.
+  const enabled =
+    process.env.EMAIL_ENABLED != null
+      ? process.env.EMAIL_ENABLED === "true"
+      : process.env.NODE_ENV === "production";
+
+  if (!enabled) {
+    console.warn(`Email disabled (non-production) — skipping contact send from ${email}`);
+    return { success: true };
+  }
+
   const { error } = await resend.emails.send({
     from: "SiteHaus <noreply@notify.sitehaus.dev>",
     to: "sitehausdev@gmail.com",

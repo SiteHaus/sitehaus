@@ -75,11 +75,32 @@ export class DispatcherService {
       this.logger.warn("No OPS_RECIPIENTS configured; dropping failsafe alert");
       return;
     }
+
+    // Real sending defaults on in production/staging (both bake NODE_ENV=production
+    // into the Docker image) and off everywhere else — this bypasses the queue
+    // entirely and hits Resend directly, so it needs its own guard rather than
+    // relying on anything downstream. EMAIL_ENABLED, if set, always wins.
+    const enabled =
+      process.env.EMAIL_ENABLED != null
+        ? process.env.EMAIL_ENABLED === "true"
+        : process.env.NODE_ENV === "production";
+    if (!enabled) {
+      this.logger.warn(
+        `Email disabled (non-production) — skipping failsafe send to ${to.join(", ")}: [Lighthaus failsafe] ${job.type}`,
+      );
+      return;
+    }
+
     const from = this.config.get<string>("lighthaus.emailFrom")!;
+    const devRedirect = this.config.get<string | null>("lighthaus.emailDevRedirect");
+    const recipient = devRedirect ? [devRedirect] : to;
+    if (devRedirect) {
+      this.logger.warn(`DEV redirect: ${to.join(", ")} → ${devRedirect}`);
+    }
     try {
       await this.resend.emails.send({
         from,
-        to,
+        to: recipient,
         subject: `[Lighthaus failsafe] ${job.type}`,
         text: `Queue was unavailable. Raw job payload:\n\n${JSON.stringify(job, null, 2)}`,
       });

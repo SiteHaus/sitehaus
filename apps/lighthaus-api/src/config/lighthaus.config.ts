@@ -21,6 +21,10 @@ export default registerAs("lighthaus", () => ({
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean),
+  // Mirrors apps/api/src/conf/email.config.ts's devRedirect — set on staging so
+  // the failsafe path (used when the notifications queue itself is unreachable)
+  // sends to one safe test address instead of real OPS_RECIPIENTS.
+  emailDevRedirect: process.env.EMAIL_DEV_REDIRECT ?? null,
   healthchecksUrl: process.env.HEALTHCHECKS_URL ?? "",
   // Shared secret that heartbeat pushers (e.g. commerce-worker) send as
   // `Authorization: Bearer <secret>`. Unset → the ingest endpoint fails closed.
