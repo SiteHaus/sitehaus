@@ -89,6 +89,16 @@ export function ShipDialog({ open, onOpenChange, orderId, onShipped }: ShipDialo
     mutationFn: () => buyLabel(orderId, shipmentId!, selectedRateId!),
     onSuccess: (result) => {
       if ("error" in result) {
+        if (result.error === "not_found") {
+          // Rates are short-lived — the selected one can expire between fetching
+          // and buying. Refresh the list rather than leaving the merchant stuck
+          // on a card-billing message that has nothing to do with the problem.
+          toast.error("That rate is no longer available — refreshing rates.");
+          setRates(null);
+          setSelectedRateId(null);
+          ratesMutation.mutate();
+          return;
+        }
         toast.error(
           "Your postage balance couldn't be charged — update your card to keep buying labels.",
         );
@@ -195,6 +205,13 @@ export function ShipDialog({ open, onOpenChange, orderId, onShipped }: ShipDialo
               </div>
             )}
 
+            {rates && rates.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                No shipping rates are available for this destination. Double-check the order&apos;s
+                shipping address, or use the &quot;Enter tracking manually&quot; tab instead.
+              </p>
+            )}
+
             {rates && rates.length > 0 && (
               <div className="space-y-2">
                 {rates.map((rate) => (
@@ -255,6 +272,9 @@ export function ShipDialog({ open, onOpenChange, orderId, onShipped }: ShipDialo
               }}
             />
             <DialogFooter>
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
               <Button
                 onClick={() => manualMutation.mutate()}
                 disabled={manualMutation.isPending || !trackingNumber.trim()}
