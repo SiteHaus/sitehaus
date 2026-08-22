@@ -18,6 +18,7 @@ export type EditableRow = {
   compareAtCents: number | null;
   stock: number;
   sku: string;
+  weightGrams: number | null;
   isActive: boolean;
 };
 const keyOf = (values: string[]) => JSON.stringify(values);
@@ -70,6 +71,7 @@ function seed(product: ProductDetail): Seed {
       compareAtCents: v.compareAtCents,
       stock: v.stock,
       sku: v.sku ?? "",
+      weightGrams: v.weightGrams ?? null,
       isActive: v.isActive,
     };
   });
@@ -91,6 +93,7 @@ function seed(product: ProductDetail): Seed {
       compareAtCents: null,
       stock: 0,
       sku: "",
+      weightGrams: null,
       isActive: true,
     });
   }
@@ -152,6 +155,7 @@ export function useVariations(product: ProductDetail) {
         compareAtCents: null,
         stock: 0,
         sku: "",
+        weightGrams: null,
         isActive: true,
       };
     }
@@ -181,6 +185,7 @@ export function useVariations(product: ProductDetail) {
           compareAtCents: r.compareAtCents,
           stock: r.stock,
           sku: r.sku || null,
+          weightGrams: r.weightGrams,
           isActive: r.isActive,
         })),
       };
@@ -244,6 +249,7 @@ export function useVariations(product: ProductDetail) {
           compareAtCents: first?.compareAtCents ?? null,
           stock: first?.stock ?? 0,
           sku: first?.sku ?? "",
+          weightGrams: first?.weightGrams ?? null,
           isActive: true,
         },
       });

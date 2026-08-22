@@ -129,6 +129,7 @@ export type VariantAdmin = {
   reserved: number;
   allowBackorder: boolean;
   availability: "in_stock" | "low_stock" | "out_of_stock";
+  weightGrams: number | null;
   optionValues: VariantOptionValueRef[];
 };
 
@@ -276,6 +277,7 @@ export type SyncVariationsBody = {
     sku?: string | null;
     isActive?: boolean;
     compareAtCents?: number | null;
+    weightGrams?: number | null;
   }[];
 };
 export type SyncVariationsResult = {

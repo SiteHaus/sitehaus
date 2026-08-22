@@ -65,6 +65,25 @@ export function PricingFields({ row, onChange }: Props) {
           />
         </div>
       </div>
+
+      <div className="grid grid-cols-2 gap-3 mt-3">
+        <div className="space-y-2">
+          <Label>
+            Weight (grams)
+            <span className="ml-1 font-normal text-muted-foreground">optional</span>
+          </Label>
+          <Input
+            type="number"
+            min="0"
+            step="1"
+            value={row.weightGrams ?? ""}
+            onChange={(e) =>
+              onChange({ weightGrams: e.target.value ? parseInt(e.target.value, 10) : null })
+            }
+            placeholder="—"
+          />
+        </div>
+      </div>
     </SectionCard>
   );
 }
