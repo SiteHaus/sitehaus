@@ -79,6 +79,41 @@ export class RolesService {
     return new Set(rps.map((rp) => rp.perm));
   }
 
+  /**
+   * True only if this specific user holds an admin role on a genuine
+   * first-party (SiteHaus-internal) client — not merely "was this request
+   * routed through an app whose own client-key is first-party." A
+   * public-facing app like the dashboard is legitimately first-party at
+   * the app level (it must be, to let staff act across clients), but every
+   * one of its callers — regular customers included — inherited that
+   * privilege undifferentiated. This is the check that tells the two
+   * apart. See the incident ledger entry dated around the fix for the
+   * cross-tenant project/asset/billing exposure this closes.
+   */
+  async isGenuineStaff(userId: string): Promise<boolean> {
+    const rows = await this.db
+      .select({ roleId: schema.userRolesTable.roleId })
+      .from(schema.userRolesTable)
+      .innerJoin(
+        schema.rolesTable,
+        eq(schema.rolesTable.id, schema.userRolesTable.roleId),
+      )
+      .innerJoin(
+        schema.clientsTable,
+        eq(schema.clientsTable.id, schema.rolesTable.clientId),
+      )
+      .where(
+        and(
+          eq(schema.userRolesTable.userId, userId),
+          eq(schema.rolesTable.key, 'admin'),
+          eq(schema.clientsTable.firstParty, true),
+        ),
+      )
+      .limit(1);
+
+    return rows.length > 0;
+  }
+
   listForClient(clientId: string) {
     return this.db.query.rolesTable.findMany({
       where: (t, { eq: _eq }) => _eq(t.clientId, clientId),

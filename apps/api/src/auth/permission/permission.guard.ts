@@ -18,6 +18,29 @@ export class PermissionGuard implements CanActivate {
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
+    const req = ctx.switchToHttp().getRequest<{
+      user?: { userId: string; clientId: string };
+      client?: { id: string; firstParty: boolean };
+    }>();
+
+    // ClientGuard (runs before AccessGuard, so before req.user exists) sets
+    // req.client.firstParty from the CALLING APP's own client-key alone. For
+    // a public-facing app used by every customer — the dashboard — that key
+    // is legitimately first-party (staff need it to act across clients), so
+    // every caller through it inherited that privilege undifferentiated:
+    // any authenticated customer, viewing their own account through totally
+    // normal dashboard usage, got isFirstParty=true passed to every
+    // tenant-scoping check downstream (Projects, Milestones, Tickets,
+    // Design Documents, Assets, Comments, Billing admin actions) and saw or
+    // could act on every other client's data. Overwrite it here, now that
+    // req.user is populated, with whether THIS authenticated user is
+    // actually genuine SiteHaus staff — before any handler below reads it.
+    if (req.client && req.user?.userId) {
+      req.client.firstParty = req.client.firstParty
+        ? await this.roles.isGenuineStaff(req.user.userId)
+        : false;
+    }
+
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       ctx.getHandler(),
       ctx.getClass(),
@@ -38,16 +61,11 @@ export class PermissionGuard implements CanActivate {
 
     if (requiredAll.length === 0 && requiredAny.length === 0) return true;
 
-    const req = ctx.switchToHttp().getRequest<{
-      user?: { userId: string; clientId: string };
-      client?: { id: string };
-    }>();
-
     // Use target client from x-client-id header if set, otherwise fall back to session's client
-    const targetClientId = req.client?.id ?? req.user.clientId;
+    const targetClientId = req.client?.id ?? req.user!.clientId;
 
     const perms = await this.roles.permsForUserClient(
-      req.user.userId,
+      req.user!.userId,
       targetClientId,
     );
 
