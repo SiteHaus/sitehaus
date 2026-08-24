@@ -154,11 +154,16 @@ export class NotificationsProcessor extends WorkerHost {
 
     if (emails.length === 0) return;
 
+    const ctaPath = await this.resolveCommentCtaPath(
+      data.targetType,
+      data.targetId,
+    );
+
     const { subject, html, text } = await renderCommentCreatedEmail({
       authorName: data.authorName,
       targetLabel: data.targetLabel,
       bodyPreview: data.bodyPreview,
-      ctaUrl: `${this.dashboardUrl}/${data.targetType}/${data.targetId}`,
+      ctaUrl: `${this.dashboardUrl}${ctaPath}`,
     });
     await this.email.send({
       to: emails,
@@ -167,6 +172,37 @@ export class NotificationsProcessor extends WorkerHost {
       text,
       tags: { type: data.type },
     });
+  }
+
+  /**
+   * Dashboard-relative path for a comment's target. This was previously
+   * built as `/${targetType}/${targetId}` directly, which doesn't match any
+   * real dashboard route: projects and tickets are plural
+   * (`/projects/:id`, `/tickets/:id`, not `/project/:id` / `/ticket/:id`),
+   * and design documents have no standalone route at all — they live at
+   * `/projects/:projectId/design-document`, keyed by the parent project,
+   * not the design document's own id. Every comment-notification email
+   * link was broken as a result.
+   */
+  private async resolveCommentCtaPath(
+    targetType: string,
+    targetId: string,
+  ): Promise<string> {
+    switch (targetType) {
+      case 'project':
+        return `/projects/${targetId}`;
+      case 'ticket':
+        return `/tickets/${targetId}`;
+      case 'design_document': {
+        const row = await this.db.query.designDocumentsTable.findFirst({
+          where: eq(schema.designDocumentsTable.id, targetId),
+          columns: { projectId: true },
+        });
+        return row ? `/projects/${row.projectId}/design-document` : '/projects';
+      }
+      default:
+        return '/';
+    }
   }
 
   private async handleBillingPaymentFailed(
