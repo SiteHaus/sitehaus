@@ -107,9 +107,9 @@ export default function ProjectsPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 mt-6">
                 <Button asChild variant="outline">
-                  <a href="mailto:hello@sitehaus.com">
+                  <a href="mailto:hello@sitehaus.dev">
                     <Mail className="mr-2 h-4 w-4" />
-                    hello@sitehaus.com
+                    hello@sitehaus.dev
                   </a>
                 </Button>
                 <Button asChild variant="outline">

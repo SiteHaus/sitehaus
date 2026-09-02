@@ -16,7 +16,7 @@ export default registerAs("lighthaus", () => ({
   databaseUrl: process.env.DATABASE_URL!,
   redisUrl: process.env.REDIS_URL ?? "redis://redis:6379",
   resendApiKey: process.env.RESEND_API_KEY!,
-  emailFrom: process.env.EMAIL_FROM ?? "Lighthaus <alerts@sitehaus.dev>",
+  emailFrom: process.env.EMAIL_FROM ?? "Lighthaus <alerts@notify.sitehaus.dev>",
   opsRecipients: (process.env.OPS_RECIPIENTS ?? "")
     .split(",")
     .map((s) => s.trim())

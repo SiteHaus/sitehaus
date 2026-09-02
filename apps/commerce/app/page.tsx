@@ -81,7 +81,7 @@ export default function StoreResolverPage() {
           <p className="text-sm text-muted-foreground">
             Contact{" "}
             <a
-              href="mailto:support@sitehaus.com"
+              href="mailto:support@sitehaus.dev"
               className="underline underline-offset-4 hover:text-foreground transition-colors"
             >
               SiteHaus
@@ -93,7 +93,7 @@ export default function StoreResolverPage() {
           <p className="text-sm text-muted-foreground">
             Reach out to your{" "}
             <a
-              href="mailto:support@sitehaus.com"
+              href="mailto:support@sitehaus.dev"
               className="underline underline-offset-4 hover:text-foreground transition-colors"
             >
               SiteHaus
