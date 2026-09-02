@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PermissionGuard } from './permission.guard';
