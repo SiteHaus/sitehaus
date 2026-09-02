@@ -86,6 +86,30 @@ export class SessionService {
     return this.createSessionWith(this.db, input);
   }
 
+  // Near-simultaneous duplicate refreshes (same token, e.g. two tabs racing
+  // right after a deploy-triggered wave of 401s) land here within a few ms of
+  // each other. Whichever loses the atomic claim below gets the winner's
+  // already-issued result instead of tripping reuse detection, as long as
+  // it's within this window.
+  private readonly recentRotations = new Map<
+    string,
+    {
+      userId: string;
+      sessionId: string;
+      refreshToken: string;
+      refreshExpiresAt: Date;
+      rotatedAt: number;
+    }
+  >();
+  private static readonly ROTATION_GRACE_MS = 10_000;
+
+  private pruneRotationCache() {
+    const cutoff = Date.now() - SessionService.ROTATION_GRACE_MS;
+    for (const [key, v] of this.recentRotations) {
+      if (v.rotatedAt < cutoff) this.recentRotations.delete(key);
+    }
+  }
+
   async rotate(input: {
     refreshToken: string;
     clientId: string;
@@ -93,19 +117,44 @@ export class SessionService {
     ua?: string;
   }) {
     const hash = this.crypto.sha256b64url(input.refreshToken);
+    this.pruneRotationCache();
 
     return this.db.transaction(async (tx) => {
-      const existing = await tx.query.sessionsTable.findFirst({
-        where: (t, { eq: _eq, isNull: _isNull, gt: _gt, and }) =>
+      // Atomically claim the session: the WHERE clause only matches while it's
+      // still active, so at most one of any concurrent callers using the same
+      // token can win this update. A racing duplicate gets 0 rows back rather
+      // than independently rotating the same row (which would otherwise mint
+      // two live sessions from one token, or trip reuse detection on the
+      // loser).
+      const [claimed] = await tx
+        .update(schema.sessionsTable)
+        .set({ revokedAt: new Date() })
+        .where(
           and(
-            _eq(t.refreshHash, hash),
-            _eq(t.clientId, input.clientId),
-            _isNull(t.revokedAt),
-            _gt(t.expiresAt, new Date()),
+            eq(schema.sessionsTable.refreshHash, hash),
+            eq(schema.sessionsTable.clientId, input.clientId),
+            isNull(schema.sessionsTable.revokedAt),
+            gt(schema.sessionsTable.expiresAt, new Date()),
           ),
-      });
+        )
+        .returning();
 
-      if (!existing) {
+      if (!claimed) {
+        // A winner may have rotated this exact token moments ago — hand back
+        // its result instead of treating a same-instant duplicate as theft.
+        const recent = this.recentRotations.get(hash);
+        if (
+          recent &&
+          Date.now() - recent.rotatedAt < SessionService.ROTATION_GRACE_MS
+        ) {
+          return {
+            userId: recent.userId,
+            sessionId: recent.sessionId,
+            refreshToken: recent.refreshToken,
+            refreshExpiresAt: recent.refreshExpiresAt,
+          };
+        }
+
         const reused = await tx.query.sessionsTable.findFirst({
           where: (t, { eq: _eq, and, isNotNull: _isNotNull }) =>
             and(
@@ -128,22 +177,25 @@ export class SessionService {
         throw new UnauthorizedException('Invalid refresh');
       }
 
-      await tx
-        .update(schema.sessionsTable)
-        .set({ revokedAt: new Date() })
-        .where(eq(schema.sessionsTable.id, existing.id));
-
       const { sessionId, refreshToken, refreshExpiresAt } =
         await this.createSessionWith(tx, {
-          userId: existing.userId,
-          clientId: existing.clientId,
+          userId: claimed.userId,
+          clientId: claimed.clientId,
           ip: input.ip,
           ua: input.ua,
-          mfaVerifiedAt: existing.mfaVerifiedAt,
+          mfaVerifiedAt: claimed.mfaVerifiedAt,
         });
 
+      this.recentRotations.set(hash, {
+        userId: claimed.userId,
+        sessionId,
+        refreshToken,
+        refreshExpiresAt,
+        rotatedAt: Date.now(),
+      });
+
       return {
-        userId: existing.userId,
+        userId: claimed.userId,
         sessionId,
         refreshToken,
         refreshExpiresAt,

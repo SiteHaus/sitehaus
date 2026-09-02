@@ -12,7 +12,7 @@ export type FetchArgs = {
 };
 
 export const fetchWithAuth = async (args: FetchArgs): Promise<Response> => {
-  const { clientKey, tokenProvider, proactiveRefreshSkewSec = 60 } = getConfig();
+  const { clientKey, tokenProvider, proactiveRefreshSkewSec = 60, onAuthFailure } = getConfig();
 
   const headers: Record<string, string> = {
     "x-client-key": clientKey,
@@ -48,7 +48,16 @@ export const fetchWithAuth = async (args: FetchArgs): Promise<Response> => {
       if (t3?.accessToken) headers.Authorization = `Bearer ${t3.accessToken}`;
       res = await doFetch();
     } catch {
-      // swallow;
+      // The refresh cookie is dead (expired, revoked, or a losing race that
+      // exhausted the server's grace window) and the httpOnly cookie is
+      // already cleared server-side — but nothing here resets the app's
+      // in-memory auth state. Without this, every subsequent call keeps
+      // proactively/reactively retrying a refresh that can only ever fail
+      // (no cookie left to send), silently 401ing forever with a UI that
+      // still looks logged in — the "just broken until I clear cookies"
+      // experience. Surface it once so the app can drop to a clean logged-
+      // out state instead.
+      onAuthFailure?.();
     }
   }
 

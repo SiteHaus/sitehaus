@@ -43,6 +43,9 @@ export function initStoresSdk(opts: StoresInitOptions) {
     onAuthUpdate: ({ accessToken, accessExpiration }) => {
       useAuthStore.getState().setAccess({ accessToken, accessExpiration });
     },
+    onAuthFailure: () => {
+      useAuthStore.getState().clearAuth();
+    },
   });
 
   client = initClient(apiContract, { baseUrl: opts.baseURL, api: apiFetcher });
