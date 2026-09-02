@@ -66,6 +66,7 @@ export default function SettingsPage() {
   const [currency, setCurrency] = useState("usd");
   const [reservationTtl, setReservationTtl] = useState(15);
   const [fulfillmentType, setFulfillmentType] = useState<FulfillmentType>("shipping");
+  const [notificationEmail, setNotificationEmail] = useState("");
   const [notifications, setNotifications] = useState<NotificationPreferences>({
     newOrder: true,
     returnRequested: true,
@@ -81,6 +82,7 @@ export default function SettingsPage() {
     setCurrency(store.currency);
     setReservationTtl(store.reservationTtlMinutes);
     setFulfillmentType(store.fulfillmentType);
+    setNotificationEmail(store.notificationEmail ?? "");
     setNotifications({
       newOrder: store.notificationPreferences?.newOrder ?? true,
       returnRequested: store.notificationPreferences?.returnRequested ?? true,
@@ -97,6 +99,7 @@ export default function SettingsPage() {
         currency,
         reservationTtlMinutes: reservationTtl,
         fulfillmentType,
+        notificationEmail: notificationEmail.trim() || null,
         notificationPreferences: notifications,
       });
     },
@@ -306,6 +309,24 @@ export default function SettingsPage() {
           description="Emails sent to you when store activity needs your attention."
         >
           <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="notify-email">Notification email</Label>
+              <Input
+                id="notify-email"
+                type="email"
+                value={notificationEmail}
+                onChange={(e) => {
+                  setNotificationEmail(e.target.value);
+                  markDirty();
+                }}
+                placeholder="orders@yourstore.com"
+              />
+              <p className="text-xs text-muted-foreground">
+                Where the emails below get sent. Leave blank and none of them will go out, even with
+                the toggles on.
+              </p>
+            </div>
+
             <div className="flex items-center justify-between gap-4">
               <div className="space-y-0.5">
                 <Label htmlFor="notify-new-order">New order placed</Label>

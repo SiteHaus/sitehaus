@@ -50,6 +50,7 @@ export type StoreDetail = {
   stripeDetailsSubmitted: boolean;
   reservationTtlMinutes: number;
   fulfillmentType: FulfillmentType;
+  notificationEmail: string | null;
   notificationPreferences: NotificationPreferences | null;
   taxRegistrationConfirmed: boolean;
 };
@@ -76,6 +77,7 @@ export const updateStore = (body: {
   timezone?: string;
   reservationTtlMinutes?: number;
   fulfillmentType?: FulfillmentType;
+  notificationEmail?: string | null;
   notificationPreferences?: NotificationPreferences;
   taxRegistrationConfirmed?: boolean;
 }) =>
