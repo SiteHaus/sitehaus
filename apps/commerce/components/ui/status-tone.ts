@@ -1,10 +1,7 @@
 import type { OrderStatus, ProductStatus } from "@/lib/commerce";
+import { type Tone, toneClass } from "@site-haus/ui/components/shared/status-tone";
 
-export type Tone = "active" | "success" | "info" | "warning" | "danger" | "neutral";
-
-export function toneClass(tone: Tone): string {
-  return `tone-${tone}`;
-}
+export { type Tone, toneClass };
 
 const ORDER_TONE: Record<OrderStatus, Tone> = {
   pending: "neutral",

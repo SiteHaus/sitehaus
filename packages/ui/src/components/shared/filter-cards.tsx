@@ -2,7 +2,7 @@
 
 import { StatCard } from "@site-haus/ui/components/base/stat-card";
 import { cn } from "@site-haus/ui/lib/utils";
-import type { Tone } from "./status-tone.js";
+import type { Tone } from "@site-haus/ui/components/shared/status-tone";
 
 const TONE_VAR: Record<Tone, string> = {
   active: "var(--chart-1)",

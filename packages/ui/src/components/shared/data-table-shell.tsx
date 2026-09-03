@@ -12,7 +12,7 @@ import { Skeleton } from "@site-haus/ui/components/base/skeleton";
 import { Button } from "@site-haus/ui/components/base/button";
 import { cn } from "@site-haus/ui/lib/utils";
 import type { LucideIcon } from "lucide-react";
-import { EmptyState } from "./empty-state.js";
+import { EmptyState } from "@site-haus/ui/components/shared/empty-state";
 
 export type Column = { header: React.ReactNode; className?: string };
 

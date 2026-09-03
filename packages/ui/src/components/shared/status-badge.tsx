@@ -1,6 +1,6 @@
 import { Badge } from "@site-haus/ui/components/base/badge";
 import { cn } from "@site-haus/ui/lib/utils";
-import { toneClass, type Tone } from "./status-tone.js";
+import { toneClass, type Tone } from "@site-haus/ui/components/shared/status-tone";
 
 export function StatusBadge({
   tone,

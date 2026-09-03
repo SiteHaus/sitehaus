@@ -48,6 +48,7 @@
   },
   "exports": {
     "./postcss.config": "./postcss.config.mjs",
+    "./components/shared/status-tone": "./src/components/shared/status-tone.ts",
     "./components/*": "./src/components/*.tsx",
     "./lib/*": "./src/lib/*.ts",
     "./styles/*": "./src/styles/*",
