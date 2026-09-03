@@ -1,17 +1,27 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Fraunces, Inter_Tight, JetBrains_Mono } from "next/font/google";
 
 import { Toaster } from "@site-haus/ui/components/base/sonner";
 import "./globals.css";
 import Providers from "./providers/providers";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+const displayFont = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+  axes: ["opsz", "SOFT", "WONK"],
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
+const bodyFont = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
+const monoFont = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -25,10 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body
         className={`
-          ${geistSans.variable} ${geistMono.variable}
+          ${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}
           bg-muted text-foreground
           min-h-screen
-          bg-hazy-dots
         `}
       >
         <Providers>{children}</Providers>
