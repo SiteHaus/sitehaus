@@ -558,6 +558,9 @@ export type CollectionItem = {
   scheduled: boolean;
   goesLiveAt: string | null;
   productCount: number;
+  /** Sold only as a bundle at priceCents; its products can't be bought on their own. */
+  sellAsWhole: boolean;
+  priceCents: number | null;
 };
 
 // Superset of CollectionItem — the detail response carries everything the list
@@ -578,6 +581,8 @@ export const createCollection = (body: {
   description?: string;
   sortOrder?: number;
   goesLiveAt?: string | null;
+  sellAsWhole?: boolean;
+  priceCents?: number | null;
 }) =>
   request<CollectionItem>("/v1/admin/collections", {
     method: "POST",
@@ -586,7 +591,14 @@ export const createCollection = (body: {
 
 export const updateCollection = (
   id: string,
-  body: { name?: string; slug?: string; description?: string; goesLiveAt?: string | null },
+  body: {
+    name?: string;
+    slug?: string;
+    description?: string;
+    goesLiveAt?: string | null;
+    sellAsWhole?: boolean;
+    priceCents?: number | null;
+  },
 ) =>
   request<CollectionDetail>(`/v1/admin/collections/${id}`, {
     method: "PATCH",
