@@ -6,6 +6,7 @@ import {
   listProducts,
   updateCollection,
   type CollectionDetail,
+  type CollectionItem,
   type ProductItem,
 } from "@/lib/commerce";
 import { PageHeader } from "@/components/ui/page-header";
@@ -65,9 +66,11 @@ export default function CollectionDetailPage() {
 
   const saveMutation = useMutation({
     mutationFn: (body: Parameters<typeof updateCollection>[1]) => updateCollection(id, body),
-    onSuccess: (updated: CollectionDetail) => {
+    onSuccess: (updated: CollectionItem) => {
       queryClient.invalidateQueries({ queryKey: ["collections"] });
-      queryClient.setQueryData(["collection", id], updated);
+      queryClient.setQueryData<CollectionDetail>(["collection", id], (prev) =>
+        prev ? { ...prev, ...updated } : prev,
+      );
       setDirty(false);
       toast.success("Collection saved");
       setSlug(updated.slug);
@@ -223,13 +226,12 @@ export default function CollectionDetailPage() {
           existingProductIds={productIds}
           onAdd={(productId) => {
             addProductToCollection(id, productId)
-              .then((updated) => {
-                // Invalidate the list for its productCount; the detail comes
-                // back in the response, so seed it rather than refetching.
+              .then(() => {
                 queryClient.invalidateQueries({ queryKey: ["collections"] });
-                queryClient.setQueryData(["collection", id], updated);
+                queryClient.invalidateQueries({ queryKey: ["collection", id] });
                 toast.success("Product added");
                 setAddOpen(false);
+                push("/collections");
               })
               .catch((err: Error) => toast.error(err.message));
           }}
