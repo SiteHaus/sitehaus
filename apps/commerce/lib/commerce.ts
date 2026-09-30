@@ -560,21 +560,17 @@ export type CollectionItem = {
   productCount: number;
 };
 
-export type CollectionDetail = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  scheduled: boolean;
-  goesLiveAt: string | null;
+// Superset of CollectionItem — the detail response carries everything the list
+// row does, so the detail page renders its header without a list round-trip.
+export type CollectionDetail = CollectionItem & {
   products: { id: string }[];
 };
 
 export const listCollections = () =>
-  request<{ collections: CollectionItem[] }>("/v1/catalog/collections/");
+  request<{ collections: CollectionItem[] }>("/v1/admin/collections");
 
-export const getCollection = (slug: string) =>
-  request<CollectionDetail>(`/v1/catalog/collections/${slug}`);
+export const getCollection = (id: string) =>
+  request<CollectionDetail>(`/v1/admin/collections/${id}`);
 
 export const createCollection = (body: {
   name: string;
@@ -592,7 +588,7 @@ export const updateCollection = (
   id: string,
   body: { name?: string; slug?: string; description?: string; goesLiveAt?: string | null },
 ) =>
-  request<CollectionItem>(`/v1/admin/collections/${id}`, {
+  request<CollectionDetail>(`/v1/admin/collections/${id}`, {
     method: "PATCH",
     body: JSON.stringify(body),
   });
@@ -601,9 +597,20 @@ export const deleteCollection = (id: string) =>
   request<{ message: string }>(`/v1/admin/collections/${id}`, { method: "DELETE" });
 
 export const addProductToCollection = (collectionId: string, productId: string) =>
-  request<CollectionItem>(`/v1/admin/collections/${collectionId}/products`, {
+  request<CollectionDetail>(`/v1/admin/collections/${collectionId}/products`, {
     method: "POST",
     body: JSON.stringify({ productId }),
+  });
+
+// Distinct from addProductToCollection — these used to share a path, so only one
+// of the two was reachable.
+export const reorderCollectionProducts = (
+  collectionId: string,
+  items: Array<{ productId: string; sortOrder: number }>,
+) =>
+  request<CollectionDetail>(`/v1/admin/collections/${collectionId}/products/reorder`, {
+    method: "PATCH",
+    body: JSON.stringify({ items }),
   });
 
 // ─── Product Images ───────────────────────────────────────────────────────────

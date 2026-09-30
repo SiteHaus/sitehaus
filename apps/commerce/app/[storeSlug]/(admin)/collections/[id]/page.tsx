@@ -3,11 +3,9 @@
 import {
   addProductToCollection,
   getCollection,
-  listCollections,
   listProducts,
   updateCollection,
   type CollectionDetail,
-  type CollectionItem,
   type ProductItem,
 } from "@/lib/commerce";
 import { PageHeader } from "@/components/ui/page-header";
@@ -45,18 +43,11 @@ export default function CollectionDetailPage() {
   const queryClient = useQueryClient();
   const [addOpen, setAddOpen] = useState(false);
 
-  // We need the slug to call getCollection — fetch from the list
-  const { data: listData } = useQuery({
-    queryKey: ["collections"],
-    queryFn: listCollections,
-  });
-
-  const collectionMeta = listData?.collections.find((c) => c.id === id);
-
+  // The route param is the collection id and the endpoint is keyed by id, so
+  // this is a single direct fetch — no list lookup to translate id → slug.
   const { data: collection, isLoading } = useQuery<CollectionDetail>({
     queryKey: ["collection", id],
-    queryFn: () => getCollection(collectionMeta!.slug),
-    enabled: !!collectionMeta,
+    queryFn: () => getCollection(id),
   });
 
   // Edit form
@@ -66,17 +57,17 @@ export default function CollectionDetailPage() {
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
-    if (!collectionMeta) return;
-    setName(collectionMeta.name);
-    setSlug(collectionMeta.slug);
-    setDescription(collectionMeta.description ?? "");
-  }, [collectionMeta]);
+    if (!collection) return;
+    setName(collection.name);
+    setSlug(collection.slug);
+    setDescription(collection.description ?? "");
+  }, [collection]);
 
   const saveMutation = useMutation({
     mutationFn: (body: Parameters<typeof updateCollection>[1]) => updateCollection(id, body),
-    onSuccess: (updated: CollectionItem) => {
+    onSuccess: (updated: CollectionDetail) => {
       queryClient.invalidateQueries({ queryKey: ["collections"] });
-      queryClient.invalidateQueries({ queryKey: ["collection", id] });
+      queryClient.setQueryData(["collection", id], updated);
       setDirty(false);
       toast.success("Collection saved");
       setSlug(updated.slug);
@@ -84,7 +75,7 @@ export default function CollectionDetailPage() {
     onError: (err: Error) => toast.error(err.message),
   });
 
-  if (isLoading || !collectionMeta) {
+  if (isLoading || !collection) {
     return (
       <div className="space-y-4">
         <Skeleton className="h-8 w-64" />
@@ -94,15 +85,13 @@ export default function CollectionDetailPage() {
     );
   }
 
-  const productIds = new Set(collection?.products.map((p) => p.id) ?? []);
-  const productCountLabel = `${collectionMeta.productCount} product${collectionMeta.productCount !== 1 ? "s" : ""}`;
-  const statusBadge = collectionMeta.scheduled ? (
+  const productIds = new Set(collection.products.map((p) => p.id));
+  const productCountLabel = `${collection.productCount} product${collection.productCount !== 1 ? "s" : ""}`;
+  const statusBadge = collection.scheduled ? (
     <StatusBadge
       tone="info"
       label={
-        collectionMeta.goesLiveAt
-          ? new Date(collectionMeta.goesLiveAt).toLocaleDateString()
-          : "Scheduled"
+        collection.goesLiveAt ? new Date(collection.goesLiveAt).toLocaleDateString() : "Scheduled"
       }
     />
   ) : (
@@ -113,7 +102,7 @@ export default function CollectionDetailPage() {
     <div>
       <PageHeader
         eyebrow="Collections"
-        title={collectionMeta.name}
+        title={collection.name}
         subtitle={productCountLabel}
         aside={statusBadge}
         actions={
@@ -234,9 +223,11 @@ export default function CollectionDetailPage() {
           existingProductIds={productIds}
           onAdd={(productId) => {
             addProductToCollection(id, productId)
-              .then(() => {
+              .then((updated) => {
+                // Invalidate the list for its productCount; the detail comes
+                // back in the response, so seed it rather than refetching.
                 queryClient.invalidateQueries({ queryKey: ["collections"] });
-                queryClient.invalidateQueries({ queryKey: ["collection", id] });
+                queryClient.setQueryData(["collection", id], updated);
                 toast.success("Product added");
                 setAddOpen(false);
               })
