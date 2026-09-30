@@ -9,6 +9,7 @@ import {
 import { useStoreNav } from "@/lib/use-store-nav";
 import { PageHeader } from "@/components/ui/page-header";
 import { DataTableShell } from "@/components/ui/data-table-shell";
+import { formatCents } from "@/lib/money";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@site-haus/ui/components/base/button";
 import {
@@ -69,6 +70,7 @@ export default function CollectionsPage() {
           { header: "Name" },
           { header: "Slug" },
           { header: "Products" },
+          { header: "Selling" },
           { header: "Status" },
           { header: "", className: "w-12" },
         ]}
@@ -92,6 +94,13 @@ export default function CollectionsPage() {
             <TableCell className="font-medium">{col.name}</TableCell>
             <TableCell className="text-muted-foreground font-mono text-sm">{col.slug}</TableCell>
             <TableCell>{col.productCount}</TableCell>
+            <TableCell>
+              {col.sellAsWhole ? (
+                <StatusBadge tone="info" label={`Whole · $${formatCents(col.priceCents ?? 0)}`} />
+              ) : (
+                <span className="text-sm text-muted-foreground">Individually</span>
+              )}
+            </TableCell>
             <TableCell>
               {col.scheduled ? (
                 <StatusBadge

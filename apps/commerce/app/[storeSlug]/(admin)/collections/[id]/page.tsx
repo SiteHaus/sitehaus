@@ -37,6 +37,7 @@ import { ChevronLeft, Loader2, Package, Plus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { SellAsWholeCard } from "./_components/sell-as-whole-card";
 
 export default function CollectionDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -55,6 +56,8 @@ export default function CollectionDetailPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
+  const [sellAsWhole, setSellAsWhole] = useState(false);
+  const [priceCents, setPriceCents] = useState<number | null>(null);
   const [dirty, setDirty] = useState(false);
 
   useEffect(() => {
@@ -62,6 +65,8 @@ export default function CollectionDetailPage() {
     setName(collection.name);
     setSlug(collection.slug);
     setDescription(collection.description ?? "");
+    setSellAsWhole(collection.sellAsWhole);
+    setPriceCents(collection.priceCents);
   }, [collection]);
 
   const saveMutation = useMutation({
@@ -121,9 +126,11 @@ export default function CollectionDetailPage() {
                     name: name || undefined,
                     slug: slug || undefined,
                     description: description || undefined,
+                    sellAsWhole,
+                    priceCents,
                   })
                 }
-                disabled={saveMutation.isPending}
+                disabled={saveMutation.isPending || (sellAsWhole && !priceCents)}
               >
                 {saveMutation.isPending && <Loader2 className="size-4 animate-spin" />}
                 Save
@@ -173,6 +180,16 @@ export default function CollectionDetailPage() {
             </div>
           </div>
         </SectionCard>
+
+        <SellAsWholeCard
+          sellAsWhole={sellAsWhole}
+          priceCents={priceCents}
+          onChange={(next) => {
+            setSellAsWhole(next.sellAsWhole);
+            setPriceCents(next.priceCents);
+            setDirty(true);
+          }}
+        />
 
         {/* Products */}
         <SectionCard
