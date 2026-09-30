@@ -1,5 +1,11 @@
 import { jest } from '@jest/globals';
 import { UnauthorizedException } from '@nestjs/common';
+import { type ConfigType } from '@nestjs/config';
+import { type Db } from '@site-haus/db';
+import { AuditService } from 'src/audit/audit.service';
+import authConfig from 'src/conf/auth.config';
+import { CryptoService } from 'src/crypto/crypto.service';
+import { DevicesService } from 'src/devices/devices.service';
 import { SessionService } from './session.service';
 
 const USER_ID = 'user-1';
@@ -7,8 +13,10 @@ const CLIENT_ID = 'client-1';
 const DEVICE_ID = 'device-1';
 
 function makeTx(claimedRows: unknown[], insertedRow: unknown) {
-  const whereResult: any = Promise.resolve(undefined);
-  whereResult.returning = jest.fn().mockResolvedValue(claimedRows);
+  // Awaitable (for plain `.where()`) that also supports `.where().returning()`
+  const whereResult = Object.assign(Promise.resolve(undefined), {
+    returning: jest.fn().mockResolvedValue(claimedRows),
+  });
 
   const updateWhere = jest.fn().mockReturnValue(whereResult);
   const updateSet = jest.fn().mockReturnValue({ where: updateWhere });
@@ -27,7 +35,7 @@ function makeTx(claimedRows: unknown[], insertedRow: unknown) {
       update,
       insert,
       query: { sessionsTable: { findFirst } },
-    } as any,
+    } as unknown as Db,
     update,
     findFirst,
   };
@@ -53,11 +61,11 @@ function makeService(txBuilder: () => ReturnType<typeof makeTx>) {
   };
 
   const service = new SessionService(
-    db as any,
-    crypto as any,
-    devices as any,
-    audit as any,
-    cfg as any,
+    db as unknown as Db,
+    crypto as unknown as CryptoService,
+    devices as unknown as DevicesService,
+    audit as unknown as AuditService,
+    cfg as unknown as ConfigType<typeof authConfig>,
   );
 
   return { service, crypto, devices, db, getLastTx: () => lastTx! };
