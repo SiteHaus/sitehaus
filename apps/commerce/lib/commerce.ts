@@ -847,7 +847,9 @@ export type WebhookEvent =
   | "return.approved"
   | "return.refunded"
   | "inventory.low"
-  | "product.published";
+  | "product.published"
+  | "product.updated"
+  | "product.removed";
 
 export type WebhookEndpoint = {
   id: string;

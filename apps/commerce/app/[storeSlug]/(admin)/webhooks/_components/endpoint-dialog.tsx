@@ -48,7 +48,11 @@ const EVENT_GROUPS: { label: string; events: { value: WebhookEvent; label: strin
   },
   {
     label: "Products",
-    events: [{ value: "product.published", label: "Product published" }],
+    events: [
+      { value: "product.published", label: "Product published" },
+      { value: "product.updated", label: "Product updated" },
+      { value: "product.removed", label: "Product removed" },
+    ],
   },
 ];
 
