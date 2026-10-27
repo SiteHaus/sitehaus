@@ -11,6 +11,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "test": "turbo run test",
+    "e2e": "pnpm --filter @site-haus/playwright e2e",
+    "e2e:report": "pnpm --filter @site-haus/playwright e2e:report",
     "prepare": "husky"
   },
   "devDependencies": {
